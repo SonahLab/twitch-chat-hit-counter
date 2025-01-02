@@ -1,0 +1,60 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.1'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'idea'
+}
+
+group = 'com.sonahlab'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+	// Spring Boot frameworks
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// Kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
+
+	// Swagger UI
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:latest.release'
+
+	// Twitch API
+	implementation 'com.github.twitch4j:twitch4j:latest.release'
+
+	// MySql
+	// TODO: uncomment this out for 'Module: MySql'
+//	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'mysql:mysql-connector-java:latest.release'
+
+	// Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+configurations {
+	all {
+		// Exclude spring-boot-starter-logging as it is incompatible with spring-boot-starter-log4j2
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+		exclude group: 'ch.qos.logback', module: 'logback-classic'
+	}
+}

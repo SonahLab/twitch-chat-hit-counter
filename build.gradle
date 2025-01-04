@@ -1,60 +1,82 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.4.1'
-	id 'io.spring.dependency-management' version '1.1.7'
-	id 'idea'
+    id 'java'
+    id 'org.springframework.boot' version '3.4.1'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'idea'
+    id 'com.diffplug.spotless' version '6.25.0'
 }
 
 group = 'com.sonahlab'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
+}
+
+ext {
+    flinkVersion = '1.20.0'
+    kafkaFlinkConnectorVersion = '3.4.0-1.20'
 }
 
 dependencies {
-	implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 
-	// Spring Boot frameworks
-	implementation 'org.springframework.boot:spring-boot-starter'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Spring Boot frameworks
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	// Kafka
-	implementation 'org.springframework.kafka:spring-kafka'
-	testImplementation 'org.springframework.kafka:spring-kafka-test'
+    // Module 0: Swagger UI
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:latest.release'
 
-	// Swagger UI
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:latest.release'
+    // Module 1: Kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
 
-	// Twitch API
-	implementation 'com.github.twitch4j:twitch4j:latest.release'
+    // Module 2: MySql
+    // TODO: uncomment this out for 'Module: MySql'
+//  implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'mysql:mysql-connector-java:latest.release'
 
-	// MySql
-	// TODO: uncomment this out for 'Module: MySql'
-//	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-	implementation 'mysql:mysql-connector-java:latest.release'
+    // Module 3: Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-	// Redis
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    // Module 4: Twitch API
+    implementation 'com.github.twitch4j:twitch4j:latest.release'
+
+    // Module 5: Flink
+    implementation "org.apache.flink:flink-java:$flinkVersion"
+    implementation "org.apache.flink:flink-clients:$flinkVersion"
+    implementation "org.apache.flink:flink-core:$flinkVersion"
+    implementation "org.apache.flink:flink-connector-base:$flinkVersion"
+    implementation "org.apache.flink:flink-streaming-java:$flinkVersion"
+    implementation "org.apache.flink:flink-connector-kafka:$kafkaFlinkConnectorVersion"
+    implementation "org.apache.flink:flink-runtime-web:$flinkVersion"
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 configurations {
-	all {
-		// Exclude spring-boot-starter-logging as it is incompatible with spring-boot-starter-log4j2
-		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-		exclude group: 'ch.qos.logback', module: 'logback-classic'
-	}
+    all {
+        // Exclude spring-boot-starter-logging as it is incompatible with spring-boot-starter-log4j2
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+        exclude group: 'ch.qos.logback', module: 'logback-classic'
+    }
 }
+
+spotless {
+    java {
+        googleJavaFormat()
+    }
+}
+tasks.build.dependsOn spotlessApply

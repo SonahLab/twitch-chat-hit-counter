@@ -3,7 +3,6 @@ plugins {
     id 'org.springframework.boot' version '3.4.1'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'idea'
-    id 'com.diffplug.spotless' version '6.25.0'
 }
 
 group = 'com.sonahlab'
@@ -34,26 +33,26 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    // Module 0: Swagger UI
+    // Module 1: Swagger UI
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:latest.release'
     runtimeOnly 'org.jetbrains.kotlin:kotlin-reflect:2.1.0'
 
-    // Module 1: Kafka
+    // Module 2: Kafka
     implementation 'org.springframework.kafka:spring-kafka'
     testImplementation 'org.springframework.kafka:spring-kafka-test'
 
-    // Module 2: MySql
+    // Module 3: MySql
     // TODO: uncomment this out for 'Module: MySql'
 //  implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'mysql:mysql-connector-java:latest.release'
 
-    // Module 3: Redis
+    // Module 4: Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-    // Module 4: Twitch API
+    // Module 5: Twitch API
     implementation 'com.github.twitch4j:twitch4j:latest.release'
 
-    // Module 5: Flink
+    // Module 6: Flink
     implementation "org.apache.flink:flink-java:$flinkVersion"
     implementation "org.apache.flink:flink-clients:$flinkVersion"
     implementation "org.apache.flink:flink-core:$flinkVersion"
@@ -74,10 +73,3 @@ configurations {
         exclude group: 'ch.qos.logback', module: 'logback-classic'
     }
 }
-
-spotless {
-    java {
-        googleJavaFormat()
-    }
-}
-tasks.build.dependsOn spotlessApply

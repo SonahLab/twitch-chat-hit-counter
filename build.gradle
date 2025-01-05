@@ -36,6 +36,7 @@ dependencies {
 
     // Module 0: Swagger UI
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:latest.release'
+    runtimeOnly 'org.jetbrains.kotlin:kotlin-reflect:2.1.0'
 
     // Module 1: Kafka
     implementation 'org.springframework.kafka:spring-kafka'

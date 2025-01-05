@@ -1,3 +1,6 @@
 spring:
   application:
     name: twitch-chat-hit-counter-course
+  output:
+    ansi:
+      enabled: ALWAYS

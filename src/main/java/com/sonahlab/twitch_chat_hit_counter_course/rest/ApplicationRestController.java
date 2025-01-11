@@ -56,7 +56,6 @@ public class ApplicationRestController {
         /**
          * TODO: Implement as part of Module 1
          * */
-        LOGGER.info(sender + " " + receiver + " " + message);
         return null;
     }
 

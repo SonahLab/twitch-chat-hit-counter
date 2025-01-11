@@ -52,10 +52,11 @@ public class ApplicationRestController {
     */
     @PostMapping("/publishGreetingEvent")
     @Operation(summary = "Publish Kafka Event", description = "Publish a GreetingEvent")
-    public Boolean produceKafkaGreetingEvent(String sender, String receiver, String message) {
+    public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestParam String receiver, @RequestParam String message) {
         /**
          * TODO: Implement as part of Module 1
          * */
+        LOGGER.info(sender + " " + receiver + " " + message);
         return null;
     }
 

@@ -41,9 +41,9 @@ public class ApplicationRestController {
     }
 
     /**
-    * HTTP POST request handler for endpoint /api/publishGreetingEvent. Endpoint that will: 1.
-    * receive some input parameters 2. create a data model POJO GreetingEvent 3. produce the event to
-    * a kafka topic
+    * HTTP POST request handler for endpoint /api/publishGreetingEvent. Endpoint that will:
+    * receive some input parameters, create a data model POJO GreetingEvent, produce the event to
+    * a kafka topic.
     *
     * @param sender the name of the sender
     * @param receiver the name of the receiver
@@ -54,7 +54,7 @@ public class ApplicationRestController {
     @Operation(summary = "Publish Kafka Event", description = "Publish a GreetingEvent")
     public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestParam String receiver, @RequestParam String message) {
         /**
-         * TODO: Implement as part of Module 1
+         * TODO: Implement as part of Module 2
          * */
         return null;
     }

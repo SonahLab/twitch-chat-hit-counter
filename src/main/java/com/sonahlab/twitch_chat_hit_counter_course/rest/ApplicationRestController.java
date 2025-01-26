@@ -1,7 +1,12 @@
 package com.sonahlab.twitch_chat_hit_counter_course.rest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sonahlab.twitch_chat_hit_counter_course.kafka.producer.GreetingEventProducer;
+import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
+import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.kafka.shaded.com.google.protobuf.ByteString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +14,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 /**
  * REST Controller for all of our service's backend endpoints. These endpoints will be accessed by
@@ -23,6 +31,16 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Twitch Chat Hit Counter API", description = "Backend API endpoints controller")
 public class ApplicationRestController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationRestController.class);
+
+    private ObjectMapper objectMapper;
+    private GreetingEventProducer greetingEventProducer;
+
+    public ApplicationRestController(
+            ObjectMapper objectMapper,
+            GreetingEventProducer greetingEventProducer) {
+        this.objectMapper = objectMapper;
+        this.greetingEventProducer = greetingEventProducer;
+    }
 
     /**
     * HTTP GET request handler for endpoint /api/hello. Endpoint that will receive an input name and
@@ -56,7 +74,10 @@ public class ApplicationRestController {
         /**
          * TODO: Implement as part of Module 2
          * */
-        return null;
+        String key = String.format("%s#%s#%s", sender, receiver, UUID.randomUUID());
+        GreetingEvent event = new GreetingEvent(sender, receiver, message);
+        boolean isPublished = greetingEventProducer.publish(key, event);
+        return isPublished;
     }
 
     /**

@@ -4,3 +4,33 @@ spring:
   output:
     ansi:
       enabled: ALWAYS
+
+
+---
+## Local dev configs
+spring:
+  config:
+    activate:
+      on-profile: default
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: test-group-id-0
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+
+twitch-chat-hit-counter:
+  kafka:
+    producer:
+      greeting-topic:
+        greeting_events
+    consumer:
+      greeting-topic:
+        greeting_events
+

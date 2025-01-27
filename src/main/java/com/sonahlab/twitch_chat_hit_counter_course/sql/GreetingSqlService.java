@@ -5,8 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -39,6 +41,25 @@ public class GreetingSqlService {
 
         int successfulWrites = jdbcTemplate.update(sql, event.sender(), event.receiver(), event.message());
         LOGGER.info("Successfully wrote {} events to SQL table={}, event={}", successfulWrites, sqlTableName, event);
+
+        return successfulWrites;
+    }
+
+    public int insertBatch(List<GreetingEvent> events) {
+        String sql = String.format(INSERT_SQL_TEMPLATE, sqlTableName);
+
+        int[] result = jdbcTemplate.execute(sql, (PreparedStatementCallback<int[]>) ps -> {
+            for (GreetingEvent event : events) {
+                ps.setString(1, event.sender());
+                ps.setString(2, event.receiver());
+                ps.setString(3, event.message());
+                ps.addBatch();
+            }
+            return ps.executeBatch();
+        });
+
+        int successfulWrites = Arrays.stream(result).sum();
+        LOGGER.info("Successfully wrote {} events to SQL table={}, events={}", successfulWrites, sqlTableName, events);
 
         return successfulWrites;
     }

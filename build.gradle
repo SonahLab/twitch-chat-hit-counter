@@ -43,7 +43,8 @@ dependencies {
 
     // Module 3: MySql
     // TODO: uncomment this out for 'Module: MySql'
-//  implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    // This enables DataSourceAutoConfiguration at runtime, which requires the datasource configs
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'mysql:mysql-connector-java:latest.release'
 
     // Module 4: Redis

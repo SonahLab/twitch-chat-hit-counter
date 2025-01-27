@@ -3,10 +3,9 @@ package com.sonahlab.twitch_chat_hit_counter_course.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonahlab.twitch_chat_hit_counter_course.kafka.producer.GreetingEventProducer;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
-import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
+import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.kafka.shaded.com.google.protobuf.ByteString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -34,12 +33,15 @@ public class ApplicationRestController {
 
     private ObjectMapper objectMapper;
     private GreetingEventProducer greetingEventProducer;
+    private GreetingSqlService greetingSqlService;
 
     public ApplicationRestController(
             ObjectMapper objectMapper,
-            GreetingEventProducer greetingEventProducer) {
+            GreetingEventProducer greetingEventProducer,
+            GreetingSqlService greetingSqlService) {
         this.objectMapper = objectMapper;
         this.greetingEventProducer = greetingEventProducer;
+        this.greetingSqlService = greetingSqlService;
     }
 
     /**
@@ -83,4 +85,9 @@ public class ApplicationRestController {
     /**
      * TODO: Implement more API endpoints below
      * */
+    @GetMapping("/queryGreetingEventsFromSQL")
+    @Operation(summary = "Query all events from dev_db.greeting_events SQL table", description = "Returns a List<GreetingEvent>")
+    public List<GreetingEvent> getSqlGreetingEvents() {
+        return greetingSqlService.queryAllEvents();
+    }
 }

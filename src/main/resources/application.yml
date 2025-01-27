@@ -15,7 +15,7 @@ spring:
   kafka:
     consumer:
       bootstrap-servers: localhost:9092
-      group-id: test-group-id-0
+      group-id: test-group-id-12
       auto-offset-reset: earliest
       enable-auto-commit: false
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -24,6 +24,13 @@ spring:
       bootstrap-servers: localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+  # MySql
+  datasource:
+    url:
+      jdbc:mysql://localhost:3306/dev_db
+    username: root
+    password: ""
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
 twitch-chat-hit-counter:
   kafka:
@@ -33,4 +40,6 @@ twitch-chat-hit-counter:
     consumer:
       greeting-topic:
         greeting_events
+  sql:
+    greeting-table: greeting_events
 

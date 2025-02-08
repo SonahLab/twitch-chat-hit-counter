@@ -11,4 +11,4 @@ package com.sonahlab.twitch_chat_hit_counter_course.model;
  * @param receiver the name of the receiver
  * @param message the greeting message
  */
-public record GreetingEvent(String sender, String receiver, String message) {}
+public record GreetingEvent(String eventId, String sender, String receiver, String message) {}

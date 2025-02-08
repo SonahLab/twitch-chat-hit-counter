@@ -76,9 +76,9 @@ public class ApplicationRestController {
         /**
          * TODO: Implement as part of Module 2
          * */
-        String key = String.format("%s#%s#%s", sender, receiver, UUID.randomUUID());
-        GreetingEvent event = new GreetingEvent(sender, receiver, message);
-        boolean isPublished = greetingEventProducer.publish(key, event);
+        String eventId = UUID.randomUUID().toString();
+        GreetingEvent event = new GreetingEvent(eventId, sender, receiver, message);
+        boolean isPublished = greetingEventProducer.publish(eventId, event);
         return isPublished;
     }
 

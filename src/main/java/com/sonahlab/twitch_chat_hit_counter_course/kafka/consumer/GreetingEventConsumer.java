@@ -2,6 +2,8 @@ package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
+import com.sonahlab.twitch_chat_hit_counter_course.redis.EventDeduperRedisService;
+import com.sonahlab.twitch_chat_hit_counter_course.redis.GreetingRedisService;
 import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
@@ -25,12 +27,18 @@ public class GreetingEventConsumer {
 
     private ObjectMapper objectMapper;
     private GreetingSqlService greetingSqlService;
+    private EventDeduperRedisService eventDeduperRedisService;
+    private GreetingRedisService greetingRedisService;
 
     public GreetingEventConsumer(
             ObjectMapper objectMapper,
-            GreetingSqlService greetingSqlService) {
+            GreetingSqlService greetingSqlService,
+            EventDeduperRedisService eventDeduperRedisService,
+            GreetingRedisService greetingRedisService) {
         this.objectMapper = objectMapper;
         this.greetingSqlService = greetingSqlService;
+        this.eventDeduperRedisService = eventDeduperRedisService;
+        this.greetingRedisService = greetingRedisService;
     }
 
     @KafkaListener(
@@ -44,9 +52,19 @@ public class GreetingEventConsumer {
 
         try {
             GreetingEvent event = objectMapper.readValue(value, GreetingEvent.class);
+
+            if (eventDeduperRedisService.isDupeEvent(event)) {
+                LOGGER.warn("Received DUPE message with key: {}, value: {}", key, event);
+                ack.acknowledge();
+            }
             LOGGER.info("Received message with key: {}, value: {}", key, event);
 
+            // Insert event into SQL DB
             greetingSqlService.insert(event);
+            // Add this greeting event into the receiver's Redis Greeting Feed
+            greetingRedisService.addGreetingToFeed(event);
+            // Add this eventId to Redis, so we can skip de-dupe if we ever re-process the same duplicate event
+            eventDeduperRedisService.processEvent(event);
 
             ack.acknowledge();
         } catch (Exception ex) {

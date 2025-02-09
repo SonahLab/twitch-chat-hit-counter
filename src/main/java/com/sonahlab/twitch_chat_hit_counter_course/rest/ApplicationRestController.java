@@ -3,6 +3,7 @@ package com.sonahlab.twitch_chat_hit_counter_course.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonahlab.twitch_chat_hit_counter_course.kafka.producer.GreetingEventProducer;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
+import com.sonahlab.twitch_chat_hit_counter_course.redis.GreetingRedisService;
 import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,14 +35,17 @@ public class ApplicationRestController {
     private ObjectMapper objectMapper;
     private GreetingEventProducer greetingEventProducer;
     private GreetingSqlService greetingSqlService;
+    private GreetingRedisService greetingRedisService;
 
     public ApplicationRestController(
             ObjectMapper objectMapper,
             GreetingEventProducer greetingEventProducer,
-            GreetingSqlService greetingSqlService) {
+            GreetingSqlService greetingSqlService,
+            GreetingRedisService greetingRedisService) {
         this.objectMapper = objectMapper;
         this.greetingEventProducer = greetingEventProducer;
         this.greetingSqlService = greetingSqlService;
+        this.greetingRedisService = greetingRedisService;
     }
 
     /**
@@ -89,5 +93,11 @@ public class ApplicationRestController {
     @Operation(summary = "Query all events from dev_db.greeting_events SQL table", description = "Returns a List<GreetingEvent>")
     public List<GreetingEvent> getSqlGreetingEvents() {
         return greetingSqlService.queryAllEvents();
+    }
+
+    @GetMapping("/queryGreetingFeedFromRedis")
+    @Operation(summary = "Query all events from redis DB=0 for a user's Greeting feed", description = "Returns a List<GreetingEvent> of all incoming greetings from another sender")
+    public List<GreetingEvent> getRedisGreetingFeed(String name) {
+        return greetingRedisService.getGreetingFeed(name);
     }
 }

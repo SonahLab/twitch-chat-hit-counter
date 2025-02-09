@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import com.sonahlab.twitch_chat_hit_counter_course.redis.dao.RedisDao;
+import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,39 +28,33 @@ import java.util.stream.Collectors;
  * - DAO Layer Vs. Service Layer(https://softwareengineering.stackexchange.com/questions/220909/service-layer-vs-dao-why-both)
  */
 @Component
-public class GreetingRedisService {
+public class EventDeduperRedisService {
     /**
      * TODO: Implement as part of Module 4
      * */
-    private static final Logger LOGGER = LoggerFactory.getLogger(GreetingRedisService.class);
-    private static final String USER_KEY = "receiver#%s";
+    private static final Logger LOGGER = LoggerFactory.getLogger(EventDeduperRedisService.class);
+    private static final String EVENT_KEY = "%s#%s";
 
     private RedisDao redisDao;
     private ObjectMapper objectMapper;
 
-    public GreetingRedisService(@Qualifier("greetingRedisDao") RedisDao redisDao,
-                                ObjectMapper objectMapper) {
+    public EventDeduperRedisService(@Qualifier("eventDedupeRedisDao") RedisDao redisDao,
+                                    ObjectMapper objectMapper) {
         this.redisDao = redisDao;
         this.objectMapper = objectMapper;
     }
 
-    public Long addGreetingToFeed(GreetingEvent event) {
-        String key = String.format(USER_KEY, event.receiver());
-        Long result = redisDao.listAdd(key, event.toString());
-        return result;
+    public boolean isDupeEvent(GreetingEvent event) {
+        String key = String.format(EVENT_KEY, EventType.GREETING_EVENT, event.eventId());
+        Long result = redisDao.get(key);
+        if (result != null && result == 1) {
+            return true;
+        }
+        return false;
     }
 
-    public List<GreetingEvent> getGreetingFeed(String name) {
-        String key = String.format(USER_KEY, name);
-        List<String> items = redisDao.listGet(key);
-        List<GreetingEvent> events = items.stream().map(item -> {
-            try {
-                return objectMapper.readValue(item, GreetingEvent.class);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        }).collect(Collectors.toList());
-
-        return events;
+    public void processEvent(GreetingEvent event) {
+        String key = String.format(EVENT_KEY, EventType.GREETING_EVENT, event.eventId());
+        redisDao.increment(key);
     }
 }

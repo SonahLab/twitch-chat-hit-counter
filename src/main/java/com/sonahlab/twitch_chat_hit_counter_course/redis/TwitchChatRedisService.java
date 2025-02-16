@@ -13,13 +13,10 @@ public class TwitchChatRedisService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitchChatRedisService.class);
     private static final String CHANNELS_KEY = "channels";
 
-    private RedisDao dedupeRedisDao;
     private RedisDao redisDao;
 
     public TwitchChatRedisService(
-            @Qualifier("twitchChatEventDedupeRedisDao") RedisDao dedupeRedisDao,
             @Qualifier("twitchChatRedisDao") RedisDao redisDao) {
-        this.dedupeRedisDao = dedupeRedisDao;
         this.redisDao = redisDao;
     }
 

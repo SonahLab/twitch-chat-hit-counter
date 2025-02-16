@@ -131,11 +131,12 @@ public class Config {
             @Value("${spring.redis.port}") int port,
             @Value("${spring.redis.event-dedupe-database}") int databaseIndexDb0,
             @Value("${spring.redis.greeting-feed-database}") int databaseIndexDb1,
-            @Value("${spring.redis.twitch-chat-hit-counter-database}") int databaseIndexDb2
+            @Value("${spring.redis.twitch-chat-hit-counter-database}") int databaseIndexDb2,
+            @Value("${spring.redis.flink-hit-counter-database}") int databaseIndexDb3
     ) {
         Map<Integer, RedisTemplate<String, String>> factory = new HashMap<>();
 
-        for (int databaseIndex : List.of(databaseIndexDb0, databaseIndexDb1, databaseIndexDb2)) {
+        for (int databaseIndex : List.of(databaseIndexDb0, databaseIndexDb1, databaseIndexDb2, databaseIndexDb3)) {
             RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(hostName, port);
             config.setDatabase(databaseIndex);
             LettuceConnectionFactory connectionFactory = new LettuceConnectionFactory(config);
@@ -176,6 +177,14 @@ public class Config {
     public RedisDao twitchChatRedisDao(
             Map<Integer, RedisTemplate<String, String>> redisTemplateFactory,
             @Value("${spring.redis.twitch-chat-hit-counter-database}") int databaseIndex) {
+        return new RedisDao(redisTemplateFactory.get(databaseIndex));
+    }
+
+    @Bean
+    @Qualifier("flinkTwitchChatRedisDao")
+    public RedisDao twitchChatRedisDaoflinkTwitchChatRedisDao(
+            Map<Integer, RedisTemplate<String, String>> redisTemplateFactory,
+            @Value("${spring.redis.flink-hit-counter-database}") int databaseIndex) {
         return new RedisDao(redisTemplateFactory.get(databaseIndex));
     }
 

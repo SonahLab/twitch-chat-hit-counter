@@ -46,6 +46,7 @@ spring:
     event-dedupe-database: 0
     greeting-feed-database: 1
     twitch-chat-hit-counter-database: 2
+    flink-hit-counter-database: 3
 
 twitch-chat-hit-counter:
   kafka:

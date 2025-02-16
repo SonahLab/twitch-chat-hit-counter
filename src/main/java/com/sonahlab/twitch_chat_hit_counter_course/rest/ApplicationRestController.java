@@ -1,14 +1,21 @@
 package com.sonahlab.twitch_chat_hit_counter_course.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.twitch4j.helix.domain.User;
 import com.sonahlab.twitch_chat_hit_counter_course.kafka.producer.GreetingEventProducer;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import com.sonahlab.twitch_chat_hit_counter_course.redis.GreetingRedisService;
+import com.sonahlab.twitch_chat_hit_counter_course.redis.TwitchChatRedisService;
+import com.sonahlab.twitch_chat_hit_counter_course.redis.dao.RedisDao;
 import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
+import com.sonahlab.twitch_chat_hit_counter_course.twitch.TwitchChatBotManager;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -36,16 +45,25 @@ public class ApplicationRestController {
     private GreetingEventProducer greetingEventProducer;
     private GreetingSqlService greetingSqlService;
     private GreetingRedisService greetingRedisService;
+    private RedisDao redisDAO;
+    private TwitchChatRedisService twitchChatRedisService;
+    private TwitchChatBotManager twitchChatBotManager;
 
     public ApplicationRestController(
             ObjectMapper objectMapper,
             GreetingEventProducer greetingEventProducer,
             GreetingSqlService greetingSqlService,
-            GreetingRedisService greetingRedisService) {
+            GreetingRedisService greetingRedisService,
+            @Qualifier("flinkTwitchChatRedisDao") RedisDao redisDAO,
+            TwitchChatRedisService twitchChatRedisService,
+            TwitchChatBotManager twitchChatBotManager) {
         this.objectMapper = objectMapper;
         this.greetingEventProducer = greetingEventProducer;
         this.greetingSqlService = greetingSqlService;
         this.greetingRedisService = greetingRedisService;
+        this.redisDAO = redisDAO;
+        this.twitchChatRedisService = twitchChatRedisService;
+        this.twitchChatBotManager = twitchChatBotManager;
     }
 
     /**
@@ -99,5 +117,51 @@ public class ApplicationRestController {
     @Operation(summary = "Query all events from redis DB=0 for a user's Greeting feed", description = "Returns a List<GreetingEvent> of all incoming greetings from another sender")
     public List<GreetingEvent> getRedisGreetingFeed(String name) {
         return greetingRedisService.getGreetingFeed(name);
+    }
+
+    @GetMapping("/hitCounter")
+    @Operation(summary = "Get chat counter of a streamer", description = "")
+    public Map<String, Long> hitCounter(@RequestParam String channelName) {
+        Map<String, Long> result = redisDAO.keys(channelName + "#*");
+        LOGGER.info("RESULT: " + result);
+        return result;
+    }
+
+    @GetMapping("/hitCounterMinute")
+    @Operation(summary = "Get chat counter of a streamer", description = "")
+    public Long hitCounter(@RequestParam String channelName, @RequestParam Long minuteTs) {
+        Long result = redisDAO.get(channelName + "#" + minuteTs);
+        LOGGER.info("RESULT: " + result);
+        return result;
+    }
+
+    @GetMapping("/addChannel")
+    @Operation(summary = "", description = "")
+    public ResponseEntity<String> addChannel(@RequestParam String channelName) {
+        User user = twitchChatBotManager.getChannelInfo(channelName.toLowerCase());
+        if (user != null) {
+            Long result = twitchChatRedisService.addChannel(channelName);
+            twitchChatBotManager.joinChannel(channelName);
+            LOGGER.info("addChannel: " + result);
+            return ResponseEntity.ok("Successfully joined the channel: " + channelName);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Channel \"" + channelName + "\" does not exist.");
+    }
+
+    @GetMapping("/getChannels")
+    @Operation(summary = "", description = "")
+    public Set<String> getChannels() {
+        Set<String> followingChannels = twitchChatRedisService.getLiveChannels();
+        LOGGER.info("getChannels: " + followingChannels);
+        return followingChannels;
+    }
+
+    @GetMapping("/removeChannel")
+    @Operation(summary = "", description = "")
+    public boolean removeChannel(@RequestParam String channelName) {
+        boolean removeChannel = twitchChatBotManager.leaveChannel(channelName);
+        LOGGER.info("removeChannel: " + removeChannel);
+        return removeChannel;
     }
 }

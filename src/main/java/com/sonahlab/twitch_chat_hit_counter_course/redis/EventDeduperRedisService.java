@@ -44,8 +44,8 @@ public class EventDeduperRedisService {
         this.objectMapper = objectMapper;
     }
 
-    public boolean isDupeEvent(GreetingEvent event) {
-        String key = String.format(EVENT_KEY, EventType.GREETING_EVENT, event.eventId());
+    public boolean isDupeEvent(EventType eventType, String eventId) {
+        String key = String.format(EVENT_KEY, eventType, eventId);
         Long result = redisDao.get(key);
         if (result != null && result == 1) {
             return true;
@@ -53,8 +53,8 @@ public class EventDeduperRedisService {
         return false;
     }
 
-    public void processEvent(GreetingEvent event) {
-        String key = String.format(EVENT_KEY, EventType.GREETING_EVENT, event.eventId());
+    public void processEvent(EventType eventType, String eventId) {
+        String key = String.format(EVENT_KEY, eventType, eventId);
         redisDao.increment(key);
     }
 }

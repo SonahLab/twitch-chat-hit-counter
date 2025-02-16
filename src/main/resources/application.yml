@@ -45,16 +45,23 @@ spring:
     port: 6379
     event-dedupe-database: 0
     greeting-feed-database: 1
+    twitch-chat-event-dedupe-database: 2
+    twitch-chat-hit-counter-database: 3
 
 twitch-chat-hit-counter:
   kafka:
     producer:
       greeting-topic:
         greeting_events
+      twitch-chat-topic:
+        twitch_chat_events
     consumer:
       greeting-topic:
         greeting_events
+      twitch-chat-topic:
+        twitch_chat_events
   sql:
     greeting-table: greeting_events
     greeting-batch-table: greeting_batch_events
+    twitch-chat-event-table: twitch_chat_events
 

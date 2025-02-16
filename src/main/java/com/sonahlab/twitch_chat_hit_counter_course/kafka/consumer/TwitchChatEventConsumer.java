@@ -2,9 +2,12 @@ package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
+import com.sonahlab.twitch_chat_hit_counter_course.model.TwitchChatEvent;
 import com.sonahlab.twitch_chat_hit_counter_course.redis.EventDeduperRedisService;
 import com.sonahlab.twitch_chat_hit_counter_course.redis.GreetingRedisService;
+import com.sonahlab.twitch_chat_hit_counter_course.redis.TwitchChatRedisService;
 import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
+import com.sonahlab.twitch_chat_hit_counter_course.sql.TwitchChatSqlService;
 import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
@@ -13,64 +16,70 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 /**
- * Kafka consumer to read GreetingEvents from Module 2 topic.
+ * Kafka consumer to read TwitchChatEvents from Module 5 topic.
  *
  * Recommended Learning materials:
  * - High Level Kafka Overview (https://kafka.apache.org/intro)
  * - Spring Boot Kafka (https://www.baeldung.com/spring-kafka)
  */
 @Component
-public class GreetingEventConsumer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GreetingEventConsumer.class);
+public class TwitchChatEventConsumer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TwitchChatEventConsumer.class);
 
     private ObjectMapper objectMapper;
-    private GreetingSqlService greetingSqlService;
+    private TwitchChatSqlService twitchChatSqlService;
     private EventDeduperRedisService eventDeduperRedisService;
-    private GreetingRedisService greetingRedisService;
+    private TwitchChatRedisService twitchChatRedisService;
 
-    public GreetingEventConsumer(
+    public TwitchChatEventConsumer(
             ObjectMapper objectMapper,
-            GreetingSqlService greetingSqlService,
+            TwitchChatSqlService twitchChatSqlService,
             EventDeduperRedisService eventDeduperRedisService,
-            GreetingRedisService greetingRedisService) {
+            TwitchChatRedisService twitchChatRedisService) {
         this.objectMapper = objectMapper;
-        this.greetingSqlService = greetingSqlService;
+        this.twitchChatSqlService = twitchChatSqlService;
         this.eventDeduperRedisService = eventDeduperRedisService;
-        this.greetingRedisService = greetingRedisService;
+        this.twitchChatRedisService = twitchChatRedisService;
     }
 
     @KafkaListener(
-            topics = "${twitch-chat-hit-counter.kafka.consumer.greeting-topic}",
+            topics = "${twitch-chat-hit-counter.kafka.consumer.twitch-chat-topic}",
             groupId = "${spring.kafka.consumer.group-id}",
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack) {
         String key = record.key();
         byte[] value = record.value();
-        EventType eventType = EventType.GREETING_EVENT;
+        EventType eventType = EventType.TWITCH_CHAT_EVENT;
 
         try {
-            GreetingEvent event = objectMapper.readValue(value, GreetingEvent.class);
+            TwitchChatEvent event = objectMapper.readValue(value, TwitchChatEvent.class);
 
             if (eventDeduperRedisService.isDupeEvent(eventType, event.eventId())) {
                 LOGGER.warn("Received DUPE message with key: {}, value: {}", key, event);
                 ack.acknowledge();
             }
-            LOGGER.info("Received message with key: {}, value: {}", key, event);
+            LOGGER.info("Received {} message with key: {}, value: {}", eventType, key, event);
 
-            // Insert event into SQL DB
-            greetingSqlService.insert(event);
-            // Add this greeting event into the receiver's Redis Greeting Feed
-            greetingRedisService.addGreetingToFeed(event);
-            // Add this eventId to Redis, so we can skip de-dupe if we ever re-process the same duplicate event
+            int successfulWrites = twitchChatSqlService.writeChatEvent(event);
+            if (successfulWrites == 0) {
+                LOGGER.error("Failed to write/save ChatEvent to sql db");
+                throw new RuntimeException("Failed to write/save ChatEvent to sql db");
+            }
+
+            String minuteKey = event.messageContext().channelName() + "#" + roundToNearestMinute(event.messageContext().eventTs());
+            twitchChatRedisService.incrHitCounter(minuteKey);
             eventDeduperRedisService.processEvent(eventType, event.eventId());
 
             ack.acknowledge();
         } catch (Exception ex) {
             LOGGER.error("Failed to process GreetingEvent message: {}", ex);
         }
+    }
+
+    public static long roundToNearestMinute(long timestampMillis) {
+        long minuteInMillis = 60 * 1000;
+        return (timestampMillis / minuteInMillis) * minuteInMillis;
     }
 }

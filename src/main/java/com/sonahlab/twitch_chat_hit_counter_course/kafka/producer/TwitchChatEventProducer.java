@@ -3,6 +3,7 @@ package com.sonahlab.twitch_chat_hit_counter_course.kafka.producer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
+import com.sonahlab.twitch_chat_hit_counter_course.model.TwitchChatEvent;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,25 +17,22 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Kafka producer to write GreetingEvents to Module 2 topic.
+ * Kafka producer to write TwitchChatEvents to twitch_chat_events topic.
  *
  * Recommended Learning materials:
  * - High Level Kafka Overview (https://kafka.apache.org/intro)
  * - Spring Boot Kafka (https://www.baeldung.com/spring-kafka)
  */
 @Component
-public class GreetingEventProducer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GreetingEventProducer.class);
+public class TwitchChatEventProducer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TwitchChatEventProducer.class);
 
     private String topic;
     private KafkaTemplate<String, byte[]> kafkaTemplate;
     private ObjectMapper objectMapper;
 
-    /**
-     * TODO: Implement as part of Module 2
-     * */
-    public GreetingEventProducer(
-            @Value("${twitch-chat-hit-counter.kafka.producer.greeting-topic}") String topic,
+    public TwitchChatEventProducer(
+            @Value("${twitch-chat-hit-counter.kafka.producer.twitch-chat-topic}") String topic,
             KafkaTemplate<String, byte[]> kafkaTemplate,
             ObjectMapper objectMapper) {
         this.topic = topic;
@@ -42,7 +40,7 @@ public class GreetingEventProducer {
         this.objectMapper = objectMapper;
     }
 
-    public boolean publish(String key, GreetingEvent event) {
+    public boolean publish(String key, TwitchChatEvent event) {
         try {
             CompletableFuture<SendResult<String, byte[]>> future = kafkaTemplate.send(
                     topic, key, objectMapper.writeValueAsBytes(event));

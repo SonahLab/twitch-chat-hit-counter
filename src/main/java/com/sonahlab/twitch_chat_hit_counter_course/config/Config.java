@@ -1,6 +1,9 @@
 package com.sonahlab.twitch_chat_hit_counter_course.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
+import com.github.twitch4j.TwitchClient;
+import com.github.twitch4j.TwitchClientBuilder;
 import com.sonahlab.twitch_chat_hit_counter_course.redis.dao.RedisDao;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -8,7 +11,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,6 +24,7 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -116,7 +119,6 @@ public class Config {
     }
 
     @Bean
-    @Qualifier("greeting-producer")
     public KafkaTemplate<String, byte[]> kafkaTemplate(ProducerFactory<String, byte[]> producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
@@ -124,60 +126,81 @@ public class Config {
 
     // TODO: Add Redis configs here
     @Bean
-    @Qualifier("redisConnectionFactoryDb0")
-    public RedisConnectionFactory redisConnectionFactoryDb0(
+    public Map<Integer, RedisTemplate<String, String>> redisTemplateFactory(
             @Value("${spring.redis.host}") String hostName,
             @Value("${spring.redis.port}") int port,
-            @Value("${spring.redis.event-dedupe-database}") int databaseIndex
+            @Value("${spring.redis.event-dedupe-database}") int databaseIndexDb0,
+            @Value("${spring.redis.greeting-feed-database}") int databaseIndexDb1,
+            @Value("${spring.redis.twitch-chat-event-dedupe-database}") int databaseIndexDb2,
+            @Value("${spring.redis.twitch-chat-hit-counter-database}") int databaseIndexDb3
     ) {
-        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(hostName, port);
-        config.setDatabase(databaseIndex);
-        return new LettuceConnectionFactory(config);
-    }
+        Map<Integer, RedisTemplate<String, String>> factory = new HashMap<>();
 
-    @Bean
-    @Qualifier("redisTemplateDb0")
-    public RedisTemplate<String, String> redisTemplateDb0(@Qualifier("redisConnectionFactoryDb0") RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, String> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new StringRedisSerializer());
-        return template;
+        for (int databaseIndex : List.of(databaseIndexDb0, databaseIndexDb1, databaseIndexDb2, databaseIndexDb3)) {
+            RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(hostName, port);
+            config.setDatabase(databaseIndex);
+            LettuceConnectionFactory connectionFactory = new LettuceConnectionFactory(config);
+
+            RedisTemplate<String, String> template = new RedisTemplate<>();
+            template.setConnectionFactory(connectionFactory);
+            template.setKeySerializer(new StringRedisSerializer());
+            template.setValueSerializer(new StringRedisSerializer());
+
+            factory.putIfAbsent(databaseIndex, template);
+        }
+
+        return factory;
     }
 
     @Bean
     @Qualifier("eventDedupeRedisDao")
-    public RedisDao eventDedupeRedisDao(@Qualifier("redisTemplateDb0") RedisTemplate<String, String> redisTemplate) {
-        return new RedisDao(redisTemplate);
-    }
-
-    @Bean
-    @Qualifier("redisConnectionFactoryDb1")
-    public RedisConnectionFactory redisConnectionFactoryDb1(
-            @Value("${spring.redis.host}") String hostName,
-            @Value("${spring.redis.port}") int port,
-            @Value("${spring.redis.greeting-feed-database}") int databaseIndex
+    public RedisDao eventDedupeRedisDao(
+            Map<Integer, RedisTemplate<String, String>> redisTemplateFactory,
+            @Value("${spring.redis.event-dedupe-database}") int databaseIndex
     ) {
-        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(hostName, port);
-        config.setDatabase(databaseIndex);
-        return new LettuceConnectionFactory(config);
-    }
-
-    @Bean
-    @Qualifier("redisTemplateDb1")
-    public RedisTemplate<String, String> redisTemplateDb1(@Qualifier("redisConnectionFactoryDb1") RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, String> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new StringRedisSerializer());
-        return template;
+        return new RedisDao(redisTemplateFactory.get(databaseIndex));
     }
 
     @Bean
     @Qualifier("greetingRedisDao")
-    public RedisDao greetingRedisDao(@Qualifier("redisTemplateDb1") RedisTemplate<String, String> redisTemplate) {
-        return new RedisDao(redisTemplate);
+    public RedisDao greetingRedisDao(
+            Map<Integer, RedisTemplate<String, String>> redisTemplateFactory,
+            @Value("${spring.redis.greeting-feed-database}") int databaseIndex) {
+        return new RedisDao(redisTemplateFactory.get(databaseIndex));
     }
 
-    // TODO: Add any other configs here
+    @Bean
+    @Qualifier("twitchChatEventDedupeRedisDao")
+    public RedisDao twitchChatEventDedupeRedisDao(
+            Map<Integer, RedisTemplate<String, String>> redisTemplateFactory,
+            @Value("${spring.redis.twitch-chat-event-dedupe-database}") int databaseIndex
+    ) {
+        return new RedisDao(redisTemplateFactory.get(databaseIndex));
+    }
+
+    @Bean
+    @Qualifier("twitchChatRedisDao")
+    public RedisDao twitchChatRedisDao(
+            Map<Integer, RedisTemplate<String, String>> redisTemplateFactory,
+            @Value("${spring.redis.twitch-chat-hit-counter-database}") int databaseIndex) {
+        return new RedisDao(redisTemplateFactory.get(databaseIndex));
+    }
+
+    @Bean
+    public TwitchClient twitchClient() {
+        // Get from Twitch Dev Console
+        String CLIENT_ID = "kx29yhv9hva3kqpenhpdmc9oayc4vy";
+        String CLIENT_SECRET = "ee04a6tx7sz58qg39pgho8fumi9q27";
+        // Generate from https://twitchtokengenerator.com or do it programmatically
+        String OAUTH_TOKEN = "d60cjy0t2kf5kjcuwcxbhsswod2bp7";
+        TwitchClient twitchClient = TwitchClientBuilder.builder()
+                .withClientId(CLIENT_ID)
+                .withClientSecret(CLIENT_SECRET)
+                .withEnableHelix(true)
+                .withEnableChat(true)
+                .withChatAccount(new OAuth2Credential("twitch", OAUTH_TOKEN))
+                .build();
+
+        return twitchClient;
+    }
 }

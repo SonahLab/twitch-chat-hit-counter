@@ -45,8 +45,7 @@ spring:
     port: 6379
     event-dedupe-database: 0
     greeting-feed-database: 1
-    twitch-chat-event-dedupe-database: 2
-    twitch-chat-hit-counter-database: 3
+    twitch-chat-hit-counter-database: 2
 
 twitch-chat-hit-counter:
   kafka:

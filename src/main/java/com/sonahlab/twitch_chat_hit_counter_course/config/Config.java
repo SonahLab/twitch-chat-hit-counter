@@ -131,20 +131,22 @@ public class Config {
             @Value("${spring.redis.port}") int port,
             @Value("${spring.redis.event-dedupe-database}") int databaseIndexDb0,
             @Value("${spring.redis.greeting-feed-database}") int databaseIndexDb1,
-            @Value("${spring.redis.twitch-chat-event-dedupe-database}") int databaseIndexDb2,
-            @Value("${spring.redis.twitch-chat-hit-counter-database}") int databaseIndexDb3
+            @Value("${spring.redis.twitch-chat-hit-counter-database}") int databaseIndexDb2
     ) {
         Map<Integer, RedisTemplate<String, String>> factory = new HashMap<>();
 
-        for (int databaseIndex : List.of(databaseIndexDb0, databaseIndexDb1, databaseIndexDb2, databaseIndexDb3)) {
+        for (int databaseIndex : List.of(databaseIndexDb0, databaseIndexDb1, databaseIndexDb2)) {
             RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(hostName, port);
             config.setDatabase(databaseIndex);
             LettuceConnectionFactory connectionFactory = new LettuceConnectionFactory(config);
+            connectionFactory.afterPropertiesSet();
+            connectionFactory.start();
 
             RedisTemplate<String, String> template = new RedisTemplate<>();
             template.setConnectionFactory(connectionFactory);
             template.setKeySerializer(new StringRedisSerializer());
             template.setValueSerializer(new StringRedisSerializer());
+            template.afterPropertiesSet();
 
             factory.putIfAbsent(databaseIndex, template);
         }
@@ -166,15 +168,6 @@ public class Config {
     public RedisDao greetingRedisDao(
             Map<Integer, RedisTemplate<String, String>> redisTemplateFactory,
             @Value("${spring.redis.greeting-feed-database}") int databaseIndex) {
-        return new RedisDao(redisTemplateFactory.get(databaseIndex));
-    }
-
-    @Bean
-    @Qualifier("twitchChatEventDedupeRedisDao")
-    public RedisDao twitchChatEventDedupeRedisDao(
-            Map<Integer, RedisTemplate<String, String>> redisTemplateFactory,
-            @Value("${spring.redis.twitch-chat-event-dedupe-database}") int databaseIndex
-    ) {
         return new RedisDao(redisTemplateFactory.get(databaseIndex));
     }
 

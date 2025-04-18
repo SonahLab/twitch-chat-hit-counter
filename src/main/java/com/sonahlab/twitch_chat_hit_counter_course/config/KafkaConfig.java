@@ -11,6 +11,6 @@ import org.springframework.context.annotation.Configuration;
  *  - Bean (https://docs.spring.io/spring-framework/reference/core/beans/java/bean-annotation.html)
  */
 @Configuration
-public class Config {
-    // TODO: Add generic configs here
+public class KafkaConfig {
+    // TODO: Add Kafka configs here
 }

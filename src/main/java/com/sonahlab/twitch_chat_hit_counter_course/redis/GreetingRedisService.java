@@ -1,6 +1,10 @@
 package com.sonahlab.twitch_chat_hit_counter_course.redis;
 
+import org.springframework.stereotype.Service;
+
 /**
+ * Service for storing GreetingEvents using a Redis DB named 'greeting-feed-database' (that we will create).
+ *
  * Service layer for interacting with Redis data store, focused on higher-level business logic.
  *
  * In a real-world application, multiple service classes may be implemented to handle different
@@ -14,6 +18,7 @@ package com.sonahlab.twitch_chat_hit_counter_course.redis;
  * Recommended Learning materials:
  * - DAO Layer Vs. Service Layer(https://softwareengineering.stackexchange.com/questions/220909/service-layer-vs-dao-why-both)
  */
+@Service
 public class GreetingRedisService {
     /**
      * TODO: Implement as part of Module 4

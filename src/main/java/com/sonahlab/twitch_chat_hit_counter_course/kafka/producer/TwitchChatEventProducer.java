@@ -5,17 +5,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * Kafka producer to write GreetingEvents to 'greeting_events' topic in Module 2.
+ * Kafka producer to write TwitchChatEvents to 'twitch_chat_events' topic in Module 5.
  *
  * Recommended Learning materials:
  * - High Level Kafka Overview (https://kafka.apache.org/intro)
  * - Spring Boot Kafka (https://www.baeldung.com/spring-kafka)
  */
 @Component
-public class GreetingEventProducer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GreetingEventProducer.class);
+public class TwitchChatEventProducer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TwitchChatEventProducer.class);
 
     /**
-     * TODO: Implement as part of Module 2
+     * TODO: Implement as part of Module 5
      * */
 }

@@ -1,5 +1,10 @@
 package com.sonahlab.twitch_chat_hit_counter_course.rest;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -7,8 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.http.RequestEntity.delete;
-import static org.springframework.http.RequestEntity.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -17,11 +20,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 public class ApplicationRestControllerTest {
+
     @Autowired
     private MockMvc mockMvc;
 
-    // TODO: (Module 1) Uncomment this test once you've implemented ApplicationRestController.sayHello()
     @Test
+    @Tag("Module1")
     void testSayHello() throws Exception {
         mockMvc.perform(get("/api/hello")
                         .param("name", "Alice"))
@@ -30,14 +34,37 @@ public class ApplicationRestControllerTest {
     }
 
     @Test
+    @Tag("Module1")
+    public void testSayHelloEmptyName() throws Exception {
+        mockMvc.perform(get("/api/hello")
+                        .param("name", ""))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Hello, Mysterious Individual."));
+    }
+
+    @Test
+    @Tag("Module1")
     void testPokemonEndpoints() throws Exception {
         // 1. Get Ash's Pokémon (should only contain Pikachu)
-        mockMvc.perform(get("/api/pokemon/getAshPokemon"))
+        String jsonResponse = mockMvc.perform(get("/api/pokemon/getAshPokemon"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Pikachu"))
-                .andExpect(jsonPath("$[0].type").value("Lightning"))
-                .andExpect(jsonPath("$[0].level").value(5))
-                .andExpect(jsonPath("$[0].health").value(100));
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode json = mapper.readTree(jsonResponse);
+        Assertions.assertEquals(2, json.size());
+
+        Assertions.assertEquals("Pikachu", json.get(0).get("name").asText());
+        Assertions.assertEquals("Lightning", json.get(0).get("type").asText());
+        Assertions.assertEquals(5, json.get(0).get("level").asInt());
+        Assertions.assertEquals(100, json.get(0).get("health").asInt());
+
+        Assertions.assertEquals("Charizard", json.get(1).get("name").asText());
+        Assertions.assertEquals("Fire", json.get(1).get("type").asText());
+        Assertions.assertEquals(100, json.get(1).get("level").asInt());
+        Assertions.assertEquals(9999, json.get(1).get("health").asInt());
 
         // 2. Pikachu takes 70 damage
         mockMvc.perform(MockMvcRequestBuilders.put("/api/pokemon/takeDamage")
@@ -53,8 +80,18 @@ public class ApplicationRestControllerTest {
                 .andExpect(content().string("true"));
 
         // 4. Get Ash's Pokémon again (empty list expected)
-        mockMvc.perform(get("/api/pokemon/getAshPokemon"))
+        jsonResponse = mockMvc.perform(get("/api/pokemon/getAshPokemon"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
+                .andExpect(jsonPath("$.length()").value(1))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        json = mapper.readTree(jsonResponse);
+        Assertions.assertEquals(1, json.size());
+
+        Assertions.assertEquals("Charizard", json.get(0).get("name").asText());
+        Assertions.assertEquals("Fire", json.get(0).get("type").asText());
+        Assertions.assertEquals(100, json.get(0).get("level").asInt());
+        Assertions.assertEquals(9999, json.get(0).get("health").asInt());
     }
 }

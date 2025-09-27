@@ -26,7 +26,10 @@ public class ApplicationRestController {
 
     /**
     * HTTP GET request handler for endpoint /api/hello. Endpoint that will receive an input name and
-    * return a custom greeting.
+    * return a basic greeting.
+    *
+    * Return a string response using this template, "Hello, {name}".
+    * If no name is input, the default name that will be expected to be used should be "Mysterious Individual".
     *
     * @param name The name of the person to greet
     * @return String greeting message

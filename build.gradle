@@ -3,6 +3,7 @@ plugins {
     id 'org.springframework.boot' version '3.4.1'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'idea'
+    id 'nebula.dependency-lock' version '12.7.1'
 }
 
 group = 'com.sonahlab'
@@ -16,6 +17,11 @@ java {
 
 repositories {
     mavenCentral()
+}
+
+// Enable dependency locking
+dependencyLocking {
+    lockAllConfigurations()
 }
 
 ext {
@@ -32,9 +38,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'org.junit.jupiter:junit-jupiter-api:5.11.0'
 
     // Module 1: Swagger UI
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:latest.release'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'
     runtimeOnly 'org.jetbrains.kotlin:kotlin-reflect:2.1.0'
 
     // Module 2: Kafka
@@ -42,15 +49,14 @@ dependencies {
     testImplementation 'org.springframework.kafka:spring-kafka-test'
 
     // Module 3: MySql
-    // TODO: uncomment this out for 'Module: MySql'
-//  implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    implementation 'mysql:mysql-connector-java:latest.release'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'mysql:mysql-connector-java:8.0.33'
 
     // Module 4: Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     // Module 5: Twitch API
-    implementation 'com.github.twitch4j:twitch4j:latest.release'
+    implementation 'com.github.twitch4j:twitch4j:1.25.0'
 
     // Module 6: Flink
     implementation "org.apache.flink:flink-java:$flinkVersion"
@@ -64,6 +70,17 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+test {
+    useJUnitPlatform {
+        // Allows for individual module unit testing using @Tag("moduleX")
+        // Example usage: ./gradlew test -DtestModule=module1
+        def included = System.getProperty("testModule")
+        if (included) {
+            includeTags included
+        }
+    }
 }
 
 configurations {

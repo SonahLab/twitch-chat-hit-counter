@@ -5,6 +5,8 @@ import com.sonahlab.twitch_chat_hit_counter_course.module.Module1;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -51,7 +53,10 @@ public class ApplicationRestController {
         /**
          * TODO: Implement as part of Module 1
          * */
-        return String.format("Hello, %s.", name);
+        if (!StringUtils.isEmpty(name)) {
+            return String.format("Hello, %s.", name);
+        }
+        return String.format("Hello, Mysterious Individual.");
     }
 
     @PutMapping("/pokemon/takeDamage")

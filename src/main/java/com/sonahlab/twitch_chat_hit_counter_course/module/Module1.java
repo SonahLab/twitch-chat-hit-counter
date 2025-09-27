@@ -16,6 +16,7 @@ public class Module1 {
 
     private static Map<String, Pokemon> ASH_POKEMON = new HashMap<>() {{
         put("Pikachu", new Pokemon("Pikachu", "Lightning", 5, 100));
+        put("Charizard", new Pokemon("Charizard", "Fire", 100, 9999));
     }};
 
     /**

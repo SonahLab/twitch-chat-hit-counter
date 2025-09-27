@@ -4,3 +4,17 @@ spring:
   output:
     ansi:
       enabled: ALWAYS
+
+---
+## Local dev configs
+spring:
+  config:
+    activate:
+      on-profile: default
+  # MySql Configs
+  datasource:
+    url:
+      jdbc:mysql://localhost:3306/dev_db
+    username: root
+    password: ""
+    driver-class-name: com.mysql.cj.jdbc.Driver

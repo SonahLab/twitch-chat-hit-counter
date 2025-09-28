@@ -21,13 +21,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 1.
 @Disabled
+@Tag("Module1")
 public class PokemonRestControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    @Tag("Module1")
     void testPokemonEndpoints() throws Exception {
         // 1. Get Ash's Pokémon (should only contain Pikachu)
         String jsonResponse = mockMvc.perform(get("/api/pokemon/getAshPokemon"))

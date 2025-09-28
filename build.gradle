@@ -47,6 +47,7 @@ dependencies {
     // Module 2: Kafka
     implementation 'org.springframework.kafka:spring-kafka'
     testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testImplementation 'org.testcontainers:kafka:latest.release'
 
     // Module 3: MySql
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'

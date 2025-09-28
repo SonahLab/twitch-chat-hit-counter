@@ -16,13 +16,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 1.
 @Disabled
+@Tag("Module1")
 public class GreetingRestControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    @Tag("Module1")
     void testSayHello() throws Exception {
         mockMvc.perform(get("/api/hello")
                         .param("name", "Alice"))
@@ -31,7 +31,6 @@ public class GreetingRestControllerTest {
     }
 
     @Test
-    @Tag("Module1")
     public void testSayHelloEmptyName() throws Exception {
         mockMvc.perform(get("/api/hello")
                         .param("name", ""))

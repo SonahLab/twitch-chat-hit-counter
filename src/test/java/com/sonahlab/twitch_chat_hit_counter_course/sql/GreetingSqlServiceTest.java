@@ -2,6 +2,8 @@ package com.sonahlab.twitch_chat_hit_counter_course.sql;
 
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Testcontainers
 @ExtendWith(SpringExtension.class)
+@Tag("Module3")
+// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
+@Disabled
 public class GreetingSqlServiceTest {
 
     @Container

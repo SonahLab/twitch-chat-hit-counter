@@ -25,8 +25,6 @@ dependencyLocking {
 }
 
 ext {
-    flinkVersion = '2.0.0'
-    kafkaFlinkConnectorVersion = '3.4.0-1.20'
     testContainerVersion = '1.20.2'
 }
 
@@ -58,15 +56,6 @@ dependencies {
 
     // Module 5: Twitch API
     implementation 'com.github.twitch4j:twitch4j:1.25.0'
-
-    // Module 6: Flink
-    implementation "org.apache.flink:flink-java:1.20.1"
-    implementation "org.apache.flink:flink-clients:$flinkVersion"
-    implementation "org.apache.flink:flink-core:$flinkVersion"
-    implementation "org.apache.flink:flink-connector-base:$flinkVersion"
-    implementation "org.apache.flink:flink-streaming-java:$flinkVersion"
-    implementation "org.apache.flink:flink-connector-kafka:$kafkaFlinkConnectorVersion"
-    implementation "org.apache.flink:flink-runtime-web:$flinkVersion"
 
     // Testcontainers
     implementation "commons-codec:commons-codec:1.17.1" // Needed to work with mysql testcontainer

@@ -12,27 +12,6 @@
         "mysql:mysql-connector-java": {
             "locked": "8.0.33"
         },
-        "org.apache.flink:flink-clients": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-connector-base": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-connector-kafka": {
-            "locked": "3.4.0-1.20"
-        },
-        "org.apache.flink:flink-core": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-java": {
-            "locked": "1.20.1"
-        },
-        "org.apache.flink:flink-runtime-web": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-streaming-java": {
-            "locked": "2.0.0"
-        },
         "org.junit.jupiter:junit-jupiter-api": {
             "locked": "5.11.0"
         },
@@ -70,27 +49,6 @@
         },
         "mysql:mysql-connector-java": {
             "locked": "8.0.33"
-        },
-        "org.apache.flink:flink-clients": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-connector-base": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-connector-kafka": {
-            "locked": "3.4.0-1.20"
-        },
-        "org.apache.flink:flink-core": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-java": {
-            "locked": "1.20.1"
-        },
-        "org.apache.flink:flink-runtime-web": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-streaming-java": {
-            "locked": "2.0.0"
         },
         "org.jetbrains.kotlin:kotlin-reflect": {
             "locked": "2.1.0"
@@ -133,27 +91,6 @@
         "mysql:mysql-connector-java": {
             "locked": "8.0.33"
         },
-        "org.apache.flink:flink-clients": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-connector-base": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-connector-kafka": {
-            "locked": "3.4.0-1.20"
-        },
-        "org.apache.flink:flink-core": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-java": {
-            "locked": "1.20.1"
-        },
-        "org.apache.flink:flink-runtime-web": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-streaming-java": {
-            "locked": "2.0.0"
-        },
         "org.jetbrains.kotlin:kotlin-reflect": {
             "locked": "2.1.0"
         },
@@ -189,32 +126,14 @@
         "com.github.twitch4j:twitch4j": {
             "locked": "1.25.0"
         },
+        "com.redis:testcontainers-redis": {
+            "locked": "2.2.4"
+        },
         "commons-codec:commons-codec": {
             "locked": "1.17.1"
         },
         "mysql:mysql-connector-java": {
             "locked": "8.0.33"
-        },
-        "org.apache.flink:flink-clients": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-connector-base": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-connector-kafka": {
-            "locked": "3.4.0-1.20"
-        },
-        "org.apache.flink:flink-core": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-java": {
-            "locked": "1.20.1"
-        },
-        "org.apache.flink:flink-runtime-web": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-streaming-java": {
-            "locked": "2.0.0"
         },
         "org.junit.jupiter:junit-jupiter-api": {
             "locked": "5.11.0"
@@ -263,32 +182,14 @@
         "com.github.twitch4j:twitch4j": {
             "locked": "1.25.0"
         },
+        "com.redis:testcontainers-redis": {
+            "locked": "2.2.4"
+        },
         "commons-codec:commons-codec": {
             "locked": "1.17.1"
         },
         "mysql:mysql-connector-java": {
             "locked": "8.0.33"
-        },
-        "org.apache.flink:flink-clients": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-connector-base": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-connector-kafka": {
-            "locked": "3.4.0-1.20"
-        },
-        "org.apache.flink:flink-core": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-java": {
-            "locked": "1.20.1"
-        },
-        "org.apache.flink:flink-runtime-web": {
-            "locked": "2.0.0"
-        },
-        "org.apache.flink:flink-streaming-java": {
-            "locked": "2.0.0"
         },
         "org.jetbrains.kotlin:kotlin-reflect": {
             "locked": "2.1.0"

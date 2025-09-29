@@ -45,6 +45,6 @@ public class ApplicationRestController {
 
     /**
      * TODO: Implement more API endpoints below for all other Modules.
-     * We will need to implement more REST endpoints for Module 7, if we want the Front end to be fully working.
+     * We will need to implement more REST endpoints for Module 6, if we want the Front end to be fully working.
      * */
 }

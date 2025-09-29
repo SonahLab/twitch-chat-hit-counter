@@ -50,9 +50,9 @@ public class GreetingEventBatchConsumerTest {
     @Test
     public void testProcessMessage() throws Exception {
         List<GreetingEvent> events = List.of(
-                new GreetingEvent("Alice", "Bob", "Hello, Bob!"),
-                new GreetingEvent("Bob", "Charlie", "Good morning, Charlie!"),
-                new GreetingEvent("Eve", "Frank", "Hi Frank, how are you?")
+                new GreetingEvent("id1", "Alice", "Bob", "Hello, Bob!"),
+                new GreetingEvent("id2", "Bob", "Charlie", "Good morning, Charlie!"),
+                new GreetingEvent("id3", "Eve", "Frank", "Hi Frank, how are you?")
         );
 
         for (GreetingEvent event : events) {

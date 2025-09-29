@@ -41,6 +41,7 @@ public class GreetingSqlServiceTest {
         registry.add("spring.datasource.password", MYSQL_CONTAINER::getPassword);
         registry.add("spring.datasource.driver-class-name", MYSQL_CONTAINER::getDriverClassName);
         registry.add("twitch-chat-hit-counter.sql.greeting-table", () -> "test_greeting_table");
+        registry.add("twitch-chat-hit-counter.sql.greeting-batch-table", () -> "test_greeting_table");
     }
 
     @Autowired
@@ -53,7 +54,7 @@ public class GreetingSqlServiceTest {
     void setup() {
         jdbcTemplate.execute("""
             CREATE TABLE IF NOT EXISTS test_greeting_table (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                event_id VARCHAR(255) PRIMARY KEY,
                 sender VARCHAR(255),
                 receiver VARCHAR(255),
                 message VARCHAR(255)
@@ -62,15 +63,31 @@ public class GreetingSqlServiceTest {
     }
 
     @Test
-    void testInsertAndQueryWithMySQL() {
-        GreetingEvent event1 = new GreetingEvent("Alice", "Bob", "Hello");
-        GreetingEvent event2 = new GreetingEvent("Charlie", "Diana", "Hi!");
+    void insertTest() {
+        GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hello");
+        GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "Diana", "Hi!");
 
         int insert1 = greetingSqlService.insert(event1);
         int insert2 = greetingSqlService.insert(event2);
 
         assertEquals(1, insert1);
         assertEquals(1, insert2);
+
+        List<GreetingEvent> results = greetingSqlService.queryAllEvents();
+
+        assertEquals(2, results.size());
+        assertTrue(results.contains(event1));
+        assertTrue(results.contains(event2));
+    }
+
+    @Test
+    void insertBatchTest() {
+        GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hello");
+        GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "Diana", "Hi!");
+
+        int result = greetingSqlService.insertBatch(List.of(event1, event2));
+
+        assertEquals(2, result);
 
         List<GreetingEvent> results = greetingSqlService.queryAllEvents();
 

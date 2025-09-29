@@ -77,8 +77,8 @@ public class GreetingEventProducerTest {
     @Test
     void publishTest() throws Exception {
         List<GreetingEvent> events = List.of(
-                new GreetingEvent("Alice", "Bob", "Hi hi hi"),
-                new GreetingEvent("Bob", "Alice", "Hello hello hello")
+                new GreetingEvent("id1", "Alice", "Bob", "Hi hi hi"),
+                new GreetingEvent("id2", "Bob", "Alice", "Hello hello hello")
         );
 
         for (int index = 0; index < events.size(); index++) {

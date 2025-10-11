@@ -5,6 +5,16 @@ spring:
     ansi:
       enabled: ALWAYS
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          health,info,metrics,prometheus
+    prometheus:
+      enabled:
+        true
+
 ---
 ## Local dev configs
 spring:

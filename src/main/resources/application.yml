@@ -5,6 +5,7 @@ spring:
     ansi:
       enabled: ALWAYS
 
+# Enable prometheus logs
 management:
   endpoints:
     web:
@@ -14,6 +15,14 @@ management:
     prometheus:
       enabled:
         true
+
+# Enable Twitch4j debug logs
+logging:
+  level:
+    com:
+      github:
+        twitch4j:
+          DEBUG
 
 ---
 ## Local dev configs

@@ -5,10 +5,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * REST Controller for all of our service's backend endpoints. These endpoints will be accessed by
@@ -47,4 +48,24 @@ public class ApplicationRestController {
      * TODO: Implement more API endpoints below for all other Modules.
      * We will need to implement more REST endpoints for Module 6, if we want the Front end to be fully working.
      * */
+    @GetMapping("/hitCounter")
+    @Operation(summary = "Get chat counter of a streamer", description = "")
+    public Map<String, Long> hitCounter(@RequestParam String channelName) {
+        return null;
+    }
+
+    @GetMapping("/addChannel")
+    public ResponseEntity<String> addChannel(@RequestParam String channelName) {
+        return null;
+    }
+
+    @GetMapping("/getChannels")
+    public Set<String> getChannels() {
+        return null;
+    }
+
+    @GetMapping("/removeChannel")
+    public boolean removeChannel(@RequestParam String channelName) {
+        return false;
+    }
 }

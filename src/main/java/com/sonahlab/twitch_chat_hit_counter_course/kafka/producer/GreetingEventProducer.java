@@ -1,5 +1,6 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.producer;
 
+import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -18,4 +19,7 @@ public class GreetingEventProducer {
     /**
      * TODO: Implement as part of Module 2
      * */
+    public boolean publish(String messageId, GreetingEvent event) {
+        return false;
+    }
 }

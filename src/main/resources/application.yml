@@ -30,21 +30,6 @@ spring:
   config:
     activate:
       on-profile: default
-  kafka:
-    consumer:
-      bootstrap-servers: localhost:9092
-      group-id: test-group-id-0
-      auto-offset-reset: earliest
-      enable-auto-commit: false
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
-      # used to batch poll kafka messages
-      max-poll-records: 500
-      group-id-batch: unit-test-batch-group-id-0
-    producer:
-      bootstrap-servers: localhost:9092
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
   # MySql Configs
   datasource:
     url:
@@ -52,25 +37,3 @@ spring:
     username: root
     password: ""
     driver-class-name: com.mysql.cj.jdbc.Driver
-  # Redis Configs
-  data:
-    redis:
-      repositories:
-        enabled: false
-  redis:
-    host: localhost
-    port: 6379
-    event-dedupe-database: 0
-    greeting-feed-database: 1
-
-twitch-chat-hit-counter:
-  kafka:
-    producer:
-      greeting-topic:
-        greeting_events
-    consumer:
-      greeting-topic:
-        greeting_events
-  sql:
-    greeting-table: greeting_events
-    greeting-batch-table: greeting_batch_events

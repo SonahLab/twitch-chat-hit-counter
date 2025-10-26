@@ -66,11 +66,7 @@ twitch-chat-hit-counter/src/
                 └── GreetingEventProducerTest.java
 ```
 ## Objective
-[//]: # (I like this)
-![](course-material/assets/module2/images/overview2.svg)<br>
-
-> ![](course-material/assets/module2/images/overview.svg)<br>
-> ![](course-material/assets/module2/images/Module2_Overview.svg)<br>
+![](course-material/assets/module2/images/Module2_Overview.svg)<br>
 
 ### Setup Local Kafka Server
 Let’s start our local Kafka instance via Docker (https://kafka.apache.org/quickstart)</br>

@@ -24,8 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @Testcontainers
 @ExtendWith(SpringExtension.class)
 @Tag("Module3")
-// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
-@Disabled
 public class GreetingSqlServiceTest {
 
     @Container
@@ -57,23 +55,37 @@ public class GreetingSqlServiceTest {
                 event_id VARCHAR(255) PRIMARY KEY,
                 sender VARCHAR(255),
                 receiver VARCHAR(255),
-                message VARCHAR(255)
+                message TEXT
             );
         """);
     }
 
     @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
+    @Disabled
     void insertTest() {
-        GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hello");
-        GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "Diana", "Hi!");
+        GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
+        GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");
+        // This event is a duplicate, will be ignored by SQL
+        GreetingEvent event3 = new GreetingEvent("id1", "Echo", "Frank", "Hello there.");
 
         int insert1 = greetingSqlService.insert(event1);
         int insert2 = greetingSqlService.insert(event2);
+        int insert3 = greetingSqlService.insert(event3);
 
         assertEquals(1, insert1);
         assertEquals(1, insert2);
+        assertEquals(0, insert3);
 
-        List<GreetingEvent> results = greetingSqlService.queryAllEvents();
+        List<GreetingEvent> results = jdbcTemplate.query(
+                "SELECT event_id, sender, receiver, message FROM test_greeting_table",
+                (rs, rowNum) -> new GreetingEvent(
+                        rs.getString("event_id"),
+                        rs.getString("sender"),
+                        rs.getString("receiver"),
+                        rs.getString("message")
+                )
+        );
 
         assertEquals(2, results.size());
         assertTrue(results.contains(event1));
@@ -81,18 +93,58 @@ public class GreetingSqlServiceTest {
     }
 
     @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
+    @Disabled
     void insertBatchTest() {
         GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hello");
-        GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "Diana", "Hi!");
+        GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Hi!");
+        // This event is a duplicate, will be ignored by SQL
+        GreetingEvent event3 = new GreetingEvent("id1", "Echo", "Frank", "Hello there.");
 
-        int result = greetingSqlService.insertBatch(List.of(event1, event2));
+        int result = greetingSqlService.insertBatch(List.of(event1, event2, event3));
 
         assertEquals(2, result);
 
-        List<GreetingEvent> results = greetingSqlService.queryAllEvents();
+        List<GreetingEvent> results = jdbcTemplate.query(
+                "SELECT event_id, sender, receiver, message FROM test_greeting_table",
+                (rs, rowNum) -> new GreetingEvent(
+                        rs.getString("event_id"),
+                        rs.getString("sender"),
+                        rs.getString("receiver"),
+                        rs.getString("message")
+                )
+        );
 
         assertEquals(2, results.size());
         assertTrue(results.contains(event1));
         assertTrue(results.contains(event2));
+    }
+
+    @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
+    @Disabled
+    void queryTest() {
+        GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
+        GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");
+        // This event is a duplicate, will be ignored by SQL
+        GreetingEvent event3 = new GreetingEvent("id1", "Echo", "Frank", "Hello there.");
+
+        greetingSqlService.insert(event1);
+        List<GreetingEvent> output1 = greetingSqlService.queryAllEvents();
+        greetingSqlService.insert(event2);
+        List<GreetingEvent> output2 = greetingSqlService.queryAllEvents();
+        greetingSqlService.insert(event3);
+        List<GreetingEvent> output3 = greetingSqlService.queryAllEvents();
+
+        assertEquals(1, output1.size());
+        assertEquals(2, output2.size());
+        assertEquals(2, output3.size());
+
+        assertTrue(output1.contains(event1));
+        assertTrue(output2.contains(event1));
+        assertTrue(output2.contains(event2));
+        assertTrue(output3.contains(event1));
+        assertTrue(output3.contains(event2));
+        assertFalse(output3.contains(event3));
     }
 }

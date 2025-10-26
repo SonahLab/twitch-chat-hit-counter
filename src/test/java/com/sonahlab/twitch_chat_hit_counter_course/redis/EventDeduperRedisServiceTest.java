@@ -78,7 +78,8 @@ public class EventDeduperRedisServiceTest {
 
         @Bean
         public EventDeduperRedisService eventDedupeRedisService(@Qualifier("eventDedupeRedisDao") RedisDao redisDao, ObjectMapper objectMapper) {
-            return new EventDeduperRedisService(redisDao, objectMapper);
+            // TODO: Update when RedisConfig.java is implemented
+            return new EventDeduperRedisService();
         }
 
         @Bean

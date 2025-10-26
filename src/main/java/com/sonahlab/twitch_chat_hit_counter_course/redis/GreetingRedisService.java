@@ -28,7 +28,7 @@ public class GreetingRedisService {
     /**
      * TODO: Implement as part of Module 4
      * */
-    public GreetingRedisService(RedisDao redisDao, ObjectMapper objectMapper) {}
+    public GreetingRedisService() {}
 
     public void addGreetingToFeed(GreetingEvent event) {}
 

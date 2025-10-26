@@ -19,7 +19,7 @@ public class EventDeduperRedisService {
     /**
      * TODO: Implement as part of Module 4
      * */
-    public EventDeduperRedisService(RedisDao redisDao, ObjectMapper objectMapper) {}
+    public EventDeduperRedisService() {}
 
     public void processEvent(GreetingEvent event) {}
 

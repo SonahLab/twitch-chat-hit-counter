@@ -77,7 +77,8 @@ public class GreetingRedisServiceTest {
 
         @Bean
         public GreetingRedisService greetingRedisService(@Qualifier("greetingRedisDao") RedisDao redisDao, ObjectMapper objectMapper) {
-            return new GreetingRedisService(redisDao, objectMapper);
+            // TODO: Update when RedisConfig.java is implemented
+            return new GreetingRedisService();
         }
 
         @Bean

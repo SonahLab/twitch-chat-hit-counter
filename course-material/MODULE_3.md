@@ -209,6 +209,7 @@ Task 2:<br>
 Now hook up the `GreetingEventService.java` to our `GreetingEventConsumer.java`. Everytime the event is consumed, we will call the `GreetingSqlService.insert()` method to persist that event into the SQL DB.
 
 Task 3:<br>
+![](course-material/assets/module3/images/exercise2.svg)<br>
 Now implement the `GET /api/queryGreetingEventsFromSQL` API endpoint in `ApplicationRestController.java`.
 We want our HTTP Controller to call the GreetingSqlService to fetch all the records in our SQL table.
 
@@ -218,7 +219,24 @@ We want our HTTP Controller to call the GreetingSqlService to fetch all the reco
 2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module3`
 
 ### Exercise 3: Implement GreetingSqlService.insertBatch()
+![](course-material/assets/module3/images/exercise3.svg)<br>
 Implement `public int insertBatch(List<GreetingEvent> events) {}`.
 
 Similar to our lesson in Module 2 where we want to optimize the # of IO calls to our server, instead of writing 1M events into our SQL DB using 1M write calls, we will try to write in a batch of events to make less round trips to the SQL server.
 
+This method will look very similar to the `insert()` method, the only difference is that pack more events into the SQL statement than in the previous method.
+Here's a brief overview of how to implement batch insert statements with JdbcTemplate in Spring boot: https://docs.spring.io/spring-framework/reference/data-access/jdbc/advanced.html
+
+Requirements:
+1. Create a new SQL table `batch_greeting_events` with the same schema as the first sql table
+```yml
+twitch-chat-hit-counter:
+  sql:
+    greeting-table-batch: greeting_batch_events
+```
+2. Make sure to also hook up our `GreetingEventBatchConsumer.java` to call `GreetingSqlService.insertBatch()` method.
+
+#### Testing
+`GreetingSqlServiceTest.java` ─ already implemented
+1. Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method: `insertBatchTest()`
+2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module3`

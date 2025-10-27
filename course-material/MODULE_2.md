@@ -66,7 +66,7 @@ twitch-chat-hit-counter/src/
                 └── GreetingEventProducerTest.java
 ```
 ## Objective
-![](course-material/assets/module2/images/Module2_Overview.svg)<br>
+![](assets/module2/images/Module2_Overview.svg)<br>
 
 ### Setup Local Kafka Server
 Let’s start our local Kafka instance via Docker (https://kafka.apache.org/quickstart)</br>
@@ -77,7 +77,7 @@ Let’s start our local Kafka instance via Docker (https://kafka.apache.org/quic
 > ```$ docker run -p 9092:9092 apache/kafka:4.1.0```<br>
 
 In Docker, you should now see the kafka container running locally.
-![](course-material/assets/module2/images/Docker_kafka.jpg)<br>
+![](assets/module2/images/Docker_kafka.jpg)<br>
 
 In Offset Explorer 3, connect to our Kafka cluster running in Docker.
 1. Input cluster configs:
@@ -85,7 +85,7 @@ In Offset Explorer 3, connect to our Kafka cluster running in Docker.
 > **Bootstrap servers:** localhost:9092
 2. Click 'Test' to verify that OE3 is able to connect to the Docker container
 3. Double-click on the new created cluster to connect (red circle -> green circle)
-![](course-material/assets/module2/OffsetExplorer3.gif)<br>
+![](assets/module2/OffsetExplorer3.gif)<br>
 
 Create our first kafka topic:
 1. Navigate to the Clusters/twitch-chat-hit-counter/Topics folder
@@ -96,7 +96,7 @@ Create our first kafka topic:
 > **Replica Count**: 1
 4. Select our kafka topic Clusters/twitch-chat-hit-counter/Topics/greeting-events
 5. Change key and value from 'Byte Array' to 'String', and save by clicking 'Update'
-![](course-material/assets/module2/create_topic.gif)<br>
+![](assets/module2/create_topic.gif)<br>
 > <picture>
 >   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Mqxx/GitHub-Markdown/main/blockquotes/badge/light-theme/info.svg">
 >   <img alt="Info" src="https://raw.githubusercontent.com/Mqxx/GitHub-Markdown/main/blockquotes/badge/dark-theme/info.svg">
@@ -121,7 +121,7 @@ In a big tech company, you want a retention policy that gives you enough time to
 
 
 ### Exercise 1: Implement a Kafka Message Producer
-![](course-material/assets/module2/images/exercise1.svg)<br>
+![](assets/module2/images/exercise1.svg)<br>
 `application.yml` ─ our service's configuration file<br>
 `KafkaConfig.java` ─ Configuration class to store our Kafka related Beans</br>
 `GreetingEvent.java` ─ the POJO class that encapsulates a simple greeting object.</br> 
@@ -165,7 +165,7 @@ Auto-configuration in Spring Boot is driven by the @EnableAutoConfiguration (or 
 | `spring.kafka.producer.key-serializer`     | **Required** | **Producer** | <ul><li>`org.apache.kafka.common.serialization.StringSerializer`</li><li>`org.apache.kafka.common.serialization.IntegerSerializer`</li><li>`org.apache.kafka.common.serialization.LongSerializer`</li><li>`org.apache.kafka.common.serialization.DoubleSerializer`</li><li>`org.apache.kafka.common.serialization.FloatSerializer`</li><li>`org.apache.kafka.common.serialization.ByteArraySerializer`</li><li>`org.apache.kafka.common.serialization.UUIDSerializer`</li><li>`org.springframework.kafka.support.serializer.JsonSerializer`</li></ul>                 | Converts produced kafka message key to object (e.g., `String`). Must match key-deserializer on consumer.                                         |
 | `spring.kafka.producer.value-serializer`   | **Required** | **Producer** | Same list as `key-serializer` (most common: `StringSerializer`, `JsonSerializer`, `ByteArraySerializer`).<br>                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Converts produced kafka message value to object (e.g., `String`). Must match value-deserializer on consumer.                                     |
 - List of Spring Kafka supported fields: https://gist.github.com/geunho/77f3f9a112ea327457353aa407328771
-![](course-material/assets/module2/images/ser_deser.svg)<br>
+![](assets/module2/images/ser_deser.svg)<br>
 
 Requirements:
 1. We want to connect to our local Docker Kafka server (bootstrap-servers) (HINT: localhost:9092)
@@ -252,7 +252,7 @@ Requirements:
 4. Check Offset Explorer 3 to see that your GreetingEvent is actually published to our kafka topic. 
 
 ### Exercise 2: Implement a Kafka Message Consumer
-![](course-material/assets/module2/images/exercise2.svg)<br>
+![](assets/module2/images/exercise2.svg)<br>
 `application.yml` ─ our service's configuration file</br>
 `KafkaConfig.java` ─ Configuration class to store our Kafka related Beans</br>
 `GreetingEvent.java` ─ the POJO class that encapsulates a simple greeting object.</br>
@@ -263,7 +263,7 @@ Requirements:
 
 
 ### Lesson: Input/Output (IO) Operations
-![](course-material/assets/module2/images/IO.svg)<br>
+![](assets/module2/images/IO.svg)<br>
 Quick Overview on what happens when we call read/write IOs on a server.<br>
 Writes:
 > -> Microservice (client) tells Data Center (server) to store persistent data.<br>
@@ -289,4 +289,4 @@ This simple example shows the benefit of introducing batch operations in your ap
 This brings us to the next exercise, creating a Batch Consumer.
 
 ### Exercise 3: Implement BATCH Kafka Message Consumer
-![](course-material/assets/module2/images/exercise3.svg)<br>
+![](assets/module2/images/exercise3.svg)<br>

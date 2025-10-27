@@ -48,7 +48,7 @@ twitch-chat-hit-counter/src/
             └── GreetingSqlServiceTest.java
 ```
 ## Objective
-![](course-material/assets/module3/images/Module3_Overview.svg)<br>
+![](assets/module3/images/Module3_Overview.svg)<br>
 In Module 2, we were consuming the kafka messages and just logging them to stdout. This module goes a step further and stores these GreetingEvents in a SQL DB.
 
 ## Setup Local MySQL Server
@@ -64,7 +64,7 @@ docker run \
     -d mysql:latest
 ```
 In Docker, you should now see the MySQL container running locally. We now have both a Kafka server and a MySQL server.
-![](course-material/assets/module3/images/Docker.jpg)<br>
+![](assets/module3/images/Docker.jpg)<br>
 
 Open MySQLWorkbench and connect to our MySQL instance running in Docker.
 1. Click Add Connection (circle with a '+' sign)<br>
@@ -72,7 +72,7 @@ Open MySQLWorkbench and connect to our MySQL instance running in Docker.
 3. Click 'Test Connection' to verify that MySQLWorkbench is able to connect to the Docker container
 4. Click 'OK' to finish setting up the connection
 5. Connect to the SQL instance
-![](course-material/assets/module3/images/mysqlworkbench_setup.jpg)<br>
+![](assets/module3/images/mysqlworkbench_setup.jpg)<br>
 
 Let's Create our first SQL table.
 1. Click on 'Schemas' tab
@@ -86,10 +86,10 @@ CREATE TABLE dev_db.greeting_events (
     message TEXT
 )
 ```
-![](course-material/assets/module3/images/mysqlworkbench_create_table.gif)<br>
+![](assets/module3/images/mysqlworkbench_create_table.gif)<br>
 
 ### Exercise 1: Implement GreetingSqlService.insert()
-![](course-material/assets/module3/images/exercise1.svg)<br>
+![](assets/module3/images/exercise1.svg)<br>
 
 #### Example 1:
 > **Input**:<br>
@@ -209,7 +209,7 @@ Task 2:<br>
 Now hook up the `GreetingEventService.java` to our `GreetingEventConsumer.java`. Everytime the event is consumed, we will call the `GreetingSqlService.insert()` method to persist that event into the SQL DB.
 
 Task 3:<br>
-![](course-material/assets/module3/images/exercise2.svg)<br>
+![](assets/module3/images/exercise2.svg)<br>
 Now implement the `GET /api/queryGreetingEventsFromSQL` API endpoint in `ApplicationRestController.java`.
 We want our HTTP Controller to call the GreetingSqlService to fetch all the records in our SQL table.
 
@@ -219,7 +219,7 @@ We want our HTTP Controller to call the GreetingSqlService to fetch all the reco
 2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module3`
 
 ### Exercise 3: Implement GreetingSqlService.insertBatch()
-![](course-material/assets/module3/images/exercise3.svg)<br>
+![](assets/module3/images/exercise3.svg)<br>
 Implement `public int insertBatch(List<GreetingEvent> events) {}`.
 
 Similar to our lesson in Module 2 where we want to optimize the # of IO calls to our server, instead of writing 1M events into our SQL DB using 1M write calls, we will try to write in a batch of events to make less round trips to the SQL server.

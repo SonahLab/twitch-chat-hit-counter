@@ -134,12 +134,12 @@ Create and implement method `public int takeDamage(int damage) {}`, where you wi
 Return the updated character HP.</br>
 
 #### Example 1:
-> ![](course-material/assets/module1/images/takeDamage_50.png)<br>
+> ![](assets/module1/images/takeDamage_50.png)<br>
 > Input: `damage = 50`; // Assume HP = 100</br>
 > Output: `50`</br>
 
 #### Example 2:
-> ![](course-material/assets/module1/images/takeDamage_110.png)<br>
+> ![](assets/module1/images/takeDamage_110.png)<br>
 > Input: `damage = 110`; // Assume HP = 100</br>
 > Output: `0`</br>
 > Explanation: A character's HP should never be negative. (min capped at 0)</br>
@@ -154,35 +154,35 @@ Rules:</br>
 3. Decrement the quantity of the consumed `Potion` by 1 in the `character` inventory.
 4. Remove the `Potion` from the `character` inventory if the quantity has hit `0`.
 #### Example 1:
-> ![](course-material/assets/module1/images/consumePotion_HP_25.jpg)<br>
+> ![](assets/module1/images/consumePotion_HP_25.jpg)<br>
 > **Input**: <span style="color:#0000008c">potion = Potion.HP_POTION // Assume HP = 25</br></span>
 > **Output**: <span style="color:#0000008c">75<br></span>
 
 #### Example 2:
-> ![](course-material/assets/module1/images/consumePotion_HP_99.jpg)<br>
+> ![](assets/module1/images/consumePotion_HP_99.jpg)<br>
 > **Input**: <span style="color:#0000008c">potion = Potion.HP_POTION // Assume HP = 99</br></span>
 > **Output**: <span style="color:#0000008c">100<br></span>
 > **Explanation**: <span style="color:#0000008c">A character's HP should never be above 100. (max capped at 100)</br></span>
 
 #### Example 3:
-> ![](course-material/assets/module1/images/consumePotion_MP_25.jpg)<br>
+> ![](assets/module1/images/consumePotion_MP_25.jpg)<br>
 > **Input**: <span style="color:#0000008c">potion = Potion.MP_POTION // Assume MP = 25</br></span>
 > **Output**: <span style="color:#0000008c">75<br></span>
 
 #### Example 4:
-> ![](course-material/assets/module1/images/consumePotion_MP_99.jpg)<br>
+> ![](assets/module1/images/consumePotion_MP_99.jpg)<br>
 > **Input**: <span style="color:#0000008c">potion = Potion.MP_POTION // Assume MP = 99<br></span>
 > **Output**: <span style="color:#0000008c">100<br></span>
 > **Explanation**: <span style="color:#0000008c">A character's MP should never be above 100. (max capped at 100)<br></span>
 
 #### Example 5:
-> ![](course-material/assets/module1/images/consumePotion_Remove.jpg)<br>
+> ![](assets/module1/images/consumePotion_Remove.jpg)<br>
 > **Input**: <span style="color:#0000008c">potion = Potion.HP_POTION // Assume HP = 25<br></span>
 > **Output**: <span style="color:#0000008c">75<br></span>
 > **Explanation**: <span style="color:#0000008c">The Inventory should no longer contain the HP_POTION now that the quantity of this item is 0.<br></span>
 
 #### Example 6:
-> ![](course-material/assets/module1/images/consumePotion_Error.jpg)<br>
+> ![](assets/module1/images/consumePotion_Error.jpg)<br>
 > **Input**: <span style="color:#0000008c">potion = Potion.HP_POTION // Assume HP = 50<br></span>
 > **Output**: <span style="color:#0000008c">-1<br></span>
 > **Explanation**: <span style="color:#0000008c">There are no HP_POTION in the inventory, so we can't consume this potion.<br></span>
@@ -190,7 +190,7 @@ Rules:</br>
 ### Subtask 2.3:
 Create and implement method `public void getCharacterState() {}`, where you will return a Map<String, Object> representing the character's current state (HP/MP/Inventory).
 #### Example 1:
-> ![](course-material/assets/module1/images/characterState.jpg)<br>
+> ![](assets/module1/images/characterState.jpg)<br>
 > **Input**: <span style="color:#0000008c">None // Assume the character starts with 100 HP and MP, and 5 of each HP/MP potions.<br></span>
 > **Output**:
 > ```json

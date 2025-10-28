@@ -97,11 +97,6 @@ Create our first kafka topic:
 4. Select our kafka topic Clusters/twitch-chat-hit-counter/Topics/greeting-events
 5. Change key and value from 'Byte Array' to 'String', and save by clicking 'Update'
 ![](assets/module2/create_topic.gif)<br>
-> <picture>
->   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Mqxx/GitHub-Markdown/main/blockquotes/badge/light-theme/info.svg">
->   <img alt="Info" src="https://raw.githubusercontent.com/Mqxx/GitHub-Markdown/main/blockquotes/badge/dark-theme/info.svg">
-> </picture><br>
-> You can also download the Kafka release and do everything in your Command Line (CLI), but I find Offset Explorer 3 an intuitive, easy-to-use visual tool.
 
 Quick Aside:<br>
 Partition Count - number of partitioned logs that make up an entire kafka dataset. Think of this as multiple assembly lines in a factory.

@@ -88,10 +88,10 @@ CREATE TABLE dev_db.greeting_events (
 ```
 ![](assets/module3/images/mysqlworkbench_create_table.gif)<br>
 
-### Exercise 1: Implement GreetingSqlService.insert()
+## Exercise 1: Implement GreetingSqlService.insert()
 ![](assets/module3/images/exercise1.svg)<br>
 
-#### Example 1:
+### Example 1:
 > **Input**:<br>
 > <span style="color:#0000008c">GreetingSqlService greetingSqlService = new GreetingSqlService(...);<br></span>
 > <span style="color:#0000008c">GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");<br></span>
@@ -102,12 +102,9 @@ CREATE TABLE dev_db.greeting_events (
 > <span style="color:#0000008c">**int output2 = greetingSqlService.insert(event2);** // should return 1<br></span>
 > <span style="color:#0000008c">**int output3 = greetingSqlService.insert(event3);** // should return 0 (event3.eventId == "id1" which already exists in the table)<br></span>
 >
-> **Output1**:<br>
-> <span style="color:#0000008c">1<br></span>
-> **Output2**:<br>
-> <span style="color:#0000008c">1<br></span>
-> **Output3**:<br>
-> <span style="color:#0000008c">0<br></span>
+> **Output1**: <span style="color:#0000008c">1<br></span>
+> **Output2**: <span style="color:#0000008c">1<br></span>
+> **Output3**: <span style="color:#0000008c">0<br></span>
 
 Add our SQL table name to our application.yml properties
 ```yaml
@@ -132,12 +129,12 @@ ON {SOME_FILTER}
 ```
 Here's a very helpful link on how to ensure writes to SQL, deduplicate events: https://stackoverflow.com/questions/14383503/on-duplicate-key-update-same-as-insert
 
-#### Testing
+### Testing
 `GreetingSqlServiceTest.java` ─ already implemented
 1. Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method: `insertTest()`
 2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module3`
 
-### Exercise 2: Implement GreetingSqlService.queryAllEvents()
+## Exercise 2: Implement GreetingSqlService.queryAllEvents()
 Implement `public List<GreetingEvent> queryAllEvents() {}`. This method should read all the events in our SQL table.
 Return a list of `GreetingEvent`.
 

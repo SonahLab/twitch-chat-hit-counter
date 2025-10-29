@@ -1,10 +1,11 @@
 # Practical Backend Engineer
-## twitch-chat-hit-counter
+## Twitch Chat Hit Counter
 
-### Module 3: SQL
+## Module 3: SQL
 #### Recommended Learning Materials
 - https://dev.mysql.com/downloads/workbench/
-#### Overview
+
+## Overview
 Now we’re foraying into the land of databases.
 
 SQL Databases, a.k.a. Relational DataBase Management System (RDBMS), a.k.a. the OG database.
@@ -20,6 +21,12 @@ At Netflix, I run SQL queries via:
 - CQL (looks pretty much like SQL) on top of our Apache Cassandra tables
 
 This course won’t dive too deeply into SQL queries, we will instead be focusing on setting up and populating our own SQL db.
+
+
+
+
+
+<hr style="border: 1px solid #eeebee;">
 
 ### File Structure
 For `Module 3`, the below file structure are all the relevant files needed.
@@ -48,13 +55,26 @@ twitch-chat-hit-counter/src/
         └── sql/
             └── GreetingSqlServiceTest.java
 ```
+
+
+
+
+<hr style="border: 1px solid #eeebee;">
+
 ## Objective
 ![](assets/module3/images/Module3_Overview.svg)<br>
-In Module 2, we were consuming the kafka messages and just logging them to stdout. This module goes a step further and stores these GreetingEvents in a SQL DB.
+In **Module 2**, we were consuming the kafka messages and just logging them to _stdout_.<br> 
+**Module 3** goes one step further and stores these GreetingEvents in a SQL DB.
+
+
+
+
+
+<hr style="border: 1px solid #eeebee;">
 
 ## Setup Local MySQL Server
-Let's start our local MySQL Server via Docker:
-1. Open and login to Docker Desktop
+Start our local MySQL Server via Docker:
+1. Open and login to **Docker Desktop**
 2. Start the MySQL Docker container:
 ```shell
 docker run \
@@ -64,21 +84,28 @@ docker run \
     -p 3306:3306 \
     -d mysql:latest
 ```
-In Docker, you should now see the MySQL container running locally. We now have both a Kafka server and a MySQL server.
+
+In **Docker**, you should now see the MySQL container running locally. We now have both a Kafka server and a MySQL server.
 ![](assets/module3/images/Docker.jpg)<br>
 
-Open MySQLWorkbench and connect to our MySQL instance running in Docker.
+Open **MySQLWorkbench** and connect to the MySQL instance running in Docker.
 1. Click Add Connection (circle with a '+' sign)<br>
 2. Input **twitch-chat-hit-counter-mysql-dev** as the connection name<br>
-3. Click 'Test Connection' to verify that MySQLWorkbench is able to connect to the Docker container
-4. Click 'OK' to finish setting up the connection
+3. Click '**Test Connection**' to verify that MySQLWorkbench is able to connect to the SQL server
+4. Click '**OK**' to finish setting up the connection
 5. Connect to the SQL instance
 ![](assets/module3/images/mysqlworkbench_setup.jpg)<br>
 
-Let's Create our first SQL table.
-1. Click on 'Schemas' tab
-2. Navigate to dev_db -> Tables (should be empty)
-3. Now run this SQL Query in the editor:
+
+
+
+
+<hr style="border: 1px solid #eeebee;">
+
+## Create your first SQL table
+1. Click on '**Schemas**' tab
+2. Navigate to _dev_db_ → _Tables_
+3. Now run the SQL Query in the editor:
 ```
 CREATE TABLE dev_db.greeting_events (
     event_id VARCHAR(255) PRIMARY KEY,
@@ -88,6 +115,12 @@ CREATE TABLE dev_db.greeting_events (
 )
 ```
 ![](assets/module3/images/mysqlworkbench_create_table.gif)<br>
+
+
+
+
+
+<hr style="border: 1px solid #eeebee;">
 
 ## Exercise 1: Implement GreetingSqlService.insert()
 ![](assets/module3/images/exercise1.svg)<br>
@@ -135,6 +168,12 @@ Here's a very helpful link on how to ensure writes to SQL, deduplicate events: h
 1. Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method: `insertTest()`
 2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module3`
 
+
+
+
+
+<hr style="border: 1px solid #eeebee;">
+
 ## Exercise 2: Implement GreetingSqlService.queryAllEvents()
 Implement `public List<GreetingEvent> queryAllEvents() {}`. This method should read all the events in our SQL table.
 Return a list of `GreetingEvent`.
@@ -154,52 +193,52 @@ Return a list of `GreetingEvent`.
 > 
 > <span style="color:#0000008c">greetingSqlService.insert(event3);<br></span>
 > <span style="color:#0000008c">**List\<GreetingEvent> output3 = greetingSqlService.queryAllEvents();** // Should return 2 events<br></span>
-
-**Output1**:<br>
-```json
-[
-    {
-        "eventId": "id1",
-        "sender": "Alice",
-        "receiver": "Bob",
-        "message": "Hi Bob, I'm Alice!"
-    }
-]
-```
-**Output2**:<br>
-```json
-[
-  {
-    "eventId": "id1",
-    "sender": "Alice",
-    "receiver": "Bob",
-    "message": "Hi Bob, I'm Alice!"
-    },
-  {
-    "eventId": "id2",
-    "sender": "Charlie",
-    "receiver": "David",
-    "message": "Yo."
-  }
-]
-```
-**Output3**:<br>
-```json
-[
-  {
-    "eventId": "id1",
-    "sender": "Alice",
-    "receiver": "Bob",
-    "message": "Hi Bob, I'm Alice!"
-    },
-  {
-    "eventId": "id2",
-    "sender": "Charlie",
-    "receiver": "David",
-    "message": "Yo."
-  }
-]
-```
+> 
+> **Output1**:<br>
+> ```json
+> [
+>     {
+>         "eventId": "id1",
+>         "sender": "Alice",
+>         "receiver": "Bob",
+>         "message": "Hi Bob, I'm Alice!"
+>     }
+> ]
+> ```
+> **Output2**:<br>
+> ```json
+> [
+>   {
+>     "eventId": "id1",
+>     "sender": "Alice",
+>     "receiver": "Bob",
+>     "message": "Hi Bob, I'm Alice!"
+>     },
+>   {
+>     "eventId": "id2",
+>     "sender": "Charlie",
+>     "receiver": "David",
+>     "message": "Yo."
+>   }
+> ]
+> ```
+> **Output3**:<br>
+> ```json
+> [
+>   {
+>     "eventId": "id1",
+>     "sender": "Alice",
+>     "receiver": "Bob",
+>     "message": "Hi Bob, I'm Alice!"
+>     },
+>   {
+>     "eventId": "id2",
+>     "sender": "Charlie",
+>     "receiver": "David",
+>     "message": "Yo."
+>   }
+> ]
+> ```
 
 This task is quite trivial if you know about SQL Query (https://www.w3schools.com/sql/sql_syntax.asp), you will now utilize the `JdbcTemplate` to query and parse the response back to a List\<GreetingEvent>.
 

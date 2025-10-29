@@ -50,7 +50,7 @@ Think of Kafka as a temporary message queue where events are stored with an expi
 
 <hr style="border: 1px solid #eeebee;">
 
-### File Structure
+## File Structure
 For `Module 2`, the below file structure are all the relevant files needed.
 ```
 twitch-chat-hit-counter/src/
@@ -89,6 +89,7 @@ twitch-chat-hit-counter/src/
 
 ## Objective
 ![](assets/module2/images/Module2_Overview.svg)<br>
+**Module 2** is mostly about setting up an HTTP request endpoint that will take a User submitted GreetingEvent and pub/sub the event onto a kafka topic. 
 
 
 
@@ -115,7 +116,7 @@ In **Offset Explorer 3**, connect to our Kafka cluster running in Docker.
 1. Input cluster configs:
    1. **Cluster name:** twitch-chat-hit-counter<br>
    2. **Bootstrap servers:** localhost:9092
-2. Click **Test** to verify that OE3 is able to connect to the Docker container
+2. Click '**Test**' to verify that OE3 is able to connect to the Docker container
 3. Double-click on the newly created cluster to connect to the instance
 
 ![](assets/module2/OffsetExplorer3.gif)<br>
@@ -126,7 +127,7 @@ In **Offset Explorer 3**, connect to our Kafka cluster running in Docker.
 
 <hr style="border: 1px solid #eeebee;">
 
-## Create our first kafka topic
+## Create your first kafka topic
 1. Navigate to the _**Clusters/twitch-chat-hit-counter/Topics**_ folder
 2. Click '+' to add a new kafka topic
 3. Input kafka topic configs:

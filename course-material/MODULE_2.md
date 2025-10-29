@@ -1,14 +1,24 @@
-# twitch-chat-hit-counter
-
-### Module 2: Kafka
-#### Recommended Learning Materials
+# Practical Backend Engineer
+## Twitch Chat Hit Counter
+## Module 2: Kafka
+### Recommended Learning Materials
 - **Kafka**: https://kafka.apache.org/intro
+- **Cloud Karafka Kafka Overview**: https://www.cloudkarafka.com/blog/part1-kafka-for-beginners-what-is-apache-kafka.html
 - **Confluent**: https://docs.confluent.io/kafka/introduction.html
 - **Spring Boot Kafka**: https://spring.io/projects/spring-kafka
 - **Baeldung Spring Kafka:** https://www.baeldung.com/spring-kafka
 - Spring Boot Kafka Integration: https://www.geeksforgeeks.org/spring-boot-integration-with-kafka/
 
-#### Overview
+> [!TIP]
+>
+> Take the time to read through the Kafka links listed above.<br>
+
+
+
+
+<hr style="border: 1px solid #eeebee;">
+
+## Overview
 I highly recommend reading through the Kafka Introduction above to learn what Kafka is, how it works, and why it’s used ubiquitously in large distributed systems.
 
 Kafka is a distributed message log, where it temporarily holds incoming events.
@@ -35,6 +45,10 @@ Think of Kafka as a temporary message queue where events are stored with an expi
 
 *** My rule of thumb: if you work at a big tech company and are in charge of a realtime event pipeline, and you don’t have mechanisms in place to catch/fix issues within 24 hours before old events are purged, this is a clear engineering diff, and there are big gaps in the system. Kafka isn’t meant for long-term storage, so you shouldn’t have super long TTL’s on the events, git gud and fix your system.
 
+
+
+
+<hr style="border: 1px solid #eeebee;">
 
 ### File Structure
 For `Module 2`, the below file structure are all the relevant files needed.
@@ -65,90 +79,97 @@ twitch-chat-hit-counter/src/
             └── producer/
                 └── GreetingEventProducerTest.java
 ```
+
+
+
+
+
+
+<hr style="border: 1px solid #eeebee;">
+
 ## Objective
 ![](assets/module2/images/Module2_Overview.svg)<br>
 
-### Setup Local Kafka Server
-Let’s start our local Kafka instance via Docker (https://kafka.apache.org/quickstart)</br>
-1. Open and login to Docker Desktop
+
+
+
+
+<hr style="border: 1px solid #eeebee;">
+
+## Setup Local Kafka Server
+Start our local Kafka instance via Docker (https://kafka.apache.org/quickstart)</br>
+1. Open and login to **Docker Desktop**
 2. Get the Docker image:
-> ```$ docker pull apache/kafka:4.1.0```<br>
+```bash
+docker pull apache/kafka:4.1.0
+```
 3. Start the Kafka Docker container:
-> ```$ docker run -p 9092:9092 apache/kafka:4.1.0```<br>
-
-In Docker, you should now see the kafka container running locally.
-![](assets/module2/images/Docker_kafka.jpg)<br>
-
-In Offset Explorer 3, connect to our Kafka cluster running in Docker.
-1. Input cluster configs:
-> **Cluster name:** twitch-chat-hit-counter<br>
-> **Bootstrap servers:** localhost:9092
-2. Click 'Test' to verify that OE3 is able to connect to the Docker container
-3. Double-click on the new created cluster to connect (red circle -> green circle)
-![](assets/module2/OffsetExplorer3.gif)<br>
-
-Create our first kafka topic:
-1. Navigate to the Clusters/twitch-chat-hit-counter/Topics folder
-2. Click '+' to add a new kafka topic
-3. Input kafka topic configs:
-> **Topic name**: greeting-events<br>
-> **Partition Count**: 3<br>
-> **Replica Count**: 1
-4. Select our kafka topic Clusters/twitch-chat-hit-counter/Topics/greeting-events
-5. Change key and value from 'Byte Array' to 'String', and save by clicking 'Update'
-![](assets/module2/create_topic.gif)<br>
-
-Quick Aside:<br>
-Partition Count - number of partitioned logs that make up an entire kafka dataset. Think of this as multiple assembly lines in a factory.
-This significantly speeds up the amount of messages to be processed, but too many partitions can be detrimental. Everything in distributed systems, has a tradeoff and is a bit of a balancing act.<br>
-Replica Count - number of data copies in a partition. <br>
-Example:<br>
-Say you _**only**_ have one copy of your data, and Elon Musk comes in and cuts the server wires.
-Your application will not be able to read/write to your kafka topic and it's partitions.
-If you had 3 copies of your data, and Elon Musk cuts the server wires, you _**ideally**_ have copies in different servers.
-If the leader node was in the server that Elon Musk cut, then Kafka would promote any of the follower nodes to act as the new leader.
-Main Idea: Never have any system have a single point of failure.
-
-Kafka Topics ARE NOT databases, they are Write Ahead Logs (WAL). They are temporary message queues.
-The partition configs default `delete.retention.ms=86400000` (1 day). The longer the data retention, the more costly it is on infra costs for Kafka to store your events.
-This data retention depends on the scale of data you are dealing with. If you store 1000 events this is pretty small, if you store 100s of billions of events you will want a lower retention policy.
-In a big tech company, you want a retention policy that gives you enough time to re-process errors and not lose events if something catastrophic happens.
-
-
-### Exercise 1: Implement a Kafka Message Producer
-![](assets/module2/images/exercise1.svg)<br>
-`application.yml` ─ our service's configuration file<br>
-`KafkaConfig.java` ─ Configuration class to store our Kafka related Beans</br>
-`GreetingEvent.java` ─ the POJO class that encapsulates a simple greeting object.</br> 
-`GreetingEventProducer.java` ─ the class that publishes `GreetingEvent` objects to our dedicated kafka topic `greeting_topic` 
-
-Hopefully, you've spent some time to brush up on Kafka and the role of the producer. If not, go and do that now.</br>
-
-Implement the `public boolean publish(String messageId, GreetingEvent event) {}` method, which takes a kafka `messageId` and a `GreetingEvent`, writes a new kafka message into the kafka topic.</br>
-Return the status of the kafka topic write operation.</br>
-
-#### Example 1:
-> **Input**:<br> <span style="color:#0000008c">
-> messageId = "UUID1",<br>
-> greetingEvent = new GreetingEvent(eventId="UUID1", sender="Alice", receiver="Bob", message="Hi Bob")<br></span>
-> **Output**: <span style="color:#0000008c">true<br></span>
-> **Explanation**:
-```java
-GreetingEventProducer producer = new GreetingEventProducer();
-String eventId = "UUID1";
-GreetingEvent event = new GreetingEvent(eventId, "Alice", "Bob", "Hi Bob, I'm Alice!");
-boolean result = producer.publish(eventId, event);
-// 'result' boolean depends on successfully publishing a kafka message onto the topic. 
+```bash
+docker run -p 9092:9092 apache/kafka:4.1.0
 ```
 
-#### Quick Lesson on AutoConfiguration in Spring Boot
-**Spring Boot Auto-configuration lifecycle** is a core mechanism that allows Spring Boot to automatically configure beans and settings based on the classpath, properties, and conditions.<br>
-Auto-configuration in Spring Boot is driven by the @EnableAutoConfiguration (or @SpringBootApplication, which includes it) annotation and follows a well-defined lifecycle:
-> 1. Application startup: 
-> The Spring Boot application starts via SpringApplication.run(...).
-     @SpringBootApplication triggers: @ComponentScan @EnableAutoConfiguration
+In **Docker**, you should now see the kafka container running locally.
+![](assets/module2/images/Docker_kafka.jpg)<br>
 
-#### Task 1: Configure application.yml
+In **Offset Explorer 3**, connect to our Kafka cluster running in Docker.
+1. Input cluster configs:
+   1. **Cluster name:** twitch-chat-hit-counter<br>
+   2. **Bootstrap servers:** localhost:9092
+2. Click **Test** to verify that OE3 is able to connect to the Docker container
+3. Double-click on the newly created cluster to connect to the instance
+
+![](assets/module2/OffsetExplorer3.gif)<br>
+
+
+
+
+
+<hr style="border: 1px solid #eeebee;">
+
+## Create our first kafka topic
+1. Navigate to the _**Clusters/twitch-chat-hit-counter/Topics**_ folder
+2. Click '+' to add a new kafka topic
+3. Input kafka topic configs:
+   1. **Topic name**: greeting-events<br>
+   2. **Partition Count**: 3<br>
+   3. **Replica Count**: 1
+4. Select our kafka topic in **_Clusters/twitch-chat-hit-counter/Topics/greeting-events_**
+5. Change the **Content Types** for the key and value from **'Byte Array'** → **'String'**, and save by clicking **Update**.
+
+![](assets/module2/create_topic.gif)<br>
+
+
+
+
+
+<hr style="border: 1px solid #eeebee;">
+
+## Exercise 1: Implement a Kafka Message Producer
+![](assets/module2/images/exercise1.svg)<br>
+
+> [!NOTE]
+>
+> **Relevant Files**<br>
+> `application.yml` ─ our service's property file<br>
+> `KafkaConfig.java` ─ Configuration class to store our Kafka related Beans</br>
+> `GreetingEvent.java` ─ data model to encapsulate a simple greeting.</br> 
+> `GreetingEventProducer.java` ─ the class that publishes `GreetingEvent` objects to our dedicated kafka topic `greeting_topic`
+
+Implement the `public boolean publish(String messageId, GreetingEvent event) {}` method, which takes a `messageId` and a `GreetingEvent`, and writes a new message into the kafka topic.</br>
+Return the boolean status of the kafka topic write operation.<br>
+
+### Example 1:
+> **Input**:<br>
+> ```java
+> GreetingEventProducer producer = new GreetingEventProducer();
+> String eventId = "UUID1";
+> GreetingEvent event = new GreetingEvent(eventId, "Alice", "Bob", "Hi Bob, I'm Alice!");
+> boolean output = producer.publish(eventId, event);
+> ```
+> **Output**: <span style="color:#0000008c">true<br></span>
+
+
+### Task 1: Configure application.yml
 | Property                                   | Required?    | Role         | Supported/Example Values                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Description                                                                                                                                      |
 |--------------------------------------------|--------------|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
 | `spring.kafka.bootstrap-servers`           | **Required** | **Both**     | i.e.: "host:port"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Specifies the Kafka broker(s) to connect to. No connection without it.                                                                           |
@@ -162,7 +183,7 @@ Auto-configuration in Spring Boot is driven by the @EnableAutoConfiguration (or 
 - List of Spring Kafka supported fields: https://gist.github.com/geunho/77f3f9a112ea327457353aa407328771
 ![](assets/module2/images/ser_deser.svg)<br>
 
-Requirements:
+#### Requirements:
 1. We want to connect to our local Docker Kafka server (bootstrap-servers) (HINT: localhost:9092)
 2. We want the group-id to follow this format {application_name}-group-id-0 (group-id)
 3. We want our consumers to start at the earliest kafka offset for that group-id (auto-offset-reset)
@@ -170,118 +191,129 @@ Requirements:
 5. We want to write kafka messages as key/value pairs of String/ByteArray. This means the kafka message key will be stored as a String object, and the same message value will be stored as ByteArray. (key-deserializer/value-deserializer)
 6. We want to read kafka messages as key/value pairs of String/ByteArray. This means the kafka message key will be read as a String object, and the same message value will be read as ByteArray (key-serializer/value-serializer)
 
-#### Testing
+### Testing
 `ProfileApplicationTest.java` ─ already implemented
 1. Remove `@Disabled` in `ProfileApplicationTest.java` for the test method: `testDefaultProfile_kafkaConfigs()`
 2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
 
-#### Task 2: Create the Producer Beans
-`KafkaConfig.java` - we need to create two @Bean objects for ProducerFactory and KafkaTemplate, which will be used to Auto-configure Spring Kafka at runtime.
-`org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration`
+### Task 2: Create the Producer Beans
+`KafkaConfig.java` - we need to create two `@Bean` objects for ProducerFactory and KafkaTemplate, which will be used to Auto-configure Spring Kafka at runtime.
+`org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration` is the class that autoconfigures our kafka beans. 
 
-Spring Kafka Auto-configuration flow at runtime:
-```
-spring-kafka on classpath
-↓
-bootstrap-servers is set
-↓
-KafkaProperties gathers config (from application.yml)
-↓
-KafkaAutoConfiguration creates:
-├─ ProducerFactory → DefaultKafkaProducerFactory
-├─ ConsumerFactory → DefaultKafkaConsumerFactory
-├─ KafkaTemplate → KafkaTemplate
-└─ ListenerContainerFactory → ConcurrentKafkaListenerContainerFactory
+> [!IMPORTANT]
+>
+> Autoconfiguration is an important part of Spring Boot.<br>
+> _"Spring Boot’s auto-configuration feature is one of its standout functionalities, allowing developers to build applications with minimal boilerplate code"_
+>
+> Links:<br>
+> - https://medium.com/@AlexanderObregon/how-spring-boot-auto-configuration-works-68f631e03948
+> - https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html#features.developing-auto-configuration.understanding-auto-configured-beans
+> - https://www.geeksforgeeks.org/java/spring-boot-auto-configuration/
 
-./gradlew bootRun
-   ↓
-JVM Classpath
-   ├── twitch-chat-hit-counter.jar
-   ├── spring-boot.jar
-   └── spring-kafka.jar   ← DETECTED!
-        └── META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
-             └── KafkaAutoConfiguration
-                  ↓
-            Auto-configures Kafka beans
-```
+**Requirements:**
+1. Create `ProducerFactory` @Bean by passing in the bootstrap-servers, key-serializer, value-serializer configs from the application.yml.
+2. Create `KafkaTemplate` @Bean by Dependency Inject (DI) the `ProducerFactory`.
 
-Requirements:
-1. Create a Spring Bean for our service's ProducerFactory
-2. Create a Spring Bean for our service's KafkaTemplate
 
-For the ProducerFactory constructor, pass in the bootstrap-servers, key-serializer, value-serializer configs from the application.yml.
-For the KafkaTemplate constructor, pass in the ProducerFactory bean that we've just created.
-When our application runs, Spring Boot will figure out the dependency injection (DI) based on the relationship hierarchy.
-> the application.yml configs will be loaded.
-> KafkaConfig will build the ProducerFactory bean based on the loaded application.yml configs
-> KafkaConfig will build the KafkaTemplate bean based on the created ProducerFactory object.
-
-#### Testing
+### Testing
 `KafkaConfigTest.java` ─ already implemented
 1. Remove `@Disabled` in `KafkaConfigTest.java` for the test method(s): `testProducerFactoryConfig()` and `testKafkaTemplateConfig()`
 2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
 
 
-#### Task 3: Implement GreetingEventProducer.java
+### Task 3: Implement GreetingEventProducer.java
 Implement `public boolean publish(String key, GreetingEvent event) {}`.
 
-Get familiar with the KafkaTemplate class source code, here you will find the method: `kafkaTemplate.send(String topic, @Nullable V data)`.
+Get familiar with the KafkaTemplate class source code, here you will find the method: `kafkaTemplate.send(String topic, @Nullable V data)`.<br>
+
 You will need to create a constructor for this GreetingEventProducer and DI the KafkaTemplate object in `KafkaConfig.java` to successfully write the event to our kafka topic.
 
-#### Testing
+### Testing
 `GreetingEventProducerTest.java` ─ already implemented
 1. Remove `@Disabled` in `GreetingEventProducerTest.java`
 2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
 
-#### Task 4: Implement ApplicationRestController.java
+### Task 4: Implement ApplicationRestController.java
 Implement `GET /api/publishGreetingEvent` endpoint to trigger `GreetingEventProducer.publish(...);`
 
 Requirements:
 1. Generate a UUID, which will act as the kafka messageId as well as the GreetingEvent's eventId.
 2. Call GreetingEventProducer.publish() to handle actual publishing of the kafka message.
 
-#### Testing
+### Testing
 1. Run: ./gradlew bootRun
 2. Go to: `http://localhost:8080/swagger-ui/index.html`
 3. Run the endpoint for `/api/publishGreetingEvent` with any inputs
 4. Check Offset Explorer 3 to see that your GreetingEvent is actually published to our kafka topic. 
 
+
+
+
+
+<hr style="border: 1px solid #eeebee;">
+
 ### Exercise 2: Implement a Kafka Message Consumer
 ![](assets/module2/images/exercise2.svg)<br>
-`application.yml` ─ our service's configuration file</br>
-`KafkaConfig.java` ─ Configuration class to store our Kafka related Beans</br>
-`GreetingEvent.java` ─ the POJO class that encapsulates a simple greeting object.</br>
-`GreetingEventConsumer.java` ─ the class that subscribes to our `greeting_event` kafka topics to read `GreetingEvent` objects
+
+> [!NOTE]
+>
+> **Relevant Files**<br>
+> `application.yml` ─ our service's property file<br>
+> `KafkaConfig.java` ─ Configuration class to store our Kafka related Beans<br>
+> `GreetingEvent.java` ─ data model to encapsulate a simple greeting.<br>
+> `GreetingEventConsumer.java` ─ the class that subscribes to our `greeting_event` kafka topics to read `GreetingEvent` objects
 
 #### Task 1: Implement KafkaConfig.java
 - We need to now create some Beans for the Kafka consumers, `ConsumerFactory` and `ConcurrentKafkaListenerContainerFactory`
 
 
+
+
+
+
+<hr style="border: 1px solid #eeebee;">
+
 ### Lesson: Input/Output (IO) Operations
 ![](assets/module2/images/IO.svg)<br>
-Quick Overview on what happens when we call read/write IOs on a server.<br>
-Writes:
-> -> Microservice (client) tells Data Center (server) to store persistent data.<br>
-> -> Data Center stores data in server and responds to the client who made the request with a success/fail response.
+_Quick overview on what happens when our application calls read/write IOs to a server.<br>_
 
-Reads:
-> -> Microservice (client) tells Data Center (server) to give back some data.<br>
-> -> Data Center reads data in server and responds to the client who made the request with the data in store.
+Write IO:
+> → Microservice (**client**) tells Data Center (**server**) to store data to persistent storage.<br>
+> → Data Center stores data in server and responds to the client who made the request with a success/fail response.
 
-Let's assume all clients are running in California and that the server is running in New York.
-Meaning each request/response travels across the US networks.
-Say Team A is writing data to the Kafka server in NY.
-Say Team B is reading data from the Kafka server in NY.
-Now say we need to support high QPS traffic.
-Say the Engineer on Team B only has 1 available consumer.
-Instead of having the consumer read 1 kafka message at a time travelling from CA->NY->CA, we should optimize the # of IO calls we dispatch to the Kafka Server.
-Meaning, we should have each consumer read a group of N kafka messages at a time (i.e.: 500 messages in a single batch).
+Read IO:
+> → Microservice (**client**) asks Data Center (**server**) to fetch some data.<br>
+> → Data Center reads data from persistent storage and responds to the client with the data.
 
-How many read IOs would need to be issued to read 1M kafka events?
-Instead of 1,000,000 read IOs, we can optimize this for 1M / 500 = 2,000 read IOs.
+#### Case Study
+Let's assume all client machines are running in California and all server machines are running in New York.<br>
+Meaning each request/response must travel round-trip across the US network for a single call. (CA→NY→CA).<br>
 
-This simple example shows the benefit of introducing batch operations in your application, either on read/writes.
-This brings us to the next exercise, creating a Batch Consumer.
+**Team A** is in charge of streaming data for **Team B** to use downstream. So **Team A** writes data to the server running in NY.<br>
+**Team B** will read data from the server in NY.
+
+Now, say we need to support high QPS traffic and that **Team B** only has 1 available machine.<br>
+Instead of having the machine read 1 event at a time (travelling from CA→NY→CA per call), we should optimize the **# of IO calls** we dispatch from Client→Server.<br>
+Each call in this case study will incur a high latency because the requester is in CA and the server is in NY. The distance the data packets need to travel doesn't happen instantaneously.<br>
+Therefore, in general, we should always try to limit our IO calls when possible. 
+
+_**Instead of Team B's machine reading 1 event at a time (Option 1), what would happen if Team B's machine read 500 events at a time (Option 2)?**_
+
+How many read IOs would need to be issued to read 1M kafka events?<br>
+- Option 1: 1,000,000 events / 1 event(s) per read IO = 1,000,000 read IOs
+- Option 2: 1,000,000 events / 500 event(s) per read IO = 2,000 read IOs
+
+In other words, instead of travelling between CA/NY **1,000,000x**, we only need to make the trip **2,000x**.
+
+This simple extreme example shows the benefit of introducing batch operations in your application on read/writes.<br>
+
+**This brings us to the next exercise, creating a Batch Consumer.**
+
+
+
+
+
+<hr style="border: 1px solid #eeebee;">
 
 ### Exercise 3: Implement BATCH Kafka Message Consumer
 ![](assets/module2/images/exercise3.svg)<br>

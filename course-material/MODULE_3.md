@@ -1,4 +1,5 @@
-# twitch-chat-hit-counter
+# Practical Backend Engineer
+## twitch-chat-hit-counter
 
 ### Module 3: SQL
 #### Recommended Learning Materials

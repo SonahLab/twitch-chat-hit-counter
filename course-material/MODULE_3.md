@@ -26,40 +26,40 @@ This course won’t dive too deeply into SQL queries, we will instead be focusin
 
 
 
-<hr style="border: 1px solid #eeebee;">
 
 ### File Structure
 For `Module 3`, the below file structure are all the relevant files needed.
 ```
 twitch-chat-hit-counter/src/
 ├── main/
-│   └── java/com.sonahlab.twitch_chat_hit_counter/
-│       ├── kafka/
-│       │   └── consumer/
-│       │       ├── GreetingEventBatchConsumer.java
-│       │       └── GreetingEventConsumer.java
-│       ├── model/
-│       │   └── GreetingEvent.java
-│       ├── rest/
-│       │   └── ApplicationRestController.java
-│       └── sql/
-│           └── GreetingSqlService.java
-├── resources/
-│   └── application.yml
+│   ├── java/
+│   │   └── com.sonahlab.twitch_chat_hit_counter/
+│   │       ├── kafka/
+│   │       │   └── consumer/
+│   │       │       ├── GreetingEventBatchConsumer.java
+│   │       │       └── GreetingEventConsumer.java
+│   │       ├── model/
+│   │       │   └── GreetingEvent.java
+│   │       ├── rest/
+│   │       │   └── ApplicationRestController.java
+│   │       └── sql/
+│   │           └── GreetingSqlService.java
+│   └── resources/
+│       └── application.yml
 └── test/
-    └── java/com.sonahlab.twitch_chat_hit_counter/
-        ├── kafka/
-        │   └── consumer/
-        │       ├── GreetingEventBatchConsumerTest.java
-        │       └── GreetingEventConsumerTest.java
-        └── sql/
-            └── GreetingSqlServiceTest.java
+    └── java/
+        └── com.sonahlab.twitch_chat_hit_counter/
+            ├── kafka/
+            │   └── consumer/
+            │       ├── GreetingEventBatchConsumerTest.java
+            │       └── GreetingEventConsumerTest.java
+            └── sql/
+                └── GreetingSqlServiceTest.java
 ```
 
 
 
 
-<hr style="border: 1px solid #eeebee;">
 
 ## Objective
 ![](assets/module3/images/Module3_Overview.svg)<br>
@@ -70,7 +70,6 @@ In **Module 2**, we were consuming the kafka messages and just logging them to _
 
 
 
-<hr style="border: 1px solid #eeebee;">
 
 ## Setup Local MySQL Server
 Start our local MySQL Server via Docker:
@@ -99,8 +98,7 @@ Open **MySQLWorkbench** and connect to the MySQL instance running in Docker.
 
 
 
-
-<hr style="border: 1px solid #eeebee;">
+   
 
 ## Create your first SQL table
 1. Click on '**Schemas**' tab
@@ -120,7 +118,6 @@ CREATE TABLE dev_db.greeting_events (
 
 
 
-<hr style="border: 1px solid #eeebee;">
 
 ## Exercise 1: Implement GreetingSqlService.insert()
 ![](assets/module3/images/exercise1.svg)<br>
@@ -172,7 +169,6 @@ Here's a very helpful link on how to ensure writes to SQL, deduplicate events: h
 
 
 
-<hr style="border: 1px solid #eeebee;">
 
 ## Exercise 2: Implement GreetingSqlService.queryAllEvents()
 Implement `public List<GreetingEvent> queryAllEvents() {}`. This method should read all the events in our SQL table.

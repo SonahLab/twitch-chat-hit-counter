@@ -16,8 +16,6 @@
 
 
 
-<hr style="border: 1px solid #eeebee;">
-
 ## Overview
 I highly recommend reading through the Kafka Introduction above to learn what Kafka is, how it works, and why it’s used ubiquitously in large distributed systems.
 
@@ -48,44 +46,43 @@ Think of Kafka as a temporary message queue where events are stored with an expi
 
 
 
-<hr style="border: 1px solid #eeebee;">
 
 ## File Structure
 For `Module 2`, the below file structure are all the relevant files needed.
 ```
 twitch-chat-hit-counter/src/
 ├── main/
-│   └── java/com.sonahlab.twitch_chat_hit_counter/
-│       ├── config/
-│       │   └── KafkaConfig.java
-│       ├── kafka/
-│       │   ├── consumer/
-│       │   │   ├── GreetingEventBatchConsumer.java
-│       │   │   └── GreetingEventConsumer.java
-│       │   └── producer/
-│       │       └── GreetingEventProducer.java
-│       ├── model/
-│       │   └── GreetingEvent.java
-│       └── rest/
-│           └── ApplicationRestController.java
-├── resources/
-│   └── application.yml
+│   ├── java/
+│   │   └── com.sonahlab.twitch_chat_hit_counter/
+│   │       ├── config/
+│   │       │   └── KafkaConfig.java
+│   │       ├── kafka/
+│   │       │   ├── consumer/
+│   │       │   │   ├── GreetingEventBatchConsumer.java
+│   │       │   │   └── GreetingEventConsumer.java
+│   │       │   └── producer/
+│   │       │       └── GreetingEventProducer.java
+│   │       ├── model/
+│   │       │   └── GreetingEvent.java
+│   │       └── rest/
+│   │           └── ApplicationRestController.java
+│   └── resources/
+│       └── application.yml
 └── test/
-    └── java/com.sonahlab.twitch_chat_hit_counter/
-        └── kafka/
-            ├── consumer/
-            │   ├── GreetingEventBatchConsumerTest.java
-            │   └── GreetingEventConsumerTest.java
-            └── producer/
-                └── GreetingEventProducerTest.java
+    └── java/
+        └── com.sonahlab.twitch_chat_hit_counter/
+            └── kafka/
+                ├── consumer/
+                │   ├── GreetingEventBatchConsumerTest.java
+                │   └── GreetingEventConsumerTest.java
+                └── producer/
+                    └── GreetingEventProducerTest.java
 ```
 
 
 
 
 
-
-<hr style="border: 1px solid #eeebee;">
 
 ## Objective
 ![](assets/module2/images/Module2_Overview.svg)<br>
@@ -94,8 +91,6 @@ twitch-chat-hit-counter/src/
 
 
 
-
-<hr style="border: 1px solid #eeebee;">
 
 ## Setup Local Kafka Server
 Start our local Kafka instance via Docker (https://kafka.apache.org/quickstart)</br>
@@ -125,8 +120,6 @@ In **Offset Explorer 3**, connect to our Kafka cluster running in Docker.
 
 
 
-<hr style="border: 1px solid #eeebee;">
-
 ## Create your first kafka topic
 1. Navigate to the _**Clusters/twitch-chat-hit-counter/Topics**_ folder
 2. Click '+' to add a new kafka topic
@@ -142,8 +135,6 @@ In **Offset Explorer 3**, connect to our Kafka cluster running in Docker.
 
 
 
-
-<hr style="border: 1px solid #eeebee;">
 
 ## Exercise 1: Implement a Kafka Message Producer
 ![](assets/module2/images/exercise1.svg)<br>
@@ -251,8 +242,6 @@ Requirements:
 
 
 
-<hr style="border: 1px solid #eeebee;">
-
 ### Exercise 2: Implement a Kafka Message Consumer
 ![](assets/module2/images/exercise2.svg)<br>
 
@@ -271,8 +260,6 @@ Requirements:
 
 
 
-
-<hr style="border: 1px solid #eeebee;">
 
 ### Lesson: Input/Output (IO) Operations
 ![](assets/module2/images/IO.svg)<br>
@@ -313,8 +300,6 @@ This simple extreme example shows the benefit of introducing batch operations in
 
 
 
-
-<hr style="border: 1px solid #eeebee;">
 
 ### Exercise 3: Implement BATCH Kafka Message Consumer
 ![](assets/module2/images/exercise3.svg)<br>

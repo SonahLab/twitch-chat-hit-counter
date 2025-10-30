@@ -49,28 +49,28 @@ For `Module 1`, the below file structure are all the relevant files needed.
 ```
 twitch-chat-hit-counter/src/
 ├── main/
-│   └── java/com.sonahlab.twitch_chat_hit_counter/
-│       ├── model/
-│       │   └── GameCharacter.java
-│       ├── repository/
-│       │   └── GameCharacterManager.java
-│       ├── rest/
-│       │   ├── GameRestController.java
-│       │   └── GreetingRestController.java
-│       └── utils/
-│           └── Potion.java
+│   └── java/
+│       └── com.sonahlab.twitch_chat_hit_counter/
+│           ├── model/
+│           │   └── GameCharacter.java
+│           ├── repository/
+│           │   └── GameCharacterManager.java
+│           ├── rest/
+│           │   ├── GameRestController.java
+│           │   └── GreetingRestController.java
+│           └── utils/
+│               └── Potion.java
 └── test/
-    └── java/com.sonahlab.twitch_chat_hit_counter/
-        └── rest/
-            ├── GameRestControllerTest.java
-            └── GreetingRestControllerTest.java
+    └── java/
+        └── com.sonahlab.twitch_chat_hit_counter/
+            └── rest/
+                ├── GameRestControllerTest.java
+                └── GreetingRestControllerTest.java
 ```
 
 
 
 
-
-<hr style="border: 1px solid #eeebee;">
 
 ## Exercise 1: GreetingRestController
 > [!NOTE]
@@ -99,13 +99,12 @@ If no input `name` parameter is provided, greet a `Mysterious Individual`.
 1. Run: `./gradlew bootRun`
 2. Go to: Swagger UI (http://localhost:8080/swagger-ui/index.html)
 3. Play with the **Greeting API** endpoint(s)
-> ![](assets/module1/images/swagger.jpg)<br>
+
+![](assets/module1/images/swagger.jpg)<br>
 
 
 
 
-
-<hr style="border: 1px solid #eeebee;">
 
 ## Exercise 2: GameRestController
 > [!NOTE]
@@ -287,4 +286,5 @@ Now we should have all the application logic to handle the API endpoints for:
 1. Run: `./gradlew bootRun`
 2. Go to: Swagger UI (http://localhost:8080/swagger-ui/index.html)
 3. Play with the **Character API** endpoint(s)
-> ![](assets/module1/images/swagger.jpg)<br>
+
+![](assets/module1/images/swagger.jpg)<br>

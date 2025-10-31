@@ -29,33 +29,86 @@ This course won’t dive too deeply into SQL queries, we will instead be focusin
 
 ### File Structure
 For `Module 3`, the below file structure are all the relevant files needed.
-```
-twitch-chat-hit-counter/src/
-├── main/
-│   ├── java/
-│   │   └── com.sonahlab.twitch_chat_hit_counter/
-│   │       ├── kafka/
-│   │       │   └── consumer/
-│   │       │       ├── GreetingEventBatchConsumer.java
-│   │       │       └── GreetingEventConsumer.java
-│   │       ├── model/
-│   │       │   └── GreetingEvent.java
-│   │       ├── rest/
-│   │       │   └── ApplicationRestController.java
-│   │       └── sql/
-│   │           └── GreetingSqlService.java
-│   └── resources/
-│       └── application.yml
-└── test/
-    └── java/
-        └── com.sonahlab.twitch_chat_hit_counter/
-            ├── kafka/
-            │   └── consumer/
-            │       ├── GreetingEventBatchConsumerTest.java
-            │       └── GreetingEventConsumerTest.java
-            └── sql/
-                └── GreetingSqlServiceTest.java
-```
+
+[//]: # (```)
+[//]: # (twitch-chat-hit-counter/src/)
+[//]: # (├── main/)
+[//]: # (│   ├── java/)
+[//]: # (│   │   └── com.sonahlab.twitch_chat_hit_counter/)
+[//]: # (│   │       ├── kafka/)
+[//]: # (│   │       │   └── consumer/)
+[//]: # (│   │       │       ├── GreetingEventBatchConsumer.java)
+[//]: # (│   │       │       └── GreetingEventConsumer.java)
+[//]: # (│   │       ├── model/)
+[//]: # (│   │       │   └── GreetingEvent.java)
+[//]: # (│   │       ├── rest/)
+[//]: # (│   │       │   └── ApplicationRestController.java)
+[//]: # (│   │       └── sql/)
+[//]: # (│   │           └── GreetingSqlService.java)
+[//]: # (│   └── resources/)
+[//]: # (│       └── application.yml)
+[//]: # (└── test/)
+[//]: # (    └── java/)
+[//]: # (        └── com.sonahlab.twitch_chat_hit_counter/)
+[//]: # (            ├── kafka/)
+[//]: # (            │   └── consumer/)
+[//]: # (            │       ├── GreetingEventBatchConsumerTest.java)
+[//]: # (            │       └── GreetingEventConsumerTest.java)
+[//]: # (            └── sql/)
+[//]: # (                └── GreetingSqlServiceTest.java)
+[//]: # (```)
+<img src="assets/common/module.svg" align="center"/> twitch-chat-hit-counter/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/folder.svg" align="center"/> src/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/folder.svg" align="center"/> main/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/sourceRoot.svg" align="center"/> java/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/package.svg" align="center"/> com.sonahlab.twitch_chat_hit_counter/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/package.svg" align="center"/> kafka/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/package.svg" align="center"/> consumer/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/class.svg" align="center"/> GreetingEventBatchConsumer.java<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/class.svg" align="center"/> GreetingEventConsumer.java<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/package.svg" align="center"/> model/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/class.svg" align="center"/> GreetingEvent.java<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/package.svg" align="center"/> rest/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/class.svg" align="center"/> ApplicationRestController.java<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/package.svg" align="center"/> sql/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/class.svg" align="center"/> GreetingSqlService.java<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/resourcesRoot.svg" align="center"/> resources/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/yaml.svg" align="center"/> application.yml<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/folder.svg" align="center"/> test/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/testRoot.svg" align="center"/> java/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/package.svg" align="center"/> com.sonahlab.twitch_chat_hit_counter/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/package.svg" align="center"/> kafka/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/package.svg" align="center"/> consumer/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/testClass_newui.svg" align="center"/> GreetingEventBatchConsumerTest.java<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/testClass_newui.svg" align="center"/> GreetingEventConsumerTest.java<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/package.svg" align="center"/> sql/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/testClass_newui.svg" align="center"/> GreetingSqlServiceTest.java<br>
+
 
 
 
@@ -158,7 +211,7 @@ INSERT INTO {TABLE_NAME} (field₁, ..., fieldₙ)
 VALUES (?, ..., ?)
 ON {SOME_FILTER}
 ```
-Here's a very helpful link on how to ensure writes to SQL, deduplicate events: https://stackoverflow.com/questions/14383503/on-duplicate-key-update-same-as-insert
+Here's a very helpful link on how to ensure writes to SQL, deduplicate events: [Stack Overflow <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://stackoverflow.com/questions/14383503/on-duplicate-key-update-same-as-insert)<br>
 
 ### Testing
 `GreetingSqlServiceTest.java` ─ already implemented
@@ -236,7 +289,7 @@ Return a list of `GreetingEvent`.
 > ]
 > ```
 
-This task is quite trivial if you know about SQL Query (https://www.w3schools.com/sql/sql_syntax.asp), you will now utilize the `JdbcTemplate` to query and parse the response back to a List\<GreetingEvent>.
+This task is quite trivial if you know about [SQL Query <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.w3schools.com/sql/sql_syntax.asp), you will now utilize the `JdbcTemplate` to query and parse the response back to a List\<GreetingEvent>.
 
 Task 2:<br>
 Now hook up the `GreetingEventService.java` to our `GreetingEventConsumer.java`. Everytime the event is consumed, we will call the `GreetingSqlService.insert()` method to persist that event into the SQL DB.
@@ -258,7 +311,8 @@ Implement `public int insertBatch(List<GreetingEvent> events) {}`.
 Similar to our lesson in Module 2 where we want to optimize the # of IO calls to our server, instead of writing 1M events into our SQL DB using 1M write calls, we will try to write in a batch of events to make less round trips to the SQL server.
 
 This method will look very similar to the `insert()` method, the only difference is that pack more events into the SQL statement than in the previous method.
-Here's a brief overview of how to implement batch insert statements with JdbcTemplate in Spring boot: https://docs.spring.io/spring-framework/reference/data-access/jdbc/advanced.html
+
+Here's a brief overview of how to implement batch insert statements with [JdbcTemplate <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-framework/reference/data-access/jdbc/advanced.html) in Spring Boot.
 
 Requirements:
 1. Create a new SQL table `batch_greeting_events` with the same schema as the first sql table

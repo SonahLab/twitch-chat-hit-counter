@@ -214,9 +214,12 @@ ON {SOME_FILTER}
 Here's a very helpful link on how to ensure writes to SQL, deduplicate events: [Stack Overflow <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://stackoverflow.com/questions/14383503/on-duplicate-key-update-same-as-insert)<br>
 
 ### Testing
-`GreetingSqlServiceTest.java` ─ already implemented
-1. Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method: `insertTest()`
-2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module3`
+- [ ] Open `GreetingSqlServiceTest.java` ─ already implemented
+- [ ] Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method: `insertTest()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
+```
 
 
 
@@ -300,9 +303,12 @@ Now implement the `GET /api/queryGreetingEventsFromSQL` API endpoint in `Applica
 We want our HTTP Controller to call the GreetingSqlService to fetch all the records in our SQL table.
 
 #### Testing
-`GreetingSqlServiceTest.java` ─ already implemented
-1. Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method: `queryTest()`
-2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module3`
+- [ ] Open `GreetingSqlServiceTest.java` ─ already implemented
+- [ ] Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method: `queryTest()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
+```
 
 ### Exercise 3: Implement GreetingSqlService.insertBatch()
 ![](assets/module3/images/exercise3.svg)<br>
@@ -324,6 +330,9 @@ twitch-chat-hit-counter:
 2. Make sure to also hook up our `GreetingEventBatchConsumer.java` to call `GreetingSqlService.insertBatch()` method.
 
 #### Testing
-`GreetingSqlServiceTest.java` ─ already implemented
-1. Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method: `insertBatchTest()`
-2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module3`
+- [ ] Open `GreetingSqlServiceTest.java` ─ already implemented
+- [ ] Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method: `insertBatchTest()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
+```

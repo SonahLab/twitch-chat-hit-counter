@@ -58,7 +58,7 @@ public class GameRestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("80"));
 
-        // 4. Get new character sate
+        // 4. Get updated character state
         // HP=80, MP=100, inventory={HP_POTION=4, MP_POTION=5}
         jsonResponse = mockMvc.perform(get("/api/fantasyGame/characterState"))
                 .andExpect(status().isOk())

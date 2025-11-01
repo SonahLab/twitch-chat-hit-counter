@@ -17,11 +17,11 @@ Downstream team depends on our team's data? We gather our data and write to FS/D
 
 This section provides a brief TL;DR on how the internet works. When you open your browser and navigate to Google.com, several processes occur behind the scenes:<br>
 1. **DNS Resolution**:<br>
-Google.com is a user-friendly, human-readable name that is easy to remember. This domain name corresponds to an actual IP address, which your machine resolves using a DNS server.
+   Google.com is a user-friendly, human-readable name that is easy to remember. This domain name corresponds to an actual IP address, which your machine resolves using a DNS server.
 2. **Request to Server**:<br>
-Once the IP address is resolved, your machine sends a request to that IP address to retrieve the data located at this address
+   Once the IP address is resolved, your machine sends a request to that IP address to retrieve the data located at this address
 3. **Response from Server**:<br>
-Google's servers receive the incoming request from your machine and return a response with the "data" that you see as Google.com.<br>
+   Google's servers receive the incoming request from your machine and return a response with the "data" that you see as Google.com.<br>
 
 This process is an over simplification for all communication across machines connected by the internet.<br>
 You have 2 machines: one sender and one receiver; the sender knows where it wants to speak to, and sends a request operation to the receiver. Routers/networks (aka mailman) will understand where to route the data packets in order for the request to reach its destination. Once the receiver receives the request, it will do something. Based on the API request, this will let the server know what process to kick off.
@@ -113,34 +113,51 @@ For `Module 1`, the below file structure are all the relevant files needed.
 
 
 ## Exercise 1: GreetingRestController
+![](assets/module1/images/greetingController.svg)<br>
+
 > [!NOTE]
 >
 > **Relevant Files**<br>
-> `GreetingRestController.java` ─ REST controller to handle our service's simple greeting methods: `/api/sayHello`.
+> `GreetingRestController.java` ─ REST controller to handle our service's simple greeting methods: `/api/greeting/hello`.
 
-Implement the `sayHello()` method, which takes the incoming request parameter `name` and returns a simple greeting response.<br>
-If no input `name` parameter is provided, greet a `Mysterious Individual`.
+In `GreetingRestController.java`, implement the `public String sayHello(@RequestParam String name)` method.
+
+This method is the entry point for all incoming HTTP requests to `/api/greeting/hello`.
+
+It takes an incoming request parameter `name` and returns a simple greeting response.
+
+If no input `name` parameter is provided, we should default the greeting message to address a `Mysterious Individual`.
 
 ### Example 1:
 > **Input**: <span style="color:#0000008c">name = "Alice"<br></span>
 > **Output**: <span style="color:#0000008c">"Hello, Alice!"</span>
-
+#
 ### Example 2:
 > **Input**: <span style="color:#0000008c">name = ""<br></span>
 > **Output**: <span style="color:#0000008c">"Hello, Mysterious Individual!"<br></span>
 > **Explanation**: <span style="color:#0000008c">no `name` parameter is provided, so the default name should be "Mysterious Individual"</span>
 
+#
+
 ### Testing
-`GreetingRestControllerTest.java` ─ already implemented test cases for the above examples.
-1. Remove `@Disabled` in `GreetingRestControllerTest.java`
-2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module1`
+- [ ] Open `GreetingRestControllerTest.java` ─ already implemented test cases with the example(s) above.<br>
+- [ ] Remove `@Disabled` in `GreetingRestControllerTest.java`<br>
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
+```
+
+#
 
 ### Integration Testing
-1. Run: `./gradlew bootRun`
-2. Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
-3. Play with the **Greeting API** endpoint(s)
+- [ ] Run the application:
+```shell
+./gradlew bootRun
+```
+- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
+- [ ] Play around with the **Greeting API** endpoint(s)
 
-![](assets/module1/images/swagger.jpg)<br>
+![](assets/module1/images/greetingSwagger.png)<br>
 
 
 
@@ -148,7 +165,7 @@ If no input `name` parameter is provided, greet a `Mysterious Individual`.
 
 ## Exercise 2: GameRestController
 > [!NOTE]
-> 
+>
 > **Relevant Files**<br>
 > `Potion.java` ─ enum class to define all Potion objects that exist in our game.<br>
 > `Stat.java` ─ enum class to define all Stats that exist in our game.<br>
@@ -159,10 +176,10 @@ If no input `name` parameter is provided, greet a `Mysterious Individual`.
 > 3. `/api/fantasyGame/characterState`: get current snapshot information about a character<br>
 
 ### Task 1: Implement `GameCharacter.java`
-Before we can implement our API endpoints in `GameRestController.java`, we need to create our Data Model object for a generic fantasy game character.  
+Before we can implement our API endpoints in `GameRestController.java`, we need to create our Data Model object for a generic fantasy game character.
 
 > [!TIP]
-> 
+>
 > If you aren't familiar with creating POJOs (Plain Old Java Objects), I suggest you read up on various ways to create Java Object Oriented Programming (OOP) objects:<br>
 > - [_Java Constructor Pattern_ <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.w3schools.com/java/java_encapsulation.asp)<br>
 > - [_Java Builder Pattern_ <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/java-builder-pattern)<br>
@@ -170,15 +187,15 @@ Before we can implement our API endpoints in `GameRestController.java`, we need 
 
 **Requirements:**<br>
 1. `GameCharacter` object should have 3 fields:
-   1. **Stat.HP (int):** Character's health points (between `0` and `100`)
-   2. **Stat.MP (int):** Character's mana points (between `0` and `100`)
-   3. **Inventory (Map<Potion, Integer>):** Character's bag of `Potion` enum to quantity count
+    1. **Stat.HP (int):** Character's health points (between `0` and `100`)
+    2. **Stat.MP (int):** Character's mana points (between `0` and `100`)
+    3. **Inventory (Map<Potion, Integer>):** Character's bag of `Potion` enum to quantity count
 2. Default values on `GameCharacter` object init:
-   1. Initial **HP** of 100
-   2. Initial **MP** of 100
-   3. Initial **inventory**:
-       1. 5 `Potion.HP_POTION`
-       2. 5 `Potion.MP_POTION`
+    1. Initial **HP** of 100
+    2. Initial **MP** of 100
+    3. Initial **inventory**:
+        1. 5 `Potion.HP_POTION`
+        2. 5 `Potion.MP_POTION`
 
 ### Example 1:
 > **Input**:<br>
@@ -207,7 +224,7 @@ Before we can implement our API endpoints in `GameRestController.java`, we need 
 > int output7 = character.getStat(Stat.MP); // Expected: 100 (hp should be between 0 and 100
 >                                           // so we should ignore the previous -10000 set value)
 > ```
-> 
+>
 > **Output1**: <span style="color:#0000008c">100<br></span>
 > **Output2**: <span style="color:#0000008c">100<br></span>
 > **Output3**: <span style="color:#0000008c">{ "HP_POTION": 5, "MP_POTION": 5 }<br></span>
@@ -216,17 +233,24 @@ Before we can implement our API endpoints in `GameRestController.java`, we need 
 > **Output6**: <span style="color:#0000008c">100<br></span>
 > **Output7**: <span style="color:#0000008c">100<br></span>
 
+#
+
 ### Testing
-`GameCharacterTest.java` ─ already implemented
-1. Remove `@Disabled` in `GameCharacterTest.java` for the test method: `initTest()`
-2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module1`
+- [ ] Open `GameCharacterTest.java` ─ already implemented test cases with the example(s) above.
+- [ ] Remove `@Disabled` in `GameCharacterTest.java` for the test method: `initTest()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
+```
+
+#
 
 ### 2.1
 Create and implement method `public int takeDamage(int damage) {}`, where you will reduce the `character` object's HP by the `damage` amount.</br>
 Return the updated character `HP` int.</br>
 
 > [!TIP]
-> 
+>
 > Remember: a `GameCharacter` HP has a minimum value of `0`
 
 ### Example 1:
@@ -234,16 +258,25 @@ Return the updated character `HP` int.</br>
 > **Input**: <span style="color:#0000008c">damage = 50 // Assume HP = 100<br></span>
 > **Output**: <span style="color:#0000008c">50<br></span>
 
+#
+
 ### Example 2:
 > ![](assets/module1/images/takeDamage_110.png)<br>
 > **Input**: <span style="color:#0000008c">damage = 110 // Assume HP = 100<br></span>
 > **Output**: <span style="color:#0000008c">0<br></span>
 > **Explanation**: A character's HP should never be negative. (min capped at 0)</br>
 
+#
+
 ### Testing
-`GameCharacterTest.java` ─ already implemented
-1. Remove `@Disabled` in `GameCharacterTest.java` for the test method: `takeDamageTest()`
-2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module1`
+- [ ] Open `GameCharacterTest.java` ─ already implemented test cases with the example(s) above.
+- [ ] Remove `@Disabled` in `GameCharacterTest.java` for the test method: `takeDamageTest()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
+```
+
+#
 
 ### 2.2
 Create and implement method `public int consumePotion(Potion potion) {}`, where you will increment the `character` object's HP/MP depending on the potion.</br>
@@ -265,16 +298,22 @@ Return the updated character `HP`/`MP` int, or -1 for any errors.</br>
 > **Input**: <span style="color:#0000008c">potion = Potion.HP_POTION // Assume HP = 25</br></span>
 > **Output**: <span style="color:#0000008c">75<br></span>
 
+#
+
 ### Example 2:
 > ![](assets/module1/images/consumePotion_HP_99.jpg)<br>
 > **Input**: <span style="color:#0000008c">potion = Potion.HP_POTION // Assume HP = 99</br></span>
 > **Output**: <span style="color:#0000008c">100<br></span>
 > **Explanation**: <span style="color:#0000008c">A character's HP should never be above 100. (max capped at 100)</br></span>
 
+#
+
 ### Example 3:
 > ![](assets/module1/images/consumePotion_MP_25.jpg)<br>
 > **Input**: <span style="color:#0000008c">potion = Potion.MP_POTION // Assume MP = 25</br></span>
 > **Output**: <span style="color:#0000008c">75<br></span>
+
+#
 
 ### Example 4:
 > ![](assets/module1/images/consumePotion_MP_99.jpg)<br>
@@ -282,11 +321,15 @@ Return the updated character `HP`/`MP` int, or -1 for any errors.</br>
 > **Output**: <span style="color:#0000008c">100<br></span>
 > **Explanation**: <span style="color:#0000008c">A character's MP should never be above 100. (max capped at 100)<br></span>
 
+#
+
 ### Example 5:
 > ![](assets/module1/images/consumePotion_Remove.jpg)<br>
 > **Input**: <span style="color:#0000008c">potion = Potion.HP_POTION // Assume HP = 25<br></span>
 > **Output**: <span style="color:#0000008c">75<br></span>
 > **Explanation**: <span style="color:#0000008c">The Inventory should no longer contain the HP_POTION now that the quantity of this item is 0.<br></span>
+
+#
 
 ### Example 6:
 > ![](assets/module1/images/consumePotion_Error.jpg)<br>
@@ -294,10 +337,15 @@ Return the updated character `HP`/`MP` int, or -1 for any errors.</br>
 > **Output**: <span style="color:#0000008c">-1<br></span>
 > **Explanation**: <span style="color:#0000008c">There are no HP_POTION in the inventory, so we can't consume this potion.<br></span>
 
+#
+
 ### Testing
-`GameCharacterTest.java` ─ already implemented
-1. Remove `@Disabled` in `GameCharacterTest.java` for the test method: `consumePotionTest()`
-2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module1`
+- [ ] Open `GameCharacterTest.java` ─ already implemented test cases with the example(s) above.
+- [ ] Remove `@Disabled` in `GameCharacterTest.java` for the test method: `consumePotionTest()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
+```
 
 ### 2.3
 Create and implement method `public void getCharacterState() {}`.
@@ -323,52 +371,115 @@ Return a `Map<String, Object>` representing the character's current state (HP,MP
 > }
 > ```
 
+#
+
 ### Testing
-`GameCharacterTest.java` ─ already implemented
-1. Remove `@Disabled` in `GameCharacterTest.java` for the test method: `getCharacterStateTest()`
-2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module1`
+- [ ] Open `GameCharacterTest.java` ─ already implemented test cases with the example(s) above.
+- [ ] Remove `@Disabled` in `GameCharacterTest.java` for the test method: `getCharacterStateTest()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
+```
+
+#
 
 ### Task 3: Hookup our `GameRestController.java` to our `GameCharacter.java` application logic
 Now we should have all the application logic in `GameCharacter.java` to handle the Game API endpoints, we simply need to call them.
 ![](assets/module1/images/gameController.svg)<br>
 
 In the constructor for `GameRestController.java`, initialize a default `GameCharacter` object.<br>
-When our application runs, the character state changes will not be persisted on subsequent application runs. It should always be reset to managing a "new" GameCharacter object.
+When our application runs, the character state changes in that specific run will not be persisted on subsequent application runs. The `GameRestController.java` will always create a "new" GameCharacter object.
 
 > Example:<br>
 > → Run the application: `./gradlew bootRun`<br>
-> → Call the `/takeDamage?damage=50` endpoint (the character object's HP falls to 50)<br>
+> → `GameRestController.java` will create a new `GameCharacter.java` object (initialized with HP=100)<br>
+> → Call the `/takeDamage?damage=50` endpoint (the character object's HP should be 50)<br>
 > → Quit the application run (Control+C)<br>
 > → Run the application (again): `./gradlew bootRun`<br>
-> → Call the `/characterState` endpoint (the character object's HP will be 100 because a new object will be created for each run)<br>
+> → Call the `/characterState` endpoint (the character object's HP will be 100 because `GameRestController` will init a new `GameCharacter` object<br>
 
 For each of these API endpoints simply call the respective methods we previously implemented in `GameRestController.java`.<br>
 Return the result output from each of these `GameRestController.java` function calls back through the HTTP Response.
 ```java
 @PutMapping("/fantasyGame/takeDamage")
 public int takeDamage(@RequestParam int damage) {
-    ...
+    // Hook up to GameCharacter.takeDamage(...)
 }
 
 @PutMapping("/fantasyGame/consumePotion")
 public int consumePotion(@RequestParam String potionName) {
-    ...
+    // Hook up to GameCharacter.consumePotion(...)
 }
 
 @GetMapping("/fantasyGame/characterState")
 public Map<String, Object> getCharacterState() {
-    ...
+    // Hook up to GameCharacter.getCharacterState()
 }
 ```
 
+### Example 1:
+> ```java
+> WebClient webClient = WebClient.builder()
+>         .baseUrl("http://localhost:8080/api")
+>         .build();
+> 
+> // 1. Get default character state: {HP=100, MP=100, inventory={HP_POTION=5, MP_POTION=5}}
+> Map<String, Object> output1 = webClient.get()
+>         .uri("/fantasyGame/characterState")
+>         .retrieve()
+>         .bodyToMono(Map.class)
+>         .block();
+> 
+> // 2. Character takes 70 damage: 100 (current HP) - 70 (damage) = 30 HP
+> int output2 = webClient.put()
+>         .uri(uriBuilder -> uriBuilder
+>                 .path("/fantasyGame/takeDamage")
+>                 .queryParam("damage", 70)
+>                 .build())
+>         .retrieve()
+>         .bodyToMono(Integer.class)
+>         .block();
+> 
+> // 3. Character drinks an HP potion: 30 (current HP) + 50 (HP potion) = 80 HP
+> int output3 = webClient.put()
+>         .uri(uriBuilder -> uriBuilder
+>                 .path("/fantasyGame/consumePotion")
+>                 .queryParam("potionName", "HP_POTION)
+>                 .build())
+>         .retrieve()
+>         .bodyToMono(Integer.class)
+>         .block();
+> 
+> // 4. Get updated character state: {HP=80, MP=100, inventory={HP_POTION=4, MP_POTION=5}}
+> int output4 = webClient.get()
+>         .uri("/fantasyGame/characterState")
+>         .retrieve()
+>         .bodyToMono(Map.class)
+>         .block();
+> ```
+> **Output1**: {"HP": 100, "MP": 100, "INVENTORY": {"HP_POTION": 5, "MP_POTION": 5}<br>
+> **Output2**: 30<br>
+> **Output3**: 80<br>
+> **Output4**: {"HP": 80, "MP": 100, "INVENTORY": {"HP_POTION": 4, "MP_POTION": 5}
+
+#
+
 ### Testing
-`GameRestControllerTest.java` ─ already implemented
-1. Remove `@Disabled` in `GameRestControllerTest.java`
-2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module1`
+- [ ] Open `GameRestControllerTest.java` ─ already implemented test cases with the example(s) above.
+- [ ] Remove `@Disabled` in `GameRestControllerTest.java`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
+```
+
+#
 
 ### Integration Testing
-1. Run: `./gradlew bootRun`
-2. Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
-3. Play with the **Character API** endpoint(s)
+- [ ] Run the application:
+```shell
+./gradlew bootRun
+```
+- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
+- [ ] Play around with the **Character API** endpoint(s)
 
-![](assets/module1/images/swagger.jpg)<br>
+![](assets/module1/images/gameSwagger.png)<br>

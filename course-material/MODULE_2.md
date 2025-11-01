@@ -240,9 +240,14 @@ Return the boolean status of the kafka topic write operation.<br>
 6. We want to read kafka messages as key/value pairs of String/ByteArray. This means the kafka message key will be read as a String object, and the same message value will be read as ByteArray (key-serializer/value-serializer)
 
 ### Testing
-`ProfileApplicationTest.java` ─ already implemented
-1. Remove `@Disabled` in `ProfileApplicationTest.java` for the test method: `testDefaultProfile_kafkaConfigs()`
-2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
+- [ ] Open `ProfileApplicationTest.java` ─ already implemented.
+- [ ] Remove `@Disabled` in `ProfileApplicationTest.java` for the test method: `testDefaultProfile_kafkaConfigs()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
+```
+
+#
 
 ### Task 2: Create the Producer Beans
 `KafkaConfig.java` - we need to create two `@Bean` objects for ProducerFactory and KafkaTemplate, which will be used to Auto-configure Spring Kafka at runtime.
@@ -264,10 +269,14 @@ Return the boolean status of the kafka topic write operation.<br>
 
 
 ### Testing
-`KafkaConfigTest.java` ─ already implemented
-1. Remove `@Disabled` in `KafkaConfigTest.java` for the test method(s): `testProducerFactoryConfig()` and `testKafkaTemplateConfig()`
-2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
+- [ ] Open `KafkaConfigTest.java` ─ already implemented.
+- [ ] Remove `@Disabled` in `KafkaConfigTest.java` for the test method(s): `testProducerFactoryConfig()` and `testKafkaTemplateConfig()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
+```
 
+#
 
 ### Task 3: Implement GreetingEventProducer.java
 Implement `public boolean publish(String key, GreetingEvent event) {}`.
@@ -277,22 +286,33 @@ Get familiar with the KafkaTemplate class source code, here you will find the me
 You will need to create a constructor for this GreetingEventProducer and DI the KafkaTemplate object in `KafkaConfig.java` to successfully write the event to our kafka topic.
 
 ### Testing
-`GreetingEventProducerTest.java` ─ already implemented
-1. Remove `@Disabled` in `GreetingEventProducerTest.java`
-2. Run: `./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
+- [ ] Open `GreetingEventProducerTest.java` ─ already implemented
+- [ ] Remove `@Disabled` in `GreetingEventProducerTest.java`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
+```
 
-### Task 4: Implement ApplicationRestController.java
-Implement `GET /api/publishGreetingEvent` endpoint to trigger `GreetingEventProducer.publish(...);`
+#
+
+### Task 4: Implement KafkaRestController.java
+Implement `GET /api/kafka/publishGreetingEvent` endpoint to trigger `GreetingEventProducer.publish(...);`
 
 Requirements:
 1. Generate a UUID, which will act as the kafka messageId as well as the GreetingEvent's eventId.
 2. Call GreetingEventProducer.publish() to handle actual publishing of the kafka message.
 
 ### Testing
-1. Run: ./gradlew bootRun
-2. Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
-3. Run the endpoint for `/api/publishGreetingEvent` with any inputs
-4. Check Offset Explorer 3 to see that your GreetingEvent is actually published to our kafka topic. 
+### Integration Testing
+- [ ] Run the application:
+```shell
+./gradlew bootRun
+```
+- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
+- [ ] Play around with **Kafka API**: `/api/kafka/publishGreetingEvent`
+- [ ] Check Offset Explorer 3 to see that your GreetingEvent is actually published to our kafka topic.
+
+![](assets/module2/images/kafkaSwagger.png)<br>
 
 
 
@@ -312,10 +332,7 @@ Requirements:
 #### Task 1: Implement KafkaConfig.java
 - We need to now create some Beans for the Kafka consumers, `ConsumerFactory` and `ConcurrentKafkaListenerContainerFactory`
 
-
-
-
-
+#
 
 ### Lesson: Input/Output (IO) Operations
 ![](assets/module2/images/IO.svg)<br>
@@ -353,9 +370,7 @@ This simple extreme example shows the benefit of introducing batch operations in
 
 **This brings us to the next exercise, creating a Batch Consumer.**
 
-
-
-
+#
 
 ### Exercise 3: Implement BATCH Kafka Message Consumer
 ![](assets/module2/images/exercise3.svg)<br>

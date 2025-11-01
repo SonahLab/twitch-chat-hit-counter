@@ -13,15 +13,14 @@ import java.util.Map;
 
 /**
  * REST Controller for managing character state in the game. These endpoints allow interaction with a character's
- * health points (HP), mana points (MP), and potion inventory via a REST API. The endpoints are accessible through
- * Swagger UI and the React frontend app.
+ * health points (HP), mana points (MP), and potion inventory via a REST API.
  *
  * Recommended Learning Materials to learn more about REST:
  * - RESTful service in Spring Boot (https://spring.io/guides/gs/rest-service)
  * - Swagger UI in Spring Boot (https://springdoc.org/)
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/fantasyGame")
 @Tag(name = "Character API", description = "Backend API endpoints for managing character state")
 public class GameRestController {
     private static final Logger LOGGER = LoggerFactory.getLogger(GameRestController.class);
@@ -37,7 +36,7 @@ public class GameRestController {
      * @param damage The integer amount of damage to deal to the character. Must be non-negative.
      * @return The updated health points (HP) of the character after taking damage.
      */
-    @PutMapping("/fantasyGame/takeDamage")
+    @PutMapping("/takeDamage")
     public int takeDamage(@RequestParam int damage) {
         /**
          * TODO: Implement as part of Module 1 Exercise 2.
@@ -58,7 +57,7 @@ public class GameRestController {
      * @return The updated HP if an HP_POTION is consumed, the updated MP if an MP_POTION is consumed, or -1 if the potion
      *         name is invalid or the potion is not in the inventory.
      */
-    @PutMapping("/fantasyGame/consumePotion")
+    @PutMapping("/consumePotion")
     public int consumePotion(@RequestParam String potionName) {
         /**
          * TODO: Implement as part of Module 1 Exercise 2.
@@ -76,7 +75,7 @@ public class GameRestController {
      *
      * @return A {@link Map} containing the character's HP, MP, and inventory (map of potion types to quantities).
      */
-    @GetMapping("/fantasyGame/characterState")
+    @GetMapping("/characterState")
     public Map<String, Object> getCharacterState() {
         /**
          * TODO: Implement as part of Module 1 Exercise 2.

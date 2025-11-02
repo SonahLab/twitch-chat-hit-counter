@@ -135,18 +135,13 @@ For `Module 2`, the below file structure are all the relevant files needed.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/testClass_newui.svg" align="center"/> GreetingEventProducerTest.java<br>
 
-
-
-
-
+#
 
 ## Objective
 ![](assets/module2/images/Module2_Overview.svg)<br>
 **Module 2** is mostly about setting up an HTTP request endpoint that will take a User submitted GreetingEvent and pub/sub the event onto a kafka topic. 
 
-
-
-
+#
 
 ## Setup Local Kafka Server
 Start our local Kafka instance via Docker: [Kafka Quickstart <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://kafka.apache.org/quickstart)<br>
@@ -172,9 +167,7 @@ In **Offset Explorer 3**, connect to our Kafka cluster running in Docker.
 
 ![](assets/module2/OffsetExplorer3.gif)<br>
 
-
-
-
+#
 
 ## Create your first kafka topic
 1. Navigate to the _**Clusters/twitch-chat-hit-counter/Topics**_ folder
@@ -188,34 +181,11 @@ In **Offset Explorer 3**, connect to our Kafka cluster running in Docker.
 
 ![](assets/module2/create_topic.gif)<br>
 
-
-
-
-
-## Exercise 1: Implement a Kafka Message Producer
-![](assets/module2/images/exercise1.svg)<br>
-
+## Excercise 1: Configure Spring Kafka within our Application
 > [!NOTE]
 >
 > **Relevant Files**<br>
 > `application.yml` ─ our service's property file<br>
-> `KafkaConfig.java` ─ Configuration class to store our Kafka related Beans</br>
-> `GreetingEvent.java` ─ data model to encapsulate a simple greeting.</br> 
-> `GreetingEventProducer.java` ─ the class that publishes `GreetingEvent` objects to our dedicated kafka topic `greeting_topic`
-
-Implement the `public boolean publish(String messageId, GreetingEvent event) {}` method, which takes a `messageId` and a `GreetingEvent`, and writes a new message into the kafka topic.</br>
-Return the boolean status of the kafka topic write operation.<br>
-
-### Example 1:
-> **Input**:<br>
-> ```java
-> GreetingEventProducer producer = new GreetingEventProducer();
-> String eventId = "UUID1";
-> GreetingEvent event = new GreetingEvent(eventId, "Alice", "Bob", "Hi Bob, I'm Alice!");
-> boolean output = producer.publish(eventId, event);
-> ```
-> **Output**: <span style="color:#0000008c">true<br></span>
-
 
 ### Task 1: Configure application.yml
 | Property                                   | Required?    | Role         | Supported/Example Values                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Description                                                                                                                                      |
@@ -229,7 +199,7 @@ Return the boolean status of the kafka topic write operation.<br>
 | `spring.kafka.producer.key-serializer`     | **Required** | **Producer** | <ul><li>`org.apache.kafka.common.serialization.StringSerializer`</li><li>`org.apache.kafka.common.serialization.IntegerSerializer`</li><li>`org.apache.kafka.common.serialization.LongSerializer`</li><li>`org.apache.kafka.common.serialization.DoubleSerializer`</li><li>`org.apache.kafka.common.serialization.FloatSerializer`</li><li>`org.apache.kafka.common.serialization.ByteArraySerializer`</li><li>`org.apache.kafka.common.serialization.UUIDSerializer`</li><li>`org.springframework.kafka.support.serializer.JsonSerializer`</li></ul>                 | Converts produced kafka message key to object (e.g., `String`). Must match key-deserializer on consumer.                                         |
 | `spring.kafka.producer.value-serializer`   | **Required** | **Producer** | Same list as `key-serializer` (most common: `StringSerializer`, `JsonSerializer`, `ByteArraySerializer`).<br>                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Converts produced kafka message value to object (e.g., `String`). Must match value-deserializer on consumer.                                     |
 - List of [Spring Kafka supported fields <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://gist.github.com/geunho/77f3f9a112ea327457353aa407328771)<br>
-![](assets/module2/images/ser_deser.svg)<br>
+  ![](assets/module2/images/ser_deser.svg)<br>
 
 #### Requirements:
 1. We want to connect to our local Docker Kafka server (bootstrap-servers)
@@ -239,17 +209,50 @@ Return the boolean status of the kafka topic write operation.<br>
 5. We want to write kafka messages as key/value pairs of String/ByteArray. This means the kafka message key will be stored as a String object, and the same message value will be stored as ByteArray. (key-deserializer/value-deserializer)
 6. We want to read kafka messages as key/value pairs of String/ByteArray. This means the kafka message key will be read as a String object, and the same message value will be read as ByteArray (key-serializer/value-serializer)
 
+#
+
+### Task 2: Configure greeting-events topic name
+We need to define the property for the `greeting-events` topic we just created in Offset Explorer 3.
+
+The updated application.yml should look like this:
+```yaml
+spring:
+  ...
+
+twitch-chat-hit-counter:
+  kafka:
+    consumer:
+      greeting-topic:
+        greeting-events
+    producer:
+      greeting-topic:
+        greeting-events
+```
+
+#
+
 ### Testing
-- [ ] Open `ProfileApplicationTest.java` ─ already implemented.
-- [ ] Remove `@Disabled` in `ProfileApplicationTest.java` for the test method: `testDefaultProfile_kafkaConfigs()`
+- [ ] Open `ProfileApplicationTest.java` ─ already implemented, testing each property against the expected values we want for this course.
+- [ ] Remove `@Disabled` in `ProfileApplicationTest.java` for the test method: `testDefaultProfile_kafkaConfigs()` and `testDefaultProfile_kafka_greetingTopicName()`
 - [ ] Test with:
 ```shell
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
 ```
 
+
+## Exercise 2: Implement a Kafka Message Producer
+![](assets/module2/images/exercise1.svg)<br>
+
+> [!NOTE]
+>
+> **Relevant Files**<br>
+> `KafkaConfig.java` ─ Configuration class to store our Kafka related Beans</br>
+> `GreetingEvent.java` ─ data model to encapsulate a simple greeting.</br> 
+> `GreetingEventProducer.java` ─ the class that publishes `GreetingEvent` objects to our dedicated kafka topic `greeting_topic`
+
 #
 
-### Task 2: Create the Producer Beans
+### Task 1: Create the Producer Beans
 `KafkaConfig.java` - we need to create two `@Bean` objects for ProducerFactory and KafkaTemplate, which will be used to Auto-configure Spring Kafka at runtime.
 `org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration` is the class that autoconfigures our kafka beans. 
 
@@ -267,9 +270,8 @@ Return the boolean status of the kafka topic write operation.<br>
 1. Create `ProducerFactory` @Bean by passing in the bootstrap-servers, key-serializer, value-serializer configs from the application.yml.
 2. Create `KafkaTemplate` @Bean by Dependency Inject (DI) the `ProducerFactory`.
 
-
 ### Testing
-- [ ] Open `KafkaConfigTest.java` ─ already implemented.
+- [ ] Open `KafkaConfigTest.java` ─ already implemented, testing each Bean is properly configured using the `application.yml` properties from earlier.
 - [ ] Remove `@Disabled` in `KafkaConfigTest.java` for the test method(s): `testProducerFactoryConfig()` and `testKafkaTemplateConfig()`
 - [ ] Test with:
 ```shell
@@ -278,15 +280,34 @@ Return the boolean status of the kafka topic write operation.<br>
 
 #
 
-### Task 3: Implement GreetingEventProducer.java
-Implement `public boolean publish(String key, GreetingEvent event) {}`.
+### Task 2: Implement GreetingEventProducer.java
+Implement the `public boolean publish(String messageId, GreetingEvent event) {}` method. The method expects a `messageId` and a `GreetingEvent`, and writes a new message into the kafka topic.
 
-Get familiar with the KafkaTemplate class source code, here you will find the method: `kafkaTemplate.send(String topic, @Nullable V data)`.<br>
+Return the boolean status of the kafka topic write operation.
 
-You will need to create a constructor for this GreetingEventProducer and DI the KafkaTemplate object in `KafkaConfig.java` to successfully write the event to our kafka topic.
+> [!TIP]
+>
+> You will need to create a constructor for this `GreetingEventProducer` and Dependency Inject (DI) the KafkaTemplate @Bean in `KafkaConfig.java` to successfully write the event to our kafka topic.
+> 
+> Get familiar with the KafkaTemplate class source code ─ this class deals with the connection to a kafka topic and any IO operations to/from the topic. In the source code, you will find this helpful method: `kafkaTemplate.send(String topic, @Nullable V data)`.
+
+### Example 1:
+> **Input**:<br>
+> ```java
+> GreetingEventProducer producer = new GreetingEventProducer(...);
+> String eventId = "UUID1";
+> GreetingEvent event = new GreetingEvent(eventId, "Alice", "Bob", "Hi Bob, I'm Alice!");
+> boolean output1 = producer.publish(eventId, event);
+> 
+> String eventId2 = "UUID2";
+> GreetingEvent event2 = new GreetingEvent(eventId2, "Charlie", "David", "Yo.");
+> boolean output2 = producer.publish(eventId2, event2);
+> ```
+> **Output1**: <span style="color:#0000008c">true<br></span>
+> **Output2**: <span style="color:#0000008c">true<br></span>
 
 ### Testing
-- [ ] Open `GreetingEventProducerTest.java` ─ already implemented
+- [ ] Open `GreetingEventProducerTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `GreetingEventProducerTest.java`
 - [ ] Test with:
 ```shell
@@ -295,14 +316,62 @@ You will need to create a constructor for this GreetingEventProducer and DI the 
 
 #
 
-### Task 4: Implement KafkaRestController.java
+### Task 3: Implement KafkaRestController.java
+Now we should have the ability to publish kafka messages in `GreetingEventProducer.java`. We need some sort of trigger to tell our application to trigger this logic to write to our kafka topic.
+
 Implement `GET /api/kafka/publishGreetingEvent` endpoint to trigger `GreetingEventProducer.publish(...);`
 
 Requirements:
 1. Generate a UUID, which will act as the kafka messageId as well as the GreetingEvent's eventId.
 2. Call GreetingEventProducer.publish() to handle actual publishing of the kafka message.
 
+```java
+@PostMapping("/publishGreetingEvent")
+@Operation(summary = "Publish Kafka Event", description = "Publish a GreetingEvent")
+public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestParam String receiver, @RequestParam String message) {
+    // Hook up to GreetingEventProducer.publish(...)
+}
+```
+
+### Example 1:
+> ```java
+> WebClient webClient = WebClient.builder()
+>         .baseUrl("http://localhost:8080/api/")
+>         .build();
+>
+> boolean output1 = webClient.post()
+>         .uri(uriBuilder -> uriBuilder
+>                 .path("/kafka/publishGreetingEvent")
+>                 .queryParam("sender", "Alice")
+>                 .queryParam("receiver", "Bob")
+>                 .queryParam("message", "Hi Bob, I'm Alice!")
+>                 .build())
+>         .retrieve()
+>         .bodyToMono(Boolean.class)
+>         .block();
+> 
+> boolean output2 = webClient.post()
+>         .uri(uriBuilder -> uriBuilder
+>                 .path("/kafka/publishGreetingEvent")
+>                 .queryParam("sender", "Charlie")
+>                 .queryParam("receiver", "David")
+>                 .queryParam("message", "Yo.")
+>                 .build())
+>         .retrieve()
+>         .bodyToMono(Boolean.class)
+>         .block();
+> ```
+> **Output1**: true<br>
+> **Output2**: true
+
 ### Testing
+- [ ] Open `KafkaRestControllerTest.java` ─ already implemented test cases with the example(s) above.
+- [ ] Remove `@Disabled` in `KafkaRestControllerTest.java`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
+```
+
 ### Integration Testing
 - [ ] Run the application:
 ```shell
@@ -310,15 +379,13 @@ Requirements:
 ```
 - [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
 - [ ] Play around with **Kafka API**: `/api/kafka/publishGreetingEvent`
-- [ ] Check Offset Explorer 3 to see that your GreetingEvent is actually published to our kafka topic.
+- [ ] Check Offset Explorer 3 to see that your GreetingEvent is actually published to our kafka topic
 
 ![](assets/module2/images/kafkaSwagger.png)<br>
 
+#
 
-
-
-
-### Exercise 2: Implement a Kafka Message Consumer
+### Exercise 3: Implement a Kafka Message Consumer
 ![](assets/module2/images/exercise2.svg)<br>
 
 > [!NOTE]
@@ -329,8 +396,71 @@ Requirements:
 > `GreetingEvent.java` ─ data model to encapsulate a simple greeting.<br>
 > `GreetingEventConsumer.java` ─ the class that subscribes to our `greeting_event` kafka topics to read `GreetingEvent` objects
 
-#### Task 1: Implement KafkaConfig.java
-- We need to now create some Beans for the Kafka consumers, `ConsumerFactory` and `ConcurrentKafkaListenerContainerFactory`
+### Task 1: Implement KafkaConfig.java
+We need to now create some Beans for the Kafka consumers, `ConsumerFactory` and `ConcurrentKafkaListenerContainerFactory`.
+
+You should've already added the consumer related Kafka spring properties in `application.yml`, so no changes needed there.
+
+**Requirements:**
+1. Create `ConsumerFactory` @Bean by passing in the bootstrap-servers, group-id, auto-offset-reset, enable-auto-commit, key-deserializer, value-deserializer configs from the application.yml.
+2. Create `ConcurrentKafkaListenerContainerFactory` @Bean by Dependency Inject (DI) the `ConsumerFactory`.
+   1. On the `ConcurrentKafkaListenerContainerFactory`, set AckMode to `ContainerProperties.AckMode.MANUAL`
+
+### Testing
+- [ ] Open `KafkaConfigTest.java` ─ already implemented, testing each Bean is properly configured using the `application.yml` properties from earlier.
+- [ ] Remove `@Disabled` in `KafkaConfigTest.java` for the test method(s): `testConsumerFactoryConfig()` and `testConcurrentKafkaListenerContainerFactoryConfig()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
+```
+
+### Task 2: Implement KafkaEventConsumer.java
+Implement the `public void processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack)` method.
+
+Log/print the kafka message that was read from the kafka topic.
+
+> [!IMPORTANT]
+>
+> You will need to add the [@KafkaListener <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-annotation.html)<br> annotation above the `processMessage(...)` method.
+> 
+> Add in these properties: `topics`, `groupId`, `containerFactory`
+
+
+### Example 1:
+> **Input**:<br>
+> ```java
+> GreetingEventConsumer consumer = new GreetingEventConsumer(...);
+> // Assume kafka has these 3 events:
+> // 1. new GreetingEvent("id1", "Alice", "Bob", "Hello, Bob!")
+> // 2. new GreetingEvent("id2", "Bob", "Charlie", "Good morning, Charlie!")
+> // 3. new GreetingEvent("id3", "Eve", "Frank", "Hi Frank, how are you?")
+> consumer.processMessage(...); // processes 1st GreetingEvent
+> consumer.processMessage(...); // processes 2nd GreetingEvent
+> consumer.processMessage(...); // processes 3rd GreetingEvent
+> ```
+> **Output1**: <span style="color:#0000008c">None<br></span>
+> **Output2**: <span style="color:#0000008c">None<br></span>
+> **Output3**: <span style="color:#0000008c">None<br></span>
+
+### Testing
+- [ ] Open `GreetingEventProducerTest.java` ─ already implemented test cases with the example(s) above.
+- [ ] Remove `@Disabled` in `GreetingEventProducerTest.java`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
+```
+
+#
+
+### Integration Testing
+- [ ] Run the application:
+```shell
+./gradlew bootRun
+```
+- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
+- [ ] Play around with **Kafka API**: `/api/kafka/publishGreetingEvent`
+- [ ] Check Offset Explorer 3 to see that your GreetingEvent is actually published to our kafka topic
+- [ ] Verify application **stdout** logs are actually receiving the newly written kafka records
 
 #
 
@@ -372,5 +502,5 @@ This simple extreme example shows the benefit of introducing batch operations in
 
 #
 
-### Exercise 3: Implement BATCH Kafka Message Consumer
+### Exercise 4: Implement BATCH Kafka Message Consumer
 ![](assets/module2/images/exercise3.svg)<br>

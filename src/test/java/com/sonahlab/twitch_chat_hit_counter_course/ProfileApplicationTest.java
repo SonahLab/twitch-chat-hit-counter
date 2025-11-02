@@ -33,4 +33,13 @@ public class ProfileApplicationTest {
         assertEquals(env.getProperty("spring.kafka.producer.key-serializer"), "org.apache.kafka.common.serialization.StringSerializer");
         assertEquals(env.getProperty("spring.kafka.producer.value-serializer"), "org.apache.kafka.common.serialization.ByteArraySerializer");
     }
+
+    @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 1, Task 1.
+    @Disabled
+    @Tag("Module2")
+    public void testDefaultProfile_kafka_greetingTopicName() {
+        assertEquals(env.getProperty("twitch-chat-hit-counter.kafka.producer.greeting-topic"), "greeting-events");
+        assertEquals(env.getProperty("twitch-chat-hit-counter.kafka.consumer.greeting-topic"), "greeting-events");
+    }
 }

@@ -401,17 +401,17 @@ When our application runs, the character state changes in that specific run will
 For each of these API endpoints simply call the respective methods we previously implemented in `GameRestController.java`.<br>
 Return the result output from each of these `GameRestController.java` function calls back through the HTTP Response.
 ```java
-@PutMapping("/fantasyGame/takeDamage")
+@PutMapping("/takeDamage")
 public int takeDamage(@RequestParam int damage) {
     // Hook up to GameCharacter.takeDamage(...)
 }
 
-@PutMapping("/fantasyGame/consumePotion")
+@PutMapping("/consumePotion")
 public int consumePotion(@RequestParam String potionName) {
     // Hook up to GameCharacter.consumePotion(...)
 }
 
-@GetMapping("/fantasyGame/characterState")
+@GetMapping("/characterState")
 public Map<String, Object> getCharacterState() {
     // Hook up to GameCharacter.getCharacterState()
 }

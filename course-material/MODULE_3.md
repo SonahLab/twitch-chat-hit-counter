@@ -2,10 +2,13 @@
 ## Twitch Chat Hit Counter
 
 ## Module 3: SQL
-#### Recommended Learning Materials
+
+[//]: # (TODO)
+#### Recommended Learning Materials 
 - https://dev.mysql.com/downloads/workbench/
 
 ## Overview
+[//]: # (TODO)
 Now we’re foraying into the land of databases.
 
 SQL Databases, a.k.a. Relational DataBase Management System (RDBMS), a.k.a. the OG database.
@@ -22,12 +25,9 @@ At Netflix, I run SQL queries via:
 
 This course won’t dive too deeply into SQL queries, we will instead be focusing on setting up and populating our own SQL db.
 
+<br>
 
-
-
-
-
-### File Structure
+## File Structure
 For `Module 3`, the below file structure are all the relevant files needed.
 
 [//]: # (```)
@@ -109,20 +109,15 @@ For `Module 3`, the below file structure are all the relevant files needed.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/testClass_newui.svg" align="center"/> GreetingSqlServiceTest.java<br>
 
-
-
-
-
+<br>
 
 ## Objective
 ![](assets/module3/images/Module3_Overview.svg)<br>
-In **Module 2**, we were consuming the kafka messages and just logging them to _stdout_.<br> 
-**Module 3** goes one step further and stores these GreetingEvents in a SQL DB.
+In **Module 2**, we set up an E2E producer/consumer on our first `greeting-events` Kafka topic. The consumer of the kafka messages does nothing besides logging the event to _stdout_.<br> 
 
+In **Module 3**, we will go one step further and persist/store these GreetingEvents in a SQL DB.
 
-
-
-
+<br>
 
 ## Setup Local MySQL Server
 Start our local MySQL Server via Docker:
@@ -137,8 +132,12 @@ docker run \
     -d mysql:latest
 ```
 
+<br>
+
 In **Docker**, you should now see the MySQL container running locally. We now have both a Kafka server and a MySQL server.
-![](assets/module3/images/Docker.jpg)<br>
+![](assets/module3/images/Docker.jpg)
+
+<br>
 
 Open **MySQLWorkbench** and connect to the MySQL instance running in Docker.
 1. Click Add Connection (circle with a '+' sign)<br>
@@ -146,17 +145,15 @@ Open **MySQLWorkbench** and connect to the MySQL instance running in Docker.
 3. Click '**Test Connection**' to verify that MySQLWorkbench is able to connect to the SQL server
 4. Click '**OK**' to finish setting up the connection
 5. Connect to the SQL instance
+
 ![](assets/module3/images/mysqlworkbench_setup.jpg)<br>
 
-
-
-
-   
+<br>
 
 ## Create your first SQL table
-1. Click on '**Schemas**' tab
-2. Navigate to _dev_db_ → _Tables_
-3. Now run the SQL Query in the editor:
+1. Click on **Schemas** tab
+2. Navigate to **dev_db** → **Tables**
+3. In the SQL Editor, run:
 ```
 CREATE TABLE dev_db.greeting_events (
     event_id VARCHAR(255) PRIMARY KEY,
@@ -167,12 +164,9 @@ CREATE TABLE dev_db.greeting_events (
 ```
 ![](assets/module3/images/mysqlworkbench_create_table.gif)<br>
 
+<br>
 
-
-
-
-
-## Exercise 1: Implement GreetingSqlService.insert()
+## Exercise 1: Implement SQL Single record writes
 ![](assets/module3/images/exercise1.svg)<br>
 
 ### Example 1:
@@ -190,6 +184,9 @@ CREATE TABLE dev_db.greeting_events (
 > **Output2**: <span style="color:#0000008c">1<br></span>
 > **Output3**: <span style="color:#0000008c">0<br></span>
 
+<br>
+
+### Task 1: Configure application.yml
 Add our SQL table name to our application.yml properties
 ```yaml
 twitch-chat-hit-counter:
@@ -197,13 +194,44 @@ twitch-chat-hit-counter:
     greeting-table: greeting_events
 ```
 
-Implement the `public int insert(GreetingEvent event) {}`. This method should write a `GreetingEvent` and insert it into the SQL table we've set up.
-Return the number of successful events written in the table (should be 0 or 1).
-Requirements:
-1. Events should be deduplicated
-   2. if an event with the same eventId already exists in the SQL table, it will be ignored.
-2. Constructor should pass in the table name from application.yml
-3. Constructor should pass in the auto-configured `JdbcTemplate` that is used to handle the read/write IOs to SQL
+### Testing
+- [ ] Open `ProfileApplicationTest.java` ─ already implemented to test the property above.
+- [ ] Remove `@Disabled` in `ProfileApplicationTest.java` for the test method(s): `testDefaultProfile_sql_greetingTableName()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
+```
+
+### Integration Testing
+- [ ] Run the application:
+```shell
+./gradlew bootRun
+```
+- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
+- [ ] Play around with **Kafka API**: `/api/kafka/publishGreetingEvent`
+- [ ] Check **Offset Explorer 3** to see that your GreetingEvent is actually published to our kafka topic
+- [ ] Verify application **stdout** logs are actually receiving the newly written kafka records
+- [ ] In **MySQLWorkbench**, verify that the Greeting you triggered via **Swagger** is written into the SQL table by running:
+```
+SELECT *
+FROM greeting_events
+```
+
+#
+
+### Task 2: Implement GreetingSqlService.insert() 
+In `GreetingSqlService.java`, implement `public int insert(GreetingEvent event)`. This method should write a `GreetingEvent` into the SQL table we've set up.
+
+Return the number of successful event(s) written in the table (should be 0 or 1).
+
+**Requirements:**
+1. Events should be deduplicated<br>
+   If an event with the same **event_id (PK)** already exists in the SQL table, it will be ignored.
+2. Constructor should pass in the table name define in `application.yml` from the previous task.
+3. Constructor should pass in the auto-configured [JdbcTemplate <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/spring-jdbc-jdbctemplate) that is used to handle the read/write IOs to SQL<br>
+   >[!NOTE]
+   > 
+   > If you take a look at `application.yml`, I have already implemented the MySQL configs for you that our application will use to autoconfigure or **JdbcTemplate** @Bean with.
 
 Here's a hint (without giving away the entire answer) for how the SQL insert statement should look:
 ```
@@ -213,6 +241,12 @@ ON {SOME_FILTER}
 ```
 Here's a very helpful link on how to ensure writes to SQL, deduplicate events: [Stack Overflow <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://stackoverflow.com/questions/14383503/on-duplicate-key-update-same-as-insert)<br>
 
+### Task 3: Hook up the Kafka Consumer to use the SQL writer
+Now hook up the `GreetingSqlService.java` to our `GreetingEventConsumer.java` from **Module 2**.<br>
+Everytime an event is read from Kafka, we will call the `GreetingSqlService.insert()` method to persist that event into the SQL DB.
+
+You will need to inject the `GreetingSqlService` component into the `GreetingEventConsumer` constructor.
+
 ### Testing
 - [ ] Open `GreetingSqlServiceTest.java` ─ already implemented
 - [ ] Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method: `insertTest()`
@@ -221,12 +255,13 @@ Here's a very helpful link on how to ensure writes to SQL, deduplicate events: [
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
 ```
 
+<br>
 
+## Exercise 2: Implement SqlRestController
+[//]: # (TODO fix the image ApplicationRestController name)
+![](assets/module3/images/exercise2.svg)<br>
 
-
-
-
-## Exercise 2: Implement GreetingSqlService.queryAllEvents()
+### Task 1: Implement GreetingSqlService.queryAllEvents()
 Implement `public List<GreetingEvent> queryAllEvents() {}`. This method should read all the events in our SQL table.
 Return a list of `GreetingEvent`.
 
@@ -292,47 +327,117 @@ Return a list of `GreetingEvent`.
 > ]
 > ```
 
-This task is quite trivial if you know about [SQL Query <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.w3schools.com/sql/sql_syntax.asp), you will now utilize the `JdbcTemplate` to query and parse the response back to a List\<GreetingEvent>.
+This task is quite trivial if you know about [SQL Query <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.w3schools.com/sql/sql_syntax.asp).<br>
+The query will be identical to the SQL query used in MySQLWorkbench that was used to read all events in our `greeting_events` table.
 
-Task 2:<br>
-Now hook up the `GreetingEventService.java` to our `GreetingEventConsumer.java`. Everytime the event is consumed, we will call the `GreetingSqlService.insert()` method to persist that event into the SQL DB.
+The only tricky part here is that you will now use the `JdbcTemplate` to execte this query and parse the returned records back to a List\<GreetingEvent>.
 
-Task 3:<br>
-![](assets/module3/images/exercise2.svg)<br>
-Now implement the `GET /api/queryGreetingEventsFromSQL` API endpoint in `ApplicationRestController.java`.
-We want our HTTP Controller to call the GreetingSqlService to fetch all the records in our SQL table.
+### Task 2: Hook up the `SqlRestController` to the `GreetingSqlService`
+Now implement the `GET /api/sql/queryGreetingEventsFromSQL` API endpoint in `SqlRestController.java`.<br>
+We want our HTTP Controller to call the `GreetingSqlService.queryAllEvents()` to fetch all the records in our SQL table.
+
+You will need to inject the `GreetingSqlService` component into the `SqlRestController` constructor.
 
 #### Testing
-- [ ] Open `GreetingSqlServiceTest.java` ─ already implemented
-- [ ] Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method: `queryTest()`
+- [ ] Open `SqlRestControllerTest.java` ─ already implemented
+- [ ] Remove `@Disabled` in `SqlRestControllerTest.java`
 - [ ] Test with:
 ```shell
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
 ```
 
-### Exercise 3: Implement GreetingSqlService.insertBatch()
+### Exercise 3: Implement Batch Writes
 ![](assets/module3/images/exercise3.svg)<br>
-Implement `public int insertBatch(List<GreetingEvent> events) {}`.
 
-Similar to our lesson in Module 2 where we want to optimize the # of IO calls to our server, instead of writing 1M events into our SQL DB using 1M write calls, we will try to write in a batch of events to make less round trips to the SQL server.
+### Task 1: Create new SQL table
+In **MySQLWorkbench**, create a new SQL table `batch_greeting_events` with the same schema as the first sql table:
+```
+CREATE TABLE dev_db.batch_greeting_events (
+    event_id VARCHAR(255) PRIMARY KEY,
+    sender VARCHAR(255),
+    receiver VARCHAR(255),
+    message TEXT
+)
+```
 
-This method will look very similar to the `insert()` method, the only difference is that pack more events into the SQL statement than in the previous method.
+#
 
-Here's a brief overview of how to implement batch insert statements with [JdbcTemplate <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-framework/reference/data-access/jdbc/advanced.html) in Spring Boot.
-
-Requirements:
-1. Create a new SQL table `batch_greeting_events` with the same schema as the first sql table
-```yml
+### Task 2: Configure application.yml
+```yaml
 twitch-chat-hit-counter:
   sql:
-    greeting-table-batch: greeting_batch_events
+    greeting-table-batch: batch_greeting_events
 ```
-2. Make sure to also hook up our `GreetingEventBatchConsumer.java` to call `GreetingSqlService.insertBatch()` method.
 
-#### Testing
+### Testing
+- [ ] Open `ProfileApplicationTest.java` ─ already implemented to test the property above.
+- [ ] Remove `@Disabled` in `ProfileApplicationTest.java` for the test method(s): `testDefaultProfile_sql_batchGreetingTableName()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
+```
+
+#
+
+### Task 2: Implement GreetingSqlService.insertBatch()
+Implement `public int insertBatch(List<GreetingEvent> events)`.
+
+Return the number of successful events that were written to the SQL table.
+
+Similar to the **Lesson: Input/Output (IO) Operations** section in **Module 2**, we will optimize the # of IO calls to our SQL server by reducing write IOs. Instead of sending `.insert()` calls for (i.e: 1M events) into our SQL DB by issuing 1M write calls, we will write events in batches to make less round trips to the SQL server.
+
+
+**Reminder:** pass in the `twitch-chat-hit-counter.sql.greeting-table-batch` property into the constructor.<br>
+
+This method will look very similar to the `insert()` method, the only differences are:
+1. The Batch SQL insert statement will pack more events than did the previous method.
+2. The `insertBatch()` method should write to `batch_greeting_events` SQL table and not the `greeting_events` table that is used by the `insert()` method.
+
+> [!TIP]
+>
+> Here's a brief overview of how to implement batch insert statements with [JdbcTemplate <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-framework/reference/data-access/jdbc/advanced.html) in Spring Boot.
+
+### Example 1:
+> **Input**:<br>
+> <span style="color:#0000008c">GreetingSqlService greetingSqlService = new GreetingSqlService(...);<br></span>
+> <span style="color:#0000008c">GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");<br></span>
+> <span style="color:#0000008c">GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");<br></span>
+> <span style="color:#0000008c">GreetingEvent event3 = new GreetingEvent("id1", "Echo", "Frank", "Hello there.");<br></span>
+>
+> <span style="color:#0000008c">**int output = greetingSqlService.insertBatch(List.of(event1, event2, event3));** // should return 3<br></span>
+>
+> **Output**: <span style="color:#0000008c">3<br></span>
+> **Explanation**: <span style="color:#0000008c">Our batch insert SQL statement should write event1 and event2, but event3 has the same "id1" primary key as event1 which should have already been written to in the same batch, so we won't write in event3. 2 successful writes out of 3 batched events.<br></span>
+
+#
+
+### Testing
 - [ ] Open `GreetingSqlServiceTest.java` ─ already implemented
 - [ ] Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method: `insertBatchTest()`
 - [ ] Test with:
 ```shell
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
+```
+
+#
+
+### Task 3: Hook up the Batch Kafka Consumer to use the Batch SQL writer
+Make sure to also hook up our `GreetingEventBatchConsumer.java` (**Module 2**) to call `GreetingSqlService.insertBatch()` method.
+Everytime a batch of events are read from Kafka, we will call the `GreetingSqlService.insertBatch()` method to persist this same batch of events into the SQL DB.
+
+You will need to inject the `GreetingSqlService` component into the `GreetingEventConsumer` constructor.
+
+### Integration Testing
+- [ ] Run the application:
+```shell
+./gradlew bootRun
+```
+- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
+- [ ] Play around with **Kafka API**: `/api/kafka/publishGreetingEvent`
+- [ ] Check **Offset Explorer 3** to see that your GreetingEvent is actually published to our kafka topic
+- [ ] Verify application **stdout** logs are actually receiving the newly written kafka records
+- [ ] In **MySQLWorkbench**, verify that the Greeting you triggered via **Swagger** is written into the SQL table by running:
+```
+SELECT *
+FROM batch_greeting_events
 ```

@@ -42,4 +42,20 @@ public class ProfileApplicationTest {
         assertEquals(env.getProperty("twitch-chat-hit-counter.kafka.producer.greeting-topic"), "greeting-events");
         assertEquals(env.getProperty("twitch-chat-hit-counter.kafka.consumer.greeting-topic"), "greeting-events");
     }
+
+    @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3 Exercise 1, Task 1.
+    @Disabled
+    @Tag("Module3")
+    public void testDefaultProfile_sql_greetingTableName() {
+        assertEquals(env.getProperty("twitch-chat-hit-counter.sql.greeting-table"), "greeting_events");
+    }
+
+    @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3 Exercise 1, Task 3.
+    @Disabled
+    @Tag("Module3")
+    public void testDefaultProfile_sql_batchGreetingTableName() {
+        assertEquals(env.getProperty("twitch-chat-hit-counter.sql.greeting-table-batch"), "batch_greeting_events");
+    }
 }

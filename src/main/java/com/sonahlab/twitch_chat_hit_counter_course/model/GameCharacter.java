@@ -2,7 +2,10 @@ package com.sonahlab.twitch_chat_hit_counter_course.model;
 
 import com.sonahlab.twitch_chat_hit_counter_course.utils.Potion;
 import com.sonahlab.twitch_chat_hit_counter_course.utils.Stat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -11,6 +14,11 @@ import java.util.Map;
  * This class will handle any state changes for the underlying HP, MP, and inventory fields.
  * */
 public class GameCharacter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GameCharacter.class);
+
+    private Map<Stat, Integer> stats;
+    private Map<Potion, Integer> inventory;
+
     /**
      * TODO: Implement as part of Module 1 Exercise 2.
      *
@@ -23,6 +31,15 @@ public class GameCharacter {
         // TODO:
         // 1. Define the underlying fields however you like
         // 2. Set default values for HP (100), MP (100), Inventory ({HP_POTION: 5, MP_POTION: 5})
+        this.stats = new HashMap<>() {{
+            put(Stat.HP, 100);
+            put(Stat.MP, 100);
+        }};
+        this.inventory = new HashMap<>() {{
+            put(Potion.HP_POTION, 5);
+            put(Potion.MP_POTION, 5);
+        }};
+        LOGGER.info("Created GameCharacter w/ stats={}, inventory={}", stats, inventory);
     }
 
     // =================================================================================================================
@@ -33,6 +50,9 @@ public class GameCharacter {
      * Depending on the input parameter, we should return the correct Stat's value.
      * */
     public int getStat(Stat stat) {
+        if (stats.containsKey(stat)) {
+            return stats.get(stat);
+        }
         return -1;
     }
 
@@ -40,7 +60,7 @@ public class GameCharacter {
      * GETTER for the inventory map.
      * */
     public Map<Potion, Integer> getInventory() {
-        return null;
+        return inventory;
     }
 
     /**
@@ -50,7 +70,9 @@ public class GameCharacter {
      * Otherwise, do nothing.
      * */
     public void setHp(int hp) {
-        return;
+        if (0 <= hp && hp <= 100) {
+            stats.put(Stat.HP, hp);
+        }
     }
 
     /**
@@ -60,7 +82,9 @@ public class GameCharacter {
      * Otherwise, do nothing.
      * */
     public void setMp(int mp) {
-        return;
+        if (0 <= mp && mp <= 100) {
+            stats.put(Stat.MP, mp);
+        }
     }
 
     // =================================================================================================================
@@ -76,7 +100,12 @@ public class GameCharacter {
      * @return the character's HP after taking the damage (0 to 100)
      * */
     public int takeDamage(int damage) {
-        return -1;
+        int currentHp = getStat(Stat.HP);
+        int updatedHp = Math.max(0, currentHp - damage);
+
+        setHp(updatedHp);
+
+        return updatedHp;
     }
 
     /**
@@ -97,7 +126,34 @@ public class GameCharacter {
      * @return the new value of the affected stat (HP or MP), or -1 for any errors.
      * */
     public int consumePotion(Potion potion) {
-        return -1;
+        // Verify that we in fact do have the Potion in our inventory
+        if (!inventory.containsKey(potion)) {
+            return -1;
+        }
+
+        // Get the current quantity of that potion from our inventory
+        int potionCount = inventory.get(potion);
+        // After consumption, we will have consumed 1 potion
+        int updatedPotionCount = potionCount - 1;
+
+        Stat stat = potion.getStat();
+        int currentStatValue = stats.get(stat);
+        int statIncrement = potion.getStatIncrement();
+        int updatedStat = Math.min(100, currentStatValue + statIncrement);
+
+        if (stat == Stat.HP) {
+            setHp(updatedStat);
+        } else if (stat == Stat.MP) {
+            setMp(updatedStat);
+        }
+
+        if (updatedPotionCount == 0) {
+            inventory.remove(potion);
+        } else {
+            inventory.put(potion, updatedPotionCount);
+        }
+
+        return updatedStat;
     }
 
     /**
@@ -111,6 +167,14 @@ public class GameCharacter {
      * @return a map containing the current HP, MP, and a copy of the inventory
      * */
     public Map<String, Object> getCharacterState() {
-        return null;
+        Map<String, Object> state = new HashMap<>();
+
+        for (Map.Entry<Stat, Integer> entry : stats.entrySet()) {
+            state.put(entry.getKey().toString(), entry.getValue());
+        }
+
+        state.put("INVENTORY", inventory);
+
+        return state;
     }
 }

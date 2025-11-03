@@ -3,7 +3,6 @@ package com.sonahlab.twitch_chat_hit_counter_course.rest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +17,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 1.
-@Disabled
 @Tag("Module1")
 public class GameRestControllerTest {
 
@@ -41,8 +38,8 @@ public class GameRestControllerTest {
 
         Assertions.assertEquals(100, json.get("HP").asInt());
         Assertions.assertEquals(100, json.get("MP").asInt());
-        Assertions.assertEquals(5, json.get("Inventory").get("HP_POTION").asInt());
-        Assertions.assertEquals(5, json.get("Inventory").get("MP_POTION").asInt());
+        Assertions.assertEquals(5, json.get("INVENTORY").get("HP_POTION").asInt());
+        Assertions.assertEquals(5, json.get("INVENTORY").get("MP_POTION").asInt());
 
         // 2. Character takes 70 damage
         // 100 (current HP) - 70 (damage) = 30 HP
@@ -69,7 +66,7 @@ public class GameRestControllerTest {
 
         Assertions.assertEquals(80, json.get("HP").asInt());
         Assertions.assertEquals(100, json.get("MP").asInt());
-        Assertions.assertEquals(4, json.get("Inventory").get("HP_POTION").asInt());
-        Assertions.assertEquals(5, json.get("Inventory").get("MP_POTION").asInt());
+        Assertions.assertEquals(4, json.get("INVENTORY").get("HP_POTION").asInt());
+        Assertions.assertEquals(5, json.get("INVENTORY").get("MP_POTION").asInt());
     }
 }

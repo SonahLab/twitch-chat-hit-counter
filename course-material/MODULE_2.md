@@ -443,8 +443,8 @@ Log/print the kafka message that was read from the kafka topic.
 > **Output3**: <span style="color:#0000008c">None<br></span>
 
 ### Testing
-- [ ] Open `GreetingEventProducerTest.java` ─ already implemented test cases with the example(s) above.
-- [ ] Remove `@Disabled` in `GreetingEventProducerTest.java`
+- [ ] Open `GreetingEventConsumerTest.java` ─ already implemented test cases with the example(s) above.
+- [ ] Remove `@Disabled` in `GreetingEventConsumerTest.java`
 - [ ] Test with:
 ```shell
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`

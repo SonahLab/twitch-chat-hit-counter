@@ -120,7 +120,7 @@ For `Module 1`, the below file structure are all the relevant files needed.
 > **Relevant Files**<br>
 > `GreetingRestController.java` ─ REST controller to handle our service's simple greeting methods: `/api/greeting/hello`.
 
-In `GreetingRestController.java`, implement the `public String sayHello(@RequestParam String name)` method.
+In `GreetingRestController.java`, implement the `public String sayHello(@RequestParam(required = false) String name)` method.
 
 This method is the entry point for all incoming HTTP requests to `/api/greeting/hello`.
 

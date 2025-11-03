@@ -29,7 +29,7 @@ public class GameRestControllerTest {
     @Test
     void testGameEndpoints() throws Exception {
         // 1. Get default character state
-        // HP=100, MP=100, inventory={HP_POTION=5, MP_POTION=5}
+        // HP=100, MP=100, INVENTORY={HP_POTION=5, MP_POTION=5}
         String jsonResponse = mockMvc.perform(get("/api/fantasyGame/characterState"))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -41,8 +41,8 @@ public class GameRestControllerTest {
 
         Assertions.assertEquals(100, json.get("HP").asInt());
         Assertions.assertEquals(100, json.get("MP").asInt());
-        Assertions.assertEquals(5, json.get("Inventory").get("HP_POTION").asInt());
-        Assertions.assertEquals(5, json.get("Inventory").get("MP_POTION").asInt());
+        Assertions.assertEquals(5, json.get("INVENTORY").get("HP_POTION").asInt());
+        Assertions.assertEquals(5, json.get("INVENTORY").get("MP_POTION").asInt());
 
         // 2. Character takes 70 damage
         // 100 (current HP) - 70 (damage) = 30 HP
@@ -59,7 +59,7 @@ public class GameRestControllerTest {
                 .andExpect(content().string("80"));
 
         // 4. Get updated character state
-        // HP=80, MP=100, inventory={HP_POTION=4, MP_POTION=5}
+        // HP=80, MP=100, INVENTORY={HP_POTION=4, MP_POTION=5}
         jsonResponse = mockMvc.perform(get("/api/fantasyGame/characterState"))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -69,7 +69,7 @@ public class GameRestControllerTest {
 
         Assertions.assertEquals(80, json.get("HP").asInt());
         Assertions.assertEquals(100, json.get("MP").asInt());
-        Assertions.assertEquals(4, json.get("Inventory").get("HP_POTION").asInt());
-        Assertions.assertEquals(5, json.get("Inventory").get("MP_POTION").asInt());
+        Assertions.assertEquals(4, json.get("INVENTORY").get("HP_POTION").asInt());
+        Assertions.assertEquals(5, json.get("INVENTORY").get("MP_POTION").asInt());
     }
 }

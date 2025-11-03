@@ -2,6 +2,8 @@ package com.sonahlab.twitch_chat_hit_counter_course.model;
 
 import com.sonahlab.twitch_chat_hit_counter_course.utils.Potion;
 import com.sonahlab.twitch_chat_hit_counter_course.utils.Stat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -11,6 +13,8 @@ import java.util.Map;
  * This class will handle any state changes for the underlying HP, MP, and inventory fields.
  * */
 public class GameCharacter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GameCharacter.class);
+
     /**
      * TODO: Implement as part of Module 1 Exercise 2.
      *
@@ -29,39 +33,50 @@ public class GameCharacter {
     // GETTERs and SETTERs
     // =================================================================================================================
     /**
-     * In a game with many potential Stats, we will create a generic GETTER for all Stats.
-     * Depending on the input parameter, we should return the correct Stat's value.
-     * */
+     * Returns the current value of the specified {@link Stat}.
+     *
+     * This generic getter allows retrieval of any stat (e.g., HP, MP, etc.) by passing
+     * the corresponding Stat enum value. If the stat is not recognized or not yet initialized,
+     * a default value of -1 is returned.
+     *
+     * @param stat the {@link Stat} enum constant identifying which stat to retrieve
+     * @return the current integer value of the requested stat, or -1 if unavailable or invalid
+     */
     public int getStat(Stat stat) {
         return -1;
     }
 
     /**
-     * GETTER for the inventory map.
-     * */
+     * Returns an map of the player's current potion inventory.
+     *
+     * The map uses {@link Potion} as the key and the quantity of that potion as the value.
+     * Returns an empty map if no potions are in inventory.
+     *
+     * @return a Map mapping each {@link Potion} type to its count in inventory
+     */
     public Map<Potion, Integer> getInventory() {
         return null;
     }
 
     /**
-     * Setter for the HP Stat.
+     * Sets the player's HP (Hit Points) to the specified value, with bounds checking.
      *
-     * Based on the requirement for this field you must check that a valid 'hp' value was input between 0 and 100.
-     * Otherwise, do nothing.
-     * */
-    public void setHp(int hp) {
-        return;
-    }
+     * The HP value must be between 0 and 100 (inclusive). If the input
+     * is outside this range, the operation is ignored and the current HP remains unchanged.
+     *
+     * @param hp the new HP value to set (must be in range [0, 100])
+     */
+    public void setHp(int hp) {}
 
     /**
-     * Setter for the MP Stat.
+     * Sets the player's MP (Mana Points) to the specified value, with bounds checking.
      *
-     * Based on the requirement for this field you must check that a valid 'mp' value was input between 0 and 100.
-     * Otherwise, do nothing.
-     * */
-    public void setMp(int mp) {
-        return;
-    }
+     * The MP value must be between 0 and 100 (inclusive). If the input
+     * is outside this range, the operation is ignored and the current MP remains unchanged.
+     *
+     * @param mp the new MP value to set (must be in range [0, 100])
+     */
+    public void setMp(int mp) {}
 
     // =================================================================================================================
     // CHARACTER STATE METHODS

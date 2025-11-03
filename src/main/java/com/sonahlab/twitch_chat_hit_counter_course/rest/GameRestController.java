@@ -1,5 +1,7 @@
 package com.sonahlab.twitch_chat_hit_counter_course.rest;
 
+import com.sonahlab.twitch_chat_hit_counter_course.model.GameCharacter;
+import com.sonahlab.twitch_chat_hit_counter_course.utils.Potion;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,12 @@ import java.util.Map;
 public class GameRestController {
     private static final Logger LOGGER = LoggerFactory.getLogger(GameRestController.class);
 
+    private GameCharacter gameCharacter;
+
+    public GameRestController() {
+        this.gameCharacter = new GameCharacter();
+    }
+
     /**
      * Handles an HTTP PUT request to the endpoint /api/fantasyGame/takeDamage. This endpoint reduces the character's
      * health points (HP) by the specified damage amount. The character's HP is managed by the CharacterManager,
@@ -41,7 +49,7 @@ public class GameRestController {
         /**
          * TODO: Implement as part of Module 1 Exercise 2.
          * */
-        return -1;
+        return gameCharacter.takeDamage(damage);
     }
 
     /**
@@ -62,7 +70,7 @@ public class GameRestController {
         /**
          * TODO: Implement as part of Module 1 Exercise 2.
          * */
-        return -1;
+        return gameCharacter.consumePotion(Potion.valueOf(potionName));
     }
 
     /**
@@ -80,6 +88,6 @@ public class GameRestController {
         /**
          * TODO: Implement as part of Module 1 Exercise 2.
          * */
-        return null;
+        return gameCharacter.getCharacterState();
     }
 }

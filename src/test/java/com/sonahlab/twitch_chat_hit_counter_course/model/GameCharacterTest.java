@@ -3,7 +3,6 @@ package com.sonahlab.twitch_chat_hit_counter_course.model;
 import com.sonahlab.twitch_chat_hit_counter_course.utils.Potion;
 import com.sonahlab.twitch_chat_hit_counter_course.utils.Stat;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -14,8 +13,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GameCharacterTest {
     @Test
     @Tag("Module1")
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 1 Exercise 2.
-    @Disabled
     public void initTest() {
         GameCharacter character = new GameCharacter();
         Assertions.assertEquals(100, character.getStat(Stat.HP), "Default HP should be 100");
@@ -44,8 +41,6 @@ public class GameCharacterTest {
 
     @Test
     @Tag("Module1")
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 1 Exercise 2.
-    @Disabled
     public void takeDamageTest() {
         GameCharacter character = new GameCharacter();
         Assertions.assertEquals(50, character.takeDamage(50), "Example 1 failed");
@@ -54,24 +49,26 @@ public class GameCharacterTest {
 
     @Test
     @Tag("Module1")
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 1 Exercise 2.
-    @Disabled
     public void consumePotionTest() {
         GameCharacter character = new GameCharacter();
         character.setHp(25);
         Assertions.assertEquals(75, character.consumePotion(Potion.HP_POTION));
+        Assertions.assertEquals(75, character.getStat(Stat.HP));
 
         GameCharacter character2 = new GameCharacter();
         character2.setHp(99);
         Assertions.assertEquals(100, character2.consumePotion(Potion.HP_POTION));
+        Assertions.assertEquals(100, character2.getStat(Stat.HP));
 
         GameCharacter character3 = new GameCharacter();
         character3.setMp(25);
         Assertions.assertEquals(75, character3.consumePotion(Potion.MP_POTION));
+        Assertions.assertEquals(75, character3.getStat(Stat.MP));
 
         GameCharacter character4 = new GameCharacter();
         character4.setMp(99);
         Assertions.assertEquals(100, character4.consumePotion(Potion.MP_POTION));
+        Assertions.assertEquals(100, character4.getStat(Stat.MP));
 
         GameCharacter character5 = new GameCharacter();
         character5.consumePotion(Potion.HP_POTION);
@@ -80,6 +77,7 @@ public class GameCharacterTest {
         character5.consumePotion(Potion.HP_POTION);
         character5.setHp(25);
         Assertions.assertEquals(75, character5.consumePotion(Potion.HP_POTION));
+        Assertions.assertEquals(75, character5.getStat(Stat.HP));
         Assertions.assertFalse(character5.getInventory().containsKey(Potion.HP_POTION));
 
         GameCharacter character6 = new GameCharacter();
@@ -91,12 +89,11 @@ public class GameCharacterTest {
         character6.setHp(50);
         Assertions.assertEquals(-1, character6.consumePotion(Potion.HP_POTION));
         Assertions.assertFalse(character6.getInventory().containsKey(Potion.HP_POTION));
+        Assertions.assertEquals(50, character6.getStat(Stat.HP));
     }
 
     @Test
     @Tag("Module1")
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 1 Exercise 2.
-    @Disabled
     public void getCharacterStateTest() {
         GameCharacter character = new GameCharacter();
         Map<String, Object> state = character.getCharacterState();

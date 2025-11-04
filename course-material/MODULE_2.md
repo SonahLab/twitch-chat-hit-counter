@@ -207,19 +207,19 @@ In **Offset Explorer 3**, connect to our Kafka cluster running in Docker.
   ![](assets/module2/images/ser_deser.svg)<br>
 
 #### Requirements:
-1. We want to connect to our local Docker Kafka server (bootstrap-servers)
-2. We want the group-id to follow this format {application_name}-group-id-0 (group-id)
-3. We want our consumers to start at the earliest kafka offset for that group-id (auto-offset-reset)
-4. We want to control the way our consumers process and acknowledge each message (enable-auto-commit)
-5. We want to write kafka messages as key/value pairs of String/ByteArray. This means the kafka message key will be stored as a String object, and the same message value will be stored as ByteArray. (key-deserializer/value-deserializer)
-6. We want to read kafka messages as key/value pairs of String/ByteArray. This means the kafka message key will be read as a String object, and the same message value will be read as ByteArray (key-serializer/value-serializer)
+1. **bootstrap-server**: Set it to the default local values
+2. **group-id**: Set it to follow this format `{application_name}-group-id-{number}`
+3. **auto-offset-reset**: Set it to use the `earliest` for the consumer `group-id`
+4. **enable-auto-commit**: Set it to `true` so we have full control in processing/ack'ing each message
+5. **key-deserializer/value-deserializer**: Set it to write kafka messages as **<K (String), V (ByteArray)>** pairs
+6. **key-serializer/value-serializer**: Set it to read kafka messages as **<K (String), V (ByteArray)>** pairs
 
 #
 
-### Task 2: Configure greeting-events topic name
-We need to define the property for the `greeting-events` topic we just created in Offset Explorer 3.
+### Task 2: Set our `greeting-events` topic name property
+We need to define the property for the `greeting-events` topic we just created in **Offset Explorer 3**.
 
-The updated application.yml should look like this:
+The updated `application.yml` should look like this:
 ```yaml
 spring:
   ...
@@ -258,11 +258,12 @@ twitch-chat-hit-counter:
 
 
 ### Task 1: Create the Producer Beans
-`KafkaConfig.java` - we need to create two `@Bean` objects for ProducerFactory and KafkaTemplate, which will be used to Auto-configure Spring Kafka at runtime.
-`org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration` is the class that autoconfigures our kafka beans. 
+In `KafkaConfig.java`, create two `@Bean` objects for `ProducerFactory.java` and `KafkaTemplate.java` these are **required** by **Spring Kafka** at runtime to autoconfigure operations to/from our kafka topic within our application.
 
 > [!IMPORTANT]
 >
+> [KafkaAutoConfiguration.java <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-boot/api/java/org/springframework/boot/autoconfigure/kafka/KafkaAutoConfiguration.html) is the class that autoconfigures Kafka behind the scenes.
+> 
 > Autoconfiguration is an important part of Spring Boot.<br>
 > _"Spring Boot’s auto-configuration feature is one of its standout functionalities, allowing developers to build applications with minimal boilerplate code"_
 >
@@ -272,8 +273,40 @@ twitch-chat-hit-counter:
 > - [Spring Boot Auto-Configuration [GeeksForGeeks] <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.geeksforgeeks.org/java/spring-boot-auto-configuration/)<br>
 
 **Requirements:**
-1. Create `ProducerFactory` @Bean by passing in the bootstrap-servers, key-serializer, value-serializer configs from the application.yml.
-2. Create `KafkaTemplate` @Bean by Dependency Inject (DI) the `ProducerFactory`.
+1. Create `ProducerFactory` @Bean by passing in the `bootstrap-servers`, `key-serializer`, `value-serializer` configs from the `application.yml`.
+2. Create `KafkaTemplate` @Bean by Dependency Injecting (DI) the `ProducerFactory`.
+
+> [!TIP]
+>
+> Passing Spring properties from `application.yml` is usually done through the Spring [@Value <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-framework/reference/core/beans/annotation-config/value-annotations.html) annotation
+>
+> **Example flow for the `@Beans` setup at runtime:**
+> 
+> `application.yml` properties → `ProducerFactory` Bean → `KafkaTemplate` Bean
+> 
+> `application.yml`:
+> ```yaml
+> spring:
+>   kafka:
+>     property: value
+> ```
+>
+> `KafkaConfig.java`:
+> ```java
+> class KafkaConfig {
+>    @Bean
+>    public ProducerFactory producerFactory(
+>       @Value("{spring.kafka.property}") String property
+>    ) {
+>       return new ProducerFactory(...);
+>    }
+>
+>    @Bean
+>    public KafkaTemplate kafkaTemplate(ProducerFactory producerFactory) {
+>       return new KafkaTemplate(...);
+>    }
+> }
+> ```
 
 #
 

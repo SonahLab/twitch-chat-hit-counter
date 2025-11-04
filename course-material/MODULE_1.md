@@ -2,7 +2,7 @@
 ## Twitch Chat Hit Counter
 ## Module 1: HTTP/REST + Swagger
 
-### Lesson
+### Lesson [TODO]
 I'll keep things simple.
 
 When thinking about how the internet works, how big tech systems work, they're all the same.
@@ -42,30 +42,11 @@ Swagger:
 
 
 
-
+<br>
 
 ## File Structure
 For `Module 1`, the below file structure are all the relevant files needed.
 
-[//]: # (```)
-[//]: # (twitch-chat-hit-counter/src/)
-[//]: # (├── main/)
-[//]: # (│   └── java/)
-[//]: # (│       └── com.sonahlab.twitch_chat_hit_counter/)
-[//]: # (│           ├── model/)
-[//]: # (│           │   └── GameCharacter.java)
-[//]: # (│           ├── rest/)
-[//]: # (│           │   ├── GameRestController.java)
-[//]: # (│           │   └── GreetingRestController.java)
-[//]: # (│           └── utils/)
-[//]: # (│               └── Potion.java)
-[//]: # (└── test/)
-[//]: # (    └── java/)
-[//]: # (        └── com.sonahlab.twitch_chat_hit_counter/)
-[//]: # (            └── rest/)
-[//]: # (                ├── GameRestControllerTest.java)
-[//]: # (                └── GreetingRestControllerTest.java)
-[//]: # (```)
 <img src="assets/common/module.svg" align="center"/> twitch-chat-hit-counter/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/folder.svg" align="center"/> src/<br>
@@ -109,10 +90,9 @@ For `Module 1`, the below file structure are all the relevant files needed.
 <img src="assets/common/testClass_newui.svg" align="center"/> GreetingRestControllerTest.java<br>
 
 
+<br>
 
-
-
-## Exercise 1: GreetingRestController
+## Exercise 1: Greeting API
 ![](assets/module1/images/greetingController.svg)<br>
 
 > [!NOTE]
@@ -122,7 +102,7 @@ For `Module 1`, the below file structure are all the relevant files needed.
 
 In `GreetingRestController.java`, implement the `public String sayHello(@RequestParam(required = false) String name)` method.
 
-This method is the entry point for all incoming HTTP requests to `/api/greeting/hello`.
+This method is the entry point for all incoming HTTP requests routed to `GET /api/greeting/hello`.
 
 It takes an incoming request parameter `name` and returns a simple greeting response.
 
@@ -131,11 +111,13 @@ If no input `name` parameter is provided, we should default the greeting message
 ### Example 1:
 > **Input**: <span style="color:#0000008c">name = "Alice"<br></span>
 > **Output**: <span style="color:#0000008c">"Hello, Alice!"</span>
+
 #
+
 ### Example 2:
 > **Input**: <span style="color:#0000008c">name = ""<br></span>
 > **Output**: <span style="color:#0000008c">"Hello, Mysterious Individual!"<br></span>
-> **Explanation**: <span style="color:#0000008c">no `name` parameter is provided, so the default name should be "Mysterious Individual"</span>
+> **Explanation**: <span style="color:#0000008c">no `name` parameter is provided, so the greeting response should address "Mysterious Individual"</span>
 
 #
 
@@ -160,23 +142,30 @@ If no input `name` parameter is provided, we should default the greeting message
 ![](assets/module1/images/greetingSwagger.png)<br>
 
 
+<br>
 
 
-
-## Exercise 2: GameRestController
+## Exercise 2: Game API
 > [!NOTE]
 >
 > **Relevant Files**<br>
-> `Potion.java` ─ enum class to define all Potion objects that exist in our game.<br>
-> `Stat.java` ─ enum class to define all Stats that exist in our game.<br>
-> `GameCharacter.java` ─ Data Model for a generic character in a game. Also handles state changes on the underlying metadata.<br>
-> `GameRestController.java` ─ REST controller to handle:
-> 1. `/api/fantasyGame/takeDamage`: deal damage to a character
-> 2. `/api/fantasyGame/consumePotion`: consume potion to replenish character's HP/MP
-> 3. `/api/fantasyGame/characterState`: get current snapshot information about a character<br>
+> `Potion.java` ─ enum defining all potions.<br>
+> `Stat.java` ─ enum defining character stats.<br>
+> `GameCharacter.java` ─ Data Model for a generic game character in a game with state logic.<br>
+> `GameRestController.java` ─ REST controller to handle game related actions on our `GameCharacter`
 
 ### Task 1: Implement `GameCharacter.java`
 Before we can implement our API endpoints in `GameRestController.java`, we need to create our Data Model object for a generic fantasy game character.
+
+In `GameCharacter.java`, implement the following:
+- `public GameCharacter()` (CONSTRUCTOR)
+- `public int getStat(Stat stat)` (GETTER)
+- `public Map<Potion, Integer> getInventory()` (GETTER)
+- `public void setHp(int hp)` (SETTER)
+- `public void setMp(int mp)` (SETTER)
+- `public int takeDamage(int damage)` (STATE CHANGE)
+- `public int consumePotion(Potion potion)` (STATE CHANGE)
+- `public Map<String, Object> getCharacterState()` (GETTER)
 
 > [!TIP]
 >
@@ -185,17 +174,121 @@ Before we can implement our API endpoints in `GameRestController.java`, we need 
 > - [_Java Builder Pattern_ <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/java-builder-pattern)<br>
 > - [_Java Record Pattern_ <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.oracle.com/en/java/javase/17/language/records.html)<br>
 
+> [!NOTE]
+>
+> The very basics of **OOP (Object Oriented Programming)** is that you have well-defined classes that encapsulates some stateful variables/methods that are common to the type of object you are attempting to model.
+>
+> **Example**:
+> ```java
+> class Car {
+>     private String make;
+>     private String model;
+>     private int speed;
+>
+>     public Car(String make, String model) {
+>         this.make = make;
+>         this.model = model;
+>         this.speed = 0;
+>     }
+>
+>     public String getMake() {
+>         return make;
+>     }
+>
+>     public String getModel() {
+>         return model;
+>     }
+>
+>     public int getSpeed() {
+>         return speed;
+>     }
+>
+>     // Increases car speed by 10 MPH w/ a maximum speed of 100 MPH
+>     public void accelerate() {
+>         speed = Math.min(100, speed + 10);
+>     }
+>
+>     // Decreases car speed by 10 MPH w/ a minimum speed of 0 MPH
+>     public void decelerate() {
+>         speed = Math.max(0, speed - 10);
+>     }
+> }
+>
+> public class Main {
+>     public static void main(String[] args) {
+>         Car car1 = new Car("Toyota", "Prius");
+>         Car car2 = new Car("Honda", "Civic");
+>
+>         car1.getMake(); // "Toyota"
+>         car1.getModel(); // "Prius"
+>         car1.getSpeed(); // 0
+>         car2.getMake(); // "Honda"
+>         car2.getModel(); // "Civic"
+>         car2.getSpeed(); // 0
+>
+>         car1.accelerate(); // speed → 10
+>         car1.accelerate(); // speed → 20
+>         car1.accelerate(); // speed → 30
+>         car1.getSpeed(); // 30
+>
+>         car2.accelerate(); // speed → 10
+>         car2.getSpeed(); // 10
+>         car2.decelerate(); // speed → 0
+>         car2.getSpeed(); // 0
+>     }
+> }
+> ```
+>
+> `car1` and `car2` are both `Car` class objects, but they each have their own separate memory space in the program and each object maintains its own independent state:<br>
+> `car1`: make = "Toyota", model = "Prius", and its own speed<br>
+> `car2`: make = "Honda", model = "Civic", and its own speed
+>
+> This is the core idea of objects in OOP: 1 class → N objects (each with its own data).
+>
+> Think of the Car class like a car factory blueprint.<br>
+> You can use the same blueprint to build many cars, but each car has their own unique set of variables that're
+> independent of each other and have state altering methods within the Class (Encapsulation).
+
+### Constructor
+In `GameCharacter.java` our constructor is empty, so anytime we create a new instance of this class, it holds 0 state.
+
+Implement `public GameCharacter()` based on the requirements below.
+
 **Requirements:**<br>
 1. `GameCharacter` object should have 3 fields:
     1. **Stat.HP (int):** Character's health points (between `0` and `100`)
     2. **Stat.MP (int):** Character's mana points (between `0` and `100`)
     3. **Inventory (Map<Potion, Integer>):** Character's bag of `Potion` enum to quantity count
-2. Default values on `GameCharacter` object init:
+2. Default values on `GameCharacter` init:
     1. Initial **HP** of 100
     2. Initial **MP** of 100
     3. Initial **inventory**:
         1. 5 `Potion.HP_POTION`
         2. 5 `Potion.MP_POTION`
+
+### Getters
+Implement `public int getStat(Stat stat)` and return the current value for the input `stat`.
+
+**Requirements:**
+1. stat=Stat.HP: return the `GameCharacter` current HP value
+2. stat=Stat.MP: return the `GameCharacter` current MP value
+
+#
+
+Implement `public Map<Potion, Integer> getInventory()`, and return the current `inventory` map.
+
+#
+
+### Setters
+Implement `public void setHp(int hp)` and `public void setMp(int mp)` by overriding the HP/MP value.
+
+**Requirements:**
+1. HP/MP is bounded by [0, 100]
+2. Any values outside of this range should be ignored (no overwrite should happen)
+
+**Let's test what we have up to this point.**
+
+#
 
 ### Example 1:
 > **Input**:<br>
@@ -231,7 +324,7 @@ Before we can implement our API endpoints in `GameRestController.java`, we need 
 > **Output4**: <span style="color:#0000008c">100<br></span>
 > **Output5**: <span style="color:#0000008c">100<br></span>
 > **Output6**: <span style="color:#0000008c">100<br></span>
-> **Output7**: <span style="color:#0000008c">100<br></span>
+> **Output7**: <span style="color:#0000008c">100</span>
 
 #
 
@@ -245,9 +338,10 @@ Before we can implement our API endpoints in `GameRestController.java`, we need 
 
 #
 
-### 2.1
-Create and implement method `public int takeDamage(int damage) {}`, where you will reduce the `character` object's HP by the `damage` amount.</br>
-Return the updated character `HP` int.</br>
+### takeDamage
+Implement `public int takeDamage(int damage)`, where you will reduce the `character` object's HP by the `damage` amount.
+
+Return the updated character `HP` int.
 
 > [!TIP]
 >
@@ -256,7 +350,7 @@ Return the updated character `HP` int.</br>
 ### Example 1:
 > ![](assets/module1/images/takeDamage_50.png)<br>
 > **Input**: <span style="color:#0000008c">damage = 50 // Assume HP = 100<br></span>
-> **Output**: <span style="color:#0000008c">50<br></span>
+> **Output**: <span style="color:#0000008c">50</span>
 
 #
 
@@ -264,7 +358,7 @@ Return the updated character `HP` int.</br>
 > ![](assets/module1/images/takeDamage_110.png)<br>
 > **Input**: <span style="color:#0000008c">damage = 110 // Assume HP = 100<br></span>
 > **Output**: <span style="color:#0000008c">0<br></span>
-> **Explanation**: A character's HP should never be negative. (min capped at 0)</br>
+> **Explanation**: <span style="color:#0000008c">A character's HP should never be negative. (min capped at 0)</span>
 
 #
 
@@ -278,40 +372,45 @@ Return the updated character `HP` int.</br>
 
 #
 
-### 2.2
-Create and implement method `public int consumePotion(Potion potion) {}`, where you will increment the `character` object's HP/MP depending on the potion.</br>
-Return the updated character `HP`/`MP` int, or -1 for any errors.</br>
+### consumePotion
+Implement `public int consumePotion(Potion potion)`, where you will increment the `character` object's HP/MP depending on the potion.
+
+Return the updated character `HP`/`MP` int, or -1 for any errors.
 
 > [!TIP]
 >
 > Remember: a `GameCharacter` HP has a maximum value of `100`
 
+> [!IMPORTANT]
+> 
+> Look at how I defined the `Potion.java` enum. Each potion has some helpful methods to tell you what `Stat` should be affected and by how much.
+
 **Rules:**</br>
 1. The `GameCharacter` object must have the `Potion` currently in their inventory.
-2. `Potion.HP_POTION` should increment the `character` HP by `50`.</br>
+2. `Potion.HP_POTION` should increment the `character` HP by `50`.<br>
    `Potion.MP_POTION` should increment the `character` MP by `50`.
 3. Decrement the quantity of the consumed `Potion` by 1 in the `GameCharacter.inventory`
 4. Remove the `Potion` from the `character` inventory if the quantity hits `0`.
 
 ### Example 1:
 > ![](assets/module1/images/consumePotion_HP_25.jpg)<br>
-> **Input**: <span style="color:#0000008c">potion = Potion.HP_POTION // Assume HP = 25</br></span>
-> **Output**: <span style="color:#0000008c">75<br></span>
+> **Input**: <span style="color:#0000008c">potion = Potion.HP_POTION // Assume HP = 25<br></span>
+> **Output**: <span style="color:#0000008c">75</span>
 
 #
 
 ### Example 2:
 > ![](assets/module1/images/consumePotion_HP_99.jpg)<br>
-> **Input**: <span style="color:#0000008c">potion = Potion.HP_POTION // Assume HP = 99</br></span>
+> **Input**: <span style="color:#0000008c">potion = Potion.HP_POTION // Assume HP = 99<br></span>
 > **Output**: <span style="color:#0000008c">100<br></span>
-> **Explanation**: <span style="color:#0000008c">A character's HP should never be above 100. (max capped at 100)</br></span>
+> **Explanation**: <span style="color:#0000008c">A character's HP should never be above 100. (max capped at 100)</span>
 
 #
 
 ### Example 3:
 > ![](assets/module1/images/consumePotion_MP_25.jpg)<br>
-> **Input**: <span style="color:#0000008c">potion = Potion.MP_POTION // Assume MP = 25</br></span>
-> **Output**: <span style="color:#0000008c">75<br></span>
+> **Input**: <span style="color:#0000008c">potion = Potion.MP_POTION // Assume MP = 25<br></span>
+> **Output**: <span style="color:#0000008c">75</span>
 
 #
 
@@ -319,7 +418,7 @@ Return the updated character `HP`/`MP` int, or -1 for any errors.</br>
 > ![](assets/module1/images/consumePotion_MP_99.jpg)<br>
 > **Input**: <span style="color:#0000008c">potion = Potion.MP_POTION // Assume MP = 99<br></span>
 > **Output**: <span style="color:#0000008c">100<br></span>
-> **Explanation**: <span style="color:#0000008c">A character's MP should never be above 100. (max capped at 100)<br></span>
+> **Explanation**: <span style="color:#0000008c">A character's MP should never be above 100. (max capped at 100)</span>
 
 #
 
@@ -327,7 +426,7 @@ Return the updated character `HP`/`MP` int, or -1 for any errors.</br>
 > ![](assets/module1/images/consumePotion_Remove.jpg)<br>
 > **Input**: <span style="color:#0000008c">potion = Potion.HP_POTION // Assume HP = 25<br></span>
 > **Output**: <span style="color:#0000008c">75<br></span>
-> **Explanation**: <span style="color:#0000008c">The Inventory should no longer contain the HP_POTION now that the quantity of this item is 0.<br></span>
+> **Explanation**: <span style="color:#0000008c">The Inventory should no longer contain the HP_POTION now that the quantity of this item is 0.</span>
 
 #
 
@@ -335,7 +434,7 @@ Return the updated character `HP`/`MP` int, or -1 for any errors.</br>
 > ![](assets/module1/images/consumePotion_Error.jpg)<br>
 > **Input**: <span style="color:#0000008c">potion = Potion.HP_POTION // Assume HP = 50<br></span>
 > **Output**: <span style="color:#0000008c">-1<br></span>
-> **Explanation**: <span style="color:#0000008c">There are no HP_POTION in the inventory, so we can't consume this potion.<br></span>
+> **Explanation**: <span style="color:#0000008c">There are no HP_POTION in the inventory, so we can't consume this potion.</span>
 
 #
 
@@ -347,9 +446,10 @@ Return the updated character `HP`/`MP` int, or -1 for any errors.</br>
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
 ```
 
-### 2.3
-Create and implement method `public void getCharacterState() {}`.
-Return a `Map<String, Object>` representing the character's current state (HP,MP, and INVENTORY).
+### getCharacterState
+Implement `public void getCharacterState() {}`.
+
+Return a `Map<String, Object>` representing the character's current state (**HP**, **MP**, and **INVENTORY**).
 
 ### Example 1:
 > ![](assets/module1/images/characterState.jpg)<br>
@@ -388,15 +488,18 @@ Now we should have all the application logic in `GameCharacter.java` to handle t
 ![](assets/module1/images/gameController.svg)<br>
 
 In the constructor for `GameRestController.java`, initialize a default `GameCharacter` object.<br>
-When our application runs, the character state changes in that specific run will not be persisted on subsequent application runs. The `GameRestController.java` will always create a "new" GameCharacter object.
 
+> [!IMPORTANT]
+> 
+> When our application runs, the character state changes in that specific run will not be persisted on subsequent application runs. The `GameRestController.java` will always create a "new" GameCharacter object.
+> 
 > Example:<br>
 > → Run the application: `./gradlew bootRun`<br>
-> → `GameRestController.java` will create a new `GameCharacter.java` object (initialized with HP=100)<br>
-> → Call the `/takeDamage?damage=50` endpoint (the character object's HP should be 50)<br>
+> → `GameRestController.java` should init a new `GameCharacter` object<br>
+> → Call the `PUT /takeDamage?damage=50` endpoint (the character object's HP should be 50)<br>
 > → Quit the application run (Control+C)<br>
 > → Run the application (again): `./gradlew bootRun`<br>
-> → Call the `/characterState` endpoint (the character object's HP will be 100 because `GameRestController` will init a new `GameCharacter` object<br>
+> → Call the `GET /characterState` endpoint (the character object's HP will be 100 because `GameRestController` will init a new `GameCharacter` object)
 
 For each of these API endpoints simply call the respective methods we previously implemented in `GameRestController.java`.<br>
 Return the result output from each of these `GameRestController.java` function calls back through the HTTP Response.

@@ -70,7 +70,7 @@ public class KafkaConfigTest {
         Map<String, Object> properties = consumerFactory.getConfigurationProperties();
 
         assertThat(properties.get(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG)).isEqualTo("localhost:9092");
-        assertTrue(properties.get(ConsumerConfig.GROUP_ID_CONFIG).toString().toLowerCase().contains( "twitch-chat-hit-counter-group-id-"));
+        assertTrue(properties.get(ConsumerConfig.GROUP_ID_CONFIG).toString().toLowerCase().contains("twitch-chat-hit-counter-group-id-"));
         assertThat(properties.get(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG)).isEqualTo("earliest");
         assertThat(properties.get(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG)).isEqualTo("false");
         assertThat(properties.get(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG)).isEqualTo(StringDeserializer.class.getName());
@@ -85,7 +85,39 @@ public class KafkaConfigTest {
         Map<String, Object> properties = kafkaListenerContainerFactory.getConsumerFactory().getConfigurationProperties();
 
         assertThat(properties.get(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG)).isEqualTo("localhost:9092");
-        assertTrue(properties.get(ConsumerConfig.GROUP_ID_CONFIG).toString().toLowerCase().contains( "twitch-chat-hit-counter-group-id-"));
+        assertTrue(properties.get(ConsumerConfig.GROUP_ID_CONFIG).toString().toLowerCase().contains("twitch-chat-hit-counter-group-id-"));
+        assertThat(properties.get(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG)).isEqualTo("earliest");
+        assertThat(properties.get(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG)).isEqualTo("false");
+        assertThat(properties.get(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG)).isEqualTo(StringDeserializer.class.getName());
+        assertThat(properties.get(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG)).isEqualTo(ByteArrayDeserializer.class.getName());
+
+        assertThat(kafkaListenerContainerFactory.getContainerProperties().getAckMode()).isEqualTo(ContainerProperties.AckMode.MANUAL);
+    }
+
+    @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 3, Task 1.
+    @Disabled
+    @Tag("Module2")
+    public void testBatchConsumerFactoryConfig() {
+        Map<String, Object> properties = consumerFactory.getConfigurationProperties();
+
+        assertThat(properties.get(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG)).isEqualTo("localhost:9092");
+        assertTrue(properties.get(ConsumerConfig.GROUP_ID_CONFIG).toString().toLowerCase().contains("twitch-chat-hit-counter-group-id-batch-"));
+        assertThat(properties.get(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG)).isEqualTo("earliest");
+        assertThat(properties.get(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG)).isEqualTo("false");
+        assertThat(properties.get(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG)).isEqualTo(StringDeserializer.class.getName());
+        assertThat(properties.get(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG)).isEqualTo(ByteArrayDeserializer.class.getName());
+    }
+
+    @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 3, Task 1.
+    @Disabled
+    @Tag("Module2")
+    public void testBatchConcurrentKafkaListenerContainerFactoryConfig() {
+        Map<String, Object> properties = kafkaListenerContainerFactory.getConsumerFactory().getConfigurationProperties();
+
+        assertThat(properties.get(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG)).isEqualTo("localhost:9092");
+        assertTrue(properties.get(ConsumerConfig.GROUP_ID_CONFIG).toString().toLowerCase().contains("twitch-chat-hit-counter-group-id-batch-"));
         assertThat(properties.get(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG)).isEqualTo("earliest");
         assertThat(properties.get(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG)).isEqualTo("false");
         assertThat(properties.get(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG)).isEqualTo(StringDeserializer.class.getName());

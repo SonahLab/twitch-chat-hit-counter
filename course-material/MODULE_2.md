@@ -13,8 +13,7 @@
 >
 > Take the time to read through the Kafka links listed above.<br>
 
-
-
+<br>
 
 ## Overview
 I highly recommend reading through the Kafka Introduction above to learn what Kafka is, how it works, and why it’s used ubiquitously in large distributed systems.
@@ -44,7 +43,7 @@ Think of Kafka as a temporary message queue where events are stored with an expi
 *** My rule of thumb: if you work at a big tech company and are in charge of a realtime event pipeline, and you don’t have mechanisms in place to catch/fix issues within 24 hours before old events are purged, this is a clear engineering diff, and there are big gaps in the system. Kafka isn’t meant for long-term storage, so you shouldn’t have super long TTL’s on the events, git gud and fix your system.
 
 
-
+<br>
 
 
 ## File Structure
@@ -135,13 +134,13 @@ For `Module 2`, the below file structure are all the relevant files needed.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/testClass_newui.svg" align="center"/> GreetingEventProducerTest.java<br>
 
-#
+<br>
 
 ## Objective
 ![](assets/module2/images/Module2_Overview.svg)<br>
 **Module 2** is mostly about setting up an HTTP request endpoint that will take a User submitted GreetingEvent and pub/sub the event onto a kafka topic. 
 
-#
+<br>
 
 ## Setup Local Kafka Server
 Start our local Kafka instance via Docker: [Kafka Quickstart <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://kafka.apache.org/quickstart)<br>
@@ -155,19 +154,23 @@ docker pull apache/kafka:4.1.0
 docker run -p 9092:9092 apache/kafka:4.1.0
 ```
 
+<br>
+
 In **Docker**, you should now see the kafka container running locally.
-![](assets/module2/images/Docker_kafka.jpg)<br>
+![](assets/module2/images/Docker_kafka.jpg)
+
+<br>
 
 In **Offset Explorer 3**, connect to our Kafka cluster running in Docker.
 1. Input cluster configs:
-   1. **Cluster name:** twitch-chat-hit-counter<br>
+   1. **Cluster name:** twitch-chat-hit-counter
    2. **Bootstrap servers:** localhost:9092
 2. Click '**Test**' to verify that OE3 is able to connect to the Docker container
 3. Double-click on the newly created cluster to connect to the instance
 
 ![](assets/module2/OffsetExplorer3.gif)<br>
 
-#
+<br>
 
 ## Create your first kafka topic
 1. Navigate to the _**Clusters/twitch-chat-hit-counter/Topics**_ folder
@@ -180,6 +183,8 @@ In **Offset Explorer 3**, connect to our Kafka cluster running in Docker.
 5. Change the **Content Types** for the key and value from **'Byte Array'** → **'String'**, and save by clicking **Update**.
 
 ![](assets/module2/create_topic.gif)<br>
+
+<br>
 
 ## Excercise 1: Configure Spring Kafka within our Application
 > [!NOTE]
@@ -239,6 +244,7 @@ twitch-chat-hit-counter:
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
 ```
 
+<br>
 
 ## Exercise 2: Implement a Kafka Message Producer
 ![](assets/module2/images/exercise1.svg)<br>
@@ -250,7 +256,6 @@ twitch-chat-hit-counter:
 > `GreetingEvent.java` ─ data model to encapsulate a simple greeting.</br> 
 > `GreetingEventProducer.java` ─ the class that publishes `GreetingEvent` objects to our dedicated kafka topic `greeting_topic`
 
-#
 
 ### Task 1: Create the Producer Beans
 `KafkaConfig.java` - we need to create two `@Bean` objects for ProducerFactory and KafkaTemplate, which will be used to Auto-configure Spring Kafka at runtime.
@@ -269,6 +274,8 @@ twitch-chat-hit-counter:
 **Requirements:**
 1. Create `ProducerFactory` @Bean by passing in the bootstrap-servers, key-serializer, value-serializer configs from the application.yml.
 2. Create `KafkaTemplate` @Bean by Dependency Inject (DI) the `ProducerFactory`.
+
+#
 
 ### Testing
 - [ ] Open `KafkaConfigTest.java` ─ already implemented, testing each Bean is properly configured using the `application.yml` properties from earlier.
@@ -305,6 +312,8 @@ Return the boolean status of the kafka topic write operation.
 > ```
 > **Output1**: <span style="color:#0000008c">true<br></span>
 > **Output2**: <span style="color:#0000008c">true<br></span>
+
+#
 
 ### Testing
 - [ ] Open `GreetingEventProducerTest.java` ─ already implemented test cases with the example(s) above.
@@ -364,6 +373,8 @@ public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestPa
 > **Output1**: true<br>
 > **Output2**: true
 
+#
+
 ### Testing
 - [ ] Open `KafkaRestControllerTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `KafkaRestControllerTest.java`
@@ -371,6 +382,8 @@ public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestPa
 ```shell
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
 ```
+
+#
 
 ### Integration Testing
 - [ ] Run the application:
@@ -406,6 +419,8 @@ You should've already added the consumer related Kafka spring properties in `app
 2. Create `ConcurrentKafkaListenerContainerFactory` @Bean by Dependency Inject (DI) the `ConsumerFactory`.
    1. On the `ConcurrentKafkaListenerContainerFactory`, set AckMode to `ContainerProperties.AckMode.MANUAL`
 
+#
+
 ### Testing
 - [ ] Open `KafkaConfigTest.java` ─ already implemented, testing each Bean is properly configured using the `application.yml` properties from earlier.
 - [ ] Remove `@Disabled` in `KafkaConfigTest.java` for the test method(s): `testConsumerFactoryConfig()` and `testConcurrentKafkaListenerContainerFactoryConfig()`
@@ -414,7 +429,9 @@ You should've already added the consumer related Kafka spring properties in `app
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
 ```
 
-### Task 2: Implement KafkaEventConsumer.java
+#
+
+### Task 2: Implement GreetingEventConsumer.java
 Implement the `public void processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack)` method.
 
 Log/print the kafka message that was read from the kafka topic.
@@ -423,8 +440,7 @@ Log/print the kafka message that was read from the kafka topic.
 >
 > You will need to add the [@KafkaListener <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-annotation.html)<br> annotation above the `processMessage(...)` method.
 > 
-> Add in these properties: `topics`, `groupId`, `containerFactory`
-
+> Add in these properties: `topics`, `containerFactory`
 
 ### Example 1:
 > **Input**:<br>
@@ -441,6 +457,8 @@ Log/print the kafka message that was read from the kafka topic.
 > **Output1**: <span style="color:#0000008c">None<br></span>
 > **Output2**: <span style="color:#0000008c">None<br></span>
 > **Output3**: <span style="color:#0000008c">None<br></span>
+
+#
 
 ### Testing
 - [ ] Open `GreetingEventConsumerTest.java` ─ already implemented test cases with the example(s) above.
@@ -504,3 +522,98 @@ This simple extreme example shows the benefit of introducing batch operations in
 
 ### Exercise 4: Implement BATCH Kafka Message Consumer
 ![](assets/module2/images/exercise3.svg)<br>
+
+### Task 1: Configure application.yml
+| Property                                 | Required? | Role         | Supported/Example Values | Description                                                    |
+|------------------------------------------|-----------|--------------|--------------------------|----------------------------------------------------------------|
+| `spring.kafka.consumer.max-poll-records` | Optional  | **Consumer** | i.e.: 500                | Maximum number of records returned in a single call to poll(). |
+- List of [Spring Kafka supported fields <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://gist.github.com/geunho/77f3f9a112ea327457353aa407328771)<br>
+
+**Requirements:**
+1. `max-poll-record`: controls the maximum kafka records that are processed in a single poll.
+2. `group-id-batch`: our `GreetingEventConsumer` class is already using the earlier defined `group-id` property.
+Our Batch consumer will need to define a new group-id so that none of the commits (acks) on the kafka partitions interfere with each other.
+Otherwise, there can be race conditions where each consumer are picking up subsets of the kafka topic.
+
+> [!IMPORTANT]
+>
+> This blog is a MUST read for understanding group ids
+> [Configuring Kafka Consumer Group Ids <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.confluent.io/blog/configuring-apache-kafka-consumer-group-ids/)
+
+#
+
+### Testing
+
+#
+
+### Task 2: Implement KafkaConfig.java TODO
+We need to now create some Beans for the Kafka consumers, `ConsumerFactory` and `ConcurrentKafkaListenerContainerFactory`.
+
+You should've already added the consumer related Kafka spring properties in `application.yml`, so no changes needed there.
+
+**Requirements:**
+1. Create `ConsumerFactory` @Bean by passing in the bootstrap-servers, group-id, auto-offset-reset, enable-auto-commit, key-deserializer, value-deserializer configs from the application.yml.
+2. Create `ConcurrentKafkaListenerContainerFactory` @Bean by Dependency Inject (DI) the `ConsumerFactory`.
+    1. On the `ConcurrentKafkaListenerContainerFactory`, set AckMode to `ContainerProperties.AckMode.MANUAL`
+
+#
+
+### Testing
+- [ ] Open `KafkaConfigTest.java` ─ already implemented, testing each Bean is properly configured using the `application.yml` properties from earlier.
+- [ ] Remove `@Disabled` in `KafkaConfigTest.java` for the test method(s): `testConsumerFactoryConfig()` and `testConcurrentKafkaListenerContainerFactoryConfig()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
+```
+
+#
+
+### Task 3: Implement GreetingEventBatchConsumer
+Implement the `public void processMessage(List<ConsumerRecord<String, byte[]>> records, Acknowledgment ack)` method.
+
+Log/print the kafka message(s) that were read from the kafka topic.
+
+> [!IMPORTANT]
+>
+> You will need to add the [@KafkaListener <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-annotation.html)<br> annotation above the `processMessage(...)` method.
+>
+> Add in these properties: `topics`, `containerFactory`, `batch`
+
+
+### Example 1:
+> **Input**:<br>
+> ```java
+> GreetingEventConsumer consumer = new GreetingEventConsumer(...);
+> // Assume kafka has these 3 events:
+> // 1. new GreetingEvent("id1", "Alice", "Bob", "Hello, Bob!")
+> // 2. new GreetingEvent("id2", "Bob", "Charlie", "Good morning, Charlie!")
+> // 3. new GreetingEvent("id3", "Eve", "Frank", "Hi Frank, how are you?")
+> consumer.processMessage(List.of(kafkaRecord1, kafkaRecord2, kafkaRecord3)); // processes the 3 kafka records at once
+> ```
+> **Output1**: <span style="color:#0000008c">None<br></span>
+> **Output2**: <span style="color:#0000008c">None<br></span>
+> **Output3**: <span style="color:#0000008c">None<br></span>
+
+#
+
+### Testing
+- [ ] Open `GreetingEventBatchConsumerTest.java` ─ already implemented test cases with the example(s) above.
+- [ ] Remove `@Disabled` in `GreetingEventBatchConsumerTest.java`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
+```
+
+#
+
+### Integration Testing
+- [ ] Run the application:
+```shell
+./gradlew bootRun
+```
+- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
+- [ ] Play around with **Kafka API**: `/api/kafka/publishGreetingEvent`
+- [ ] Check Offset Explorer 3 to see that your GreetingEvent is actually published to our kafka topic
+- [ ] Verify application **stdout** logs are actually receiving the newly written kafka records
+
+#

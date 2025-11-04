@@ -246,7 +246,7 @@ twitch-chat-hit-counter:
 
 <br>
 
-## Exercise 2: Implement a Kafka Message Producer
+## Exercise 2: Kafka Producer
 ![](assets/module2/images/exercise1.svg)<br>
 
 > [!NOTE]
@@ -257,7 +257,7 @@ twitch-chat-hit-counter:
 > `GreetingEventProducer.java` ─ the class that publishes `GreetingEvent` objects to our dedicated kafka topic `greeting_topic`
 
 
-### Task 1: Create the Producer Beans
+### Task 1: Kafka Producer Beans
 In `KafkaConfig.java`, create two `@Bean` objects for `ProducerFactory.java` and `KafkaTemplate.java` these are **required** by **Spring Kafka** at runtime to autoconfigure operations to/from our kafka topic within our application.
 
 > [!IMPORTANT]
@@ -320,8 +320,8 @@ In `KafkaConfig.java`, create two `@Bean` objects for `ProducerFactory.java` and
 
 #
 
-### Task 2: Implement GreetingEventProducer.java
-Implement the `public boolean publish(String messageId, GreetingEvent event) {}` method. The method expects a `messageId` and a `GreetingEvent`, and writes a new message into the kafka topic.
+### Task 2: Kafka `GreetingEvent` Producer
+In `GreetingEventProducer.java`, implement `public boolean publish(String messageId, GreetingEvent event)`. The method expects a `messageId` and a `GreetingEvent`, and writes a new message into the kafka topic.
 
 Return the boolean status of the kafka topic write operation.
 
@@ -358,14 +358,18 @@ Return the boolean status of the kafka topic write operation.
 
 #
 
-### Task 3: Implement KafkaRestController.java
-Now we should have the ability to publish kafka messages in `GreetingEventProducer.java`. We need some sort of trigger to tell our application to trigger this logic to write to our kafka topic.
+### Task 3: Kafka API
+> [!NOTE]
+>
+> **Relevant Files**
+> `KafkaRestController.java` ─ REST controller to handle `POST /api/kafka/publishGreetingEvent`.
 
-Implement `GET /api/kafka/publishGreetingEvent` endpoint to trigger `GreetingEventProducer.publish(...);`
+In `KafkaRestController.java`, implement `public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestParam String receiver, @RequestParam String message)` endpoint to trigger `GreetingEventProducer.publish(...);`
 
-Requirements:
-1. Generate a UUID, which will act as the kafka messageId as well as the GreetingEvent's eventId.
-2. Call GreetingEventProducer.publish() to handle actual publishing of the kafka message.
+**Requirements:**
+1. Dependency Inject (DI) the `GreetingEventProducer` into the controller's constructor
+2. Generate an `eventId` ([UUID <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/java-uuid))
+3. Call `GreetingEventProducer.publish()` to handle actual publishing of the kafka message
 
 ```java
 @PostMapping("/publishGreetingEvent")
@@ -425,13 +429,13 @@ public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestPa
 ```
 - [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
 - [ ] Play around with **Kafka API**: `/api/kafka/publishGreetingEvent`
-- [ ] Check Offset Explorer 3 to see that your GreetingEvent is actually published to our kafka topic
+- [ ] Check **Offset Explorer 3** to see that your GreetingEvent is actually published to our kafka topic
 
 ![](assets/module2/images/kafkaSwagger.png)<br>
 
 #
 
-### Exercise 3: Implement a Kafka Message Consumer
+### Exercise 3: Single Message Kafka Consumer
 ![](assets/module2/images/exercise2.svg)<br>
 
 > [!NOTE]
@@ -442,15 +446,15 @@ public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestPa
 > `GreetingEvent.java` ─ data model to encapsulate a simple greeting.<br>
 > `GreetingEventConsumer.java` ─ the class that subscribes to our `greeting_event` kafka topics to read `GreetingEvent` objects
 
-### Task 1: Implement KafkaConfig.java
-We need to now create some Beans for the Kafka consumers, `ConsumerFactory` and `ConcurrentKafkaListenerContainerFactory`.
+### Task 1: Kafka Consumer Beans
+In `KafkaConfig.java`, create two `@Beans` needed for **Spring Kafka** consumers: `ConsumerFactory` and `ConcurrentKafkaListenerContainerFactory`.
 
 You should've already added the consumer related Kafka spring properties in `application.yml`, so no changes needed there.
 
 **Requirements:**
-1. Create `ConsumerFactory` @Bean by passing in the bootstrap-servers, group-id, auto-offset-reset, enable-auto-commit, key-deserializer, value-deserializer configs from the application.yml.
-2. Create `ConcurrentKafkaListenerContainerFactory` @Bean by Dependency Inject (DI) the `ConsumerFactory`.
-   1. On the `ConcurrentKafkaListenerContainerFactory`, set AckMode to `ContainerProperties.AckMode.MANUAL`
+1. Create `ConsumerFactory` @Bean by passing in the `bootstrap-servers`, `group-id`, `auto-offset-reset`, `enable-auto-commit`, `key-deserializer`, `value-deserializer` configs from the `application.yml`.
+2. Create `ConcurrentKafkaListenerContainerFactory` @Bean by Dependency Injecting (DI) the `ConsumerFactory`.
+   1. Because we've set `enable-auto-commit = false`, we also need to set AckMode to `ContainerProperties.AckMode.MANUAL` on the `ConcurrentKafkaListenerContainerFactory`
 
 #
 
@@ -464,16 +468,16 @@ You should've already added the consumer related Kafka spring properties in `app
 
 #
 
-### Task 2: Implement GreetingEventConsumer.java
-Implement the `public void processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack)` method.
+### Task 2: Kafka `GreetingEvent` Consumer
+In `GreetingEventConsumer.java`, implement `public void processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack)`.
 
-Log/print the kafka message that was read from the kafka topic.
+The main goal for now is to simply **log or print** the kafka message that was read from the kafka topic to **stdout** (our application logs).
 
 > [!IMPORTANT]
 >
 > You will need to add the [@KafkaListener <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-annotation.html)<br> annotation above the `processMessage(...)` method.
 > 
-> Add in these properties: `topics`, `containerFactory`
+> Properties required: `topics`, `containerFactory`
 
 ### Example 1:
 > **Input**:<br>
@@ -487,9 +491,10 @@ Log/print the kafka message that was read from the kafka topic.
 > consumer.processMessage(...); // processes 2nd GreetingEvent
 > consumer.processMessage(...); // processes 3rd GreetingEvent
 > ```
-> **Output1**: <span style="color:#0000008c">None<br></span>
-> **Output2**: <span style="color:#0000008c">None<br></span>
-> **Output3**: <span style="color:#0000008c">None<br></span>
+> **stdout**:<br>
+> <span style="color:#0000008c">INFO GreetingEventConsumer {event1}<br></span>
+> <span style="color:#0000008c">INFO GreetingEventConsumer {event2}<br></span>
+> <span style="color:#0000008c">INFO GreetingEventConsumer {event3}</span>
 
 #
 
@@ -510,7 +515,7 @@ Log/print the kafka message that was read from the kafka topic.
 ```
 - [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
 - [ ] Play around with **Kafka API**: `/api/kafka/publishGreetingEvent`
-- [ ] Check Offset Explorer 3 to see that your GreetingEvent is actually published to our kafka topic
+- [ ] In **Offset Explorer 3**, validate your `GreetingEvent` is actually published to the kafka topic
 - [ ] Verify application **stdout** logs are actually receiving the newly written kafka records
 
 #
@@ -564,8 +569,8 @@ This simple extreme example shows the benefit of introducing batch operations in
 
 **Requirements:**
 1. `max-poll-record`: controls the maximum kafka records that are processed in a single poll.
-2. `group-id-batch`: our `GreetingEventConsumer` class is already using the earlier defined `group-id` property.
-Our Batch consumer will need to define a new group-id so that none of the commits (acks) on the kafka partitions interfere with each other.
+2. `group-id-batch`: our `GreetingEventConsumer` class is already using the earlier defined `group-id` property.<br>
+Our Batch consumer will need to define a new group-id so that none of the commits (acks) on the kafka partitions interfere with each other.<br>
 Otherwise, there can be race conditions where each consumer are picking up subsets of the kafka topic.
 
 > [!IMPORTANT]
@@ -579,13 +584,13 @@ Otherwise, there can be race conditions where each consumer are picking up subse
 
 #
 
-### Task 2: Implement KafkaConfig.java TODO
-We need to now create some Beans for the Kafka consumers, `ConsumerFactory` and `ConcurrentKafkaListenerContainerFactory`.
+### Task 2: Kafka BATCH Consumer Beans
+In `KafkaConfig.java`, create `@Bean` dedicated for the Batch Kafka consumer: `ConsumerFactory` and `ConcurrentKafkaListenerContainerFactory`.
 
 You should've already added the consumer related Kafka spring properties in `application.yml`, so no changes needed there.
 
 **Requirements:**
-1. Create `ConsumerFactory` @Bean by passing in the bootstrap-servers, group-id, auto-offset-reset, enable-auto-commit, key-deserializer, value-deserializer configs from the application.yml.
+1. Create `ConsumerFactory` @Bean by passing in the `bootstrap-servers`, `group-id-batch`, `auto-offset-reset`, `enable-auto-commit`, `key-deserializer`, `value-deserializer` configs from the `application.yml`.
 2. Create `ConcurrentKafkaListenerContainerFactory` @Bean by Dependency Inject (DI) the `ConsumerFactory`.
     1. On the `ConcurrentKafkaListenerContainerFactory`, set AckMode to `ContainerProperties.AckMode.MANUAL`
 

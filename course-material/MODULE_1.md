@@ -266,15 +266,18 @@ Implement `public GameCharacter()` based on the requirements below.
         1. 5 `Potion.HP_POTION`
         2. 5 `Potion.MP_POTION`
 
-### Getters
+#
+
+### Get Stat
 Implement `public int getStat(Stat stat)` and return the current value for the input `stat`.
 
 **Requirements:**
-1. stat=Stat.HP: return the `GameCharacter` current HP value
-2. stat=Stat.MP: return the `GameCharacter` current MP value
+1. If `stat == Stat.HP`: return the `GameCharacter` current HP value
+2. If `stat == Stat.MP`: return the `GameCharacter` current MP value
 
 #
 
+### Get Inventory
 Implement `public Map<Potion, Integer> getInventory()`, and return the current `inventory` map.
 
 #
@@ -446,6 +449,8 @@ Return the updated character `HP`/`MP` int, or -1 for any errors.
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
 ```
 
+#
+
 ### getCharacterState
 Implement `public void getCharacterState() {}`.
 
@@ -501,8 +506,10 @@ In the constructor for `GameRestController.java`, initialize a default `GameChar
 > → Run the application (again): `./gradlew bootRun`<br>
 > → Call the `GET /characterState` endpoint (the character object's HP will be 100 because `GameRestController` will init a new `GameCharacter` object)
 
-For each of these API endpoints simply call the respective methods we previously implemented in `GameRestController.java`.<br>
-Return the result output from each of these `GameRestController.java` function calls back through the HTTP Response.
+For each of these API endpoints simply call the respective methods we previously implemented in `GameRestController.java`.
+
+Return the result output from each of these `GameCharacter.java` function calls back through the HTTP Response.
+
 ```java
 @PutMapping("/takeDamage")
 public int takeDamage(@RequestParam int damage) {

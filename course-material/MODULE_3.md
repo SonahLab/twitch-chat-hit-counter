@@ -78,9 +78,14 @@ For `Module 3`, the below file structure are all the relevant files needed.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/testClass_newui.svg" align="center"/> GreetingEventConsumerTest.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/package.svg" align="center"/> rest/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/testClass_newui.svg" align="center"/> SqlRestControllerTest.java<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/package.svg" align="center"/> sql/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/testClass_newui.svg" align="center"/> GreetingSqlServiceTest.java<br>
+
 
 <br>
 
@@ -126,7 +131,7 @@ Open **MySQLWorkbench** and connect to the MySQL instance running in Docker.
 ## Create your first SQL table
 1. Click on **Schemas** tab
 2. Navigate to **dev_db** → **Tables**
-3. In the SQL Editor, run:
+3. In the **SQL Editor**, run:
 ```
 CREATE TABLE dev_db.greeting_events (
     event_id VARCHAR(255) PRIMARY KEY,
@@ -139,33 +144,20 @@ CREATE TABLE dev_db.greeting_events (
 
 <br>
 
-## Exercise 1: Implement SQL Single record writes
+## Exercise 1: Single Record SQL Writer
 ![](assets/module3/images/exercise1.svg)<br>
-
-### Example 1:
-> **Input**:<br>
-> <span style="color:#0000008c">GreetingSqlService greetingSqlService = new GreetingSqlService(...);<br></span>
-> <span style="color:#0000008c">GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");<br></span>
-> <span style="color:#0000008c">GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");<br></span>
-> <span style="color:#0000008c">GreetingEvent event3 = new GreetingEvent("id1", "Echo", "Frank", "Hello there.");<br></span>
->
-> <span style="color:#0000008c">**int output1 = greetingSqlService.insert(event1);** // should return 1<br></span>
-> <span style="color:#0000008c">**int output2 = greetingSqlService.insert(event2);** // should return 1<br></span>
-> <span style="color:#0000008c">**int output3 = greetingSqlService.insert(event3);** // should return 0 (event3.eventId == "id1" which already exists in the table)<br></span>
->
-> **Output1**: <span style="color:#0000008c">1<br></span>
-> **Output2**: <span style="color:#0000008c">1<br></span>
-> **Output3**: <span style="color:#0000008c">0<br></span>
 
 <br>
 
-### Task 1: Configure application.yml
-Add our SQL table name to our application.yml properties
+### Task 1: Set SQL table name Spring property
+Add our SQL table name to our `application.yml` properties
 ```yaml
 twitch-chat-hit-counter:
   sql:
     greeting-table: greeting_events
 ```
+
+#
 
 ### Testing
 - [ ] Open `ProfileApplicationTest.java` ─ already implemented to test the property above.
@@ -175,54 +167,57 @@ twitch-chat-hit-counter:
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
 ```
 
-### Integration Testing
-- [ ] Run the application:
-```shell
-./gradlew bootRun
-```
-- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
-- [ ] Play around with **Kafka API**: `/api/kafka/publishGreetingEvent`
-- [ ] Check **Offset Explorer 3** to see that your GreetingEvent is actually published to our kafka topic
-- [ ] Verify application **stdout** logs are actually receiving the newly written kafka records
-- [ ] In **MySQLWorkbench**, verify that the Greeting you triggered via **Swagger** is written into the SQL table by running:
-```
-SELECT *
-FROM greeting_events
-```
-
 #
 
-### Task 2: Implement GreetingSqlService.insert()
-In `GreetingSqlService.java`, implement `public int insert(GreetingEvent event)`. This method should write a `GreetingEvent` into the SQL table we've set up.
+### Task 2: SQL `GreetingEvent` Writer
+In `GreetingSqlService.java`, implement `public int insert(GreetingEvent event)`. This method should write a single `GreetingEvent` into the SQL table we've set up.
 
 Return the number of successful event(s) written in the table (should be 0 or 1).
 
 **Requirements:**
-1. Events should be deduplicated<br>
-   If an event with the same **event_id (PK)** already exists in the SQL table, it will be ignored.
+1. Events should be deduplicated.<br>
+   If an event with the same **event_id (PK)** already exists in the SQL table, we should ignore them.
 2. Constructor should pass in the table name define in `application.yml` from the previous task.
 3. Constructor should pass in the auto-configured [JdbcTemplate <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/spring-jdbc-jdbctemplate) that is used to handle the read/write IOs to SQL<br>
-   >[!NOTE]
-   >
-   > If you take a look at `application.yml`, I have already implemented the MySQL configs for you that our application will use to autoconfigure or **JdbcTemplate** @Bean with.
+> [!NOTE]
+>
+> If you take a look at `application.yml`, I have already implemented the MySQL configs for you that our application will use to autoconfigure or **JdbcTemplate** @Bean with.
 
-Here's a hint (without giving away the entire answer) for how the SQL insert statement should look:
-```
-INSERT INTO {TABLE_NAME} (field₁, ..., fieldₙ)
-VALUES (?, ..., ?)
-ON {SOME_FILTER}
-```
-Here's a very helpful link on how to ensure writes to SQL, deduplicate events: [Stack Overflow <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://stackoverflow.com/questions/14383503/on-duplicate-key-update-same-as-insert)<br>
+> [!TIP]
+>
+> Helpful link on how to deduplicate events in the SQL Query ([Stack Overflow <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://stackoverflow.com/questions/14383503/on-duplicate-key-update-same-as-insert))
+>
+> ```
+> INSERT INTO {TABLE_NAME} (field₁, ..., fieldₙ)
+> VALUES (?, ..., ?)
+> ON {SOME_FILTER}
+> ```
 
-### Task 3: Hook up the Kafka Consumer to use the SQL writer
-Now hook up the `GreetingSqlService.java` to our `GreetingEventConsumer.java` from **Module 2**.<br>
-Everytime an event is read from Kafka, we will call the `GreetingSqlService.insert()` method to persist that event into the SQL DB.
+### Example 1:
+> **Input:**<br>
+> ```java
+> GreetingSqlService greetingSqlService = new GreetingSqlService(...);
+> 
+> GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
+> GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");
+> GreetingEvent event3 = new GreetingEvent("id1", "Echo", "Frank", "Hello there.");
+>
+> int output1 = greetingSqlService.insert(event1);
+> int output2 = greetingSqlService.insert(event2);
+> int output3 = greetingSqlService.insert(event3);
+> ```
+> **Output1**: 1<br>
+>
+> **Output2**: 1<br>
+>
+> **Output3**: 0<br>
+> **Explanation**: event3.eventId() == "id1" already exists in the table<br>
 
-You will need to inject the `GreetingSqlService` component into the `GreetingEventConsumer` constructor.
+#
 
 ### Testing
-- [ ] Open `GreetingSqlServiceTest.java` ─ already implemented
-- [ ] Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method: `insertTest()`
+- [ ] Open `GreetingSqlServiceTest.java` ─ already implemented to test the example(s) above.
+- [ ] Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method(s): `insertTest()`
 - [ ] Test with:
 ```shell
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
@@ -230,8 +225,35 @@ You will need to inject the `GreetingSqlService` component into the `GreetingEve
 
 <br>
 
-## Exercise 2: Implement SqlRestController
-[//]: # (TODO fix the image ApplicationRestController name)
+#
+
+### Task 3: Hook up the Kafka Consumer to use the SQL writer
+In `GreetingEventConsumer.java` (from **Module 2**), integrate with `GreetingSqlService.java`.<br>
+Everytime an event is read from Kafka, we will need to call `GreetingSqlService.insert()` to persist that event into the SQL DB.
+
+You will need to inject the `GreetingSqlService` component into the `GreetingEventConsumer` constructor.
+
+### Testing
+- [ ] TODO (do i need to update the test file for the consumer?)
+
+#
+
+### Integration Testing
+- [ ] Run the application:
+```shell
+./gradlew bootRun
+```
+- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
+- [ ] Play around with **Kafka API**: `/api/kafka/publishGreetingEvent`
+- [ ] In **MySQLWorkbench**, verify that the `GreetingEvent` triggered via **Swagger** is written into SQL by querying:
+```
+SELECT *
+FROM greeting_events
+```
+
+<br>
+
+## Exercise 2: SQL Api
 ![](assets/module3/images/exercise2.svg)<br>
 
 ### Task 1: Implement GreetingSqlService.queryAllEvents()

@@ -4,7 +4,7 @@
 ## Module 3: SQL
 
 [//]: # (TODO)
-#### Recommended Learning Materials 
+#### Recommended Learning Materials
 - https://dev.mysql.com/downloads/workbench/
 
 ## Overview
@@ -30,33 +30,6 @@ This course won’t dive too deeply into SQL queries, we will instead be focusin
 ## File Structure
 For `Module 3`, the below file structure are all the relevant files needed.
 
-[//]: # (```)
-[//]: # (twitch-chat-hit-counter/src/)
-[//]: # (├── main/)
-[//]: # (│   ├── java/)
-[//]: # (│   │   └── com.sonahlab.twitch_chat_hit_counter/)
-[//]: # (│   │       ├── kafka/)
-[//]: # (│   │       │   └── consumer/)
-[//]: # (│   │       │       ├── GreetingEventBatchConsumer.java)
-[//]: # (│   │       │       └── GreetingEventConsumer.java)
-[//]: # (│   │       ├── model/)
-[//]: # (│   │       │   └── GreetingEvent.java)
-[//]: # (│   │       ├── rest/)
-[//]: # (│   │       │   └── ApplicationRestController.java)
-[//]: # (│   │       └── sql/)
-[//]: # (│   │           └── GreetingSqlService.java)
-[//]: # (│   └── resources/)
-[//]: # (│       └── application.yml)
-[//]: # (└── test/)
-[//]: # (    └── java/)
-[//]: # (        └── com.sonahlab.twitch_chat_hit_counter/)
-[//]: # (            ├── kafka/)
-[//]: # (            │   └── consumer/)
-[//]: # (            │       ├── GreetingEventBatchConsumerTest.java)
-[//]: # (            │       └── GreetingEventConsumerTest.java)
-[//]: # (            └── sql/)
-[//]: # (                └── GreetingSqlServiceTest.java)
-[//]: # (```)
 <img src="assets/common/module.svg" align="center"/> twitch-chat-hit-counter/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/folder.svg" align="center"/> src/<br>
@@ -81,7 +54,7 @@ For `Module 3`, the below file structure are all the relevant files needed.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/package.svg" align="center"/> rest/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="assets/common/class.svg" align="center"/> ApplicationRestController.java<br>
+<img src="assets/common/class.svg" align="center"/> SqlRestController.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/package.svg" align="center"/> sql/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -113,9 +86,9 @@ For `Module 3`, the below file structure are all the relevant files needed.
 
 ## Objective
 ![](assets/module3/images/Module3_Overview.svg)<br>
-In **Module 2**, we set up an E2E producer/consumer on our first `greeting-events` Kafka topic. The consumer of the kafka messages does nothing besides logging the event to _stdout_.<br> 
+In **Module 2**, we set up an E2E producer/consumer on our first `greeting-events` Kafka topic. The `GreetingEventConsumer.java` processes kafka messages but only logs the event to _stdout_.<br>
 
-In **Module 3**, we will go one step further and persist/store these GreetingEvents in a SQL DB.
+In **Module 3**, we will go one step further and **persist/store** these `GreetingEvent` in a SQL DB.
 
 <br>
 
@@ -175,7 +148,7 @@ CREATE TABLE dev_db.greeting_events (
 > <span style="color:#0000008c">GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");<br></span>
 > <span style="color:#0000008c">GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");<br></span>
 > <span style="color:#0000008c">GreetingEvent event3 = new GreetingEvent("id1", "Echo", "Frank", "Hello there.");<br></span>
-> 
+>
 > <span style="color:#0000008c">**int output1 = greetingSqlService.insert(event1);** // should return 1<br></span>
 > <span style="color:#0000008c">**int output2 = greetingSqlService.insert(event2);** // should return 1<br></span>
 > <span style="color:#0000008c">**int output3 = greetingSqlService.insert(event3);** // should return 0 (event3.eventId == "id1" which already exists in the table)<br></span>
@@ -219,7 +192,7 @@ FROM greeting_events
 
 #
 
-### Task 2: Implement GreetingSqlService.insert() 
+### Task 2: Implement GreetingSqlService.insert()
 In `GreetingSqlService.java`, implement `public int insert(GreetingEvent event)`. This method should write a `GreetingEvent` into the SQL table we've set up.
 
 Return the number of successful event(s) written in the table (should be 0 or 1).
@@ -230,7 +203,7 @@ Return the number of successful event(s) written in the table (should be 0 or 1)
 2. Constructor should pass in the table name define in `application.yml` from the previous task.
 3. Constructor should pass in the auto-configured [JdbcTemplate <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/spring-jdbc-jdbctemplate) that is used to handle the read/write IOs to SQL<br>
    >[!NOTE]
-   > 
+   >
    > If you take a look at `application.yml`, I have already implemented the MySQL configs for you that our application will use to autoconfigure or **JdbcTemplate** @Bean with.
 
 Here's a hint (without giving away the entire answer) for how the SQL insert statement should look:
@@ -274,13 +247,13 @@ Return a list of `GreetingEvent`.
 >
 > <span style="color:#0000008c">greetingSqlService.insert(event1);<br></span>
 > <span style="color:#0000008c">**List\<GreetingEvent> output1 = greetingSqlService.queryAllEvents();** // Should return 1 event<br></span>
-> 
+>
 > <span style="color:#0000008c">greetingSqlService.insert(event2);<br></span>
 > <span style="color:#0000008c">**List\<GreetingEvent> output2 = greetingSqlService.queryAllEvents();** // Should return 2 events<br></span>
-> 
+>
 > <span style="color:#0000008c">greetingSqlService.insert(event3);<br></span>
 > <span style="color:#0000008c">**List\<GreetingEvent> output3 = greetingSqlService.queryAllEvents();** // Should return 2 events<br></span>
-> 
+>
 > **Output1**:<br>
 > ```json
 > [

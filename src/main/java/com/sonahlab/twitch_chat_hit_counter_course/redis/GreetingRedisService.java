@@ -1,8 +1,6 @@
 package com.sonahlab.twitch_chat_hit_counter_course.redis;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
-import com.sonahlab.twitch_chat_hit_counter_course.redis.dao.RedisDao;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,7 +28,9 @@ public class GreetingRedisService {
      * */
     public GreetingRedisService() {}
 
-    public void addGreetingToFeed(GreetingEvent event) {}
+    public Long addGreetingToFeed(GreetingEvent event) {
+        return null;
+    }
 
     public List<GreetingEvent> getGreetingFeed(String name) {
         return null;

@@ -1,18 +1,16 @@
-package com.sonahlab.twitch_chat_hit_counter_course.redis;
+package com.sonahlab.twitch_chat_hit_counter_course.rest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.testcontainers.RedisContainer;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
+import com.sonahlab.twitch_chat_hit_counter_course.redis.EventDeduperRedisService;
 import com.sonahlab.twitch_chat_hit_counter_course.redis.dao.RedisDao;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,20 +21,28 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 @Testcontainers
-@Tag("Module4")
+@ExtendWith(SpringExtension.class)
 // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
 @Disabled
-public class GreetingRedisServiceTest {
+@Tag("Module4")
+public class RedisRestControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
 
     @Container
     private static final RedisContainer REDIS_CONTAINER = new RedisContainer("redis:7.0");
@@ -49,7 +55,10 @@ public class GreetingRedisServiceTest {
     }
 
     @Autowired
-    private GreetingRedisService greetingRedisService;
+    private EventDeduperRedisService eventDeduperRedisService;
+
+    @Autowired
+    private RedisDao redisDao;
 
     // Configuration for RedisTemplate (used in tests)
     @Configuration
@@ -72,15 +81,15 @@ public class GreetingRedisServiceTest {
             return template;
         }
 
-        @Bean(name = "greetingRedisDao") // Match @Qualifier
-        public RedisDao greetingRedisDao(RedisTemplate<String, String> redisTemplate) {
+        @Bean(name = "eventDedupeRedisDao") // Match @Qualifier
+        public RedisDao eventDedupeRedisDao(RedisTemplate<String, String> redisTemplate) {
             return new RedisDao(redisTemplate);
         }
 
         @Bean
-        public GreetingRedisService greetingRedisService(@Qualifier("greetingRedisDao") RedisDao redisDao, ObjectMapper objectMapper) {
+        public EventDeduperRedisService eventDedupeRedisService(@Qualifier("eventDedupeRedisDao") RedisDao redisDao, ObjectMapper objectMapper) {
             // TODO: Update when RedisConfig.java is implemented
-            return new GreetingRedisService();
+            return new EventDeduperRedisService();
         }
 
         @Bean
@@ -99,37 +108,36 @@ public class GreetingRedisServiceTest {
         REDIS_CONTAINER.stop();
     }
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+
     @Test
-    void addGreetingToFeedTest() throws JsonProcessingException {
+    void getRedisGreetingFeedTest() throws Exception {
         GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice");
         GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "Bob", "Hey Bob, it's been a while.");
         GreetingEvent event3 = new GreetingEvent("id3", "Charlie", "David", "Yo.");
 
-        Long output1 = greetingRedisService.addGreetingToFeed(event1);
-        Long output2 = greetingRedisService.addGreetingToFeed(event2);
-        Long output3 = greetingRedisService.addGreetingToFeed(event3);
+        redisDao.listAdd("receiver#Bob", event1.toString());
+        redisDao.listAdd("receiver#Bob", event2.toString());
+        redisDao.listAdd("receiver#David", event3.toString());
 
-        assertEquals(1, output1);
-        assertEquals(2, output2);
-        assertEquals(1, output3);
+        List<GreetingEvent> result1 = callQueryGreetingFeedEndpoint("Bob");
+        assertThat(result1).hasSize(2).containsExactly(event1, event2);
+
+
+        List<GreetingEvent> result2 = callQueryGreetingFeedEndpoint("David");
+        assertThat(result2).hasSize(1).containsExactly(event3);
+
+
+        List<GreetingEvent> result3 = callQueryGreetingFeedEndpoint("Alice");
+        assertThat(result3).hasSize(0);
     }
 
-    @Test
-    void getGreetingFeedTest() throws JsonProcessingException {
-        GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice");
-        GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "Bob", "Hey Bob, it's been a while.");
-        GreetingEvent event3 = new GreetingEvent("id3", "Charlie", "David", "Yo.");
-
-        greetingRedisService.addGreetingToFeed(event1);
-        greetingRedisService.addGreetingToFeed(event2);
-        greetingRedisService.addGreetingToFeed(event3);
-
-        List<GreetingEvent> output1 = greetingRedisService.getGreetingFeed("Bob");
-        List<GreetingEvent> output2 = greetingRedisService.getGreetingFeed("David");
-        List<GreetingEvent> output3 = greetingRedisService.getGreetingFeed("Alice");
-
-        Assertions.assertThat(output1).hasSize(2).containsExactly(event1, event2);
-        Assertions.assertThat(output2).hasSize(1).containsExactly(event3);
-        Assertions.assertThat(output3).hasSize(0);
+    private List<GreetingEvent> callQueryGreetingFeedEndpoint(String name) throws Exception {
+        String jsonResponse = mockMvc.perform(get("/api/redis/queryGreetingFeed?name=" + name))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        return MAPPER.readValue(jsonResponse, new TypeReference<List<GreetingEvent>>() {});
     }
 }

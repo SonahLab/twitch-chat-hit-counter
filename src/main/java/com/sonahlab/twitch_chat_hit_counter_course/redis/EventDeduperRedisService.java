@@ -1,8 +1,6 @@
 package com.sonahlab.twitch_chat_hit_counter_course.redis;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
-import com.sonahlab.twitch_chat_hit_counter_course.redis.dao.RedisDao;
+import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -21,9 +19,9 @@ public class EventDeduperRedisService {
      * */
     public EventDeduperRedisService() {}
 
-    public void processEvent(GreetingEvent event) {}
+    public void processEvent(EventType eventType, String eventId) {}
 
-    public boolean isDupeEvent(GreetingEvent event) {
+    public boolean isDupeEvent(EventType eventType, String eventId) {
         return true;
     }
 }

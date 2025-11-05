@@ -14,48 +14,74 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest(classes = MainApplicationTest.class)
 @ActiveProfiles(value = "default")
 public class ProfileApplicationTest {
+
     @Autowired
     private Environment env;
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 1, Task 1.
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
     @Disabled
     @Tag("Module2")
     public void testDefaultProfile_kafkaConfigs() {
-        assertEquals(env.getProperty("spring.kafka.bootstrap-servers"), "localhost:9092");
+        assertEquals("localhost:9092", env.getProperty("spring.kafka.bootstrap-servers"));
 
-        assertTrue(env.getProperty("spring.kafka.consumer.group-id").toLowerCase().contains( "twitch-chat-hit-counter-group-id-"));
-        assertEquals(env.getProperty("spring.kafka.consumer.auto-offset-reset"), "earliest");
-        assertEquals(env.getProperty("spring.kafka.consumer.enable-auto-commit"), "false");
-        assertEquals(env.getProperty("spring.kafka.consumer.key-deserializer"), "org.apache.kafka.common.serialization.StringDeserializer");
-        assertEquals(env.getProperty("spring.kafka.consumer.value-deserializer"), "org.apache.kafka.common.serialization.ByteArrayDeserializer");
+        assertTrue(env.getProperty("spring.kafka.consumer.group-id").toLowerCase().contains("twitch-chat-hit-counter-group-id-"));
+        assertEquals("earliest", env.getProperty("spring.kafka.consumer.auto-offset-reset"));
+        assertEquals(false, env.getProperty("spring.kafka.consumer.enable-auto-commit"));
+        assertEquals("org.apache.kafka.common.serialization.StringDeserializer", env.getProperty("spring.kafka.consumer.key-deserializer"));
+        assertEquals("org.apache.kafka.common.serialization.ByteArrayDeserializer", env.getProperty("spring.kafka.consumer.value-deserializer"));
 
-        assertEquals(env.getProperty("spring.kafka.producer.key-serializer"), "org.apache.kafka.common.serialization.StringSerializer");
-        assertEquals(env.getProperty("spring.kafka.producer.value-serializer"), "org.apache.kafka.common.serialization.ByteArraySerializer");
+        assertEquals("org.apache.kafka.common.serialization.StringSerializer", env.getProperty("spring.kafka.producer.key-serializer"));
+        assertEquals("org.apache.kafka.common.serialization.ByteArraySerializer", env.getProperty("spring.kafka.producer.value-serializer"));
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 1, Task 1.
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
     @Disabled
     @Tag("Module2")
     public void testDefaultProfile_kafka_greetingTopicName() {
-        assertEquals(env.getProperty("twitch-chat-hit-counter.kafka.producer.greeting-topic"), "greeting-events");
-        assertEquals(env.getProperty("twitch-chat-hit-counter.kafka.consumer.greeting-topic"), "greeting-events");
+        assertEquals("greeting-events", env.getProperty("twitch-chat-hit-counter.kafka.producer.greeting-topic"));
+        assertEquals("greeting-events", env.getProperty("twitch-chat-hit-counter.kafka.consumer.greeting-topic"));
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3 Exercise 1, Task 1.
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
     @Disabled
     @Tag("Module3")
     public void testDefaultProfile_sql_greetingTableName() {
-        assertEquals(env.getProperty("twitch-chat-hit-counter.sql.greeting-table"), "greeting_events");
+        assertEquals("greeting_events", env.getProperty("twitch-chat-hit-counter.sql.greeting-table"));
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3 Exercise 1, Task 3.
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
     @Disabled
     @Tag("Module3")
     public void testDefaultProfile_sql_batchGreetingTableName() {
-        assertEquals(env.getProperty("twitch-chat-hit-counter.sql.greeting-table-batch"), "batch_greeting_events");
+        assertEquals("batch_greeting_events", env.getProperty("twitch-chat-hit-counter.sql.greeting-table-batch"));
+    }
+
+    @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
+    @Disabled
+    @Tag("Modul4")
+    public void testDefaultProfile_redisConfigs() {
+        assertEquals("localhost", env.getProperty("spring.redis.host"));
+        assertEquals("6379", env.getProperty("spring.redis.port"));
+    }
+
+    @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
+    @Disabled
+    @Tag("Module4")
+    public void testDefaultProfile_redis_deduperDB() {
+        assertEquals(0, env.getProperty("twitch-chat-hit-counter.redis.event-dedupe-database"));
+    }
+
+    @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
+    @Disabled
+    @Tag("Module4")
+    public void testDefaultProfile_redis_greetingFeedDB() {
+        assertEquals(1, env.getProperty("twitch-chat-hit-counter.redis.greeting-feed-database"));
     }
 }

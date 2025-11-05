@@ -2,8 +2,8 @@ package com.sonahlab.twitch_chat_hit_counter_course.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.testcontainers.RedisContainer;
-import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import com.sonahlab.twitch_chat_hit_counter_course.redis.dao.RedisDao;
+import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -30,8 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @Testcontainers
 @Tag("Module4")
-// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
-@Disabled
 public class EventDeduperRedisServiceTest {
 
     @Container
@@ -99,18 +97,19 @@ public class EventDeduperRedisServiceTest {
     }
 
     @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
+    @Disabled
     void processEventTest() {
-        GreetingEvent event = new GreetingEvent("id1", "Alice", "Bob", "Hey Bob.");
-        eventDeduperRedisService.processEvent(event);
+        eventDeduperRedisService.processEvent(EventType.GREETING_EVENT, "id1");
         assertEquals(1L, redisDao.get("GREETING_EVENT#id1").longValue());
     }
 
     @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
+    @Disabled
     void isDupeEventTest() {
-        GreetingEvent event = new GreetingEvent("id2", "Alice", "Bob", "Hey Bob.");
-        eventDeduperRedisService.processEvent(event);
-        assertEquals(1L, redisDao.get("GREETING_EVENT#id2").longValue());
-
-        Assertions.assertTrue(eventDeduperRedisService.isDupeEvent(event));
+        eventDeduperRedisService.processEvent(EventType.GREETING_EVENT, "id2");
+        Assertions.assertFalse(eventDeduperRedisService.isDupeEvent(EventType.GREETING_EVENT, "id1"));
+        Assertions.assertTrue(eventDeduperRedisService.isDupeEvent(EventType.GREETING_EVENT, "id2"));
     }
 }

@@ -1,11 +1,6 @@
 package com.sonahlab.twitch_chat_hit_counter_course.redis;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
-import com.sonahlab.twitch_chat_hit_counter_course.redis.dao.RedisDao;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * Service for storing GreetingEvents using a Redis DB named 'greeting-feed-database' (that we will create).
@@ -28,11 +23,4 @@ public class GreetingRedisService {
     /**
      * TODO: Implement as part of Module 4
      * */
-    public GreetingRedisService(RedisDao redisDao, ObjectMapper objectMapper) {}
-
-    public void addGreetingToFeed(GreetingEvent event) {}
-
-    public List<GreetingEvent> getGreetingFeed(String name) {
-        return null;
-    }
 }

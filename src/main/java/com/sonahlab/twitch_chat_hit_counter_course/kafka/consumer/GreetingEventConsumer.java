@@ -1,9 +1,7 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,5 +18,4 @@ public class GreetingEventConsumer {
     /**
      * TODO: Implement as part of Module 2
      * */
-    public void processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack) {}
 }

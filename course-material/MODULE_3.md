@@ -368,7 +368,6 @@ You will need to inject the `GreetingSqlService` component into the constructor.
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
 ```
 
-# WIP FROM HERE
 ### Exercise 3: Implement Batch Writes
 ![](assets/module3/images/exercise3.svg)<br>
 
@@ -402,34 +401,35 @@ twitch-chat-hit-counter:
 
 #
 
-### Task 2: Implement GreetingSqlService.insertBatch()
-Implement `public int insertBatch(List<GreetingEvent> events)`.
+**Similar to the 'Lesson: Input/Output (IO) Operations' section in Module 2, we will optimize the # of IO calls to our SQL server by reducing write IOs.
+Instead of sending `.insert()` calls for (i.e: 1M events) into our SQL DB by issuing 1M write calls, we will write events in batches to make less round trips to the SQL server.**
 
-Return the number of successful events that were written to the SQL table.
+### Task 2: Task 2: SQL GreetingEvent Writer
+In `GreetingSqlService.java`, implement `public int insertBatch(List<GreetingEvent> events)`. This method should write a batch of `GreetingEvent` into the Batch SQL table we've set up.
 
-Similar to the **Lesson: Input/Output (IO) Operations** section in **Module 2**, we will optimize the # of IO calls to our SQL server by reducing write IOs. Instead of sending `.insert()` calls for (i.e: 1M events) into our SQL DB by issuing 1M write calls, we will write events in batches to make less round trips to the SQL server.
+Return the number of successful event(s) written in the table.
 
-
-**Reminder:** pass in the `twitch-chat-hit-counter.sql.greeting-table-batch` property into the constructor.<br>
-
-This method will look very similar to the `insert()` method, the only differences are:
+This method will look very similar to `.insert()`, the only differences are:
 1. The Batch SQL insert statement will pack more events than did the previous method.
-2. The `insertBatch()` method should write to `batch_greeting_events` SQL table and not the `greeting_events` table that is used by the `insert()` method.
+2. The `.insertBatch()` method should write to `batch_greeting_events` SQL table and not the `greeting_events` table that is used by the `insert()` method.
 
 > [!TIP]
 >
-> Here's a brief overview of how to implement batch insert statements with [JdbcTemplate <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-framework/reference/data-access/jdbc/advanced.html) in Spring Boot.
+> Here's a brief overview of how to implement batch insert statements with [JdbcTemplate Batch Operations <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-framework/reference/data-access/jdbc/advanced.html) in Spring Boot.
 
 ### Example 1:
 > **Input**:<br>
-> <span style="color:#0000008c">GreetingSqlService greetingSqlService = new GreetingSqlService(...);<br></span>
-> <span style="color:#0000008c">GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");<br></span>
-> <span style="color:#0000008c">GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");<br></span>
-> <span style="color:#0000008c">GreetingEvent event3 = new GreetingEvent("id1", "Echo", "Frank", "Hello there.");<br></span>
+> ```java
+> GreetingSqlService greetingSqlService = new GreetingSqlService(...);
+> 
+> GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
+> GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");
+> GreetingEvent event3 = new GreetingEvent("id1", "Echo", "Frank", "Hello there.");
+> 
+> int output = greetingSqlService.insertBatch(List.of(event1, event2, event3));
+> ```
 >
-> <span style="color:#0000008c">**int output = greetingSqlService.insertBatch(List.of(event1, event2, event3));** // should return 3<br></span>
->
-> **Output**: <span style="color:#0000008c">3<br></span>
+> **Output**: <span style="color:#0000008c">2<br></span>
 > **Explanation**: <span style="color:#0000008c">Our batch insert SQL statement should write event1 and event2, but event3 has the same "id1" primary key as event1 which should have already been written to in the same batch, so we won't write in event3. 2 successful writes out of 3 batched events.<br></span>
 
 #
@@ -445,10 +445,13 @@ This method will look very similar to the `insert()` method, the only difference
 #
 
 ### Task 3: Hook up the Batch Kafka Consumer to use the Batch SQL writer
-Make sure to also hook up our `GreetingEventBatchConsumer.java` (**Module 2**) to call `GreetingSqlService.insertBatch()` method.
-Everytime a batch of events are read from Kafka, we will call the `GreetingSqlService.insertBatch()` method to persist this same batch of events into the SQL DB.
+Simply connect `GreetingEventBatchConsumer.java` (**Module 2**) to call `GreetingSqlService.insertBatch()` method.
 
-You will need to inject the `GreetingSqlService` component into the `GreetingEventConsumer` constructor.
+#
+
+### Testing?
+
+#
 
 ### Integration Testing
 - [ ] Run the application:
@@ -457,8 +460,6 @@ You will need to inject the `GreetingSqlService` component into the `GreetingEve
 ```
 - [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
 - [ ] Play around with **Kafka API**: `/api/kafka/publishGreetingEvent`
-- [ ] Check **Offset Explorer 3** to see that your GreetingEvent is actually published to our kafka topic
-- [ ] Verify application **stdout** logs are actually receiving the newly written kafka records
 - [ ] In **MySQLWorkbench**, verify that the Greeting you triggered via **Swagger** is written into the SQL table by running:
 ```
 SELECT *

@@ -228,7 +228,7 @@ Return the number of successful event(s) written in the table (should be 0 or 1)
 #
 
 ### Task 3: Hook up the Kafka Consumer to use the SQL writer
-In `GreetingEventConsumer.java` (from **Module 2**), integrate with `GreetingSqlService.java`.<br>
+In `GreetingEventConsumer.java` (**Module 2**), integrate with `GreetingSqlService.java`.<br>
 Everytime an event is read from Kafka, we will need to call `GreetingSqlService.insert()` to persist that event into the SQL DB.
 
 You will need to inject the `GreetingSqlService` component into the `GreetingEventConsumer` constructor.
@@ -253,28 +253,34 @@ FROM greeting_events
 
 <br>
 
-## Exercise 2: SQL Api
+## Exercise 2: SQL API
 ![](assets/module3/images/exercise2.svg)<br>
 
 ### Task 1: Implement GreetingSqlService.queryAllEvents()
-Implement `public List<GreetingEvent> queryAllEvents() {}`. This method should read all the events in our SQL table.
-Return a list of `GreetingEvent`.
+In `GreetingSqlService.java`, implement `public List<GreetingEvent> queryAllEvents()`.
+
+Return a `List<GreetingEvent>` of all the events in our SQL table.
+
+Here's all you need to know about [SQL Query <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.w3schools.com/sql/sql_syntax.asp) to implement this task. See what [JdbcTemplate <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/spring-jdbc-jdbctemplate) library method to use to execute this SQL query.
 
 #### Example 1:
 > **Input**:<br>
-> <span style="color:#0000008c">GreetingSqlService greetingSqlService = new GreetingSqlService(...);<br></span>
-> <span style="color:#0000008c">GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");<br></span>
-> <span style="color:#0000008c">GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");<br></span>
-> <span style="color:#0000008c">GreetingEvent event3 = new GreetingEvent("id1", "Echo", "Frank", "Hello there.");<br></span>
+> ```java
+> GreetingSqlService greetingSqlService = new GreetingSqlService(...);
 >
-> <span style="color:#0000008c">greetingSqlService.insert(event1);<br></span>
-> <span style="color:#0000008c">**List\<GreetingEvent> output1 = greetingSqlService.queryAllEvents();** // Should return 1 event<br></span>
+> GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
+> GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");
+> GreetingEvent event3 = new GreetingEvent("id1", "Echo", "Frank", "Hello there.");
 >
-> <span style="color:#0000008c">greetingSqlService.insert(event2);<br></span>
-> <span style="color:#0000008c">**List\<GreetingEvent> output2 = greetingSqlService.queryAllEvents();** // Should return 2 events<br></span>
+> greetingSqlService.insert(event1);
+> List<GreetingEvent> output1 = greetingSqlService.queryAllEvents();
 >
-> <span style="color:#0000008c">greetingSqlService.insert(event3);<br></span>
-> <span style="color:#0000008c">**List\<GreetingEvent> output3 = greetingSqlService.queryAllEvents();** // Should return 2 events<br></span>
+> greetingSqlService.insert(event2);
+> List<GreetingEvent> output2 = greetingSqlService.queryAllEvents();
+> 
+> greetingSqlService.insert(event3);
+> List<GreetingEvent> output3 = greetingSqlService.queryAllEvents();
+> ```
 >
 > **Output1**:<br>
 > ```json
@@ -287,6 +293,8 @@ Return a list of `GreetingEvent`.
 >     }
 > ]
 > ```
+> **Explanation**: **event1** is written into SQL so 1 event(s) are read.<br><br>
+>
 > **Output2**:<br>
 > ```json
 > [
@@ -304,6 +312,8 @@ Return a list of `GreetingEvent`.
 >   }
 > ]
 > ```
+> **Explanation**: **event1** and **event2** are written into SQL so 2 event(s) are read.<br><br>
+>
 > **Output3**:<br>
 > ```json
 > [
@@ -321,17 +331,34 @@ Return a list of `GreetingEvent`.
 >   }
 > ]
 > ```
+> **Explanation**: **event3** is **NOT** written into SQL because it is considered a duplicate event (due to PK clash) so 2 event(s) are read.
 
-This task is quite trivial if you know about [SQL Query <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.w3schools.com/sql/sql_syntax.asp).<br>
-The query will be identical to the SQL query used in MySQLWorkbench that was used to read all events in our `greeting_events` table.
+#
 
-The only tricky part here is that you will now use the `JdbcTemplate` to execte this query and parse the returned records back to a List\<GreetingEvent>.
+### Testing
+- [ ] Open `GreetingSqlServiceTest.java` ─ already implemented with the example(s) above.
+- [ ] Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method(s): `queryTest()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
+```
+
+#
+
+### Integration Testing
+- [ ] Run the application:
+```shell
+./gradlew bootRun
+```
+- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
+- [ ] Execute **SQL API**: `GET /api/sql/queryAllEvents`
+
+#
 
 ### Task 2: Hook up the `SqlRestController` to the `GreetingSqlService`
-Now implement the `GET /api/sql/queryGreetingEventsFromSQL` API endpoint in `SqlRestController.java`.<br>
-We want our HTTP Controller to call the `GreetingSqlService.queryAllEvents()` to fetch all the records in our SQL table.
+In `SqlRestController.java`, implement `public List<GreetingEvent> getSqlGreetingEvents()`.
 
-You will need to inject the `GreetingSqlService` component into the `SqlRestController` constructor.
+You will need to inject the `GreetingSqlService` component into the constructor.
 
 #### Testing
 - [ ] Open `SqlRestControllerTest.java` ─ already implemented
@@ -341,6 +368,7 @@ You will need to inject the `GreetingSqlService` component into the `SqlRestCont
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
 ```
 
+# WIP FROM HERE
 ### Exercise 3: Implement Batch Writes
 ![](assets/module3/images/exercise3.svg)<br>
 

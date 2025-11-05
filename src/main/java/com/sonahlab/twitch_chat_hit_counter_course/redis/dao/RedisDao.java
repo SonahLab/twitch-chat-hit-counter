@@ -29,22 +29,26 @@ public class RedisDao {
 
     /** VALUE OPERATIONS */
     // INCR: https://redis.io/docs/latest/commands/incr/
-    public void increment(String key) {}
+    public Long increment(String key) {
+        return null;
+    }
 
     // INCRBY: https://redis.io/docs/latest/commands/incrby/
-    public void incrementBy(String key, long delta) {}
+    public Long incrementBy(String key, long delta) {
+        return null;
+    }
 
     // SET: https://redis.io/docs/latest/commands/set/
-    public void set(String key, Long value) {}
+    public void set(String key, String value) {}
 
     // GET: https://redis.io/docs/latest/commands/get/
-    public Long get(String key) {
+    public String get(String key) {
         return null;
     }
 
     /** LIST OPERATIONS */
     // LPUSH: https://redis.io/docs/latest/commands/lpush/
-    public Long listAdd(String key, String value) {
+    public Long listAdd(String key, String... values) {
         return null;
     }
 
@@ -55,23 +59,23 @@ public class RedisDao {
 
     /** SET OPERATIONS */
     // SADD: https://redis.io/docs/latest/commands/sadd/
-    public Long setAdd(String key, String value) {
+    public Long setAdd(String key, String... values) {
         return null;
     }
 
     // SREM: https://redis.io/docs/latest/commands/srem/
-    public Long setRemove(String key, String value) {
+    public Long setRemove(String key, String... values) {
         return null;
     }
 
     // SMEMBERS: https://redis.io/docs/latest/commands/smembers/
-    public Set<String> setMembers(String key) {
+    public Set<String> getSetMembers(String key) {
         return null;
     }
 
     /** KEY OPERATIONS */
     // KEYS: https://redis.io/docs/latest/commands/keys/
-    public Map<String, Long> keys(String prefix) {
+    public Map<String, String> scanKeys(String prefix) {
         return null;
     }
 }

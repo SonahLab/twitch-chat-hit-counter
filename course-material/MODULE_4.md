@@ -128,7 +128,7 @@ and [SetOperations <img src="assets/common/export.svg" width="16" height="16" st
 
 ### Task 1: Value Operations
 ### Implement [INCR <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/incr/) (Increment)
-In `RedisDao.java`, implement `public void increment(String key)`.<br>
+In `RedisDao.java`, implement `public Long increment(String key)`.<br>
 Return a Long of the updated value after the key is incremented.
 
 **Description**: Increments the number stored at key by one.<br>
@@ -140,8 +140,8 @@ Return a Long of the updated value after the key is incremented.
 > RedisDao redisDao = new RedisDao(...);
 > redisDao.set("key1", 5L);
 >
-> long output1 = redisDao.incr("key1");
-> long output2 = redisDao.incr("key2");
+> long output1 = redisDao.increment("key1");
+> long output2 = redisDao.increment("key2");
 > ```
 > **Output1**: 6L<br>
 > **Explanation**: "key1" is incremented by +1, but the "key1" already exists in redis with a value of 5. So the +1 increment gets added to the already existing value.
@@ -149,10 +149,20 @@ Return a Long of the updated value after the key is incremented.
 > **Output2**: 1L<br>
 > **Explanation**: "key2" doesn't exist in redis so the initial value is treated as 0. The increment method only adds +1 value and essentially acts equivalent to calling .set("key2", 1L).
 
+#
+
+### Testing
+- [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
+- [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `incrementTest()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
+```
+
 <br>
 
 ### Implement [INCRBY <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/incrby/) (Increment By)
-In `RedisDao.java`, implement `public void incrementBy(String key, long delta)`.<br>
+In `RedisDao.java`, implement `public Long incrementBy(String key, long delta)`.<br>
 Return a Long of the updated value after the key is incremented.
 
 **Description**: Increments the number stored at key by `increment`.<br>
@@ -162,16 +172,26 @@ Return a Long of the updated value after the key is incremented.
 > **Input**:<br>
 > ```java
 > RedisDao redisDao = new RedisDao(...);
-> redisDao.set("key1", 5L);
+> redisDao.set("key1", 5);
 >
-> long output1 = redisDao.incrBy("key1", 10L);
-> long output2 = redisDao.incrBy("key2", 60L);
+> long output1 = redisDao.incrementBy("key1", 10);
+> long output2 = redisDao.incrementBy("key2", 60);
 > ```
-> **Output1**: 20L<br>
+> **Output1**: 15<br>
 > **Explanation**: "key1" is incremented by +10, but the "key1" already exists in redis with a value of 5. So the +10 increment gets added to the already existing value.
 >
 > **Output2**: 60L<br>
 > **Explanation**: "key2" doesn't exist in redis so the initial value is treated as 0. The increment value of 60 essentially acts equivalent to calling .set("key2", 60L).
+
+#
+
+### Testing
+- [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
+- [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `incrementByTest()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
+```
 
 <br>
 
@@ -234,6 +254,16 @@ Return the String representation of the stored value. The value stored in Redis 
 > Notice that all outputs from our `redisDao.get(key)` method are all Strings.<br>
 > If you look at the Redis API method: `RedisTemplate.opsForValue().get(key)`, this library will always return a String representation of the value that is stored in that key.
 
+#
+
+### Testing
+- [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
+- [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `setAndGetTest()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
+```
+
 <br>
 
 #
@@ -266,6 +296,16 @@ Return a Long of the length of the list **after** the value is appended.
 > **Output3**: Exception is thrown<br>
 > **Explanation**:<br>
 > The Redis mapping is: {"nonListKey": "1"}. Adding "item1" to a Long is invalid, so an error is thrown.
+
+#
+
+### Testing
+- [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
+- [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `listAddTest()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
+```
 
 <br>
 
@@ -302,6 +342,16 @@ These offsets can also be negative numbers indicating offsets starting at the en
 > **Explanation**:<br>
 > The Redis mapping is: {"nonListKey": "1"}. Getting a List from a Long value is invalid, so an error is thrown.
 
+#
+
+### Testing
+- [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
+- [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `listGetTest()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
+```
+
 <br>
 
 #
@@ -329,6 +379,16 @@ An error is returned when the value stored at key is not a set.<br>
 > 
 > **Output2**: 0<br>
 > **Explanation**: "Alice" was already added to the set previously so attempting to add this value to the set again has no effect, and the set size remains 2.
+
+#
+
+### Testing
+- [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
+- [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `setAddTest()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
+```
 
 <br>
 
@@ -368,12 +428,22 @@ An error is returned when the value stored at key is not a set.<br>
 > **Explanation**:<br>
 > {"key2": "1"}, the value at "key2" is a Long type so attempting to remove a value from a Long type is invalid. Redis library will throw an error.
 
+#
+
+### Testing
+- [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
+- [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `setRemoveTest()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
+```
+
 <br>
 
 #
 
 ### Implement [SMEM <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/smem/) (Set Members)
-In `RedisDao.java`, implement `public Set<String> setMembers(String key)`.<br>
+In `RedisDao.java`, implement `public Set<String> getSetMembers(String key)`.<br>
 Return the Set\<String> stored at the key.
 
 **Description**: Returns all the members of the set value stored at key.<br>
@@ -386,15 +456,30 @@ Return the Set\<String> stored at the key.
 > redisDao.setAdd("key1", "Alice");
 > redisDao.setAdd("key1", "Bob");
 > 
-> Set<String> output1 = redisDao.setMembers("key1");
-> Set<String> output2 = redisDao.setMembers("nonexistentKey");
+> Set<String> output1 = redisDao.getSetMembers("key1");
+> Set<String> output2 = redisDao.getSetMembers("nonexistentKey");
 > 
 > redisDao.incr("key2");
-> Set<String> output3 = redisDao.setMembers("key2");
+> Set<String> output3 = redisDao.getSetMembers("key2");
 > ```
-> **Output1**: 1<br>
-> **Output2**: 0<br>
-> **Output3**: null?<br>
+> **Output1**: ["Alice", "Bob"]<br>
+> **Explanation**: key="key1" has a set of ["Alice", "Bob"].
+> 
+> **Output2**: []<br>
+> **Explanation**: key="nonexistentKey" is not in the DB, Redis will treat this as an empty Set,
+> 
+> **Output3**: Exception is thrown<br>
+> **Explanation**: key="key2" has a value of 1, so attempting to get the Set from a value that isn't a set will throw an exception.
+
+#
+
+### Testing
+- [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
+- [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `getSetMembersTest()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
+```
 
 <br>
 
@@ -402,8 +487,8 @@ Return the Set\<String> stored at the key.
 
 ### Task 4: Keys/Scan Operations
 ### Implement [KEYS <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/keys/)
-In `RedisDao.java`, implement `public Map<String, String> keys(String prefix)`.<br>
-Return a Map\<String, String> for a given key prefix.
+In `RedisDao.java`, implement `public Map<String, String> scanKeys(String prefix)`.<br>
+Return a Map\<String, String> for all keys matching a key prefix.
 
 **Description**: Returns all keys matching pattern.<br>
 **Library API Call**: RedisTemplate.[keys(pattern) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/RedisTemplate.html#keys(K))
@@ -418,17 +503,17 @@ Return a Map\<String, String> for a given key prefix.
 > redisDao.set("teacher#Bob#name", "Bob B.");
 > redisDao.set("teacher#Bob#department", "Computer Science");
 > 
-> Map<String, String> output1 = redisDao.keys("student#*");
-> Map<String, String> output2 = redisDao.keys("teacher#*");
-> Map<String, String> output3 = redisDao.keys("*");
-> Map<String, String> output4 = redisDao.keys("nonexistentPrefix#*");
+> Map<String, String> output1 = redisDao.scanKeys("student#*");
+> Map<String, String> output2 = redisDao.scanKeys("teacher#*");
+> Map<String, String> output3 = redisDao.scanKeys("*");
+> Map<String, String> output4 = redisDao.scanKeys("nonexistentPrefix#*");
 > ```
 > **Output1**:<br>
 > ```json
 > {
 >   "student#Alice#name": "Alice A.",
 >   "student#Alice#GPA": "4.00",
->   "student#Alice#unitsTaken": "[\"CS 101\", \"CS 102\", \"CS 103\"]"
+>   "student#Alice#coursesTaken": "[\"CS 101\", \"CS 102\", \"CS 103\"]"
 > }
 > ```
 > **Explanation**:<br>
@@ -449,7 +534,7 @@ Return a Map\<String, String> for a given key prefix.
 > {
 >   "student#Alice#name": "Alice A.",
 >   "student#Alice#GPA": "4.00",
->   "student#Alice#unitsTaken": "100",
+>   "student#Alice#coursesTaken": "[\"CS 101\", \"CS 102\", \"CS 103\"]",
 >   "teacher#Bob#name": "Bob B.",
 >   "teacher#Bob#department": "Computer Science"
 > }
@@ -467,8 +552,8 @@ Return a Map\<String, String> for a given key prefix.
 #
 
 ### Testing
-- [ ] Open `RedisDaoTest.java` ─ already implemented
-- [ ] Remove `@Disabled` in `RedisDaoTest.java`
+- [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
+- [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `scanKeysTest()`
 - [ ] Test with:
 ```shell
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -740,13 +825,13 @@ Return a Long that represents the length of the List after the `GreetingEvent` i
 > Long output3 = greetingRedisService.addGreetingToFeed(event3);
 > ```
 > **Output1**: 1<br>
-> **Explanation**: **receiver#Bob** has a feed of length 1, holding greeting(s) from "Alice"
+> **Explanation**: **receiver#Bob** has a feed of length 1, greeting(s) from "Alice"
 >
 > **Output2**: 2<br>
-> **Explanation**: **receiver#Bob** has a feed of length 2, holding greeting(s) from "Alice" and "Charlie"
+> **Explanation**: **receiver#Bob** has a feed of length 2, greeting(s) from "Alice" and "Charlie"
 >
 > **Output3**: 1<br>
-> **Explanation**: **receiver#David** has a feed of length 1, holding greeting(s) from "Charlie"
+> **Explanation**: **receiver#David** has a feed of length 1, greeting(s) from "Charlie"
 
 #
 

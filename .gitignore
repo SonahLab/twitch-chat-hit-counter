@@ -33,3 +33,5 @@ out/
 */bin
 */integrationTest/bin
 **/classes
+
+src/main/resources/twitchApiKey.yml

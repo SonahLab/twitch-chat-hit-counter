@@ -2,6 +2,7 @@ package com.sonahlab.twitch_chat_hit_counter_course.twitch;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * Manages the lifecycle of Twitch OAuth2 access tokens for the chat hit counter application.
@@ -25,8 +26,9 @@ import org.slf4j.LoggerFactory;
  * @see <a href="https://dev.twitch.tv/docs/authentication/refresh-tokens">Refresh Tokens</a>
  * @since 1.0
  */
-public class TwitchAuthManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TwitchAuthManager.class);
+@Service
+public class TwitchAuthService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TwitchAuthService.class);
 
     /**
      * <p>This method is called from your {@code /oauth2/authorize} endpoint via Swagger, it will return the filled in
@@ -38,7 +40,7 @@ public class TwitchAuthManager {
      *
      * @return the full Twitch authorization URL with required parameters
      */
-    public String getLoginUrl() {
+    public String getAuthUrl() {
         /**
          * TODO: Implement in Module 5
          */
@@ -85,12 +87,12 @@ public class TwitchAuthManager {
      * <p><strong>Security Note:</strong> This method must be called from a <strong>backend server</strong> only.
      * The {@code client_secret} must never be exposed in client-side code.</p>
      *
-     * @param accessToken the temporary authorization code received from Twitch after user approval
+     * @param authorizationCode the temporary authorization code received from Twitch after user approval
      * @return a String containing the access token, refresh token, expiry, and granted scopes
      * @see <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#authorization-code-grant-flow">
      *      Twitch Authorization Code Grant Flow</a>
      */
-    public String createOAuthToken(String accessToken) {
+    public String createOAuthToken(String authorizationCode) {
         /**
          * TODO: Implement in Module 5
          * */

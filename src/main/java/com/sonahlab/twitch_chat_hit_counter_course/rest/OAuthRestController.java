@@ -5,18 +5,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 
 /**
- * Service responsible for interacting with the the Twitch API Client.
+ * Service responsible for interacting with the Twitch API Client.
  */
 @RestController
 @Tag(name = "Twitch API", description = "Backend API endpoints that act as proxy to various Twitch API endpoints")
 public class OAuthRestController {
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuthRestController.class);
-
-    private static final String CLIENT_ID = "nvvkhoyvgn7bxktvthtkdbyyncf3zr";
-    private static final String CLIENT_SECRET = "kj2os3vk1ocku2zgif5xbgoaqc41kx";
-    private static final String TOKEN_URL = "https://id.twitch.tv/oauth2/token";
 
     /**
      * HTTP GET request handler for endpoint /oauth2/authorize. The returned URL of this endpoint needs to be input in
@@ -44,10 +41,10 @@ public class OAuthRestController {
      * @param state String UUID that should be previously generated in /oauth2/authorize
      * @param error String error while trying to authorize User
      * @param errorDescription String description of the error while trying to authorize User
-     * @return String greeting message
+     * @return Map of the parameters that were passed in from Twitch's servers.
      */
     @GetMapping("/oauth2/callback")
-    public String handleCallback(
+    public Map<String, String> handleCallback(
             @RequestParam(name = "code", required = false) String code,
             @RequestParam(name = "scope", required = false) String scope,
             @RequestParam(name = "state", required = false) String state,

@@ -321,13 +321,17 @@ In `KafkaConfig.java`, create two `@Bean` objects for `ProducerFactory.java` and
 #
 
 ### Task 2: Kafka `GreetingEvent` Producer
-In `GreetingEventProducer.java`, implement `public boolean publish(String messageId, GreetingEvent event)`. The method expects a `messageId` and a `GreetingEvent`, and writes a new message into the kafka topic.
+In `AbstractEventProducer.java`, implement `public boolean publish(String key, T event)`. The method expects a `key` and a `GreetingEvent`, and writes a new message into the kafka topic.
 
 Return the boolean status of the kafka topic write operation.
 
-> [!TIP]
->
-> You will need to create a constructor for this `GreetingEventProducer` and Dependency Inject (DI) the KafkaTemplate @Bean in `KafkaConfig.java` to successfully write the event to our kafka topic.
+**Requirements:**
+1. `AbstractEventProducer.java` will need to have the KafkaTemplate bean DI'ed. Any subclasses (`GreetingEventProducer`) will also need to DI the KafkaTemplate.
+2. The key needs to be store to as a String in kafka
+3. The value needs to be stored as a ByteArray in kafka
+4. The topic name property needs to be DI into the `GreetingEventProducer`
+
+> [!TIP]s
 > 
 > Get familiar with the KafkaTemplate class source code ─ this class deals with the connection to a kafka topic and any IO operations to/from the topic. In the source code, you will find this helpful method: `kafkaTemplate.send(String topic, @Nullable V data)`.
 
@@ -444,6 +448,7 @@ public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestPa
 > `application.yml` ─ our service's property file<br>
 > `KafkaConfig.java` ─ Configuration class to store our Kafka related Beans<br>
 > `GreetingEvent.java` ─ data model to encapsulate a simple greeting.<br>
+> `AbstractEventConsumer.java` ─ the abstract class that defines the way all event consumers should act.<br>
 > `GreetingEventConsumer.java` ─ the class that subscribes to our `greeting_event` kafka topics to read `GreetingEvent` objects
 
 ### Task 1: Kafka Consumer Beans

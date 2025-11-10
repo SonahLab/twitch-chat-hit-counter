@@ -1,8 +1,11 @@
 package com.sonahlab.twitch_chat_hit_counter_course.sql;
 
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.sql.PreparedStatement;
 import java.util.List;
 
 /**
@@ -12,19 +15,45 @@ import java.util.List;
  * - https://docs.spring.io/spring-boot/reference/data/sql.html
  */
 @Service
-public class GreetingSqlService {
-    /**
-     * TODO: Implement as part of Module 3
-     * */
-    public int insert(GreetingEvent event) {
-        return 0;
+public class GreetingSqlService extends AbstractSqlService<GreetingEvent> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GreetingSqlService.class);
+
+    // Constructor
+    public GreetingSqlService() {
+        /**
+         * TODO: Implement as part of Module 3
+         * */
     }
 
-    public int insertBatch(List<GreetingEvent> events) {
-        return 0;
+    @Override
+    protected String sqlTableName() {
+        /**
+         * TODO: Implement as part of Module 3
+         * */
+        return "";
     }
 
-    public List<GreetingEvent> queryAllEvents() {
-        return null;
+    @Override
+    protected List<String> columns() {
+        /**
+         * TODO: Implement as part of Module 3
+         * */
+        return List.of();
+    }
+
+    @Override
+    protected String primaryKey() {
+        /**
+         * TODO: Implement as part of Module 3
+         * */
+        return "";
+    }
+
+    @Override
+    protected void bind(PreparedStatement ps, GreetingEvent event) {
+        /**
+         * TODO: Implement as part of Module 3
+         * */
     }
 }

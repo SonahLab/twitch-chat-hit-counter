@@ -170,15 +170,15 @@ twitch-chat-hit-counter:
 #
 
 ### Task 2: SQL `GreetingEvent` Writer
-In `GreetingSqlService.java`, implement `public int insert(GreetingEvent event)`. This method should write a single `GreetingEvent` into the SQL table we've set up.
+In `AbstractSqlService.java`, implement `public int insert(List<T> events)`. This method should write a list containing a single `GreetingEvent` into the SQL table we've set up.
 
 Return the number of successful event(s) written in the table (should be 0 or 1).
 
 **Requirements:**
-1. Events should be deduplicated.<br>
+1. Constructor should pass in the auto-configured [JdbcTemplate <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/spring-jdbc-jdbctemplate) that is used to handle the read/write IOs to SQL<br>
+2. Events should be deduplicated.<br>
    If an event with the same **event_id (PK)** already exists in the SQL table, we should ignore them.
-2. Constructor should pass in the table name define in `application.yml` from the previous task.
-3. Constructor should pass in the auto-configured [JdbcTemplate <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/spring-jdbc-jdbctemplate) that is used to handle the read/write IOs to SQL<br>
+3. SQL query should be templatized. Use the various abstract methods: `sqlTableName()`, `columns()`, `primaryKey()`, `bind()`.
 > [!NOTE]
 >
 > If you take a look at `application.yml`, I have already implemented the MySQL configs for you that our application will use to autoconfigure or **JdbcTemplate** @Bean with.
@@ -193,6 +193,19 @@ Return the number of successful event(s) written in the table (should be 0 or 1)
 > ON {SOME_FILTER}
 > ```
 
+#
+
+In `GreetingSqlService.java`, implement the constructor and the abstract methods inherited from the parent `AbstractSqlService.java` class.
+
+**Requirements:**
+1. Constructor should:
+   1. DI the JDBC bean and to the parent class
+   2. `greeting_events` SQL table name that was loaded from `application.yml`
+2. `sqlTableName()` should return the same `greeting_events` table name. It will be used in our SQL query as: {TABLE_NAME}.
+3. `columns()` should return a list of all the fields of our sql table. It will be used in our SQL query as: (field₁, ..., fieldₙ)
+4. `primaryKey()` should return the primary key field for our sql table. It will be used in our SQL query as: {SOME_FILTER}
+5. `bind()` should actually have logic to bind our `PreparedStatement` with the real fields of our current event. It will be used in our SQL query as: (?, ..., ?)
+
 ### Example 1:
 > **Input:**<br>
 > ```java
@@ -202,9 +215,9 @@ Return the number of successful event(s) written in the table (should be 0 or 1)
 > GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");
 > GreetingEvent event3 = new GreetingEvent("id1", "Echo", "Frank", "Hello there.");
 >
-> int output1 = greetingSqlService.insert(event1);
-> int output2 = greetingSqlService.insert(event2);
-> int output3 = greetingSqlService.insert(event3);
+> int output1 = greetingSqlService.insert(List.of(event1));
+> int output2 = greetingSqlService.insert(List.of(event2));
+> int output3 = greetingSqlService.insert(List.of(event3));
 > ```
 > **Output1**: 1<br>
 >
@@ -272,13 +285,13 @@ Here's all you need to know about [SQL Query <img src="assets/common/export.svg"
 > GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");
 > GreetingEvent event3 = new GreetingEvent("id1", "Echo", "Frank", "Hello there.");
 >
-> greetingSqlService.insert(event1);
+> greetingSqlService.insert(List.of(event1));
 > List<GreetingEvent> output1 = greetingSqlService.queryAllEvents();
 >
-> greetingSqlService.insert(event2);
+> greetingSqlService.insert(List.of(event2));
 > List<GreetingEvent> output2 = greetingSqlService.queryAllEvents();
 > 
-> greetingSqlService.insert(event3);
+> greetingSqlService.insert(List.of(event3));
 > List<GreetingEvent> output3 = greetingSqlService.queryAllEvents();
 > ```
 >

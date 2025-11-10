@@ -1,6 +1,8 @@
 package com.sonahlab.twitch_chat_hit_counter_course.redis;
 
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,10 +25,15 @@ import java.util.List;
  */
 @Service
 public class GreetingRedisService {
-    /**
-     * TODO: Implement as part of Module 4
-     * */
-    public GreetingRedisService() {}
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GreetingRedisService.class);
+
+    // Constructor
+    public GreetingRedisService() {
+        /**
+         * TODO: Implement as part of Module 4
+         * */
+    }
 
     public Long addGreetingToFeed(GreetingEvent event) {
         return null;

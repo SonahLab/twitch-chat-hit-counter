@@ -18,7 +18,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/kafka")
 @Tag(name = "Kafka API", description = "Backend API endpoints Kafka related actions")
 public class KafkaRestController {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaRestController.class);
+
+    // Constructor
+    public KafkaRestController() {
+        /**
+         * TODO: Implement as part of Module 2
+         * */
+    }
 
     /**
      * HTTP POST request handler for endpoint /api/kafka/publishGreetingEvent. Endpoint that will:

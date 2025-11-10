@@ -9,10 +9,12 @@ import org.springframework.stereotype.Service;
  * Service responsible for interacting with the Twitch Chat Bot API Client.
  */
 @Service
-public class TwitchChatService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TwitchChatService.class);
+public class TwitchChatBotManager {
 
-    public TwitchChatService() {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TwitchChatBotManager.class);
+
+    // Constructor
+    public TwitchChatBotManager() {
         /**
          * TODO: Implement as part of Module 5
          * */

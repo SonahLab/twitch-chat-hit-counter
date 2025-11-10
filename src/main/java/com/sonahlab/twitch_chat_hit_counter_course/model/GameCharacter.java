@@ -13,6 +13,7 @@ import java.util.Map;
  * This class will handle any state changes for the underlying HP, MP, and inventory fields.
  * */
 public class GameCharacter {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GameCharacter.class);
 
     /**
@@ -23,6 +24,7 @@ public class GameCharacter {
      * 2. Stat.MP (int): Character's mana points (between 0 and 100)
      * 3. Inventory (Map<Potion, Integer>): Character's inventory of Potion -> quantity count
      * */
+    // Constructor
     public GameCharacter() {
         // TODO:
         // 1. Define the underlying fields however you like

@@ -706,7 +706,7 @@ In `GreetingEventConsumer.java`, pass in the `EventDeduperRedisService.java` cla
 
 In `GreetingEventConsumer.processMessage(..)`, before we store a `GreetingEvent` into our SQL table, we will only process events that are not in our deduper Redis database (`db0`).
 
-**Application Flow:**
+**Consumer Process Flow:**
 1. Check Redis to see if the kafka message key is a duplicate
 2. If **isDupeEvent == True**:
     1. Do nothing (skip processing the event)

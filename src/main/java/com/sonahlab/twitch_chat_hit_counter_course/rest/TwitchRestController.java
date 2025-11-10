@@ -23,7 +23,15 @@ import java.util.Set;
 @RequestMapping("/api")
 @Tag(name = "Twitch Chat Hit Counter API", description = "Backend API endpoints needed to interact with our Frontend application")
 public class TwitchRestController {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitchRestController.class);
+
+    // Constructor
+    public TwitchRestController() {
+        /**
+         * TODO: Implement as part of Module 6
+         * */
+    }
 
     @GetMapping("/hitCounter")
     @Operation(summary = "Get chat counter of a streamer", description = "")

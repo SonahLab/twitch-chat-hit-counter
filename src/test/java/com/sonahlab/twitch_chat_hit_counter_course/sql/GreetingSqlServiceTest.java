@@ -69,9 +69,9 @@ public class GreetingSqlServiceTest {
         // This event is a duplicate, will be ignored by SQL
         GreetingEvent event3 = new GreetingEvent("id1", "Echo", "Frank", "Hello there.");
 
-        int insert1 = greetingSqlService.insert(event1);
-        int insert2 = greetingSqlService.insert(event2);
-        int insert3 = greetingSqlService.insert(event3);
+        int insert1 = greetingSqlService.insert(List.of(event1));
+        int insert2 = greetingSqlService.insert(List.of(event2));
+        int insert3 = greetingSqlService.insert(List.of(event3));
 
         assertEquals(1, insert1);
         assertEquals(1, insert2);
@@ -101,7 +101,7 @@ public class GreetingSqlServiceTest {
         // This event is a duplicate, will be ignored by SQL
         GreetingEvent event3 = new GreetingEvent("id1", "Echo", "Frank", "Hello there.");
 
-        int result = greetingSqlService.insertBatch(List.of(event1, event2, event3));
+        int result = greetingSqlService.insert(List.of(event1, event2, event3));
 
         assertEquals(2, result);
 
@@ -129,11 +129,11 @@ public class GreetingSqlServiceTest {
         // This event is a duplicate, will be ignored by SQL
         GreetingEvent event3 = new GreetingEvent("id1", "Echo", "Frank", "Hello there.");
 
-        greetingSqlService.insert(event1);
+        greetingSqlService.insert(List.of(event1));
         List<GreetingEvent> output1 = greetingSqlService.queryAllEvents();
-        greetingSqlService.insert(event2);
+        greetingSqlService.insert(List.of(event2));
         List<GreetingEvent> output2 = greetingSqlService.queryAllEvents();
-        greetingSqlService.insert(event3);
+        greetingSqlService.insert(List.of(event3));
         List<GreetingEvent> output3 = greetingSqlService.queryAllEvents();
 
         assertEquals(1, output1.size());

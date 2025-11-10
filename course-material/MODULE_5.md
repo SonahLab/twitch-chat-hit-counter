@@ -102,11 +102,38 @@ We will use everything we've learned up to this point to accomplish this.
 
 <br>
 
-## Create Kafka Topic
+## Create Kafka Topic: `twitch-chat-events`
+1. Navigate to the _**Clusters/twitch-chat-hit-counter/Topics**_ folder
+2. Click '+' to add a new kafka topic
+3. Input kafka topic configs:
+    1. **Topic name**: twitch-chat-events<br>
+    2. **Partition Count**: 3<br>
+    3. **Replica Count**: 1
+4. Select our kafka topic in **_Clusters/twitch-chat-hit-counter/Topics/twitch-chat-events_**
+5. Change the **Content Types** for the key and value from **'Byte Array'** → **'String'**, and save by clicking **Update**.
+
+![](assets/module2/create_topic.gif)<br>
 
 <br>
 
-## Create SQL Table
+## Create SQL Table: `dev_db.twitch_chat_events`
+1. Click on **Schemas** tab
+2. Navigate to **dev_db** → **Tables**
+3. In the **SQL Editor**, run:
+```
+CREATE TABLE dev_db.twitch_chat_events (
+    event_id VARCHAR(255) PRIMARY KEY,
+    message TEXT,
+    eventTs BIGINT,
+    user_id VARCHAR(255),
+    username VARCHAR(255),
+    channel_id VARCHAR(255),
+    channel_name VARCHAR(255),
+    subscription_months INT,
+    subscription_tier INT
+)
+```
+![](assets/module3/images/mysqlworkbench_create_table.gif)<br>
 
 <br>
 
@@ -149,10 +176,11 @@ This yaml file is already added in **.gitignore**, so your keys will not and sho
 
 <br>
 
-> [!TIP]
+> [!IMPORTANT]
 >
-> When integrating with 3P APIs there is always a bit of discovery work involved. Whether it's a publicly exposed API or a private API (direct B2B integration),
-> I always spend a good chunk of time understanding how to integrate with the API and what data/endpoints are available. The same learning process was required to understand Twitch API.
+> When integrating with 3P APIs there is _always_ a bit of discovery work involved. Whether it's a publicly exposed API or a private API (direct B2B integration),
+> I always spend a large amount of time understanding how to integrate with the API and what data/endpoints are available.
+> Best advice is to keep learning by doing and spending time struggling through blocks.
 
 ## Exercise 2: OAuth Tokens
 ![](assets/module5/images/oauth_lifecycle.svg)<br>
@@ -624,11 +652,26 @@ TODO Example of non successful call to /token so we skip overwrite
 ### Integration Testing
 - [ ] TODO
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <br>
 
 #
 
 ### Exercise 3: Twitch Chat Connection
+![](assets/module5/images/ChatOverview.svg)<br>
 Now that we have a working OAuth Token cache, we will be mostly focusing on the various Twitch API endpoints we want to integrate with.<br>
 It's important to see what products data is even supported publicly and reverse engineer what products you can build out of free data.<br>
 In small projects using public API data, you first look at the data available, see what product you can build from it.
@@ -644,13 +687,17 @@ Spend time reading through the Twitch Chat section.
 
 ### Task 1: Twitch4J Client
 #### Part 1
-In `TwitchChatService.java`, implement the `public TwitchChatService()` post-constructor. We will need to build Twitch4J's `TwitchClient` object that acts as the underlying client to all of Twitch API's endpoints.
+In `TwitchChatBotManager.java`, implement the `public void init()` post-constructor. We will need to build Twitch4J's `TwitchClient` object that acts as the proxy (client middleman) to all of Twitch API's endpoints.
 
 **Requirements:**
 1. Initialize the `TwitchClient` object with our Twitch API ClientId, Client Secret, and OAuth Token.
 2. Helix should be enabled
 3. Chat should be enabled
 4. Chat Account should be set using the OAuthCredentials
+   1. We should check Redis `db3` to see if our User Account has a token
+   2. If yes, validate this token to see that it hasn't expired.
+      1. If expired, refresh token and cache the refreshed token into Redis `db3`.
+   3. If no, create a token and cache it into Redis `db3`
 
 ```java
 TwitchClient twitchClient = TwitchClientBuilder.builder()
@@ -663,7 +710,7 @@ TwitchClient twitchClient = TwitchClientBuilder.builder()
 #
 
 #### Part 2
-In `TwitchChatService.java`, implement `public void joinChannel(String channelName)`. This method will allow our User account to join a Twitch stream by the `channelName`.
+In `TwitchChatBotManager.java`, implement `public void joinChannel(String channelName)`. This method will allow our User account to join a Twitch stream by the `channelName`.
 
 > [!IMPORTANT]
 > 
@@ -672,7 +719,7 @@ In `TwitchChatService.java`, implement `public void joinChannel(String channelNa
 #
 
 #### Part 3
-In `TwitchChatService.java`, implement `public boolean leaveChannel(String channelName)`. This method will allow our User account to leave a Twitch stream by the `channelName`.
+In `TwitchChatBotManager.java`, implement `public boolean leaveChannel(String channelName)`. This method will allow our User account to leave a Twitch stream by the `channelName`.
 
 Returns boolean on whether you successfully left the twitch channel (if User account was connected).
 
@@ -704,7 +751,7 @@ We will define our own POJO `TwitchChatEvent.java`, which is a simplified versio
 #
 
 #### Part 5
-In `TwitchChatService.java`, implement `public void handleMessage(ChannelMessageEvent channelMessageEvent)`.<br>
+In `TwitchChatBotManager.java`, implement `public void handleMessage(ChannelMessageEvent channelMessageEvent)`.<br>
 
 This method will be the main handler for the incoming real-time twitch chat messages. Twitch4J will pass in the `ChannelMessageEvent`.
 We will need to create an instance of the `TwitchChatEvent.java` from the passed in event.
@@ -712,15 +759,15 @@ All the required fields we defined in the schema for `TwitchChatEvent.java` are 
 
 Your goal is to simply, for now, log the simplified `TwitchChatEvent` to **stdout**.
 
-> [!TIP]
-> 
-> https://twitch4j.github.io/events/channel-message-event#write-chat-to-console
-> You can set up EventHandlers in the @PostConstructor method so our application can actually receive and process message events once we join a twitch channel.
+**Requirements:**
+1. In the `@PostConstructor init()` method, make sure to attach the `handleMessage()` method as the [Event Handler <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://twitch4j.github.io/events/channel-message-event#write-chat-to-console) for all incoming chat messages
+2. Convert the incoming `ChannelMessageEvent` → `TwitchChatEvent`
+3. Log `TwitchChatEvent` to _**stdout**_
 
 ### Example 1:
 > **Input**:<br>
 > ```java
-> TwitchChatService service = new TwitchChatService(...);
+> TwitchChatBotManager service = new TwitchChatBotManager(...);
 > service.handleMessage(channelMessageEvent);
 > ```
 > **stdout**:<br>
@@ -734,7 +781,18 @@ Your goal is to simply, for now, log the simplified `TwitchChatEvent` to **stdou
 
 
 
+
+
+
+
+
+
+
+<br>
+
 ### Exercise 4: Kafka
+![](assets/module5/images/KafkaOverview.svg)<br>
+
 > **Relevant Files:**
 > 
 > `application.yml`
@@ -746,14 +804,13 @@ Now that we can connect to Twitch chats successfully, we need to build a Kafka p
 This will look very similar to the end state we had in **Module 2** with the Producer/Consumer on the `greeting-events` kafka topic.<br>
 This exercise will be kept short and it's up to you to make your application achieve the end state in the diagram above.
 
-**Goals:**
-1. In **Offset Explorer 3**, create a new kafka topic named `twitch-chat-events` 
-2. Stream the incoming chat messages from channel(s) using Twitch4J's `TwitchClient`
-3. Publish `TwitchChatEvent` to `twitch-chat-events` topic
-4. Consume `TwitchChatEvent` from `twitch-chat-events` topic and log them to **stdout**
+**Goals:** 
+1. Stream the incoming chat messages from channel(s) using Twitch4J's `TwitchClient`
+2. Publish `TwitchChatEvent` to `twitch-chat-events` topic
+3. Consume `TwitchChatEvent` from `twitch-chat-events` topic and log them to **stdout**
 
 The main differences from **Module 2** is the producer trigger logic. In **Module 2**, we needed to manually trigger the `POST /api/kafka/publishGreetingEvent` endpoint via Swagger to invoke our Producer to publish event(s).
-In this exercise, our `TwitchChatService.handleMessage()` event handler method is the trigger for the `TwitchChatEventProducer.java`. Once we join a channel and attach the event listener,
+In this exercise, our `TwitchChatBotManager.handleMessage()` event handler method is the trigger for the `TwitchChatEventProducer.java`. Once we join a channel and attach the event listener,
 the TwitchClient will stream, in real-time, the incoming chat messages that we need to publish to `twitch-chat-events` topics. No more manual trigger, fully automated.
 
 ### Task 1: add new kafka topic name to `application.yml`
@@ -777,26 +834,20 @@ twitch-chat-hit-counter:
 ```
 
 ### Task 2: Producer
-In `TwitchChatEventProducer.java`, implement `public boolean publish(String messageId, TwitchChatEvent event)`. The method expects a `messageId` and a `GreetingEvent`, and writes a new message into the kafka topic.
-
-Return the boolean status of the kafka topic write operation.
-
-> [!TIP]
->
-> You will need to create a constructor for this `GreetingEventProducer` and Dependency Inject (DI) the KafkaTemplate @Bean in `KafkaConfig.java` to successfully write the event to our kafka topic.
->
-> Get familiar with the KafkaTemplate class source code ─ this class deals with the connection to a kafka topic and any IO operations to/from the topic. In the source code, you will find this helpful method: `kafkaTemplate.send(String topic, @Nullable V data)`.
+In `TwitchChatEventProducer.java`, fix the constructor and inject the topic name from `application.yml`.
+You'll notice that our initial implementation of `AbstractEventProducer.publish()` from **Module 2** takes care of writing events to a generic topic.
+This is where our abstract class pays dividends. We don't need to repeat code and can leverage implementing the main logic in one parent class, and all it's children will benefit.
 
 ### Example 1:
 > **Input**:<br>
 > ```java
-> GreetingEventProducer producer = new GreetingEventProducer(...);
+> TwitchChatEventProducer producer = new TwitchChatEventProducer(...);
 > String eventId = "UUID1";
-> GreetingEvent event = new GreetingEvent(eventId, "Alice", "Bob", "Hi Bob, I'm Alice!");
+> TwitchChatEvent event = new TwitchChatEvent(eventId, "Alice", "Bob", "Hi Bob, I'm Alice!");
 > boolean output1 = producer.publish(eventId, event);
 > 
 > String eventId2 = "UUID2";
-> GreetingEvent event2 = new GreetingEvent(eventId2, "Charlie", "David", "Yo.");
+> TwitchChatEvent event2 = new TwitchChatEvent(eventId2, "Charlie", "David", "Yo.");
 > boolean output2 = producer.publish(eventId2, event2);
 > ```
 > **Output1**: <span style="color:#0000008c">true<br></span>
@@ -805,45 +856,129 @@ Return the boolean status of the kafka topic write operation.
 #
 
 ### Testing
-- [ ] Open `GreetingEventProducerTest.java` ─ already implemented test cases with the example(s) above.
-- [ ] Remove `@Disabled` in `GreetingEventProducerTest.java`
+- [ ] Open `TwitchChatEventProducer.java` ─ already implemented test cases with the example(s) above.
+- [ ] Remove `@Disabled` in `TwitchChatEventProducer.java`
 - [ ] Test with:
 ```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module5`
 ```
+
+<br>
+
+#
+
+### Task 3: Consumer
+
+<br>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 <br>
 
 ### Exercise 5: SQL
+![](assets/module5/images/SqlOverview.svg)<br>
 Now that we are able to stream Twitch chat events and pub/sub events through our new kafka topic, we need to write the `TwitchChatEvent` to a new separate SQL table.
 
 This will look very similar to the end state we had in **Module 3**. This exercise description will be kept short and it's up to you to make your application achieve the end state in the diagram above.
 
 **Goals:**
 1. In **MySQLWorkbench**, create a new SQL table named `twitch_chat_events`
-2. Have `TwitchChatEventConsumer.java` write the `TwitchChatEvent` to this SQL table
+2. Have `TwitchChatEventConsumer.java` write the `TwitchChatEvent` to the new SQL table
+3. Implement `TwitchChatSqlService.java` - should look very similar in terms of layout to `GreetingSqlService.java`
+
+### Example 1:
+> ```java
+> TwitchChatSqlService service = new TwitchChatSqlService(...);
+> 
+> TwitchChat event1 = new TwitchChat("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
+> TwitchChat event2 = new TwitchChat("id2", "Charlie", "David", "Yo.");
+> TwitchChat event3 = new TwitchChat("id1", "Echo", "Frank", "Hello there.");
+>
+> int output1 = greetingSqlService.insert(List.of(event1));
+> int output2 = greetingSqlService.insert(List.of(event2));
+> int output3 = greetingSqlService.insert(List.of(event3));
+> ```
+> **Output1**: 1<br>
+>
+> **Output2**: 1<br>
+>
+> **Output3**: 0<br>
+> **Explanation**: event3.eventId() == "id1" already exists in the table<br>
 
 ### Testing
 
 ### Integration Testing
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <br>
 
 ### Exercise 6: Redis Hit Counter
-This will look very similar to the end state we had in **Module 4**. This exercise description will be kept short and it's up to you to make your application achieve the end state in the diagram above.
-
+![](assets/module5/images/RedisOverview.svg)<br>
 **Goals:**
 1. Deduplicate `TwitchChatEvent` so we don't process duplicates using the same `db0` we already have
 2. Aggregate chat message count at the minutely grain in a new Redis `db4`
 
 > [!TIP]
-> 
+>
 > In Module 4, we built Redis `db1` to be the Greetings New Feed Database. Since we will be building a Twitch Chat Hit Counter our `db4` will look a little different.
-> 
+>
 > In `db4`, this will be our schema:
 > Key (String): `"{channelName}#{minuteBoundaryInMillis}"`
 > Value (Long): # of chat messages that fall into the minute bucket (rounded down the nearest minute bucket)
+
+
+
+
+
+### Task 1: Hook up `TwitchChatEventConsumer` to the `EventDeduperRedisService`
+![](assets/module5/images/RedisDeduperOverview.svg)<br>
+In `TwitchChatEventConsumer.java`, update `TODO()` to now increment the hit count for the channel.
+
+**Consumer Process Flow:**
+1. Check Redis to see if the kafka message key is a duplicate
+2. If **isDupeEvent == True**:
+    1. Do nothing (skip processing the event)
+3. If **isDupeEvent == False**:
+    1. Write the event to SQL
+    2. Update the Redis DB to add the event's key, so that we can skip this event from being processed if we ever see an event with the same key again.
+
+### Testing
+TODO?
+
+<br>
+
+### Task 2: TwitchChatRedisService
+![](assets/module5/images/RedisAggOverview.svg)<br>
+In `TwitchChatRedisService.java`, implement `public Long incrementMinuteHitCounter(String channelName, long eventTimestampMs)`.
+
+Return the updated count after we increment the key.
+
+If you notice the key template: `"{channelName}#{minuteBoundaryInMillis}"`, you will need to figure out how to mathematically
+round the raw event ts to the nearest minute timestamp. Look at the example below for an explanation.
 
 ### Example 1:
 > **Input**:<br>
@@ -859,22 +994,77 @@ This will look very similar to the end state we had in **Module 4**. This exerci
 > Map<String, String> output3 = service.getHitCount("s0mcs");
 > ```
 > **Output1**: 1<br>
-> **Explanation**: Count should be incremented to {"s0mcs#1767254400000": 1}
+> **Explanation**: After we increment the hit count for s0mcs's channel with the timestamp at 1767254439000, the minutely "bucket" it gets rounded down to is 1767254400000. Then it increments that key value.<br>
+> ```json
+> {
+>   "s0mcs#1767254400000": 1
+> }
+> ```
 > 
 > **Output2**: 2<br>
-> **Explanation**: Count should be incremented to {"s0mcs#1767254400000": 2}
->
-> **Output3**:<br>
+> **Explanation**: After we increment the hit count for s0mcs's channel with the timestamp at 1767254445000, the minutely "bucket" it gets rounded down to is 1767254400000. Then it increments that key value.<br>
 > ```json
 > {
 >   "s0mcs#1767254400000": 2
 > }
 > ```
-> **Explanation**:<br>
-> After we increment the hit count for s0mcs's channel with the timestamp at 1767254439000, the timestamp bucket gets rounded down to the nearest minute boundary timestamp.<br>
-> After we increment the hit count for s0mcs's channel with the timestamp at 1767254445000, the timestamp bucket gets rounded down to the nearest minute boundary timestamp.<br>
-> When we fetch the hit count for s0mcs's channel, we will see we have only one key at key="s0mcs#1767254400000"
 
 ### Testing
 
-### Integration Testing
+#
+
+In `TwitchChatRedisService.java`, implement `public Map<String, String> getHitCounts(String channelName)`.
+
+Return a Map<String, String> of **ALL** minutely bucket hit counts for a specified channelName by utilizing the `RedisDao.scanKeys()`.
+
+### Example 1:
+> **Input**:<br>
+> ```java
+> RedisDao redisDao = new RedisDao(...);
+> TwitchChatRedisService service = new TwitchChatRedisService(redisDao);
+> 
+> long eventTs1 = 1767254439000; // Thu Jan 01 2026 08:00:39 GMT+0000
+> long eventTs2 = 1767254445000; // Thu Jan 01 2026 08:00:45 GMT+0000
+> long eventTs3 = 1767254545000; // Thu Jan 01 2026 08:02:25 GMT+0000
+>
+> service.incrementMinuteHitCounter("s0mcs", eventTs1);
+> service.incrementMinuteHitCounter("s0mcs", eventTs2);
+> service.incrementMinuteHitCounter("s0mcs", eventTs3);
+> Map<String, String> output3 = service.getHitCount("s0mcs");
+> ```
+> **Output1**: 1<br>
+> ```json
+> {
+>   "s0mcs#1767254400000": 2,
+>   "s0mcs#1767254520000": 1
+> }
+> ```
+> **Explanation**:<br>
+> eventTs1 = `1767254439000` (2026-01-01 08:**00:39** UTC) → `1767254400000` (2026-01-01 08:**00:00** UTC)<br>
+> eventTs2 = `1767254445000` (2026-01-01 08:**00:45** UTC) → `1767254400000` (2026-01-01 08:**00:00** UTC)<br>
+> eventTs3 = `1767254545000` (2026-01-01 08:**02:25** UTC) → `1767254520000` (2026-01-01 08:**02:00** UTC)<br>
+
+### Testing
+
+<br>
+
+#
+
+### Task 3: Hook up `TwitchChatEventConsumer` to the `TwitchChatRedisService`
+In `TwitchChatEventConsumer.java`, update `TODO()` to now increment the hit count for the channel.
+
+**Consumer Process Flow:**
+1. Check Redis to see if the kafka message key is a duplicate
+2. If **isDupeEvent == True**:
+    1. Do nothing (skip processing the event)
+3. If **isDupeEvent == False**:
+    1. Write the event to SQL
+    2. **(NEW)** Increment the channel's hit count by 1
+    3. Update the Redis DB to add the event's key, so that we can skip this event from being processed if we ever see an event with the same key again.
+
+### Testing
+TODO?
+
+<br>
+
+#

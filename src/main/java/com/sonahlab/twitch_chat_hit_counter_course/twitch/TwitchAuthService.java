@@ -31,7 +31,15 @@ import java.util.Map;
  */
 @Service
 public class TwitchAuthService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitchAuthService.class);
+
+    // Constructor
+    public TwitchAuthService() {
+        /**
+         * TODO: Implement as part of Module 5
+         * */
+    }
 
     /**
      * <p>This method is called from your {@code /oauth2/authorize} endpoint via Swagger, it will return the filled in

@@ -22,7 +22,15 @@ import java.util.List;
 @RequestMapping("/api/redis")
 @Tag(name = "Redis API", description = "Backend API endpoints Redis related actions")
 public class RedisRestController {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RedisRestController.class);
+
+    // Constructor
+    public RedisRestController() {
+        /**
+         * TODO: Implement as part of Module 4
+         * */
+    }
 
     /**
      * HTTP GET request handler for endpoint /api/redis/queryGreetingFeed.

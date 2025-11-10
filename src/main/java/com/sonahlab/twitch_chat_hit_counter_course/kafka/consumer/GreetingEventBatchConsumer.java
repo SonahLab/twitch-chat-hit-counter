@@ -1,5 +1,7 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 
+import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
+import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,11 +18,43 @@ import java.util.List;
  * - Spring Boot Kafka (https://www.baeldung.com/spring-kafka)
  */
 @Component
-public class GreetingEventBatchConsumer {
+public class GreetingEventBatchConsumer extends AbstractEventConsumer<GreetingEvent> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GreetingEventBatchConsumer.class);
 
-    /**
-     * TODO: Implement as part of Module 2
-     * */
-    public void processMessage(List<ConsumerRecord<String, byte[]>> records, Acknowledgment ack) {}
+    // Constructor
+    public GreetingEventBatchConsumer() {
+        /**
+         * TODO: Implement as part of Module 2
+         * */
+    }
+
+    @Override
+    protected EventType eventType() {
+        /**
+         * TODO: Implement as part of Module 2
+         * */
+        return null;
+    }
+
+    @Override
+    protected Class<GreetingEvent> eventClass() {
+        /**
+         * TODO: Implement as part of Module 2
+         * */
+        return null;
+    }
+
+    @Override
+    protected void coreLogic() {
+        /**
+         * TODO: Implement as part of Module 2
+         * */
+    }
+
+    public void processMessage(List<ConsumerRecord<String, byte[]>> records, Acknowledgment ack) {
+        /**
+         * TODO: Implement as part of Module 2
+         * */
+    }
 }

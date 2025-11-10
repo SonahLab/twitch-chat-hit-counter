@@ -14,9 +14,10 @@ import java.util.Map;
 @RestController
 @Tag(name = "Twitch API", description = "Backend API endpoints that act as proxy to various Twitch API endpoints")
 public class OAuthRestController {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuthRestController.class);
 
-
+    // Constructor
     public OAuthRestController() {
         /**
          * TODO: Implement as part of Module 5

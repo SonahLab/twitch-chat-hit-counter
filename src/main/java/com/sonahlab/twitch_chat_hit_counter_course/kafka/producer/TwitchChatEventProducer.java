@@ -13,19 +13,23 @@ import org.springframework.stereotype.Component;
  * - Spring Boot Kafka (https://www.baeldung.com/spring-kafka)
  */
 @Component
-public class TwitchChatEventProducer {
+public class TwitchChatEventProducer extends AbstractEventProducer<TwitchChatEvent> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitchChatEventProducer.class);
 
+    // Constructor
     public TwitchChatEventProducer() {
         /**
          * TODO: Implement as part of Module 5
          * */
+        super();
     }
 
-    public boolean publish(String messageId, TwitchChatEvent event) {
+    @Override
+    protected String topicName() {
         /**
          * TODO: Implement as part of Module 5
          * */
-        return false;
+        return null;
     }
 }

@@ -1,6 +1,12 @@
 package com.sonahlab.twitch_chat_hit_counter_course.sql;
 
+import com.sonahlab.twitch_chat_hit_counter_course.model.TwitchChatEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.sql.PreparedStatement;
+import java.util.List;
 
 /**
  * Service layer for interacting with SQL databases to handle TwitchChatEvent data.
@@ -9,8 +15,45 @@ import org.springframework.stereotype.Service;
  * - https://docs.spring.io/spring-boot/reference/data/sql.html
  */
 @Service
-public class TwitchChatSqlService {
-    /**
-     * TODO: Implement as part of Module 5
-     * */
+public class TwitchChatSqlService extends AbstractSqlService<TwitchChatEvent> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TwitchChatSqlService.class);
+
+    // Constructor
+    public TwitchChatSqlService() {
+        /**
+         * TODO: Implement as part of Module 5
+         * */
+    }
+
+    @Override
+    protected String sqlTableName() {
+        /**
+         * TODO: Implement as part of Module 5
+         * */
+        return "";
+    }
+
+    @Override
+    protected List<String> columns() {
+        /**
+         * TODO: Implement as part of Module 5
+         * */
+        return List.of();
+    }
+
+    @Override
+    protected String primaryKey() {
+        /**
+         * TODO: Implement as part of Module 5
+         * */
+        return "";
+    }
+
+    @Override
+    protected void bind(PreparedStatement ps, TwitchChatEvent event) {
+        /**
+         * TODO: Implement as part of Module 5
+         * */
+    }
 }

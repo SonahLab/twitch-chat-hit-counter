@@ -12,16 +12,26 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class EventDeduperRedisService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(EventDeduperRedisService.class);
 
-    /**
-     * TODO: Implement as part of Module 4
-     * */
-    public EventDeduperRedisService() {}
+    // Constructor
+    public EventDeduperRedisService() {
+        /**
+         * TODO: Implement as part of Module 4
+         * */
+    }
 
-    public void processEvent(EventType eventType, String eventId) {}
+    public void processEvent(EventType eventType, String eventId) {
+        /**
+         * TODO: Implement as part of Module 4
+         * */
+    }
 
     public boolean isDupeEvent(EventType eventType, String eventId) {
+        /**
+         * TODO: Implement as part of Module 4
+         * */
         return true;
     }
 }

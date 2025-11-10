@@ -13,19 +13,23 @@ import org.springframework.stereotype.Component;
  * - Spring Boot Kafka (https://www.baeldung.com/spring-kafka)
  */
 @Component
-public class GreetingEventProducer {
+public class GreetingEventProducer extends AbstractEventProducer<GreetingEvent> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GreetingEventProducer.class);
 
+    // Constructor
     public GreetingEventProducer() {
         /**
          * TODO: Implement as part of Module 2
          * */
+        super();
     }
 
-    public boolean publish(String messageId, GreetingEvent event) {
+    @Override
+    protected String topicName() {
         /**
          * TODO: Implement as part of Module 2
          * */
-        return false;
+        return null;
     }
 }

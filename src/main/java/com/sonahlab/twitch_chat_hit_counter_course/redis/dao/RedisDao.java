@@ -20,62 +20,96 @@ import java.util.Set;
  * - https://www.baeldung.com/spring-data-redis-tutorial
  */
 public class RedisDao {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RedisDao.class);
 
-    /**
-     * TODO: Implement as part of Module 4
-     * */
-    public RedisDao(RedisTemplate<String, String> redisTemplate) {}
+    // Constructor
+    public RedisDao(RedisTemplate<String, String> redisTemplate) {
+        /**
+         * TODO: Implement as part of Module 4
+         * */
+    }
 
     /** VALUE OPERATIONS */
     // INCR: https://redis.io/docs/latest/commands/incr/
     public Long increment(String key) {
+        /**
+         * TODO: Implement as part of Module 4
+         * */
         return null;
     }
 
     // INCRBY: https://redis.io/docs/latest/commands/incrby/
     public Long incrementBy(String key, long delta) {
+        /**
+         * TODO: Implement as part of Module 4
+         * */
         return null;
     }
 
     // SET: https://redis.io/docs/latest/commands/set/
-    public void set(String key, String value) {}
+    public void set(String key, String value) {
+        /**
+         * TODO: Implement as part of Module 4
+         * */
+    }
 
     // GET: https://redis.io/docs/latest/commands/get/
     public String get(String key) {
+        /**
+         * TODO: Implement as part of Module 4
+         * */
         return null;
     }
 
     /** LIST OPERATIONS */
     // LPUSH: https://redis.io/docs/latest/commands/lpush/
     public Long listAdd(String key, String... values) {
+        /**
+         * TODO: Implement as part of Module 4
+         * */
         return null;
     }
 
     // LRANGE: https://redis.io/docs/latest/commands/lrange/
     public List<String> listGet(String key) {
+        /**
+         * TODO: Implement as part of Module 4
+         * */
         return null;
     }
 
     /** SET OPERATIONS */
     // SADD: https://redis.io/docs/latest/commands/sadd/
     public Long setAdd(String key, String... values) {
+        /**
+         * TODO: Implement as part of Module 4
+         * */
         return null;
     }
 
     // SREM: https://redis.io/docs/latest/commands/srem/
     public Long setRemove(String key, String... values) {
+        /**
+         * TODO: Implement as part of Module 4
+         * */
         return null;
     }
 
     // SMEMBERS: https://redis.io/docs/latest/commands/smembers/
     public Set<String> getSetMembers(String key) {
+        /**
+         * TODO: Implement as part of Module 4
+         * */
         return null;
     }
 
     /** KEY OPERATIONS */
     // KEYS: https://redis.io/docs/latest/commands/keys/
     public Map<String, String> scanKeys(String prefix) {
+        /**
+         * TODO: Implement as part of Module 4
+         * */
         return null;
     }
 }

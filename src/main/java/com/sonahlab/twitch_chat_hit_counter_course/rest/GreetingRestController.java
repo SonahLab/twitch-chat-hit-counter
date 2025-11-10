@@ -22,7 +22,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/greeting")
 @Tag(name = "Greeting API", description = "Backend API endpoints for basic Greeting HTTP requests")
 public class GreetingRestController {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GreetingRestController.class);
+
+    // Constructor
+    public GreetingRestController() {
+        /**
+         * TODO: Implement as part of Module 1
+         * */
+    }
 
     /**
      * HTTP GET request handler for endpoint /api/greeting/hello. Endpoint that will receive an input name and

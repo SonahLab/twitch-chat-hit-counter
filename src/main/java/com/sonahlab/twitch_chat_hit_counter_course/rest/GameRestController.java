@@ -23,7 +23,15 @@ import java.util.Map;
 @RequestMapping("/api/fantasyGame")
 @Tag(name = "Character API", description = "Backend API endpoints for managing character state")
 public class GameRestController {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GameRestController.class);
+
+    // Constructor
+    public GameRestController() {
+        /**
+         * TODO: Implement as part of Module 1
+         * */
+    }
 
     /**
      * Handles an HTTP PUT request to the endpoint /api/fantasyGame/takeDamage. This endpoint reduces the character's

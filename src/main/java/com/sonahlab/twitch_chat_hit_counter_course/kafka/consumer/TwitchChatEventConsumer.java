@@ -1,6 +1,9 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 
 
+import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
+import com.sonahlab.twitch_chat_hit_counter_course.model.TwitchChatEvent;
+import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -13,10 +16,37 @@ import org.springframework.stereotype.Component;
  * - Spring Boot Kafka (https://www.baeldung.com/spring-kafka)
  */
 @Component
-public class TwitchChatEventConsumer {
+public class TwitchChatEventConsumer extends AbstractEventConsumer<TwitchChatEvent> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitchChatEventConsumer.class);
 
-    /**
-     * TODO: Implement as part of Module 5
-     * */
+    // Constructor
+    public TwitchChatEventConsumer() {
+        /**
+         * TODO: Implement as part of Module 5
+         * */
+    }
+
+    @Override
+    protected EventType eventType() {
+        /**
+         * TODO: Implement as part of Module 5
+         * */
+        return null;
+    }
+
+    @Override
+    protected Class<TwitchChatEvent> eventClass() {
+        /**
+         * TODO: Implement as part of Module 5
+         * */
+        return null;
+    }
+
+    @Override
+    protected void coreLogic() {
+        /**
+         * TODO: Implement as part of Module 5
+         * */
+    }
 }

@@ -22,7 +22,15 @@ import java.util.List;
 @RequestMapping("/api/sql")
 @Tag(name = "SQL API", description = "Backend API endpoints for SQL related actions")
 public class SqlRestController {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SqlRestController.class);
+
+    // Constructor
+    public SqlRestController() {
+        /**
+         * TODO: Implement as part of Module 3
+         * */
+    }
 
     /**
      * HTTP GET request handler for endpoint /api/sql/queryGreetingEventsFromSQL. Endpoint that will:

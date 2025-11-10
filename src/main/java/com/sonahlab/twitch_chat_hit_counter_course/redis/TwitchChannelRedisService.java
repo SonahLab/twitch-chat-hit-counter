@@ -2,25 +2,18 @@ package com.sonahlab.twitch_chat_hit_counter_course.redis;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 
-import java.util.Map;
 import java.util.Set;
 
-public class TwitchRedisService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TwitchRedisService.class);
+public class TwitchChannelRedisService {
 
-    public Long incrementMinuteHitCounter(String channelName, long timestampMs) {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TwitchChannelRedisService.class);
+
+    public TwitchChannelRedisService(RedisTemplate<String, String> redisTemplate) {
         /**
          * TODO: Implement as part of Module 5
          * */
-        return null;
-    }
-
-    public Map<String, String> getHitCounter(String channelName, long timestampMs) {
-        /**
-         * TODO: Implement as part of Module 5
-         * */
-        return null;
     }
 
     /**

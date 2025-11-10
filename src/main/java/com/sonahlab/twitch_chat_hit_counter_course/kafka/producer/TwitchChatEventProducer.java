@@ -1,5 +1,6 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.producer;
 
+import com.sonahlab.twitch_chat_hit_counter_course.model.TwitchChatEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -15,7 +16,16 @@ import org.springframework.stereotype.Component;
 public class TwitchChatEventProducer {
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitchChatEventProducer.class);
 
-    /**
-     * TODO: Implement as part of Module 5
-     * */
+    public TwitchChatEventProducer() {
+        /**
+         * TODO: Implement as part of Module 5
+         * */
+    }
+
+    public boolean publish(String messageId, TwitchChatEvent event) {
+        /**
+         * TODO: Implement as part of Module 5
+         * */
+        return false;
+    }
 }

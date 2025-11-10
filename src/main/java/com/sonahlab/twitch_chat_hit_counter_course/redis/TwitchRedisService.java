@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Set;
 
-public class OAuthRedisService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OAuthRedisService.class);
+public class TwitchRedisService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TwitchRedisService.class);
 
     public Long incrementMinuteHitCounter(String channelName, long timestampMs) {
         /**
@@ -24,7 +24,7 @@ public class OAuthRedisService {
     }
 
     /**
-     * Fetches the liste of twitch channel names that we're listening to twitch chat logs on.
+     * Fetches the list of twitch channel names that we're listening to twitch chat logs on.
      * */
     public Set<String> getJoinedChannels(String username) {
         /**

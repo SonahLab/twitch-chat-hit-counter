@@ -5,11 +5,14 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
 
 import java.net.URI;
 
+@SpringBootTest
 public class TwitchAuthServiceTest {
+
     @Autowired
     private TwitchAuthService service;
 
@@ -30,7 +33,7 @@ public class TwitchAuthServiceTest {
 
         String query = uri.getQuery();
         Assertions.assertTrue(query.contains("response_type=code"));
-        Assertions.assertTrue(query.contains("client_id=" + environment.getProperty("twitch.client-id")));
+        Assertions.assertTrue(query.contains("client_id=" + environment.getProperty("twitch-api.client-id")));
         Assertions.assertTrue(query.contains("redirect_uri=http://localhost:8080/oauth2/callback"));
         Assertions.assertTrue(query.contains("scope=chat:read"));
         Assertions.assertTrue(query.contains("state="));

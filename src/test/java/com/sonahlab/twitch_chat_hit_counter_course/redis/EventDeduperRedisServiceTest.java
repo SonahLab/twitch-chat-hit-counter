@@ -101,7 +101,7 @@ public class EventDeduperRedisServiceTest {
     @Disabled
     void processEventTest() {
         eventDeduperRedisService.processEvent(EventType.GREETING_EVENT, "id1");
-        assertEquals(1L, redisDao.get("GREETING_EVENT#id1").longValue());
+        assertEquals(1L, Long.valueOf(redisDao.get("GREETING_EVENT#id1")));
     }
 
     @Test

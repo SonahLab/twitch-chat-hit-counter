@@ -16,10 +16,16 @@ import org.springframework.stereotype.Component;
 public class GreetingEventProducer {
     private static final Logger LOGGER = LoggerFactory.getLogger(GreetingEventProducer.class);
 
-    /**
-     * TODO: Implement as part of Module 2
-     * */
+    public GreetingEventProducer() {
+        /**
+         * TODO: Implement as part of Module 2
+         * */
+    }
+
     public boolean publish(String messageId, GreetingEvent event) {
+        /**
+         * TODO: Implement as part of Module 2
+         * */
         return false;
     }
 }

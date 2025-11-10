@@ -1,8 +1,11 @@
 package com.sonahlab.twitch_chat_hit_counter_course.twitch;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 /**
  * Manages the lifecycle of Twitch OAuth2 access tokens for the chat hit counter application.
@@ -92,7 +95,7 @@ public class TwitchAuthService {
      * @see <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#authorization-code-grant-flow">
      *      Twitch Authorization Code Grant Flow</a>
      */
-    public String createOAuthToken(String authorizationCode) {
+    public Map<String, Object> createOAuthToken(String authorizationCode) throws JsonProcessingException {
         /**
          * TODO: Implement in Module 5
          * */
@@ -188,6 +191,6 @@ public class TwitchAuthService {
         /**
          * TODO: Implement in Module 5
          * */
-        throw new UnsupportedOperationException("Not implemented");
+        return false;
     }
 }

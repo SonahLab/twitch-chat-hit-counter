@@ -10,6 +10,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
+@Tag("Module5")
+// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5
+@Disabled
 public class TwitchConfigTest {
 
     @Autowired
@@ -19,9 +22,6 @@ public class TwitchConfigTest {
     private String twitchClientSecret;
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5
-    @Disabled
-    @Tag("Module5")
     public void testTwitchClientKeys() {
         assertTrue(StringUtils.isNotBlank(twitchClientId));
         assertTrue(StringUtils.isNotBlank(twitchClientSecret));

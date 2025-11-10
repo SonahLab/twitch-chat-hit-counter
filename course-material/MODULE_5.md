@@ -409,14 +409,8 @@ Return the String representation of a Map<String, String> payload from creating 
 > TwitchAuthService twitchAuthService = new TwitchAuthService(...);
 > String output = twitchAuthService.createOAuthToken("invalid_access_token123");
 > ```
-> **Output:**<br>
-> ```json
-> {
->   TODO with the invalid auth code (expired)
-> }
-> ```
+> **Output:** Exception is thrown<br>
 > **Explanation**: `createOAuthToken()` fails to exchange the invalid **authorization code** for a valid `access_token`.
-
 
 ### Testing
 - [ ] Open `TwitchAuthServiceTest.java` ─ already implemented to test the example(s) above.
@@ -425,8 +419,6 @@ Return the String representation of a Map<String, String> payload from creating 
 ```shell
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
 ```
-
-# TODO need to actually play around with /token to see what happens
 
 #
 
@@ -453,29 +445,16 @@ In `OAuthRestController.java`, implement `public Map<String, String> handleToken
     - the **same** `state` that was filled into the authorize URL from `GET /oauth2/authorize`
     - the **same** `scope` of "chat:read" that was filled into the authorize URL from `GET /oauth2/authorize`
     - the response from issuing the `POST /oauth2/token` HTTP request
-- [ ] Open up `http://localhost:8080/oauth2/token` in a new browser tab, you should see the returned value of your `createOAuthToken()`
-
-#
-
-### Integration Testing
-- [ ] Run the application:
-```shell
-./gradlew bootRun
-```
-- [ ] Kick off the authorization by accessing your browser and going to:
-  `https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={client_id}&redirect_uri=http://localhost:8080/oauth2/callback&scope=chat:read`
-- [ ] Twitch should call this endpoint logic and display the `Map<String, String>` we returned
-- [ ] You should see in your application logs the Token that Twitch created for our application to use
 
 <br>
 
 #
 
 ### Task 3: OAuth Refresh Token API
-When your Auth Token expires, we will need to refresh our auth token. Tokens have a TTL (Time To Live) of 14193 seconds, or ~4 hours.<br>
-To access parts of the API we usually pass in our temporary `access_token`, but when that temporary token expires we need to refresh.
-This is done by issuing a call to Twitch's servers `https://id.twitch.tv/oauth2/token` endpoint with the `refresh_token`, in order to
-fetch a new temporary `access_token`.
+When your Auth Token expires, we will need to refresh our auth token. Tokens have a TTL (Time To Live) specified when a token is minted.<br>
+To access Twitch API we usually pass in our temporary `access_token`, but when that temporary token expires we need to ask Twitch to give us a new "key". 
+What a Key is to a treasure chest, is what a token is to the Twitch API. Except we need a new token everytime it expires.
+This is done by issuing a request to `https://id.twitch.tv/oauth2/token` with the `refresh_token`.
 
 In `TwitchAuthManager.java`, implement `public String refreshOAuthToken(String refreshToken)`.
 
@@ -490,9 +469,25 @@ Return the String representation of a Map<String, String> payload from refreshin
 > **Output**:<br>
 > ```json
 > {
->   TODO
+>   "access_token": "newAccessToken123",
+>   "expires_in": 14124,
+>   "refresh_token": "5b93chm6hdve3mycz05zfzatkfdenfspp1h1ar2xxdalen01",
+>   "scope": [
+>     "chat:read"
+>   ],
+>   "token_type": "bearer"
 > }
 > ```
+> **Explanation**: When we refresh a token using the `refresh_token` you will notice the `refresh_token`, `scope`, and `token_type` don't change on refresh. The only fields that do change are the new "key", a.k.a the `access_token`, and the `expires_in` field which
+> is the updated TTL for this new key.
+
+### Example 2:
+> **Input**:<br>
+> ```java
+> TwitchAuthManager twitchAuthManager = new TwitchAuthManager(...);
+> String output = twitchAuthManager.refreshOAuthToken("invalid_refresh_token123");
+> ```
+> **Output**:Exception is thrown.<br>
 
 #
 
@@ -547,18 +542,18 @@ Also log Twitch's entire HTTP response.
 
 ### Task 5: Token Redis DB
 Now that we have the ability to (1) create, (2) refresh, and (3) validate a token, we want to store the User token in Redis.<br>
-We need a persistent way of caching a User's latest User Token, so that we can create the token once and then refresh as needed upon expiration.<br>
+We need a persistent way of caching a User's latest token, so that we can create the token once and then refresh as needed upon expiration.<br>
 If we never store the User Token, we would need to follow the `/authorize` login flow everytime our application starts up.
 
 In `OAuthRedisService.java`, implement:
-1. `updateLatestToken(String username, String tokenResponse)` to set the token passed back by Twitch stored at a key
-2. `getLatestToken(String username)` to fetch the latest token stored at a key.
+1. `updateLatestToken(String username, String tokenResponse)` to set the token passed back by Twitch as a `OAuth2Credential` object represented as a String stored at a key
+2. `getLatestToken(String username)` to fetch the latest OAuth2Credential token stored at a key.
 
 **Requirements:**
 1. Create a new Spring property for `twitch-chat-hit-counter.redis.oauth-token-database: 3`
 2. Create the beans needed to communicate with `db3` in `RedisConfigs.java`
 3. Key template: `"twitch#oauth#{userId}"`
-4. Value should be a JSON String of a Map<String, String> of the token metadata response passed back from Twitch's `/oauth2/token` endpoint
+4. Value should be a JSON String of a `OAuth2Credential.java` object w/ the token metadata response passed back from Twitch's `/oauth2/token` endpoint
 
 > [!NOTE]
 >
@@ -568,7 +563,7 @@ In `OAuthRedisService.java`, implement:
 ### Example 1:
 > ```java
 > OAuthRedisService oAuthRedisService = new OAuthRedisService(...);
-> String output1 = oAuthRedisService.getLatestToken("Alice");
+> OAuth2Credential output1 = oAuthRedisService.getLatestToken("Alice");
 >
 > // Assume we called POST https://id.twitch.tv/oauth2/token
 > String tokenResponse = """
@@ -584,12 +579,12 @@ In `OAuthRedisService.java`, implement:
 >         """;
 > oAuthRedisService.updateLatestToken("Alice", tokenResponse);
 >
-> String output2 = oAuthRedisService.getLatestToken("Alice");
+> OAuth2Credential output2 = oAuthRedisService.getLatestToken("Alice");
 > ```
-> **Output1**:""<br>
+> **Output1**:null<br>
 > **Explanation**: Alice doesn't have a token yet cached in Redis
 >
-> **Output2**:<br>
+> **Output2**:TODO<br>
 > ```json
 > {
 >   "access_token": "1ssjqsqfy6bads1ws7m03gras79zfr",
@@ -604,9 +599,9 @@ In `OAuthRedisService.java`, implement:
 > **Explanation**: Alice's account retrieves the latest cached token from Redis
 
 #### Part 2
-Now that we have the ability to store Tokens in Redis, we need to trigger this logic.
+Now that we have the ability to store Tokens in Redis, we need to call this method.
 
-In `TwitchAuthManager.java`, update the methods below to update our User's latest User Token in Redis:
+In `TwitchAuthService.java`, update the methods below to update our User's latest User Token in Redis:
 1. `public String createOAuthToken(String accessToken)`
 2. `public String refreshOAuthToken(String refreshToken)`
 
@@ -740,6 +735,12 @@ Your goal is to simply, for now, log the simplified `TwitchChatEvent` to **stdou
 
 
 ### Exercise 4: Kafka
+> **Relevant Files:**
+> 
+> `application.yml`
+> `KafkaConfigs.java`
+> 
+
 Now that we can connect to Twitch chats successfully, we need to build a Kafka producer/consumer to publish these `TwitchChatEvent` to a new separate kafka topic.
 
 This will look very similar to the end state we had in **Module 2** with the Producer/Consumer on the `greeting-events` kafka topic.<br>
@@ -747,17 +748,70 @@ This exercise will be kept short and it's up to you to make your application ach
 
 **Goals:**
 1. In **Offset Explorer 3**, create a new kafka topic named `twitch-chat-events` 
-2. Stream the incoming chat messages from a channel using Twitch4J's `TwitchClient`
+2. Stream the incoming chat messages from channel(s) using Twitch4J's `TwitchClient`
 3. Publish `TwitchChatEvent` to `twitch-chat-events` topic
 4. Consume `TwitchChatEvent` from `twitch-chat-events` topic and log them to **stdout**
 
-The main differences from Module 2 is the producer logic trigger. In Module 2, we manually triggered the `POST /api/kafka/publishGreetingEvent` endpoint via Swagger to publish events.
-In this exercise, our `TwitchChatService.handleMessage()` method is the trigger for the `TwitchChatEventProducer.java`. Once we join a channel and attach the event handler method,
-the TwitchClient will stream, in real-time, the incoming chat messages that we need to publish to `twitch-chat-events` topics.
+The main differences from **Module 2** is the producer trigger logic. In **Module 2**, we needed to manually trigger the `POST /api/kafka/publishGreetingEvent` endpoint via Swagger to invoke our Producer to publish event(s).
+In this exercise, our `TwitchChatService.handleMessage()` event handler method is the trigger for the `TwitchChatEventProducer.java`. Once we join a channel and attach the event listener,
+the TwitchClient will stream, in real-time, the incoming chat messages that we need to publish to `twitch-chat-events` topics. No more manual trigger, fully automated.
+
+### Task 1: add new kafka topic name to `application.yml`
+```yaml
+twitch-chat-hit-counter:
+  kafka:
+    consumer:
+      twitch-chat-topic:
+        twitch-chat-events
+    producer:
+      twitch-chat-topic:
+        twitch-chat-events
+```
 
 ### Testing
+- [ ] Open `ProfileApplicationTest.java` ─ already implemented to test the properties above.
+- [ ] Remove `@Disabled` in `ProfileApplicationTest.java` for the test method(s): `testDefaultProfile_kafka_twitchChatTopicName()`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
+```
 
-### Integration Testing
+### Task 2: Producer
+In `TwitchChatEventProducer.java`, implement `public boolean publish(String messageId, TwitchChatEvent event)`. The method expects a `messageId` and a `GreetingEvent`, and writes a new message into the kafka topic.
+
+Return the boolean status of the kafka topic write operation.
+
+> [!TIP]
+>
+> You will need to create a constructor for this `GreetingEventProducer` and Dependency Inject (DI) the KafkaTemplate @Bean in `KafkaConfig.java` to successfully write the event to our kafka topic.
+>
+> Get familiar with the KafkaTemplate class source code ─ this class deals with the connection to a kafka topic and any IO operations to/from the topic. In the source code, you will find this helpful method: `kafkaTemplate.send(String topic, @Nullable V data)`.
+
+### Example 1:
+> **Input**:<br>
+> ```java
+> GreetingEventProducer producer = new GreetingEventProducer(...);
+> String eventId = "UUID1";
+> GreetingEvent event = new GreetingEvent(eventId, "Alice", "Bob", "Hi Bob, I'm Alice!");
+> boolean output1 = producer.publish(eventId, event);
+> 
+> String eventId2 = "UUID2";
+> GreetingEvent event2 = new GreetingEvent(eventId2, "Charlie", "David", "Yo.");
+> boolean output2 = producer.publish(eventId2, event2);
+> ```
+> **Output1**: <span style="color:#0000008c">true<br></span>
+> **Output2**: <span style="color:#0000008c">true<br></span>
+
+#
+
+### Testing
+- [ ] Open `GreetingEventProducerTest.java` ─ already implemented test cases with the example(s) above.
+- [ ] Remove `@Disabled` in `GreetingEventProducerTest.java`
+- [ ] Test with:
+```shell
+./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
+```
+
 
 <br>
 

@@ -34,4 +34,4 @@ out/
 */integrationTest/bin
 **/classes
 
-src/main/resources/twitchApiKey.yml
+src/main/resources/twitch-key.properties

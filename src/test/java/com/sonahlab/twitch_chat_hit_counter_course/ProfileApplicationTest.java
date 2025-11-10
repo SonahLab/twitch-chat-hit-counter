@@ -84,4 +84,14 @@ public class ProfileApplicationTest {
     public void testDefaultProfile_redis_greetingFeedDB() {
         assertEquals(1, env.getProperty("twitch-chat-hit-counter.redis.greeting-feed-database"));
     }
+
+    @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
+    @Disabled
+    @Tag("Module5")
+    public void testDefaultProfile_kafka_twitchChatTopicName() {
+        assertEquals("twitch-chat-events", env.getProperty("twitch-chat-hit-counter.kafka.producer.twitch-chat-topic"));
+        assertEquals("twitch-chat-events", env.getProperty("twitch-chat-hit-counter.kafka.consumer.twitch-chat-topic"));
+    }
+
 }

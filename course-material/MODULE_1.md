@@ -2,17 +2,43 @@
 ## Twitch Chat Hit Counter
 ## Module 1: HTTP/REST + Swagger
 
-### Lesson [TODO]
-I'll keep things simple.
+### Lesson
+All network communication — whether the "internet", or between microservices — boils down to this fundamental idea:<br>
+One server sends a request to another server that does something in response. Cause/Effect; Call/Response; Ask/Answer.
 
-When thinking about how the internet works, how big tech systems work, they're all the same.
+I'll give you simple examples that illustrate this point:
+#### Case Study: The Internet
+You visit Google.com and see this:
 
-Move data from point A to point B.
+What's actually happening behind the scenes?
+TL;DR:
+-> Your device (server) uses a DNS to find out what `Google.com` means.
+These domains are readable for us, but machines map `Google.com` -> `IP`. 
+IP Addresses are the actual server address that has information about this request.
+Think of this as if a group of friends - Alice, Bob, and Charlie - discussing who's house to work on a school project at.
+They say Alice's house. Alice's address is really i.e.: 123 Sesame Street, but saying "Alice's House" in this context is the alias understood by the entire friend group.
 
-Visiting a Google.com? My PC (server) sends a data request to Googles' servers, those servers accept the request and send data back to my PC. (Point A sends request to Point B, Point B sends response to Point A)
-Upstream team is sending our team data? Upstream team collects the data (Point A) and dumps them off to some file storage or database, where our team reads from (Point B).
-Downstream team depends on our team's data? We gather our data and write to FS/DB/send back through direct API call (Point A) and downstream team receives it (Point B).
+Networks work the same way lots of these easily memorizable names are easier than typing in a website IP address.
+```shell
+ping www.google.com
+```
+\> PING www.google.com (142.250.176.4): 56 data bytes
+by typing http://142.250.176.4 it takes me to Google.com, but nobody does this because:
+1. it's hard to remember IP Addresses
+2. IP addresses change
 
+But even this DNS mapping process is a request (what is Google.com) and a response (XXX.XXX.XXX.X address)
+
+-> Now that we know where `Google.com` leads, our server sends a request to this IP address asking "Get me the data at this location Google.com".
+The network routers will send the data bytes through the network (possibly to other routers along the way) until it gets to Google's servers.
+Google says here is the data, and sends it back through the netflix
+
+-> This point we see the webpage contents that Googles' servers responded to our request with.
+
+** Think of data (letter/package), network router (mailman), Google (store).
+We are essentially mailing a letter to Google's offices asking for Google.com data. The network (mailman) will take the letter to the factory where other mailmen might drive
+it to other factories. It reaches Google (store) and looks at our request and responds with the webpage data (package) and mails it back. Delivery process happens the same way back.
+We finally receive the package. Again, request/response.
 
 
 This section provides a brief TL;DR on how the internet works. When you open your browser and navigate to Google.com, several processes occur behind the scenes:<br>
@@ -23,23 +49,54 @@ This section provides a brief TL;DR on how the internet works. When you open you
 3. **Response from Server**:<br>
    Google's servers receive the incoming request from your machine and return a response with the "data" that you see as Google.com.<br>
 
-This process is an over simplification for all communication across machines connected by the internet.<br>
-You have 2 machines: one sender and one receiver; the sender knows where it wants to speak to, and sends a request operation to the receiver. Routers/networks (aka mailman) will understand where to route the data packets in order for the request to reach its destination. Once the receiver receives the request, it will do something. Based on the API request, this will let the server know what process to kick off.
 
-There are many communication protocols, but the two most common protocols I’ve used ubiquitously in big tech are: HTTP and gRPC. We will focus only on HTTP in this course.
+#### Case Study: Microservices
+Say we're shopping online on Nike.com for some new shoes and we buy the last pair of Nike Air Force 1s. 
+
+What happens behind the scenes?
+-> Our Checkout action on the webpage triggers a whole processes of events.
+First, it might charge our credit card for a new transaction.
+Nike servers will communicate that payment in their databases for transaction history.
+They most likely will be already integrated with several payment SaaS companies like PayPal, etc. This purchase triggers that event.
+
+Nike needs to deduct their inventory in their database. At their warehouse they had 1 last pair of Air Force 1s, now that you've purchased it
+Nike servers notify some other team's servers saying deduct the inventory by 1. Nike Air Force 1s quantity goes from 1 to 0.
+
+When a user across the country visits the Nike website, the UI will load the products and for Nike Air Force 1s since they communicate to the DB and see 0 quantity
+and depending on the product design for the webpage, the UI team might choose to 1) not show the Air force 1s entirely or 2) disable "add to cart" and display a "Sold Out" message on the product.
+
+Our checkout action is a request/response from server to server saying we bought this item.
+There's another request/response from Nike server to payment SaaS servers saying this user bought this item and should be charged $X.
+The payment servers will respond with a confirmation saying the charge of this user went through.
+The UI team to Nike's database team is another request/response: UI team says decrement the inventory of this item, db receives the request decrements the quantity and responds to UI team saying this has been done.
+Users access Nike's web store is another request/response: User machine says show me the products available, UI responds saying heres the data (they also call the DB team asking for all the products available another request/response).
+
+**Every process here can be boiled down to a request/response.**<br>
+There are many communication protocols, but the two most common protocols I’ve used ubiquitously in big tech are: HTTP and gRPC.
+We will focus only on HTTP in this course. gRPC is mostly used within the microservice s2s architecture, so usually within a company TeamA and TeamB, who work closely with each other,
+have gRPC service contracts allowing for direct service calls, instead of sending over HTTP requests.
 
 Swagger
 Let’s start by setting up our Spring Boot service’s API endpoints that can be easily integrated using Swagger. Another popular tool I’ve used to locally test my service’s API endpoints is Postman (at Snap), but Swagger integrates nicely with Spring Boot, which is what we ubiquitously use for most Netflix microservices.
 
 
 ### Additional Learning Materials
+HTTP: [What is HTTP? <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.cloudflare.com/learning/ddos/glossary/hypertext-transfer-protocol-http/)
 
-HTTP:
+REST: [REST APIs <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.ibm.com/think/topics/rest-apis)
 
-REST:
+Swagger: [What is Swagger? <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://swagger.io/docs/specification/v2_0/what-is-swagger/)
 
-Swagger:
-
+> [!NOTE]
+> 
+> For this project we will use Swagger to setup our API, which is what we use at Netflix as it integrates seamlessly with the Spring Boot framework.<br>
+> At Snapchat, we spun up our APIs with Jetty and then Postman to debug/test during development and interfacing with a friendly UI tool rather than curling requests
+> in my terminal.
+>
+> There's no one silver-bullet way to solve a problem, every company differs from the tools they adopt. I'll just share my perspective based on my own experiences at the various companies I've been at.
+> Both Netflix/Snapchat are very Java backend heavy, but even Snapchat is more rudimentary in it's microservice architecture whereas Netflix uses Spring Boot to unify all microservices.
+> Yelp's backend is predominantly built using Python. So it just varies from company to company (and even team to team) between programming languages and tooling used,
+> but the core principles of developing large distributed systems are pretty similar from one company to the next.
 
 
 <br>

@@ -5,8 +5,11 @@ import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 
 /**
  * Kafka consumer to read GreetingEvents from 'greeting_events' topic in Module 2.
@@ -29,18 +32,12 @@ public class GreetingEventConsumer extends AbstractEventConsumer<GreetingEvent> 
 
     @Override
     protected EventType eventType() {
-        /**
-         * TODO: Implement as part of Module 2
-         * */
-        return null;
+        return EventType.GREETING_EVENT;
     }
 
     @Override
     protected Class eventClass() {
-        /**
-         * TODO: Implement as part of Module 2
-         * */
-        return null;
+        return GreetingEvent.class;
     }
 
     @Override
@@ -51,9 +48,14 @@ public class GreetingEventConsumer extends AbstractEventConsumer<GreetingEvent> 
     }
 
     @Override
-    public void processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack) {
+    @KafkaListener(
+            topics = "${twitch-chat-hit-counter.kafka.consumer.greeting-topic}",
+            containerFactory = "kafkaListenerContainerFactory"
+    )
+    public void processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack) throws IOException {
         /**
          * TODO: Implement as part of Module 2
          * */
+        super.processMessage(record, ack);
     }
 }

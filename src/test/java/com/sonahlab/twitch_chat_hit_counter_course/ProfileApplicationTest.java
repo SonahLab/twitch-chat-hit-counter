@@ -19,15 +19,13 @@ public class ProfileApplicationTest {
     private Environment env;
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
-    @Disabled
     @Tag("Module2")
     public void testDefaultProfile_kafkaConfigs() {
         assertEquals("localhost:9092", env.getProperty("spring.kafka.bootstrap-servers"));
 
         assertTrue(env.getProperty("spring.kafka.consumer.group-id").toLowerCase().contains("twitch-chat-hit-counter-group-id-"));
         assertEquals("earliest", env.getProperty("spring.kafka.consumer.auto-offset-reset"));
-        assertEquals(false, env.getProperty("spring.kafka.consumer.enable-auto-commit"));
+        assertEquals(false, Boolean.valueOf(env.getProperty("spring.kafka.consumer.enable-auto-commit")));
         assertEquals("org.apache.kafka.common.serialization.StringDeserializer", env.getProperty("spring.kafka.consumer.key-deserializer"));
         assertEquals("org.apache.kafka.common.serialization.ByteArrayDeserializer", env.getProperty("spring.kafka.consumer.value-deserializer"));
 
@@ -36,8 +34,6 @@ public class ProfileApplicationTest {
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
-    @Disabled
     @Tag("Module2")
     public void testDefaultProfile_kafka_greetingTopicName() {
         assertEquals("greeting-events", env.getProperty("twitch-chat-hit-counter.kafka.producer.greeting-topic"));

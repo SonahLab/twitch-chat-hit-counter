@@ -38,8 +38,6 @@ public class KafkaConfigTest {
     private ConcurrentKafkaListenerContainerFactory<String, byte[]>  kafkaListenerContainerFactory;
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 1, Task 2.
-    @Disabled
     @Tag("Module2")
     public void testProducerFactoryConfig() {
         Map<String, Object> properties = producerFactory.getConfigurationProperties();
@@ -50,8 +48,6 @@ public class KafkaConfigTest {
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 1, Task 2.
-    @Disabled
     @Tag("Module2")
     public void testKafkaTemplateConfig() {
         ProducerFactory<String, byte[]> producerFactory = kafkaTemplate.getProducerFactory();
@@ -63,8 +59,6 @@ public class KafkaConfigTest {
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 2, Task 1.
-    @Disabled
     @Tag("Module2")
     public void testConsumerFactoryConfig() {
         Map<String, Object> properties = consumerFactory.getConfigurationProperties();
@@ -78,8 +72,6 @@ public class KafkaConfigTest {
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 2, Task 1.
-    @Disabled
     @Tag("Module2")
     public void testConcurrentKafkaListenerContainerFactoryConfig() {
         Map<String, Object> properties = kafkaListenerContainerFactory.getConsumerFactory().getConfigurationProperties();

@@ -1,11 +1,17 @@
 package com.sonahlab.twitch_chat_hit_counter_course.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.sonahlab.twitch_chat_hit_counter_course.kafka.producer.GreetingEventProducer;
+import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 /**
  * REST Controller for all of our service's Kafka related endpoints.
@@ -21,11 +27,11 @@ public class KafkaRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaRestController.class);
 
+    private GreetingEventProducer greetingEventProducer;
+
     // Constructor
-    public KafkaRestController() {
-        /**
-         * TODO: Implement as part of Module 2
-         * */
+    public KafkaRestController(GreetingEventProducer greetingEventProducer) {
+        this.greetingEventProducer = greetingEventProducer;
     }
 
     /**
@@ -40,10 +46,9 @@ public class KafkaRestController {
      */
     @PostMapping("/publishGreetingEvent")
     @Operation(summary = "Publish Kafka Event", description = "Publish a GreetingEvent")
-    public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestParam String receiver, @RequestParam String message) {
-        /**
-         * TODO: Implement as part of Module 2
-         * */
-        return null;
+    public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestParam String receiver, @RequestParam String message) throws ExecutionException, JsonProcessingException, InterruptedException {
+        String eventId = UUID.randomUUID().toString();
+        GreetingEvent event = new GreetingEvent(eventId, sender, receiver, message);
+        return greetingEventProducer.publish(eventId, event);
     }
 }

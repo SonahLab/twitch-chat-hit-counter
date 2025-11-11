@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -33,9 +34,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "spring.kafka.producer.bootstrap-servers=${spring.embedded.kafka.brokers}",
         "twitch-chat-hit-counter.kafka.producer.greeting-topic=test_controller_topic"
 })
+@DirtiesContext
 @Tag("Module2")
-// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
-@Disabled
 class KafkaRestControllerTest {
 
     @Autowired MockMvc mockMvc;

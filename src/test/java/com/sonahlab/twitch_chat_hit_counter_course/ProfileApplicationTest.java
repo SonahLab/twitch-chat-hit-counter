@@ -8,8 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = MainApplicationTest.class)
 @ActiveProfiles(value = "default")
@@ -38,6 +37,13 @@ public class ProfileApplicationTest {
     public void testDefaultProfile_kafka_greetingTopicName() {
         assertEquals("greeting-events", env.getProperty("twitch-chat-hit-counter.kafka.producer.greeting-topic"));
         assertEquals("greeting-events", env.getProperty("twitch-chat-hit-counter.kafka.consumer.greeting-topic"));
+    }
+
+    @Test
+    @Tag("Module2")
+    public void testDefaultProfile_batchKafkaConfigs() {
+        assertTrue(env.getProperty("spring.kafka.consumer.group-id-batch").toLowerCase().contains("twitch-chat-hit-counter-group-id-batch-"));
+        assertNotEquals(env.getProperty("spring.kafka.consumer.group-id"), env.getProperty("spring.kafka.consumer.group-id-batch"));
     }
 
     @Test

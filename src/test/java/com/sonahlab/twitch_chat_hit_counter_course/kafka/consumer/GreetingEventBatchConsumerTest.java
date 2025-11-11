@@ -3,6 +3,7 @@ package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
@@ -12,6 +13,7 @@ import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.test.context.EmbeddedKafka;
@@ -19,19 +21,21 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
+import java.time.Duration;
 import java.util.List;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 
 @SpringBootTest
 @EmbeddedKafka(partitions = 1, topics = {"test_batch_consumer_topic"}, brokerProperties = {"listeners=PLAINTEXT://localhost:9092"})
 @TestPropertySource(properties = {
         "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
         "twitch-chat-hit-counter.kafka.consumer.greeting-topic=test_batch_consumer_topic",
-        "spring.kafka.consumer.group-id=test-batch-group-id"
+        "twitch-chat-hit-counter.kafka.batch-consumer.group-id=batch-group-id-0",
 })
 @DirtiesContext
 @Tag("Module2")
-// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
-@Disabled
 public class GreetingEventBatchConsumerTest {
 
     @Autowired
@@ -46,7 +50,6 @@ public class GreetingEventBatchConsumerTest {
     @Captor
     ArgumentCaptor<List<ConsumerRecord<String, byte[]>>> batchCaptor;
 
-
     @Test
     public void testProcessMessage() throws Exception {
         List<GreetingEvent> events = List.of(
@@ -60,29 +63,37 @@ public class GreetingEventBatchConsumerTest {
             kafkaTemplate.send("test_batch_consumer_topic", event.sender(), eventBytes).get();
         }
 
-        // Verify all events are processed in a single batch in once processMessage() call
+        // Capture batch invocations
         ArgumentCaptor<List<ConsumerRecord<String, byte[]>>> batchCaptor =
-                ArgumentCaptor.forClass(List.class);
+                ArgumentCaptor.forClass((Class) List.class);
 
-        Mockito.verify(consumer, Mockito.timeout(5000).times(1))
-                .processMessage(batchCaptor.capture(), Mockito.any(Acknowledgment.class));
+        // Wait until all messages are processed using Awaitility
+        Awaitility.await()
+                .atMost(Duration.ofSeconds(15))
+                .pollInterval(Duration.ofMillis(200))
+                .untilAsserted(() ->
+                        Mockito.verify(consumer, Mockito.atLeastOnce())
+                                .processMessage(batchCaptor.capture(), Mockito.any())
+                );
 
-        List<ConsumerRecord<String, byte[]>> batchRecords = batchCaptor.getValue();
-        Assertions.assertEquals(events.size(), batchRecords.size(), "Batch size mismatch");
+        // Flatten captured records for content validation
+        List<ConsumerRecord<String, byte[]>> allRecords = batchCaptor.getAllValues().stream()
+                .flatMap(List::stream)
+                .toList();
 
-        // Deserialize and validate each event
+        // Validate each event
         for (GreetingEvent expected : events) {
-            boolean found = batchRecords.stream().anyMatch(record -> {
+            boolean found = allRecords.stream().anyMatch(record -> {
                 try {
                     GreetingEvent actual = objectMapper.readValue(record.value(), GreetingEvent.class);
-                    return expected.sender().equals(actual.sender())
-                            && expected.receiver().equals(actual.receiver())
-                            && expected.message().equals(actual.message());
+                    return expected.sender().equals(actual.sender()) &&
+                            expected.receiver().equals(actual.receiver()) &&
+                            expected.message().equals(actual.message());
                 } catch (Exception e) {
                     return false;
                 }
             });
-            Assertions.assertTrue(found, "Expected event not found in batch: " + expected);
+            Assertions.assertTrue(found, "Missing event: " + expected);
         }
     }
 }

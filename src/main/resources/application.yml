@@ -38,6 +38,8 @@ spring:
     password: ""
     driver-class-name: com.mysql.cj.jdbc.Driver
   kafka:
+    listener:
+      ack-mode: manual
     bootstrap-servers: localhost:9092
     consumer:
       group-id: twitch-chat-hit-counter-group-id-0
@@ -51,6 +53,9 @@ spring:
 
 twitch-chat-hit-counter:
   kafka:
+    # NOT a part of Spring Kafka's Autoconfiguration, we will need to manually inject this into our @KafkaListener for the BatchConsumer
+    batch-consumer:
+      group-id: twitch-chat-hit-counter-group-id-batch-0
     consumer:
       greeting-topic:
         greeting-events

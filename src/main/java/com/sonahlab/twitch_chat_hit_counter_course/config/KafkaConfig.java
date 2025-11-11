@@ -1,6 +1,8 @@
 package com.sonahlab.twitch_chat_hit_counter_course.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 
 /**
  * Config class for all of our application's beans. The beans defined here are singletons that we
@@ -12,5 +14,12 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class KafkaConfig {
-    // TODO: Add Kafka configs here
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, byte[]> batchKafkaListenerContainerFactory() {
+        /**
+         * TODO: Implement as part of Module 2
+         * */
+        return null;
+    }
 }

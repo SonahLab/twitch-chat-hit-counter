@@ -600,8 +600,8 @@ twitch-chat-hit-counter:
 #
 
 ### Testing
-- [ ] Open `ProfileApplicationTest.java` ─ already implemented
-- [ ] Remove `@Disabled` in `ProfileApplicationTest.java` for method(s): `testDefaultProfile_redisConfigs()` and `testDefaultProfile_redis_deduperDB`
+- [ ] Open `PropertiesApplicationTest.java` ─ already implemented
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for method(s): `springRedisConfigsTest()` and `redisDeduperDatabaseTest()`
 - [ ] Test with:
 ```shell
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -784,8 +784,8 @@ twitch-chat-hit-counter:
 #
 
 ### Testing
-- [ ] Open `ProfileApplicationTest.java` ─ already implemented with the property test above.
-- [ ] Remove `@Disabled` in `ProfileApplicationTest.java` for method(s): `testDefaultProfile_redis_greetingFeedDB()`
+- [ ] Open `PropertiesApplicationTest.java` ─ already implemented with the property test above.
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for method(s): `redisGreetingFeedDatabaseTest()`
 - [ ] Test with:
 ```shell
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4

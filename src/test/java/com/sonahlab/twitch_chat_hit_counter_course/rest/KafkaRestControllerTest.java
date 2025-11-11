@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -29,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         topics = { "test_controller_topic" },
         brokerProperties = { "listeners=PLAINTEXT://localhost:0", "port=0" }
 )
+@DirtiesContext
 @TestPropertySource(properties = {
         "spring.kafka.producer.bootstrap-servers=${spring.embedded.kafka.brokers}",
         "twitch-chat-hit-counter.kafka.producer.greeting-topic=test_controller_topic"

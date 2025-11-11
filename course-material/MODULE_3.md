@@ -160,8 +160,8 @@ twitch-chat-hit-counter:
 #
 
 ### Testing
-- [ ] Open `ProfileApplicationTest.java` ─ already implemented to test the property above.
-- [ ] Remove `@Disabled` in `ProfileApplicationTest.java` for the test method(s): `testDefaultProfile_sql_greetingTableName()`
+- [ ] Open `PropertiesApplicationTest.java` ─ already implemented to test the property above.
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method(s): `sqlGreetingTableNameTest()`
 - [ ] Test with:
 ```shell
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
@@ -405,8 +405,8 @@ twitch-chat-hit-counter:
 ```
 
 ### Testing
-- [ ] Open `ProfileApplicationTest.java` ─ already implemented to test the property above.
-- [ ] Remove `@Disabled` in `ProfileApplicationTest.java` for the test method(s): `testDefaultProfile_sql_batchGreetingTableName()`
+- [ ] Open `PropertiesApplicationTest.java` ─ already implemented to test the property above.
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method(s): `sqlBatchGreetingTableNameTest()`
 - [ ] Test with:
 ```shell
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3

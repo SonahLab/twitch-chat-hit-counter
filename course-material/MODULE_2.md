@@ -2,82 +2,78 @@
 ## Twitch Chat Hit Counter
 ## Module 2: Kafka
 ### Recommended Learning Materials
-- **Kafka**: https://kafka.apache.org/intro
-- **Cloud Karafka Kafka Overview**: https://www.cloudkarafka.com/blog/part1-kafka-for-beginners-what-is-apache-kafka.html
-- **Confluent**: https://docs.confluent.io/kafka/introduction.html
-- **Spring Boot Kafka**: https://spring.io/projects/spring-kafka
-- **Baeldung Spring Kafka:** https://www.baeldung.com/spring-kafka
-- Spring Boot Kafka Integration: https://www.geeksforgeeks.org/spring-boot-integration-with-kafka/
-
-> [!TIP]
->
-> Take the time to read through the Kafka links listed above.<br>
+- [Official Apache Kafka Docs <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://kafka.apache.org/intro)
+- [Cloud Karafka's Kafka Overview <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.cloudkarafka.com/blog/part1-kafka-for-beginners-what-is-apache-kafka.html)
+- [Confluent's Kafka Overview <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.confluent.io/kafka/introduction.html)
+- [Official Spring Boot Kafka Docs <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://spring.io/projects/spring-kafka)
+- [Baeldung's Spring Kafka Guide <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/spring-kafka)
+- [GeeksForGeek's Spring Boot Kafka Guide <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.geeksforgeeks.org/spring-boot-integration-with-kafka/)
 
 <br>
 
 ## Overview
-I highly recommend reading through the Kafka Introduction above to learn what Kafka is, how it works, and why it’s used ubiquitously in large distributed systems.
+I highly recommend reading through the various **Kafka Overviews** + **Spring Kafka Integration Guides** above to learn: what Kafka is, how it works, and how to set it up in our Spring Boot project. 
 
-Kafka is a distributed message log, where it temporarily holds incoming events.
+Kafka, or some other sort of message/task queue, is used ubiquitously in large distributed systems in all tech companies dealing with large amounts of real-time/streaming/always-on data. Netflix, Youtube, TikTok, Uber, Facebook, or {INSERT_YOUR_FAVORITE_TECH_COMPANY_HERE} is expected to be **always on**, **always up**, **always working**, and **always available**, logging user impressions that powers all parts of a company's core business. Data is at the foundation of every company and as companies scale for 100s of millions of users, the goal is to collect/distribute the data to your consumers as fast as possible.<br>
+
+### Some anecdotal examples:
+#### Netflix
+We use Apache Kafka as the go to real-time streaming message queue.
+
+We have client teams recording Playback events to Kafka.
+
+On the **Ads Reporting Team**, we take these billions of raw impressions, filter for ad impressions, transform them into clean Ad events, and dump them downstream to other Kafka topics or databases for all other teams in the Ads Platform to use for their daily operations.
+
+#### Snapchat
+At Snapchat, we had a partnership w/ Google Cloud Platform (GCP), so we used **Google PubSub**. It's not necessarily the same as Kafka but achieved roughly the same thing as a task queue.
+
+On the **Ads Reporting Team** there, we did essentially the same thing that Netflix is doing to build our Realtime Reporting dashboards that powered the internal Ad Manager tool where managers can login to see how their ad campaigns were performing in real-time. 
+
+I built the E2E Reach Insights Reporting Pipeline, streaming a daily 600+ billion events to aggregate unique reach stats up to different time-series (Minutely/Hourly/Daily/Lifetime) for all different dimensions (Age/Gender/DMA/region/etc). Some other pipelines have even more data, so your pipelines better scale and they better be fast/durable/fault-tolerant/stable/acurrate/all of the above.
+
+#### Yelp
+As an intern here, Apache Kafka was a core part of the company's real-time streaming pipelines. It's been years since I worked there, so I don't remember exactly the use cases but I know it was at the core of the data pipelines.
+
+**TL;DR:** Read any Tech blogs from major tech companies and you'll see just how prevalent message log/queues are for streaming a large amount of events.
+
+#
+
+<ins>Kafka</ins> is a distributed, stateful message log, temporarily storing events for decoupled event processing.<br>
+<ins>Kafka producers</ins> don't need to wait for any consumers to ack that they've received the data, producers simply write data to kafka topics, which durably store events for a configured period of time.<br>
+<ins>Kafka consumers</ins> don't need to interact with the producers at all, they can just poll kafka topics to check if there's new data. Kafka is able to statefully track consumer group ids (offsets), so that consumers can read data while checkpointing where they are in the log of events so events.
+
+Kafka has the ability to let you go back in time and to replay/backfill data by allowing consumers to start reading earlier offsets.
+
+Kafka is not generally known to be used as a DB, think of it more as an **ephemeral holding area** where producers/consumers come and go as they please to write/read packages. Also, the higher the TTL, the more costly it becomes on your server maintenance costs to store events for 24 hours vs 365 days.
+
+I normally see TTLs closer to 24 hours during normal operations, and extended up to 1-7 day(s) during operational issues to give teams a bit of buffer to deal with real production issues (time to **root cause**, **debug**, **deploy fixes**, and potentially **backfill** data).
+
+
+#### Case Study
 Imagine we work at Netflix, and support streaming on several playback devices (i.e.: Web, Mobile (iOS/Android), and TV).</br>
 For this case study, let's just divide responsibility of teams by device.
-- iOS Team: collects all user events from all iOS devices.
-- Android Team: collects all user events from all android devices.
-- Web Team: collects all user events from all Web devices.
-- TV Team: collects all user events from TV devices.
-Imagine that we now own 3 products: Google Search, YouTube, and Google Photos.
+- **iOS Team**: collects all user events from all iOS devices.
+- **Android Team**: collects all user events from all android devices.
+- **Web Team**: collects all user events from all Web devices.
+- **TV Team**: collects all user events from TV devices.
 
-We are the UserEventing Team, in charge of processing all events into UserEvents for all of our downstream teams to use as the Source of Truth for all user data.
+Let's call ourselves the **UserEventing Team**, in charge of processing all events from the upstream client teams into **UserEvents** for all of our downstream teams to use as the **SoT** for all user data.
 
-Downstream we might have:
-User Insights/Engagement Team: in charge of analyzing user engagement data to
-User Identity Team: in charge of building the Day-over-day or Month-over-Month metrics to analyze DAU/MAU over time.
-User Bonus Team: in charge of rewarding the power users of our product with bonuses in cash outs or special perks.
+#### Downstream stakeholder(s):
+- **Content Recommendation Team**: Analyzes user engagement data to see what a particular User likes to watch so we can better recommend shows/movies in their Top 10 list that are more tailored to their taste (i.e.: Rom Com, Horror, Thriller, Comedy).
+- **User Growth Team**: Analyzes user growth with DAU/MAUs, maybe driving new initiatives like push notifications about new releases to encourage stale users to get back on the platform.
+- **Ads Team**: Analyzes ad performance to show advertisers improved ROAS on their campaigns, driving increased ad spend to Netflix vs other streaming platforms.
 
-In a large scale organization where many teams and systems depend on each other, decoupling is essential to scalability, reliability. We can setup kafka topics as the intermediary link between teams where the producer will publish/write any events, and consumers will subscribe/read any new events as they come in.
+This a just a hypothetical example of how teams power each other with data to help drive business growth by, first, gathering and making sense of the data, and then using the findings to drive new products or initiatives.
 
-A bad example is Team A sends data directly to Team B through some endpoint. What if either side fails in this handoff? What if Team B fails to process an event, will Team A know to re-process an old event?
-
-Think of Kafka as a temporary message queue where events are stored with an expiration date of, usually <24 hours. The longer the TTL on the events, the more cost is incurred in storing and managing older events.
-
-*** My rule of thumb: if you work at a big tech company and are in charge of a realtime event pipeline, and you don’t have mechanisms in place to catch/fix issues within 24 hours before old events are purged, this is a clear engineering diff, and there are big gaps in the system. Kafka isn’t meant for long-term storage, so you shouldn’t have super long TTL’s on the events, git gud and fix your system.
-
+**TL;DR:**
+In a large scale organization where many teams and systems are interconnected, decoupling as much as possible is essential to scalability. We can setup kafka topics as the intermediary link between teams where the producer will publish/write events to, and consumers will subscribe/read events from as they come in. Zero **direct** dependency between any two teams. **TeamA** doesn't need to wait on **TeamB** to confirm they received the data, and vice versa.
 
 <br>
-
 
 ## File Structure
 For `Module 2`, the below file structure are all the relevant files needed.
 
-[//]: # (```)
-[//]: # (twitch-chat-hit-counter/src/)
-[//]: # (├── main/)
-[//]: # (│   ├── java/)
-[//]: # (│   │   └── com.sonahlab.twitch_chat_hit_counter/)
-[//]: # (│   │       ├── config/)
-[//]: # (│   │       │   └── KafkaConfig.java)
-[//]: # (│   │       ├── kafka/)
-[//]: # (│   │       │   ├── consumer/)
-[//]: # (│   │       │   │   ├── GreetingEventBatchConsumer.java)
-[//]: # (│   │       │   │   └── GreetingEventConsumer.java)
-[//]: # (│   │       │   └── producer/)
-[//]: # (│   │       │       └── GreetingEventProducer.java)
-[//]: # (│   │       ├── model/)
-[//]: # (│   │       │   └── GreetingEvent.java)
-[//]: # (│   │       └── rest/)
-[//]: # (│   │           └── ApplicationRestController.java)
-[//]: # (│   └── resources/)
-[//]: # (│       └── application.yml)
-[//]: # (└── test/)
-[//]: # (    └── java/)
-[//]: # (        └── com.sonahlab.twitch_chat_hit_counter/)
-[//]: # (            └── kafka/)
-[//]: # (                ├── consumer/)
-[//]: # (                │   ├── GreetingEventBatchConsumerTest.java)
-[//]: # (                │   └── GreetingEventConsumerTest.java)
-[//]: # (                └── producer/)
-[//]: # (                    └── GreetingEventProducerTest.java)
-[//]: # (```)
 <img src="assets/common/module.svg" align="center"/> twitch-chat-hit-counter/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/folder.svg" align="center"/> src/<br>

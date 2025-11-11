@@ -37,3 +37,23 @@ spring:
     username: root
     password: ""
     driver-class-name: com.mysql.cj.jdbc.Driver
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: twitch-chat-hit-counter-group-id-0
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+
+twitch-chat-hit-counter:
+  kafka:
+    consumer:
+      greeting-topic:
+        greeting-events
+    producer:
+      greeting-topic:
+        greeting-events

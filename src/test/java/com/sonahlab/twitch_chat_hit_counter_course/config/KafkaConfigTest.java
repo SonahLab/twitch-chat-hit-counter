@@ -36,10 +36,10 @@ public class KafkaConfigTest {
     private KafkaTemplate<String, byte[]> kafkaTemplate;
 
     @Autowired
-    private ConcurrentKafkaListenerContainerFactory<String, byte[]>  kafkaListenerContainerFactory;
+    private ConcurrentKafkaListenerContainerFactory<String, byte[]> kafkaListenerContainerFactory;
 
     @Autowired
-    private ConcurrentKafkaListenerContainerFactory<String, byte[]>  batchKafkaListenerContainerFactory;
+    private ConcurrentKafkaListenerContainerFactory<String, byte[]> batchKafkaListenerContainerFactory;
 
     @Test
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 1, Task 2.
@@ -54,13 +54,18 @@ public class KafkaConfigTest {
      * @ConditionalOnMissingBean(KafkaTemplate.class)
      * public KafkaTemplate<?, ?> kafkaTemplate(...) {}
      * */
-    public void testKafkaTemplateConfig() {
+    public void kafkaTemplate_beanTest() {
+        // Test that the default 'kafkaTemplate' is autoconfigured by Spring as part of Spring Kafka library
+        assertTrue(context.containsBean("kafkaTemplate"));
+
         ProducerFactory<String, byte[]> producerFactory = kafkaTemplate.getProducerFactory();
         Map<String, Object> properties = producerFactory.getConfigurationProperties();
+        List<String> bootstrapServers = (List<String>) properties.get(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG);
 
-        assertThat(properties.get(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG)).isEqualTo("localhost:9092");
-        assertThat(properties.get(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG)).isEqualTo(StringSerializer.class.getName());
-        assertThat(properties.get(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG)).isEqualTo(ByteArraySerializer.class.getName());
+        assertEquals(1, bootstrapServers.size());
+        assertTrue(bootstrapServers.contains("localhost:9092"));
+        assertThat(properties.get(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG)).isEqualTo(StringSerializer.class);
+        assertThat(properties.get(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG)).isEqualTo(ByteArraySerializer.class);
     }
 
     @Test
@@ -86,8 +91,11 @@ public class KafkaConfigTest {
      * ConcurrentKafkaListenerContainerFactory<?, ?> kafkaListenerContainerFactory
      * */
     public void kafkaListenerContainerFactory_beanTest() {
+        // Test that the default 'kafkaListenerContainerFactory' is autoconfigured by Spring as part of Spring Kafka library
+        assertTrue(context.containsBean("kafkaListenerContainerFactory"));
+
         Map<String, Object> properties = kafkaListenerContainerFactory.getConsumerFactory().getConfigurationProperties();
-        List<String> bootstrapServers = (List<String>) properties.get(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG);
+        List<String> bootstrapServers = (List<String>) properties.get(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG);
 
         assertEquals(1, bootstrapServers.size());
         assertTrue(bootstrapServers.contains("localhost:9092"));
@@ -112,9 +120,12 @@ public class KafkaConfigTest {
      * 1. should have a different 'group-id'
      * 2. listener should be true, default is null (meaning autoconfigured listener is single event consumer)
      * */
-    public void testBatchConcurrentKafkaListenerContainerFactoryConfig() {
+    public void batchKafkaListenerContainerFactory_beanTest() {
+        // Test that the @Bean 'batchKafkaListenerContainerFactory' WE created is set up properly
+        assertTrue(context.containsBean("batchKafkaListenerContainerFactory"));
+
         Map<String, Object> properties = batchKafkaListenerContainerFactory.getConsumerFactory().getConfigurationProperties();
-        List<String> bootstrapServers = (List<String>) properties.get(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG);
+        List<String> bootstrapServers = (List<String>) properties.get(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG);
 
         assertEquals(1, bootstrapServers.size());
         assertTrue(bootstrapServers.contains("localhost:9092"));
@@ -125,6 +136,5 @@ public class KafkaConfigTest {
         assertThat(properties.get(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG)).isEqualTo(ByteArrayDeserializer.class);
         assertThat(batchKafkaListenerContainerFactory.getContainerProperties().getAckMode()).isEqualTo(ContainerProperties.AckMode.MANUAL);
         assertTrue(batchKafkaListenerContainerFactory.isBatchListener());
-
     }
 }

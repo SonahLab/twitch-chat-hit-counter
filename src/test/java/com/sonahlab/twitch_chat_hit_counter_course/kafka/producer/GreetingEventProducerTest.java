@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 })
 @TestPropertySource(properties = {
         "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
-        "twitch-chat-hit-counter.kafka.producer.greeting-topic=test_producer_topic"
+        "twitch-chat-hit-counter.kafka.greeting-topic=test_producer_topic"
 })
 @DirtiesContext
 @Tag("Module2")

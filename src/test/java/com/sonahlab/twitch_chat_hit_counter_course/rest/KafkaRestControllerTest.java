@@ -32,8 +32,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 )
 @DirtiesContext
 @TestPropertySource(properties = {
-        "spring.kafka.producer.bootstrap-servers=${spring.embedded.kafka.brokers}",
-        "twitch-chat-hit-counter.kafka.producer.greeting-topic=test_controller_topic"
+        "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
+        "twitch-chat-hit-counter.kafka.greeting-topic=test_controller_topic"
 })
 @Tag("Module2")
 // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
@@ -44,7 +44,7 @@ class KafkaRestControllerTest {
     @Autowired ObjectMapper objectMapper;
     @Autowired EmbeddedKafkaBroker embeddedKafkaBroker;
 
-    @Value("${twitch-chat-hit-counter.kafka.producer.greeting-topic}")
+    @Value("${twitch-chat-hit-counter.kafka.greeting-topic}")
     String topic;
 
     private KafkaConsumer<String, byte[]> consumer;
@@ -72,8 +72,9 @@ class KafkaRestControllerTest {
     @Test
     void publishGreetingEventsEndpointTest() throws Exception {
         List<GreetingEvent> events = List.of(
-                new GreetingEvent("id1", "Alice", "Bob", "Hi hi hi"),
-                new GreetingEvent("id2", "Charlie", "David", "Yo.")
+                // eventId should be generated within the KafkaRestController
+                new GreetingEvent(null, "Alice", "Bob", "Hi hi hi"),
+                new GreetingEvent(null, "Charlie", "David", "Yo.")
         );
 
         for (GreetingEvent expectedEvent : events) {
@@ -93,6 +94,11 @@ class KafkaRestControllerTest {
             GreetingEvent actualEvent = objectMapper.readValue(record.value(), GreetingEvent.class);
 
             // Validate event contents
+            try {
+                UUID.fromString(actualEvent.eventId());
+            } catch (Exception e) {
+                throw new RuntimeException("Invalid UUID eventId: " + actualEvent.eventId(), e);
+            }
             assertThat(actualEvent.sender()).isEqualTo(expectedEvent.sender());
             assertThat(actualEvent.receiver()).isEqualTo(expectedEvent.receiver());
             assertThat(actualEvent.message()).isEqualTo(expectedEvent.message());

@@ -192,29 +192,100 @@ In **Offset Explorer 3**, connect to our Kafka cluster running in Docker.
 > **Relevant Files**<br>
 > `application.yml` ─ our service's property file<br>
 
+### Lesson: Autoconfiguration
+> [!IMPORTANT]
+>
+> Autoconfiguration is a core aspect of Spring Boot.<br>
+> _"Spring Boot’s auto-configuration feature is one of its standout functionalities, allowing developers to build applications with minimal boilerplate code"_
+>
+> Links:
+> - [How Spring Boot Auto-Configuration Works [Medium] <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://medium.com/@AlexanderObregon/how-spring-boot-auto-configuration-works-68f631e03948)<br>
+> - [Understanding Auto-Configured Beans [Spring Docs] <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html#features.developing-auto-configuration.understanding-auto-configured-beans)<br>
+> - [Spring Boot Auto-Configuration [GeeksForGeeks] <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.geeksforgeeks.org/java/spring-boot-auto-configuration/)<br>
+
+Case Study:
+Imagine I created a new revolutionary open source Database called **SonahDB**.
+
+In order to connect to a generic SonahDB **cluster** you need:
+1. server-location
+2. username
+3. password
+
+Imagine I created a public open source Java Library that for all developers around the world to import into their project to use.<br>
+Now say Alice is spins up her own **SonahDB**, and wants to connect to it so that she can store data on it.<br>
+In Alice's application she would normally need to manually create some client to use in her project:
+```java
+@Bean
+public SonahDbClient() {
+    SonahDbClient client = new SonahDbClient(
+            "localhost:1234",
+            "aliceUsername",
+            "aliceSecretPassword"
+    );
+}
+```
+
+This is where Spring Boot autoconfiguration becomes so powerful. Let's assume that for the open source Java Library I tell developers,
+if you import my library into your project and if you provide me `spring.sonahDB.server-location`, `spring.sonahDB.username`, and `spring.sonahDB.password`
+my library will create this `SonahDbClient` object on your behalf at runtime when you run your Spring Boot application.
+And in the case where Alice neither creates the `SonahDbClient` herself or provide the 3 fields required, I will still build her the `SonahDbClient` object
+but using some default values.
+
+Alice's code never explicitly needs to create the `SonahDbClient`, she just defines the fields from a library's guidance and
+can safely assume it works out of the box.
+
+This is what Spring Boot's Autoconfiguration boils down to. For any library you pull in, you should read the documentation of a library to see if it supports autoconfiguration and also what fields you need to set,
+meaning you just define some properties in your `application.yml` property file and when you run `./gradlew bootRun` you trust that
+the libraries you depend on will build all the relevant Beans on your behalf. Less code and manual setup, for increased development velocity.
+
+[KafkaAutoConfiguration.java <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-boot/api/java/org/springframework/boot/autoconfigure/kafka/KafkaAutoConfiguration.html) is the class that autoconfigures Kafka behind the scenes.
+Spring Kafka library will build all the relevant Beans on our behalf, unless we:
+1. Explicitly override the Beans ourselves
+2. Disable a library from Autoconfiguration
+
+Spring Kafka Autoconfiguration Lifecycle:
+
+
 ### Task 1: Spring Kafka Producer/Consumer properties
 In `application.yml`, set the **Spring Kafka** properties listed in the table below.
 
-| Property                                   | Required?    | Role         | Supported/Example Values                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Description                                                                                                                                      |
-|--------------------------------------------|--------------|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| `spring.kafka.bootstrap-servers`           | **Required** | **Both**     | i.e.: "host:port"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Specifies the Kafka broker(s) to connect to. No connection without it.                                                                           |
-| `spring.kafka.consumer.group-id`           | **Required** | **Consumer** | i.e.: "applicationName-group-id-0"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Defines the consumer group name. Kafka uses this to track message consumption. Multiple consumers with the same group ID share the message load. |
-| `spring.kafka.consumer.auto-offset-reset`  | Optional     | **Consumer** | `latest` **(default)**<br>`earliest`<br> `none`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | Controls where to start reading if no offset is committed. Default: `latest`.                                                                    |
-| `spring.kafka.consumer.enable-auto-commit` | Optional     | **Consumer** | `true` **(default)**<br>`false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | Whether to auto-commit offsets. Default: `true`. Use `false` for manual acks.                                                                    |
-| `spring.kafka.consumer.key-deserializer`   | **Required** | **Consumer** | <ul><li>`org.apache.kafka.common.serialization.StringDeserializer`</li><li>`org.apache.kafka.common.serialization.IntegerDeserializer`</li><li>`org.apache.kafka.common.serialization.LongDeserializer`</li><li>`org.apache.kafka.common.serialization.DoubleDeserializer`</li><li>`org.apache.kafka.common.serialization.FloatDeserializer`</li><li>`org.apache.kafka.common.serialization.ByteArrayDeserializer`</li><li>`org.apache.kafka.common.serialization.UUIDDeserializer`</li><li>`org.springframework.kafka.support.serializer.JsonDeserializer`</li></ul> | Converts incoming kafka message key back to object (e.g., `String`). Must match key-serializer on producer.                                      |
-| `spring.kafka.consumer.value-deserializer` | **Required** | **Consumer** | Same list as `key-deserializer` (most common: `StringDeserializer`, `JsonDeserializer`, `ByteArrayDeserializer`).<br> Converts incoming value bytes back to object. Must match serializer.                                                                                                                                                                                                                                                                                                                                                                            | Converts incoming kafka message value back to object (e.g., `String`). Must match value-serializer on producer.                                  |
-| `spring.kafka.producer.key-serializer`     | **Required** | **Producer** | <ul><li>`org.apache.kafka.common.serialization.StringSerializer`</li><li>`org.apache.kafka.common.serialization.IntegerSerializer`</li><li>`org.apache.kafka.common.serialization.LongSerializer`</li><li>`org.apache.kafka.common.serialization.DoubleSerializer`</li><li>`org.apache.kafka.common.serialization.FloatSerializer`</li><li>`org.apache.kafka.common.serialization.ByteArraySerializer`</li><li>`org.apache.kafka.common.serialization.UUIDSerializer`</li><li>`org.springframework.kafka.support.serializer.JsonSerializer`</li></ul>                 | Converts produced kafka message key to object (e.g., `String`). Must match key-deserializer on consumer.                                         |
-| `spring.kafka.producer.value-serializer`   | **Required** | **Producer** | Same list as `key-serializer` (most common: `StringSerializer`, `JsonSerializer`, `ByteArraySerializer`).<br>                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Converts produced kafka message value to object (e.g., `String`). Must match value-deserializer on consumer.                                     |
+
+| Property                                   | Required?    | Role         | Supported/Example Values                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Description                                                                                                                              |
+|--------------------------------------------|--------------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| `spring.kafka.bootstrap-servers`           | **Required** | **Both**     | i.e.: "host:port"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Specifies the Kafka broker(s) to connect to. No connection without it.                                                                   |
+| `spring.kafka.consumer.group-id`           | **Required** | **Consumer** | i.e.: "applicationName-group-id-0"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Defines the consumer group name. Kafka uses this to track message consumption. Multiple consumers with the same group ID share the message load. |
+| `spring.kafka.consumer.auto-offset-reset`  | Optional     | **Consumer** | `latest` **(default)**<br>`earliest`<br> `none`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | Controls where to start reading if no offset is committed. Default: `latest`.                                                            |
+| `spring.kafka.consumer.enable-auto-commit` | Optional     | **Consumer** | `true` **(default)**<br>`false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | Whether to auto-commit offsets. Default: `true`. Use `false` for manual acks.                                                            |
+| `spring.kafka.consumer.key-deserializer`   | **Required** | **Consumer** | <ul><li>`org.apache.kafka.common.serialization.StringDeserializer`</li><li>`org.apache.kafka.common.serialization.IntegerDeserializer`</li><li>`org.apache.kafka.common.serialization.LongDeserializer`</li><li>`org.apache.kafka.common.serialization.DoubleDeserializer`</li><li>`org.apache.kafka.common.serialization.FloatDeserializer`</li><li>`org.apache.kafka.common.serialization.ByteArrayDeserializer`</li><li>`org.apache.kafka.common.serialization.UUIDDeserializer`</li><li>`org.springframework.kafka.support.serializer.JsonDeserializer`</li></ul>                                                                                                                                                                                                                                                                                                                                                                                                     | Converts incoming kafka message key back to object (e.g., `String`). Must match key-serializer on producer.                              |
+| `spring.kafka.consumer.value-deserializer` | **Required** | **Consumer** | Same list as `key-deserializer` (most common: `StringDeserializer`, `JsonDeserializer`, `ByteArrayDeserializer`).<br> Converts incoming value bytes back to object. Must match serializer.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Converts incoming kafka message value back to object (e.g., `String`). Must match value-serializer on producer.                          |
+| `spring.kafka.listener.ack-mode`           | Optional     | **Consumer** | <ul><li>**RECORD**: Commit the offset when the listener returns after processing the record.</li><li>**BATCH** (**default**): Commit the offset when all the records returned by the poll() have been processed.</li><li>**TIME**: Commit the offset when all the records returned by the poll() have been processed, as long as the ackTime since the last commit has been exceeded.</li><li>**COUNT**: Commit the offset when all the records returned by the poll() have been processed, as long as ackCount records have been received since the last commit.</li><li>**COUNT_TIME**: Similar to TIME and COUNT, but the commit is performed if either condition is true.</li><li>**MANUAL**: The message listener is responsible to acknowledge() the Acknowledgment. After that, the same semantics as BATCH are applied.</li><li>**MANUAL_IMMEDIATE**: Commit the offset immediately when the Acknowledgment.acknowledge() method is called by the listener.</li></ul> | Listener AckMode.                                     |
+| `spring.kafka.producer.key-serializer`     | **Required** | **Producer** | <ul><li>`org.apache.kafka.common.serialization.StringSerializer`</li><li>`org.apache.kafka.common.serialization.IntegerSerializer`</li><li>`org.apache.kafka.common.serialization.LongSerializer`</li><li>`org.apache.kafka.common.serialization.DoubleSerializer`</li><li>`org.apache.kafka.common.serialization.FloatSerializer`</li><li>`org.apache.kafka.common.serialization.ByteArraySerializer`</li><li>`org.apache.kafka.common.serialization.UUIDSerializer`</li><li>`org.springframework.kafka.support.serializer.JsonSerializer`</li></ul>                                                                                                                                                                                                                                                                                                                                                                                                                     | Converts produced kafka message key to object (e.g., `String`). Must match key-deserializer on consumer.                                 |
+| `spring.kafka.producer.value-serializer`   | **Required** | **Producer** | Same list as `key-serializer` (most common: `StringSerializer`, `JsonSerializer`, `ByteArraySerializer`).<br>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Converts produced kafka message value to object (e.g., `String`). Must match value-deserializer on consumer.                             |
 - List of [Spring Kafka supported fields <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://gist.github.com/geunho/77f3f9a112ea327457353aa407328771)<br>
   ![](assets/module2/images/ser_deser.svg)<br>
 
 #### Requirements:
-1. **bootstrap-server**: Set it to the default local values `localhost:9092`
+1. **bootstrap-server**: Set it to the default bootstrap-server [`localhost:9092` <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/spring-projects/spring-boot/blob/2e52c3c35e0bd44ec35dceaeaed1737905a00196/module/spring-boot-kafka/src/main/java/org/springframework/boot/kafka/autoconfigure/KafkaProperties.java#L71)
 2. **group-id**: Set it to follow this format `{application_name}-group-id-{number}`
 3. **auto-offset-reset**: Set it to `earliest`
 4. **enable-auto-commit**: Set it to `true` so we have full control in processing/ack'ing each message
 5. **key-deserializer/value-deserializer**: Set it to write kafka messages as **<K (String), V (ByteArray)>** pairs
 6. **key-serializer/value-serializer**: Set it to read kafka messages as **<K (String), V (ByteArray)>** pairs
+7. **ack-mode**: Set it MANUAL so we have full control over acking the messages.
+
+#
+
+### Testing
+- [ ] Open `PropertiesApplicationTest.java` ─ already implemented, testing each property against the expected values we want for this course.
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method: `springKafkaConfigsTest()`
+- [ ] Open `KafkaConfigTest.java` ─ already implemented, testing the autoconfigured Beans that Spring Kafka injects for us.
+- [ ] Remove `@Disabled` in `KafkaConfigTest.java` for the test method: `testKafkaTemplateConfig()` and `kafkaListenerContainerFactory_beanTest()`
+- [ ] Test with:
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
+    ```
+
+<br>
 
 #
 
@@ -228,19 +299,15 @@ spring:
 
 twitch-chat-hit-counter:
   kafka:
-    consumer:
-      greeting-topic:
-        greeting-events
-    producer:
-      greeting-topic:
-        greeting-events
+    greeting-topic:
+      greeting-events
 ```
 
 #
 
 ### Testing
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented, testing each property against the expected values we want for this course.
-- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method: `springKafkaConfigsTest()` and `kafkaGreetingTopicNameTest()`
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method: `kafkaGreetingTopicNameTest()`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
@@ -253,92 +320,48 @@ twitch-chat-hit-counter:
 
 > [!NOTE]
 >
-> **Relevant Files**<br>
-> `KafkaConfig.java` ─ Configuration class to store our Kafka related Beans</br>
+> **Relevant Files**:<br>
 > `GreetingEvent.java` ─ data model to encapsulate a simple greeting.</br> 
 > `GreetingEventProducer.java` ─ the class that publishes `GreetingEvent` objects to our dedicated kafka topic `greeting_topic`
 
 <br>
 
-### Task 1: Kafka Producer Beans
-In `KafkaConfig.java`, create two `@Bean` objects for `ProducerFactory.java` and `KafkaTemplate.java`.
-These are **required** to autoconfigure **Spring Kafka** at runtime within our application.
+### Task 1: AbstractEventProducer
+Our `AbstractEventProducer.java` is the parent class for writing any type of Event object into a kafka topic.
+Core principle of good programming: D.R.Y (Don't Repeat Yourself). All child classes that `extend AbstractEventProducer`,
+don't need to worry about the kafka topic write logic once it's defined in the parent.
 
-> [!IMPORTANT]
->
-> [KafkaAutoConfiguration.java <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-boot/api/java/org/springframework/boot/autoconfigure/kafka/KafkaAutoConfiguration.html) is the class that autoconfigures Kafka behind the scenes.
-> 
-> Autoconfiguration is an important part of Spring Boot.<br>
-> _"Spring Boot’s auto-configuration feature is one of its standout functionalities, allowing developers to build applications with minimal boilerplate code"_
->
-> Links:
-> - [How Spring Boot Auto-Configuration Works [Medium] <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://medium.com/@AlexanderObregon/how-spring-boot-auto-configuration-works-68f631e03948)<br>
-> - [Understanding Auto-Configured Beans [Spring Docs] <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html#features.developing-auto-configuration.understanding-auto-configured-beans)<br>
-> - [Spring Boot Auto-Configuration [GeeksForGeeks] <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.geeksforgeeks.org/java/spring-boot-auto-configuration/)<br>
-
-**Requirements:**
-1. Create `ProducerFactory` @Bean by passing in the `bootstrap-servers`, `key-serializer`, `value-serializer` configs from the `application.yml`.
-2. Create `KafkaTemplate` @Bean by Dependency Injecting (DI) the `ProducerFactory`.
-
-> [!TIP]
->
-> Passing Spring properties from `application.yml` is usually done through the Spring [@Value <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-framework/reference/core/beans/annotation-config/value-annotations.html) annotation
->
-> **Example flow for the `@Beans` setup at runtime:**
-> 
-> `application.yml` properties → `ProducerFactory` Bean → `KafkaTemplate` Bean
-> 
-> `application.yml`:
-> ```yaml
-> spring:
->   kafka:
->     property: value
-> ```
->
-> `KafkaConfig.java`:
-> ```java
-> class KafkaConfig {
->    @Bean
->    public ProducerFactory producerFactory(
->       @Value("{spring.kafka.property}") String property
->    ) {
->       return new ProducerFactory(...);
->    }
->
->    @Bean
->    public KafkaTemplate kafkaTemplate(ProducerFactory producerFactory) {
->       return new KafkaTemplate(...);
->    }
-> }
-> ```
-
-#
-
-### Testing
-- [ ] Open `KafkaConfigTest.java` ─ already implemented, testing each Bean is properly configured using the `application.yml` properties from earlier.
-- [ ] Remove `@Disabled` in `KafkaConfigTest.java` for the test method(s): `testProducerFactoryConfig()` and `testKafkaTemplateConfig()`
-- [ ] Test with:
-    ```shell
-    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
-    ```
-
-#
-
-### Task 2: Kafka `GreetingEvent` Producer
-In `AbstractEventProducer.java`, implement `public boolean publish(String key, T event)`. The method expects a `key` and a `GreetingEvent`, and writes a new message into the kafka topic.
-
+In `AbstractEventProducer.java`, implement:
+- the constructor: `public AbstractEventProducer()`
+- `public boolean publish(String key, T event)`. The method expects a `String key` and a generic `T event`, and writes a new message into the kafka topic.<br>
 Return the boolean status of the kafka topic write operation.
 
-**Requirements:**
-1. `AbstractEventProducer.java` will need to have the `KafkaTemplate` @bean injected into the constructor. Any subclasses (`GreetingEventProducer`) will also need to DI the KafkaTemplate.
-   1. You will also need to update the constructor in `TwitchChatEventProducer.java` to also inject the same `KafkaTemplate` to prevent compile time issues.
-2. The key needs to be store to as a String in kafka
-3. The value needs to be stored as a ByteArray in kafka
-4. The topic name property needs to be injected into the `GreetingEventProducer.java`
-
 > [!TIP]
-> 
-> Get familiar with the [KafkaTemplate <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-kafka/api/org/springframework/kafka/core/KafkaTemplate.html) class source code ─ this class deals with the connection to a kafka topic and any IO operations to/from the topic. In the source code, you will find this helpful method: `kafkaTemplate.send(String topic, @Nullable V data)`.
+>
+> Get familiar with the [KafkaTemplate <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-kafka/api/org/springframework/kafka/core/KafkaTemplate.html)
+> class' source code ─ this class handles all IO operations to/from kafka topics.<br>
+> In the source code, you will find this helpful method: `kafkaTemplate.send(String topic, @Nullable V data)`.
+
+**Requirements:**
+1. Inject the autoconfigured `KafkaTemplate` Bean into the constructor of `AbstractEventProducer.java`.
+2. Write the topic message to the `topicName()` Kafka topic. (Assume this method is already implemented)
+2. Write the topic message key as a String (should be a NO-OP since our `key` is already a String)
+3. Write the topic message value as a ByteArray (you're given a generic POJO event but need to convert it to ByteArray)
+
+<br>
+
+#
+
+### Task 2: GreetingEventProducer
+In `GreetingEventProducer.java`, implement:
+- the constructor: `public GreetingEventProducer.java`
+- `protected String topicName()`
+
+**Requirements**:
+1. Inject the same `KafkaTemplate` Bean into the constructors of all subclass of `AbstractEventProducer.java`. (`GreetingEventProducer.java`, `TwitchChatEventProducer.java`)
+2. Inject the `greeting-events` topic name property defined in `application.yml` into the constructor of `GreetingEventProducer.java`, and overwrite the `protected String topicName()` to return that injected topic name.
+
+<br>
 
 ### Example 1:
 > **Input**:<br>
@@ -365,28 +388,37 @@ Return the boolean status of the kafka topic write operation.
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
     ```
 
+<br>
+
 #
 
 ### Task 3: Kafka API
+![](assets/module2/images/kafkaApi.svg)<br>
+
 > [!NOTE]
 >
-> **Relevant Files**
+> **Relevant Files**<br>
 > `KafkaRestController.java` ─ REST controller to handle `POST /api/kafka/publishGreetingEvent`.
 
-In `KafkaRestController.java`, implement `public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestParam String receiver, @RequestParam String message)` endpoint to trigger `GreetingEventProducer.publish(...);`
+In `KafkaRestController.java`, implement:
+- the constructor: `public KafkaRestController()`
+- `public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestParam String receiver, @RequestParam String message)` endpoint to trigger `GreetingEventProducer.publish(...);`
 
 **Requirements:**
-1. Dependency Inject (DI) the `GreetingEventProducer` into the controller's constructor
+1. Inject the `GreetingEventProducer` into the constructor
 2. Generate an `eventId` ([UUID <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/java-uuid))
+3. Create a `GreetingEvent` using the: generated `eventId` and the user input parameters
 3. Call `GreetingEventProducer.publish()` to handle actual publishing of the kafka message
 
-```java
-@PostMapping("/publishGreetingEvent")
-@Operation(summary = "Publish Kafka Event", description = "Publish a GreetingEvent")
-public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestParam String receiver, @RequestParam String message) {
-    // Hook up to GreetingEventProducer.publish(...)
-}
-```
+[//]: # (```java)
+[//]: # (@PostMapping&#40;"/publishGreetingEvent"&#41;)
+[//]: # (@Operation&#40;summary = "Publish Kafka Event", description = "Publish a GreetingEvent"&#41;)
+[//]: # (public Boolean produceKafkaGreetingEvent&#40;@RequestParam String sender, @RequestParam String receiver, @RequestParam String message&#41; {)
+[//]: # (    // Hook up to GreetingEventProducer.publish&#40;...&#41;)
+[//]: # (})
+[//]: # (```)
+
+<br>
 
 ### Example 1:
 > ```java
@@ -438,7 +470,7 @@ public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestPa
     ```
 - [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
 - [ ] Play around with **Kafka API**: `POST /api/kafka/publishGreetingEvent`
-- [ ] Check **Offset Explorer 3** to see that your GreetingEvent is actually published to our kafka topic
+- [ ] Check **Offset Explorer 3** to see that your GreetingEvent is actually published to your kafka topic
 ![](assets/module2/images/kafkaSwagger.png)<br>
 
 #

@@ -4,8 +4,10 @@ package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import com.sonahlab.twitch_chat_hit_counter_course.model.TwitchChatEvent;
 import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
 /**
@@ -45,6 +47,13 @@ public class TwitchChatEventConsumer extends AbstractEventConsumer<TwitchChatEve
 
     @Override
     protected void coreLogic() {
+        /**
+         * TODO: Implement as part of Module 5
+         * */
+    }
+
+    @Override
+    public void processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack) {
         /**
          * TODO: Implement as part of Module 5
          * */

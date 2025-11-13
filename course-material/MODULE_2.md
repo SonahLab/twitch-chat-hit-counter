@@ -345,8 +345,8 @@ Return the boolean status of the kafka topic write operation.
 **Requirements:**
 1. Inject the autoconfigured `KafkaTemplate` Bean into the constructor of `AbstractEventProducer.java`.
 2. Write the topic message to the `topicName()` Kafka topic. (Assume this method is already implemented)
-2. Write the topic message key as a String (should be a NO-OP since our `key` is already a String)
-3. Write the topic message value as a ByteArray (you're given a generic POJO event but need to convert it to ByteArray)
+3. Write the topic message key as a String (should be a NO-OP since our `key` is already a String)
+4. Write the topic message value as a ByteArray (you're given a generic POJO event but need to convert it to ByteArray)
 
 <br>
 
@@ -406,9 +406,9 @@ In `KafkaRestController.java`, implement:
 
 **Requirements:**
 1. Inject the `GreetingEventProducer` into the constructor
-2. Generate an `eventId` ([UUID <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/java-uuid))
+2. Generate a unique `eventId` ([UUID <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/java-uuid)) per greeting request
 3. Create a `GreetingEvent` using the: generated `eventId` and the user input parameters
-3. Call `GreetingEventProducer.publish()` to handle actual publishing of the kafka message
+4. Call `GreetingEventProducer.publish()` to handle actual publishing of the kafka message
 
 [//]: # (```java)
 [//]: # (@PostMapping&#40;"/publishGreetingEvent"&#41;)
@@ -421,35 +421,42 @@ In `KafkaRestController.java`, implement:
 <br>
 
 ### Example 1:
-> ```java
-> WebClient webClient = WebClient.builder()
->         .baseUrl("http://localhost:8080/api/")
->         .build();
->
-> boolean output1 = webClient.post()
->         .uri(uriBuilder -> uriBuilder
->                 .path("/kafka/publishGreetingEvent")
->                 .queryParam("sender", "Alice")
->                 .queryParam("receiver", "Bob")
->                 .queryParam("message", "Hi Bob, I'm Alice!")
->                 .build())
->         .retrieve()
->         .bodyToMono(Boolean.class)
->         .block();
-> 
-> boolean output2 = webClient.post()
->         .uri(uriBuilder -> uriBuilder
->                 .path("/kafka/publishGreetingEvent")
->                 .queryParam("sender", "Charlie")
->                 .queryParam("receiver", "David")
->                 .queryParam("message", "Yo.")
->                 .build())
->         .retrieve()
->         .bodyToMono(Boolean.class)
->         .block();
-> ```
-> **Output1**: true<br>
-> **Output2**: true
+```bash
+$ curl -X POST "http://localhost:8080/api/kafka/publishGreetingEvent?sender=Alice&receiver=Bob&message=Hi%20Bob%2C%20I%27m%20Alice%21"
+true
+
+$ curl -X POST "http://localhost:8080/api/kafka/publishGreetingEvent?sender=Charlie&receiver=David&message=Yo."
+true
+````
+[//]: # (> ```java)
+[//]: # (> WebClient webClient = WebClient.builder&#40;&#41;)
+[//]: # (>         .baseUrl&#40;"http://localhost:8080/api/"&#41;)
+[//]: # (>         .build&#40;&#41;;)
+[//]: # (>)
+[//]: # (> boolean output1 = webClient.post&#40;&#41;)
+[//]: # (>         .uri&#40;uriBuilder -> uriBuilder)
+[//]: # (>                 .path&#40;"/kafka/publishGreetingEvent"&#41;)
+[//]: # (>                 .queryParam&#40;"sender", "Alice"&#41;)
+[//]: # (>                 .queryParam&#40;"receiver", "Bob"&#41;)
+[//]: # (>                 .queryParam&#40;"message", "Hi Bob, I'm Alice!"&#41;)
+[//]: # (>                 .build&#40;&#41;&#41;)
+[//]: # (>         .retrieve&#40;&#41;)
+[//]: # (>         .bodyToMono&#40;Boolean.class&#41;)
+[//]: # (>         .block&#40;&#41;;)
+[//]: # (> )
+[//]: # (> boolean output2 = webClient.post&#40;&#41;)
+[//]: # (>         .uri&#40;uriBuilder -> uriBuilder)
+[//]: # (>                 .path&#40;"/kafka/publishGreetingEvent"&#41;)
+[//]: # (>                 .queryParam&#40;"sender", "Charlie"&#41;)
+[//]: # (>                 .queryParam&#40;"receiver", "David"&#41;)
+[//]: # (>                 .queryParam&#40;"message", "Yo."&#41;)
+[//]: # (>                 .build&#40;&#41;&#41;)
+[//]: # (>         .retrieve&#40;&#41;)
+[//]: # (>         .bodyToMono&#40;Boolean.class&#41;)
+[//]: # (>         .block&#40;&#41;;)
+[//]: # (> ```)
+[//]: # (> **Output1**: true<br>)
+[//]: # (> **Output2**: true)
 
 #
 
@@ -473,6 +480,8 @@ In `KafkaRestController.java`, implement:
 - [ ] Check **Offset Explorer 3** to see that your GreetingEvent is actually published to your kafka topic
 ![](assets/module2/images/kafkaSwagger.png)<br>
 
+<br>
+
 #
 
 ### Exercise 3: Single Message Kafka Consumer
@@ -482,36 +491,31 @@ In `KafkaRestController.java`, implement:
 >
 > **Relevant Files**<br>
 > `application.yml` ─ our service's property file<br>
-> `KafkaConfig.java` ─ Configuration class to store our Kafka related Beans<br>
 > `GreetingEvent.java` ─ data model to encapsulate a simple greeting.<br>
 > `AbstractEventConsumer.java` ─ the abstract class that defines the way all event consumers should act.<br>
 > `GreetingEventConsumer.java` ─ the class that subscribes to our `greeting_event` kafka topics to read `GreetingEvent` objects
 
-### Task 1: Kafka Consumer Beans
-In `KafkaConfig.java`, create two `@Beans` needed for **Spring Kafka** consumers: `ConsumerFactory` and `ConcurrentKafkaListenerContainerFactory`.
+#
 
-You should've already added the consumer related Kafka spring properties in `application.yml`, so no changes needed there.
+### Task 1: AbstractEventConsumer
+Our `AbstractEventConsumer.java` is the parent class for reading any type of Event object from a kafka topic.
+Core principle of good programming: D.R.Y (Don't Repeat Yourself). All child classes that `extend AbstractEventConsumer`,
+don't need to worry about the kafka topic read logic once it's defined in the parent. They will only focus on the core logic that may differ between different consumers.
+
+In `AbstractEventConsumer.java`, implement:
+- the constructor: `public AbstractEventConsumer()`
+- `protected T convertRecordToEvent(ConsumerRecord<String, byte[]> record)`: this method will convert a generic `ConsumerRecord<String, byte[]> record` value from a `byte[]` → a generic class `T` event.
+- `public void processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack)`: The method will be called once our container picks up a new kafka record.
+  - Convert the raw record back to a generic `T event`
 
 **Requirements:**
-1. Create `ConsumerFactory` @Bean by passing in the `bootstrap-servers`, `group-id`, `auto-offset-reset`, `enable-auto-commit`, `key-deserializer`, `value-deserializer` configs from the `application.yml`.
-2. Create `ConcurrentKafkaListenerContainerFactory` @Bean by Dependency Injecting (DI) the `ConsumerFactory`.
-   1. Because we've set `enable-auto-commit = false`, we also need to set AckMode to `ContainerProperties.AckMode.MANUAL` on the `ConcurrentKafkaListenerContainerFactory`
+
+
+<br>
 
 #
 
-### Testing
-- [ ] Open `KafkaConfigTest.java` ─ already implemented, testing each Bean is properly configured using the `application.yml` properties from earlier.
-- [ ] Remove `@Disabled` in `KafkaConfigTest.java` for the test method(s): `testConsumerFactoryConfig()` and `testConcurrentKafkaListenerContainerFactoryConfig()`
-- [ ] Test with:
-    ```shell
-    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
-    ```
-
-#
-
-# TODO AbstractEventConsumer.java
-# TODO only need 1 bean per producer/consumer can simplify code
-### Task 2: Kafka `GreetingEvent` Consumer
+### Task 2: GreetingEventConsumer
 In `GreetingEventConsumer.java`, implement `public void processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack)`.
 
 The main goal for now is to simply **log or print** the kafka message that was read from the kafka topic to **stdout** (our application logs).
@@ -520,7 +524,7 @@ The main goal for now is to simply **log or print** the kafka message that was r
 >
 > You will need to add the [@KafkaListener <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-annotation.html) annotation above the `processMessage(...)` method.
 > 
-> Properties required: `topics`, `containerFactory`
+> Properties required: `topics`<br>
 
 ### Example 1:
 > **Input**:<br>
@@ -604,17 +608,59 @@ This simple extreme example shows the benefit of introducing batch operations in
 ### Exercise 4: BATCH Message Kafka Consumer
 ![](assets/module2/images/exercise3.svg)<br>
 
+Spring Kafka autoconfigures `KafkaTemplate` and `ConcurrentKafkaListenerContainerFactory` for us. If Spring sees that the developer doesn't set a field, it usually uses _some_ default value.
+If we take a look at the default
+[Listener <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/spring-projects/spring-boot/blob/2e52c3c35e0bd44ec35dceaeaed1737905a00196/module/spring-boot-kafka/src/main/java/org/springframework/boot/kafka/autoconfigure/KafkaProperties.java#L971)
+object, you can see that the default is set to `SINGLE`, meaning the default `ConcurrentKafkaListenerContainerFactory` will process one event at a time.
+We want to create a consumer that will poll and batch multiple records at once.
+
+Spring Kafka autconfiguration is helpful for setting up some default/quick setup, but as an application's use cases evolve and expand,
+it's up to developers to tailor Beans further than what autoconfigurations usually allow for. So we will need to setup our own `ConcurrentKafkaListenerContainerFactory` explicitly for the batch consumer.
+
 ### Task 1: Configure application.yml
-| Property                                 | Required? | Role         | Supported/Example Values | Description                                                    |
-|------------------------------------------|-----------|--------------|--------------------------|----------------------------------------------------------------|
-| `spring.kafka.consumer.max-poll-records` | Optional  | **Consumer** | i.e.: 500                | Maximum number of records returned in a single call to poll(). |
-- List of [Spring Kafka supported fields <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://gist.github.com/geunho/77f3f9a112ea327457353aa407328771)<br>
+What properties differ between the autconfigured `ConcurrentKafkaListenerContainerFactory kafkaListenerContainerFactory` we have vs. a new `ConcurrentKafkaListenerContainerFactory batchKafkaListenerContainerFactory` we'd need to handle the batch consumer?
+```yaml
+# kafkaListenerContainerFactory
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: twitch-chat-hit-counter-group-id-X
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+    listener:
+      type: SINGLE # property is not set in our application.yml because it's the default setting used by Spring Kafka
+      ack-mode: MANUAL
+
+# batchKafkaListenerContainerFactory
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: twitch-chat-hit-counter-group-id-batch-X # This field should be different from the single consumer group-id
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+    listener:
+      type: BATCH # This field should be different from the single consumer listener.type default to enable the batch listener
+      ack-mode: MANUAL
+```
+
+The fields that should differ between these Beans are the `spring.kafka.consumer.group-id` and `spring.kafka.listener.type`.
+If we overwrite any of these fields, it'll affect the autconfigured single consumer so we will define these differing properties in some other properties.
 
 **Requirements:**
-1. `max-poll-records`: controls the maximum kafka records that are processed in a single poll.
-2. `group-id-batch`: our `GreetingEventConsumer` class is already using the earlier defined `group-id` property.<br>
-Our Batch consumer will need to define a new group-id so that none of the commits (acks) on the kafka partitions interfere with each other.<br>
-Otherwise, there can be race conditions where each consumer are picking up subsets of the kafka topic.
+1. `twitch-chat-hit-counter.kafka.batch-consumer.group-id`: {application_name}-group-id-batch-{num}
+2. `twitch-chat-hit-counter.kafka.batch-consumer.listener.type`: BATCH
 
 > [!IMPORTANT]
 >
@@ -624,7 +670,7 @@ Otherwise, there can be race conditions where each consumer are picking up subse
 #
 
 ### Testing
-- [ ] Open `PropertiesApplicationTest.java` ─ already implemented, `group-id-batch` is not the same as `group-id` and contains `{application_name}-group-id-batch-`
+- [ ] Open `PropertiesApplicationTest.java` ─ already implemented, testing that the two requirements above are met.
 - [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method(s): `kafkaBatchConfigsTest()`
 - [ ] Test with:
     ```shell
@@ -633,16 +679,31 @@ Otherwise, there can be race conditions where each consumer are picking up subse
 
 #
 
-### Task 2: Kafka BATCH Consumer Beans
-This task will be nearly identical with the previous [exercise <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#task-1-kafka-consumer-beans).
+### Task 2: Kafka BATCH Consumer Bean
+Because of Spring Kafka's autoconfiguration we were able to (with no manual set up) use the:
+- `KafkaTemplate kafkaTemplate` used by the EventProducer class
+- `ConcurrentKafkaListenerContainerFactory kafkaListenerContainerFactory` used by the Single EventConsumer class
 
-Only difference here is to the use the `group-id-batch` property when creating the @Bean for the batch use case coming up.
+Now we need to create a new `@Bean ConcurrentKafkaListenerContainerFactory` named **batchKafkaListenerContainerFactory** for our Batch EventConsumer class.
+
+In `KafkaConfigs.java`, implement `public ConcurrentKafkaListenerContainerFactory<String, byte[]> batchKafkaListenerContainerFactory()` to be exactly the same as the autconfigured `kafkaListenerContainerFactory`,
+with the two changes being that the batchKafkaListenerContainerFactory's `group-id` and `listener.type` are what's defined in the `application.yml`.
+
+**Requirements:**
+- Inject the autconfigured `ConsumerFactory consumerFactory` into the method signature
+- Inject the `group-id` property defined in the previous task into the method signature
+- Inject the `listener.type` property defined in the previous task into the method signature
+- Copy over the consumerFactory's properties to a new map and replace the `group-id` using the group-id defined for the Batch Consumer
+- Create a new instance of a `ConsumerFactory` and use the new property map as the base
+- Create a new instance of a `ConcurrentKafkaListenerContainerFactory` and .setConsumerFactory() using the newly created ConsumerFactory
+- Set the `factory.setListener(true/false)` depending on the value of the listenerType
+- Set the `factory.getContainerProperties().setAckMode()` to MANUAL (as this property is not copied over in the ConsumerFactory properties)
 
 #
 
 ### Testing
-- [ ] Open `KafkaConfigTest.java` ─ already implemented, testing each Bean is properly configured using the `application.yml` properties from earlier.
-- [ ] Remove `@Disabled` in `KafkaConfigTest.java` for the test method(s): `testBatchConsumerFactoryConfig()` and `testBatchConcurrentKafkaListenerContainerFactoryConfig()`
+- [ ] Open `KafkaConfigTest.java` ─ already implemented, testing a new @Bean named `batchKafkaListenerContainerFactory` is properly configured with different `group-id` and `listener.type`
+- [ ] Remove `@Disabled` in `KafkaConfigTest.java` for the test method(s): `batchKafkaListenerContainerFactory_beanTest()`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
@@ -650,10 +711,26 @@ Only difference here is to the use the `group-id-batch` property when creating t
 
 #
 
-### Task 3: Kafka `GreetingEvent` BATCH Consumer
-In `GreetingEventBatchConsumer.java`, implement `public void processMessage(List<ConsumerRecord<String, byte[]>> records, Acknowledgment ack)`.
+### Task 3: AbstractEventConsumer
+In `AbstractEventConsumer.java`, implement `public void processMessages(List<ConsumerRecord<String, byte[]>> records, Acknowledgment ack)`
+which accepts a `List<ConsumerRecord<String, byte[]>> records` to process. This will be invoked for any Batch consumers we want to define.
 
-This task will be nearly identical with the previous `GreetingEventConsumer.java`. Make sure to pass in the correct Batch `@Bean`.
+**Requirements:**
+1. Process all the raw kafka records and convert them back to a generic `T event` using the already implemented `convertRecordToEvent()`
+2. Aggregate the `T event` into a list
+3. Log the events to _stdout_
+
+<br>
+
+#
+
+### Task 4: BatchGreetingEventConsumer
+In `GreetingEventBatchConsumer.java`, implement:
+- `protected EventType eventType()`
+- `protected Class<GreetingEvent> eventClass()`
+- `public void processMessages(List<ConsumerRecord<String, byte[]>> records, Acknowledgment ack)`: KafkaListener + super() invocation
+
+This task will be nearly identical with the previous `GreetingEventConsumer.java`.
 
 ### Example 1:
 > **Input**:<br>
@@ -666,10 +743,12 @@ This task will be nearly identical with the previous `GreetingEventConsumer.java
 > consumer.processMessage(List.of(kafkaRecord1, kafkaRecord2, kafkaRecord3)); // processes the 3 kafka records at once
 > ```
 > **std**:<br>
-> <span style="color:#0000008c">INFO GreetingEventBatchConsumer {event1}<br></span>
-> <span style="color:#0000008c">INFO GreetingEventBatchConsumer {event2}<br></span>
-> <span style="color:#0000008c">INFO GreetingEventBatchConsumer {event3}<br></span>
-> <span style="color:#0000008c">INFO GreetingEventBatchConsumer Processed 3 events in this batch<br></span>
+> ```
+> INFO GreetingEventBatchConsumer {event1}
+> INFO GreetingEventBatchConsumer {event2}
+> INFO GreetingEventBatchConsumer {event3}
+> INFO GreetingEventBatchConsumer Processed 3 events in this batch
+> ```
 
 #
 
@@ -684,13 +763,14 @@ This task will be nearly identical with the previous `GreetingEventConsumer.java
 #
 
 ### Integration Testing
+- [ ] Try to have multiple kafka events already stored in your kafka topic
 - [ ] Run the application:
     ```shell
     ./gradlew bootRun
     ```
-- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
-- [ ] Play around with **Kafka API**: `POST /api/kafka/publishGreetingEvent`
-- [ ] Check **Offset Explorer 3** to see that your GreetingEvent is actually published to our kafka topic
-- [ ] Verify application **stdout** logs are actually receiving the newly written kafka records
+[//]: # (- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />]&#40;http://localhost:8080/swagger-ui/index.html&#41;<br>)
+[//]: # (- [ ] Play around with **Kafka API**: `POST /api/kafka/publishGreetingEvent`)
+[//]: # (- [ ] Check **Offset Explorer 3** to see that your GreetingEvent is actually published to our kafka topic)
+- [ ] Verify application **stdout** logs to see the consumer is actually processing multiple events in a single `processMessages()` call
 
 #

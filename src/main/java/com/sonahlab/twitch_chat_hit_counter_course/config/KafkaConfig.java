@@ -20,6 +20,8 @@ public class KafkaConfig {
         /**
          * TODO: Implement as part of Module 2
          * */
-        return null;
+        ConcurrentKafkaListenerContainerFactory<String, byte[]> dummyFactory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        return dummyFactory;
     }
 }

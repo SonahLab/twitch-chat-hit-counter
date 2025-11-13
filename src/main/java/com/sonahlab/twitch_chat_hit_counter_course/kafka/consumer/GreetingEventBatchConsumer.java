@@ -25,7 +25,7 @@ public class GreetingEventBatchConsumer extends AbstractEventConsumer<GreetingEv
     // Constructor
     public GreetingEventBatchConsumer() {
         /**
-         * TODO: Implement as part of Module 2
+         * TODO: Implement as part of Module 3+
          * */
     }
 
@@ -48,11 +48,12 @@ public class GreetingEventBatchConsumer extends AbstractEventConsumer<GreetingEv
     @Override
     protected void coreLogic() {
         /**
-         * TODO: Implement as part of Module 2
+         * TODO: Implement as part of Module 3+
          * */
     }
 
-    public void processMessage(List<ConsumerRecord<String, byte[]>> records, Acknowledgment ack) {
+    @Override
+    public void processMessages(List<ConsumerRecord<String, byte[]>> records, Acknowledgment ack) {
         /**
          * TODO: Implement as part of Module 2
          * */

@@ -23,7 +23,7 @@ public class GreetingEventConsumer extends AbstractEventConsumer<GreetingEvent> 
     // Constructor
     public GreetingEventConsumer() {
         /**
-         * TODO: Implement as part of Module 2
+         * TODO: Implement as part of Module 3+
          * */
     }
 
@@ -46,7 +46,7 @@ public class GreetingEventConsumer extends AbstractEventConsumer<GreetingEvent> 
     @Override
     protected void coreLogic() {
         /**
-         * TODO: Implement as part of Module 2
+         * TODO: Implement as part of Module 3+
          * */
     }
 

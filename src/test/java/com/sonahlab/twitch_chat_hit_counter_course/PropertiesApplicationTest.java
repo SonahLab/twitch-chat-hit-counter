@@ -53,6 +53,7 @@ public class PropertiesApplicationTest {
     public void kafkaBatchConfigsTest() {
         assertTrue(env.getProperty("twitch-chat-hit-counter.kafka.batch-consumer.group-id").toLowerCase().contains("twitch-chat-hit-counter-group-id-batch-"));
         assertNotEquals(env.getProperty("spring.kafka.consumer.group-id"), env.getProperty("twitch-chat-hit-counter.kafka.batch-consumer.group-id"));
+        assertEquals("BATCH", env.getProperty("twitch-chat-hit-counter.kafka.batch-consumer.listener.type"));
     }
 
     // =================================================================================================================

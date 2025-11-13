@@ -65,7 +65,7 @@ public class GreetingEventBatchConsumerTest {
                 ArgumentCaptor.forClass(List.class);
 
         Mockito.verify(consumer, Mockito.timeout(5000).times(1))
-                .processMessage(batchCaptor.capture(), Mockito.any(Acknowledgment.class));
+                .processMessages(batchCaptor.capture(), Mockito.any(Acknowledgment.class));
 
         List<ConsumerRecord<String, byte[]>> batchRecords = batchCaptor.getValue();
         Assertions.assertEquals(events.size(), batchRecords.size(), "Batch size mismatch");

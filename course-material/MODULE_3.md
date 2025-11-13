@@ -58,6 +58,8 @@ For `Module 3`, the below file structure are all the relevant files needed.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/package.svg" align="center"/> sql/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/class.svg" align="center"/> AbstractSqlService.java<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/class.svg" align="center"/> GreetingSqlService.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/resourcesRoot.svg" align="center"/> resources/<br>
@@ -144,6 +146,28 @@ CREATE TABLE dev_db.greeting_events (
 
 <br>
 
+## Spring JDBC Autoconfiguration
+In `build.gradle`, I've already imported Spring Boot JDBC:
+```groovy
+implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+```
+In `application.yml`, I've already setup the expected configurations for connecting to the MySQL docker instance:
+```yaml
+  datasource:
+    url: jdbc:mysql://localhost:3306/dev_db
+    username: root
+    password: ""
+```
+
+<br>
+
+The main @Bean that this Spring library autoconfigures for us is the:
+[JdbcTemplate <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/spring-projects/spring-boot/blob/2e52c3c35e0bd44ec35dceaeaed1737905a00196/module/spring-boot-jdbc/src/main/java/org/springframework/boot/jdbc/autoconfigure/JdbcTemplateAutoConfiguration.java).<br>
+- https://github.com/spring-projects/spring-boot/blob/2e52c3c35e0bd44ec35dceaeaed1737905a00196/module/spring-boot-jdbc/src/main/java/org/springframework/boot/jdbc/autoconfigure/JdbcProperties.java
+- https://github.com/spring-projects/spring-boot/blob/2e52c3c35e0bd44ec35dceaeaed1737905a00196/module/spring-boot-jdbc/src/main/java/org/springframework/boot/jdbc/autoconfigure/DataSourceProperties.java
+
+<br>
+
 ## Exercise 1: Single Record SQL Writer
 ![](assets/module3/images/exercise1.svg)<br>
 
@@ -168,6 +192,22 @@ twitch-chat-hit-counter:
 ```
 
 #
+
+### Task 2: AbstractSqlService
+Our `AbstractSqlService.java` is the parent class for generically writing Events into SQL tables.
+Core principle of good programming: D.R.Y (Don't Repeat Yourself). All child classes that `extend AbstractSqlService`,
+don't need to worry about the SQL write logic once it's defined in the parent.
+
+**Implement:**
+- constructor `public AbstractSqlService()`
+  - Inject the `JdbcTemplate` autoconfigured bean
+- `public int insert(List<T> events)`: should handle writing any amount of events into the SQL table
+
+
+
+
+
+
 
 ### Task 2: SQL `GreetingEvent` Writer
 In `AbstractSqlService.java`, implement `public int insert(List<T> events)`. This method should write a list containing a single `GreetingEvent` into the SQL table we've set up.

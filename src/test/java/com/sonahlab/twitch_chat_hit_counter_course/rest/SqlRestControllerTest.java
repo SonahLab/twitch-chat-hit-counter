@@ -47,7 +47,6 @@ public class SqlRestControllerTest {
         registry.add("spring.datasource.url", MYSQL_CONTAINER::getJdbcUrl);
         registry.add("spring.datasource.username", MYSQL_CONTAINER::getUsername);
         registry.add("spring.datasource.password", MYSQL_CONTAINER::getPassword);
-        registry.add("spring.datasource.driver-class-name", MYSQL_CONTAINER::getDriverClassName);
         registry.add("twitch-chat-hit-counter.sql.greeting-table", () -> "test_greeting_table");
         registry.add("twitch-chat-hit-counter.sql.greeting-batch-table", () -> "test_greeting_table");
     }

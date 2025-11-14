@@ -150,6 +150,7 @@ CREATE TABLE dev_db.greeting_events (
 In `build.gradle`, I've already imported Spring Boot JDBC:
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+implementation 'mysql:mysql-connector-java:8.0.33'
 ```
 In `application.yml`, I've already setup the expected configurations for connecting to the MySQL docker instance:
 ```yaml
@@ -206,10 +207,66 @@ don't need to worry about the SQL write logic once it's defined in the parent.
 
 
 
+### Lesson: SQL Queries
+> [!TIP]
+>
+> Spend time learning about different SQL queries. 
+> - [W3School's MySQL Playground <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.w3schools.com/mysql/mysql_editor.asp): play around with static, public, online datasets through an online editor.
+> - [MySQL Replace function <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://dev.mysql.com/doc/refman/8.0/en/replace.html): this will be the main function we want to use (MySQL 8.x) to write data to SQL tables and handle de-duplication for us.
+>
+> ```
+> REPLACE INTO {TABLE_NAME} (field₁, ..., fieldₙ)
+> VALUES (?, ..., ?)
+> ```
+
+In **MySQLWorkbench**, create a playground `employees` SQL table.
+```
+CREATE TABLE dev_db.employees (
+    employee_id INT PRIMARY KEY,
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    birthday VARCHAR(255),
+    photo VARCHAR(255),
+    notes VARCHAR(255)
+)
+```
+
+### Exercise 1: SQL Query using `REPLACE INTO ...`
+We've just hired **Alice** and **Bob** to our new startup so let's make sure they're stored in our SQL table.
+
+Write a SQL query that will upload these 2 employees' information into SQL:
+- **Alice** employee record: employee_id=1, first_name="Alice", last_name="Apple", birthday="1800-12-25", photo="EmpId1.pic", notes="Software Engineer"
+- **Bob** employee record: employee_id=2, first_name="Bob", last_name="Banana", birthday="2026-01-01", photo="EmpId2.pic", notes="Very young employee"
+
+Verify the data is actually being written into the table as intended:
+`SELECT * FROM employees;`
 
 
+[//]: # (Solution:)
+[//]: # (REPLACE INTO employees (employee_id, first_name, last_name, birthday, photo, notes))
+[//]: # (VALUES)
+[//]: # (  (1, "Alice", "Apple", "1800-12-25", "EmpId1.pic", "Software Engineer"))
+[//]: # (  (2, "Bob", "Banana", "2026-01-01", "EmpId2.pic", "Very young employee");)
+
+### Exercise 1: SQL Query using `REPLACE INTO ...`
+We accidentally uploaded Alice's birthday incorrectly, instead of `1800-12-25` it should be set to `2000-12-25`.
+
+Write a SQL query that will overwrite Alice's entire employee record but fixing the birthday.
+[//]: # (Solution:)
+[//]: # (REPLACE INTO employees (employee_id, first_name, last_name, birthday, photo, notes))
+[//]: # (VALUES)
+[//]: # (  (1, "Alice", "Apple", "2000-12-25", "EmpId1.pic", "Software Engineer");)
+
+TL;DR: we've used SQL queries to insert multiple records + overwrite/process duplicate records. This is important in a real world situation where maybe an upstream team has passed our team bad data. If we re-process data once a fix is in production we have ways to:
+1. Deduplicate previously written data with fresh data
+2. Handle backfills by re-processing bad data with new fresh data
+
+<br>
+
+#
 
 ### Task 2: SQL `GreetingEvent` Writer
+
 In `AbstractSqlService.java`, implement `public int insert(List<T> events)`. This method should write a list containing a single `GreetingEvent` into the SQL table we've set up.
 
 Return the number of successful event(s) written in the table (should be 0 or 1).
@@ -222,16 +279,6 @@ Return the number of successful event(s) written in the table (should be 0 or 1)
 > [!NOTE]
 >
 > If you take a look at `application.yml`, I have already implemented the MySQL configs for you that our application will use to autoconfigure or **JdbcTemplate** @Bean with.
-
-> [!TIP]
->
-> Helpful link on how to deduplicate events in the SQL Query ([Stack Overflow <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://stackoverflow.com/questions/14383503/on-duplicate-key-update-same-as-insert))
->
-> ```
-> INSERT INTO {TABLE_NAME} (field₁, ..., fieldₙ)
-> VALUES (?, ..., ?)
-> ON {SOME_FILTER}
-> ```
 
 #
 

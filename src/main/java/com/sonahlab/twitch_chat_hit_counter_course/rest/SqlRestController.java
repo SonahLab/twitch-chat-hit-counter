@@ -39,8 +39,8 @@ public class SqlRestController {
      * @return List of GreetingEvent objects currently stored in our SQL greeting_events table.
      */
     @GetMapping("/queryGreetingEvents")
-    @Operation(summary = "Query all events from dev_db.greeting_events SQL table", description = "Returns a List<GreetingEvent>")
-    public List<GreetingEvent> getSqlGreetingEvents() {
+    @Operation(summary = "Query all Greeting events from dev_db.{tableName} SQL table", description = "Returns a List<GreetingEvent>")
+    public List<GreetingEvent> getSqlGreetingEvents(@RequestParam String tableName) {
         /**
          * TODO: Implement as part of Module 3
          * */

@@ -462,9 +462,30 @@ In `SqlConfig.java`, implement `@Bean public GreetingSqlService batchGreetingSql
 #
 
 ### Task 4: Hook up the Batch Kafka Consumer to use the Batch SQL writer
-Simply connect `GreetingEventBatchConsumer.java` (**Module 2**) to call `GreetingSqlService.insertBatch()` method.
+In `GreetingEventBatchConsumer.java` (**Module 2**), integrate with `batchGreetingSqlService`.<br>
+Everytime a batch of events are read from Kafka, we will need to call `batchGreetingSqlService.insert(events)` to persist those event into the SQL DB.
+
+You will need to inject the correct `GreetingSqlService` bean into the `GreetingEventBatchConsumer` constructor.
+
+### Testing
+- [ ] TODO (do i need to update the test file for the consumer?)
 
 #
+
+### Integration Testing
+- [ ] Run the application:
+    ```shell
+    ./gradlew bootRun
+    ```
+- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
+- [ ] Play around with **Kafka API**: `/api/kafka/publishGreetingEvent`
+- [ ] In **MySQLWorkbench**, verify that the `GreetingEvent` triggered via **Swagger** is written into SQL by querying:
+    ```
+    SELECT *
+    FROM batch_greeting_events
+    ```
+
+<br>
 
 ### Testing?
 
@@ -487,7 +508,7 @@ Simply connect `GreetingEventBatchConsumer.java` (**Module 2**) to call `Greetin
 ![](assets/module3/images/exercise2.svg)<br>
 
 ### Task 1: Implement GreetingSqlService.queryAllEvents()
-In `GreetingSqlService.java`, implement `public List<GreetingEvent> queryAllEvents(String tableName)`.
+In `AbstractSqlService.java`, implement `public List<GreetingEvent> queryAllEvents(String tableName)`.
 
 Return a `List<GreetingEvent>` of all the events in our SQL table.
 
@@ -586,9 +607,9 @@ Here's all you need to know about [SQL Query <img src="assets/common/export.svg"
 #
 
 ### Task 2: Hook up the `SqlRestController` to the `GreetingSqlService`
-In `SqlRestController.java`, implement `public List<GreetingEvent> getSqlGreetingEvents()`.
+In `SqlRestController.java`, implement `public List<GreetingEvent> getSqlGreetingEvents(String tableName)`.
 
-You will need to inject the `GreetingSqlService` component into the constructor.
+You will need to inject the `GreetingSqlService` Beans into the constructor and query the GreetingSqlService depending on the tableName input.
 
 #### Testing
 - [ ] Open `SqlRestControllerTest.java` ─ already implemented
@@ -597,3 +618,11 @@ You will need to inject the `GreetingSqlService` component into the constructor.
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
     ```
+
+### Integration Testing
+- [ ] Run the application:
+    ```shell
+    ./gradlew bootRun
+    ```
+- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
+- [ ] Execute **SQL API**: `GET /api/sql/queryAllEvents`

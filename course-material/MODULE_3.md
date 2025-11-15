@@ -626,3 +626,4 @@ You will need to inject the `GreetingSqlService` Beans into the constructor and 
     ```
 - [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
 - [ ] Execute **SQL API**: `GET /api/sql/queryAllEvents`
+  ![](assets/module3/images/sqlApi.png)

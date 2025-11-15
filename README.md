@@ -2,13 +2,13 @@
 ## Twitch Chat Hit Counter
 
 ### Prerequisites
-- [IntelliJ <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.jetbrains.com/idea/) (or any favorite IDE)
+- [IntelliJ <img src="course-material/assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.jetbrains.com/idea/) (or any favorite IDE)
 - Java 21+
-- [Docker Desktop <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.docker.com/)
-- [Offset Explorer <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.kafkatool.com/)
-- [MySQLWorkbench <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://dev.mysql.com/downloads/workbench/)
-- [Twitch.TV account <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.twitch.tv/)
-- [nodejs <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://nodejs.org/en/download)
+- [Docker Desktop <img src="course-material/assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.docker.com/)
+- [Offset Explorer <img src="course-material/assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.kafkatool.com/)
+- [MySQLWorkbench <img src="course-material/assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://dev.mysql.com/downloads/workbench/)
+- [Twitch.TV account <img src="course-material/assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.twitch.tv/)
+- [nodejs <img src="course-material/assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://nodejs.org/en/download)
 
 #
 

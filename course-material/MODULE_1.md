@@ -4,57 +4,96 @@
 
 ### Lesson
 All network communication — whether the "internet", or between microservices — boils down to this fundamental idea:<br>
-One server sends a request to another server that does something in response. Cause/Effect; Call/Response; Ask/Answer.
 
-I'll give you simple examples that illustrate this point:
-#### Case Study: The Internet
-You visit Google.com and see this:
+> _**One server sends a request to another server that does something in response.**_
+> - **_Request → Response_**
+> - **_Cause → Effect_**
+> - **_Call → Response_**
+> - **_Ask → Answer_**
 
-What's actually happening behind the scenes?
-TL;DR:
--> Your device (server) uses a DNS to find out what `Google.com` means.
-These domains are readable for us, but machines map `Google.com` -> `IP`. 
+I'll give you simple examples that illustrate this point.
+
+<br>
+
+#
+
+### Case Study #1: Web Browsing
+You visit **Google.com** and see this:
+![](assets/module1/images/google.png)<br>
+
+**Question**: What's actually happening behind the scenes?
+
+**TL;DR:**<br>
+**→ DNS Resolution**<br>
+`Google.com` is a human-readable domain name that makes it easy for humans to remember when we want to visit a web hosted page/application/service.<br>
+Computers don't understand this domain, they need **IP addresses** (i.e.: 123.456.789.0)<br>
+Your device sends a **request** to a nearby DNS server to find out what `Google.com` means.<br>
+The DNS server **responds** with a valid mapping: `Google.com` → `XXX.XXX.XXX.X`.<br>
+
 IP Addresses are the actual server address that has information about this request.
-Think of this as if a group of friends - Alice, Bob, and Charlie - discussing who's house to work on a school project at.
-They say Alice's house. Alice's address is really i.e.: 123 Sesame Street, but saying "Alice's House" in this context is the alias understood by the entire friend group.
 
-Networks work the same way lots of these easily memorizable names are easier than typing in a website IP address.
+**ELI5:**<br>
+In a group of friends - Alice, Bob, and Charlie, they want to meet up at each others' house to work on a school project.<br>
+They all agree on **"Alice's house"**. Alice's _actual_ address is really i.e.: **123 Sesame Street**, but saying "Alice's House" in this context is the _alias_ understood by the entire friend group.
+
+Networks work the same way, lots of these easily memorizable names are easier than typing in a website IP address.
+
+**Fun Exercise**:<br>
+Open up your terminal and run:
 ```shell
 ping www.google.com
 ```
-\> PING www.google.com (142.250.176.4): 56 data bytes
-by typing http://142.250.176.4 it takes me to Google.com, but nobody does this because:
-1. it's hard to remember IP Addresses
-2. IP addresses change
 
-But even this DNS mapping process is a request (what is Google.com) and a response (XXX.XXX.XXX.X address)
+You should see an output similar to this:<br>
+```
+> PING google.com (142.250.72.174): 56 data bytes
+```
+If you open up a new browser and type `http://{GOOGLE_IP_ADDRESS}` it'll take you to the same **Google.com** page.
 
--> Now that we know where `Google.com` leads, our server sends a request to this IP address asking "Get me the data at this location Google.com".
-The network routers will send the data bytes through the network (possibly to other routers along the way) until it gets to Google's servers.
-Google says here is the data, and sends it back through the netflix
+Nobody does this because:
+1. Remembering IP addresses are hard
+2. IP addresses change (If you `ping www.google.com` on another day you will notice that the original IP address I retrieved at the time I ran this command is different than the IP address you will see)
 
--> This point we see the webpage contents that Googles' servers responded to our request with.
-
-** Think of data (letter/package), network router (mailman), Google (store).
-We are essentially mailing a letter to Google's offices asking for Google.com data. The network (mailman) will take the letter to the factory where other mailmen might drive
-it to other factories. It reaches Google (store) and looks at our request and responds with the webpage data (package) and mails it back. Delivery process happens the same way back.
-We finally receive the package. Again, request/response.
+**Main Takeaway:**<br>
+The DNS resolution process is simply a **request → response**.<br>
+Device → **asks** what's the IP address for Google.com? → DNS server<br> 
+DNS server → **answers** the IP address is `142.250.72.174` → Device<br>
 
 
-This section provides a brief TL;DR on how the internet works. When you open your browser and navigate to Google.com, several processes occur behind the scenes:<br>
-1. **DNS Resolution**:<br>
-   Google.com is a user-friendly, human-readable name that is easy to remember. This domain name corresponds to an actual IP address, which your machine resolves using a DNS server.
-2. **Request to Server**:<br>
-   Once the IP address is resolved, your machine sends a request to that IP address to retrieve the data located at this address
-3. **Response from Server**:<br>
-   Google's servers receive the incoming request from your machine and return a response with the "data" that you see as Google.com.<br>
+**→ Google Server Request**<br>
+Now that we know the current IP address for `Google.com`, our machine sends an **HTTP request** to Google's server at this address:<br>
+"GET the data at location Google.com`/` (the homepage)".
 
+This **request** travels through multiple **network routers** in the form of **bytes** until it reaches Google's servers.
 
-#### Case Study: Microservices
-Say we're shopping online on Nike.com for some new shoes and we buy the last pair of Nike Air Force 1s. 
+**→ Google Server Response**<br>
+Google's servers will be listening for incoming requests, and say they receive our request.
+They will accept it, fetch the data for Google.com's homepage, and sends it back to the requester's location (passing back through the network routers).
 
-What happens behind the scenes?
--> Our Checkout action on the webpage triggers a whole processes of events.
+**→ Browser Renders the Webpage**<br>
+Our device receives the data response from Google's servers and renders the UI with the content.
+
+**ELI5:**<br>
+Imagine it's pre-internet days:<br>
+Alice lives at `123 Sesame Street, Los Angeles CA, 12345`<br>
+Bob lives at `666 Hell Street, New York NY, 98765`<br>
+
+Alice sends a letter to `666 Hell Street` asking: "Hey Bob, will you be able to attend my birthday party?"
+Bob receives it and mails a letter back to `123 Sesame Street`, responding with: "Yes."
+
+Alice and Bob might not have a deep understanding of how their letter travels across the country, but it'll be processed/driven between multiple factories and multiple deliverers across the country.
+
+This is very similar to how requests/responses are handled and how data is moved over the internet.
+
+<br>
+
+#
+
+#### Case Study #2: Microservices
+Say you're buying movie tickets at AMC Theatres for a new Movie, "Star Wars 10" on December 25th at 6:00 PM local time. You see this: 
+
+Question: What happens behind the scenes?
+-> Your Checkout action on the webpage triggers a whole processes of events.
 First, it might charge our credit card for a new transaction.
 Nike servers will communicate that payment in their databases for transaction history.
 They most likely will be already integrated with several payment SaaS companies like PayPal, etc. This purchase triggers that event.
@@ -72,9 +111,10 @@ The UI team to Nike's database team is another request/response: UI team says de
 Users access Nike's web store is another request/response: User machine says show me the products available, UI responds saying heres the data (they also call the DB team asking for all the products available another request/response).
 
 **Every process here can be boiled down to a request/response.**<br>
-There are many communication protocols, but the two most common protocols I’ve used ubiquitously in big tech are: HTTP and gRPC.
-We will focus only on HTTP in this course. gRPC is mostly used within the microservice s2s architecture, so usually within a company TeamA and TeamB, who work closely with each other,
-have gRPC service contracts allowing for direct service calls, instead of sending over HTTP requests.
+There are many communication protocols, but the two most common protocols I’ve used ubiquitously in most backend systems in big tech are: **HTTP** and **gRPC**.
+
+We will focus only on **HTTP** in this course. **gRPC** is mostly used within the microservice S2S architecture. In a company with say 20 teams, **TeamA** and **TeamB** work closely with each other.
+They will usually have gRPC service contracts allowing for direct service calls, instead of sending over HTTP requests.
 
 Swagger
 Let’s start by setting up our Spring Boot service’s API endpoints that can be easily integrated using Swagger. Another popular tool I’ve used to locally test my service’s API endpoints is Postman (at Snap), but Swagger integrates nicely with Spring Boot, which is what we ubiquitously use for most Netflix microservices.

@@ -8,8 +8,8 @@ All network communication — whether the "internet", or between microservices �
 > _**One server sends a request to another server that does something in response.**_
 > - **_Request → Response_**
 > - **_Cause → Effect_**
-> - **_Call → Response_**
-> - **_Ask → Answer_**
+> - **_Call → Action_**
+> - **_Question → Answer_**
 
 I'll give you simple examples that illustrate this point.
 
@@ -90,27 +90,56 @@ This is very similar to how requests/responses are handled and how data is moved
 #
 
 #### Case Study #2: Microservices
-Say you're buying movie tickets at AMC Theatres for a new Movie, "Star Wars 10" on December 25th at 6:00 PM local time. You see this: 
+Say you're buying movie tickets online through AMC theatres. You select your seats and checkout to confirm your seats/tickets, and see the "Processing..." spinner in the UI. 
+> ![](assets/module1/images/seatpicker.gif)<br>
 
-Question: What happens behind the scenes?
--> Your Checkout action on the webpage triggers a whole processes of events.
-First, it might charge our credit card for a new transaction.
-Nike servers will communicate that payment in their databases for transaction history.
-They most likely will be already integrated with several payment SaaS companies like PayPal, etc. This purchase triggers that event.
+Question: What happens behind the scenes?<br>
+Let's simplify the backend system to 3 components:<br>
+- Frontend Team: team in charge of all the UI interactions on a movie booking webpage
+- Inventory Team: team in charge of storing all information about past/present/future showings and status on bookings
+- Payments Team: team in charge of all payment related data for AMC theatres
 
-Nike needs to deduct their inventory in their database. At their warehouse they had 1 last pair of Air Force 1s, now that you've purchased it
-Nike servers notify some other team's servers saying deduct the inventory by 1. Nike Air Force 1s quantity goes from 1 to 0.
+**Frontend Team** sends the **Inventory Team** a booking event for your user. This temporarily "blocks" (i.e.: 2 minutes) other Users from trying to book the same seats at the same time to prevent race conditions of
+two individuals from purchasing the same movie and the same seats.
+- Movie: Avatar
+- Theater Location: 1 Hollywood Blvd (assume this is one of the many theatres AMC runs/operates)
+- Showing Date: December 19, 2009
+- Showing Time: 6:00 PM
+- Seat(s): [D6, D7]
+- Amount: $20
+- Ticket Owner: {YOUR NAME}
+- User ID: User123
+- Status: **RESERVED**
+- Timestamp: December 18, 2009 5:00 PM
+- Expiration: December 18, 2009 5:02 PM
 
-When a user across the country visits the Nike website, the UI will load the products and for Nike Air Force 1s since they communicate to the DB and see 0 quantity
-and depending on the product design for the webpage, the UI team might choose to 1) not show the Air force 1s entirely or 2) disable "add to cart" and display a "Sold Out" message on the product.
+**Inventory Team** can send the **Payments Team** an event to process the actual payment to charge your user Line of Credit with a partner 3P SaaS company like PayPal.
 
-Our checkout action is a request/response from server to server saying we bought this item.
-There's another request/response from Nike server to payment SaaS servers saying this user bought this item and should be charged $X.
-The payment servers will respond with a confirmation saying the charge of this user went through.
-The UI team to Nike's database team is another request/response: UI team says decrement the inventory of this item, db receives the request decrements the quantity and responds to UI team saying this has been done.
-Users access Nike's web store is another request/response: User machine says show me the products available, UI responds saying heres the data (they also call the DB team asking for all the products available another request/response).
+**PayPal** successfully charges your input Line of Credit for $20 and notifies the **Payment Team**.
 
-**Every process here can be boiled down to a request/response.**<br>
+**AMC Payment Team** notifies the **Inventory Team** of the successful transaction/charge.
+
+The **Inventory Team** updates the event to officially "BOOK" the tentative seats chosen for:
+- Movie: Avatar
+- Theater Location: 1 Hollywood Blvd (assume this is one of the many theatres AMC runs/operates)
+- Showing Date: December 19, 2009
+- Showing Time: 6:00 PM
+- Seat(s): [D6, D7]
+- Amount: $20
+- Ticket Owner: {YOUR NAME}
+- User ID: User123
+- Status: **BOOKED**
+- Timestamp: December 18, 2009 5:00 PM
+
+No other users will be able to book these seats unless you cancel your reservation or maybe there was an issue with the many backend processes within the different backend systems, thus lifting the temporary lock on seats: [D5, D6].
+
+This is just an example of how one seemingly small action on the UI can trigger a chain reaction of processes in the backend to ensure that Users can book movie seats.<br>
+BTS, there's many teams made of up multiple microservices all communicating with each other via request/responses to ensure the booking process is secure.
+
+There's no single way of building products company to company or even team to team, this is just a brief example.
+
+**Main Takeaway: Every process can be boiled down to a request/response built within a single microservice, further built between multiple services to create an ecosystem of communication.**<br>
+
 There are many communication protocols, but the two most common protocols I’ve used ubiquitously in most backend systems in big tech are: **HTTP** and **gRPC**.
 
 We will focus only on **HTTP** in this course. **gRPC** is mostly used within the microservice S2S architecture. In a company with say 20 teams, **TeamA** and **TeamB** work closely with each other.

@@ -24,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @Testcontainers
 @ExtendWith(SpringExtension.class)
 @Tag("Module3")
+// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
+@Disabled
 public class GreetingSqlServiceTest {
 
     @Container

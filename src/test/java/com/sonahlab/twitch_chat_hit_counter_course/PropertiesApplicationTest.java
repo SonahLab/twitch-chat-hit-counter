@@ -22,8 +22,6 @@ public class PropertiesApplicationTest {
     // MODULE 2
     // =================================================================================================================
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
-    @Disabled
     @Tag("Module2")
     public void springKafkaConfigsTest() {
         assertEquals("localhost:9092", env.getProperty("spring.kafka.bootstrap-servers"));
@@ -38,8 +36,6 @@ public class PropertiesApplicationTest {
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
-    @Disabled
     @Tag("Module2")
     public void kafkaGreetingTopicNameTest() {
         assertEquals("greeting-events", env.getProperty("twitch-chat-hit-counter.kafka.greeting-topic"));

@@ -52,11 +52,19 @@ For `Module 5`, the below file structure are all the relevant files needed.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/class.svg" align="center"/> TwitchChatRedisService.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/package.svg" align="center"/> rest/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/class.svg" align="center"/> OAuthRestController.java<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/class.svg" align="center"/> TwitchRestController.java<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/package.svg" align="center"/> sql/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/class.svg" align="center"/> TwitchChatSqlService.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/package.svg" align="center"/> twitch/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/class.svg" align="center"/> TwitchAuthService.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/class.svg" align="center"/> TwitchChatBotManager.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -68,7 +76,7 @@ For `Module 5`, the below file structure are all the relevant files needed.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/yaml.svg" align="center"/> application.yml<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="assets/common/yaml.svg" align="center"/> twitchApiKey.yml<br>
+<img src="assets/common/yaml.svg" align="center"/> twitch-key.properties<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/folder.svg" align="center"/> test/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -166,9 +174,9 @@ This yaml file is already added in **.gitignore**, so your keys will not and sho
 - [ ] Open `TwitchConfigTest.java` ─ already implemented
 - [ ] Remove `@Disabled` in `TwitchConfigTest.java` for method(s): `testTwitchClientKeys()`
 - [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
-```
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
+    ```
 
 <br>
 
@@ -273,9 +281,9 @@ https://id.twitch.tv/oauth2/authorize
 - [ ] Open `TwitchAuthServiceTest.java` ─ already implemented to test that the requirements above are filled.
 - [ ] Remove `@Disabled` in `TwitchAuthServiceTest.java` for the test method(s): `getAuthUrlTest()`
 - [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
-```
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
+    ```
 
 #
 
@@ -371,17 +379,17 @@ Return a `Map<String, String>` of all the parameters that were passed into this 
 - [ ] Open `OAuthRestControllerTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `OAuthRestControllerTest.java` for the test method(s): `handleCallbackSuccessTest()` and `handleCallbackErrorTest()`
 - [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
-```
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
+    ```
 
 #
 
 ### Integration Testing
 - [ ] Run the application:
-```shell
-./gradlew bootRun
-```
+    ```shell
+    ./gradlew bootRun
+    ```
 - [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
 - [ ] Play with the **Twitch API**: `GET /oauth2/authorize`
 - [ ] Kick off the authorization by accessing your browser and entering the returned URL from `GET /oauth2/authorize`
@@ -444,9 +452,9 @@ Return the String representation of a Map<String, String> payload from creating 
 - [ ] Open `TwitchAuthServiceTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `TwitchAuthServiceTest.java` for the test method(s): `TODO()` and `TODO()`
 - [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
-```
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
+    ```
 
 #
 
@@ -460,9 +468,9 @@ In `OAuthRestController.java`, implement `public Map<String, String> handleToken
 
 ### Integration Testing
 - [ ] Run the application:
-```shell
-./gradlew bootRun
-```
+    ```shell
+    ./gradlew bootRun
+    ```
 - [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
 - [ ] Play with the **Twitch API**: `GET /oauth2/authorize`
 - [ ] Kick off the authorization by accessing your browser and entering the returned URL from `GET /oauth2/authorize`
@@ -642,7 +650,7 @@ TODO example of successful overwrite
 #
 
 ### Example 2:
-TODO Example of non successful call to /token so we skip overwrite
+TODO Example of non-successful call to /token so we skip overwrite
 
 #
 
@@ -826,12 +834,12 @@ twitch-chat-hit-counter:
 ```
 
 ### Testing
-- [ ] Open `ProfileApplicationTest.java` ─ already implemented to test the properties above.
-- [ ] Remove `@Disabled` in `ProfileApplicationTest.java` for the test method(s): `testDefaultProfile_kafka_twitchChatTopicName()`
+- [ ] Open `PropertiesApplicationTest.java` ─ already implemented to test the properties above.
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method(s): `kafkaTwitchChatTopicNameTest()`
 - [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
-```
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
+    ```
 
 ### Task 2: Producer
 In `TwitchChatEventProducer.java`, fix the constructor and inject the topic name from `application.yml`.
@@ -859,9 +867,9 @@ This is where our abstract class pays dividends. We don't need to repeat code an
 - [ ] Open `TwitchChatEventProducer.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `TwitchChatEventProducer.java`
 - [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module5`
-```
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5`
+    ```
 
 <br>
 

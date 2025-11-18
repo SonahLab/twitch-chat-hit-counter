@@ -17,11 +17,9 @@ public abstract class AbstractSqlService<T> {
          * */
     }
 
-    protected abstract String sqlTableName();
+    public abstract String sqlTableName();
 
-    protected abstract List<String> columns();
-
-    protected abstract String primaryKey();
+    public abstract List<String> columns();
 
     protected abstract void bind(PreparedStatement ps, T event);
 

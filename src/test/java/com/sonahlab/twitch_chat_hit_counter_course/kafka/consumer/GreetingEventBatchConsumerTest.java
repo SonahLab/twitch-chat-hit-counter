@@ -25,7 +25,7 @@ import java.util.List;
 @EmbeddedKafka(partitions = 1, topics = {"test_batch_consumer_topic"}, brokerProperties = {"listeners=PLAINTEXT://localhost:9092"})
 @TestPropertySource(properties = {
         "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
-        "twitch-chat-hit-counter.kafka.consumer.greeting-topic=test_batch_consumer_topic",
+        "twitch-chat-hit-counter.kafka.greeting-topic=test_batch_consumer_topic",
         "spring.kafka.consumer.group-id=test-batch-group-id"
 })
 @DirtiesContext
@@ -65,7 +65,7 @@ public class GreetingEventBatchConsumerTest {
                 ArgumentCaptor.forClass(List.class);
 
         Mockito.verify(consumer, Mockito.timeout(5000).times(1))
-                .processMessage(batchCaptor.capture(), Mockito.any(Acknowledgment.class));
+                .processMessages(batchCaptor.capture(), Mockito.any(Acknowledgment.class));
 
         List<ConsumerRecord<String, byte[]>> batchRecords = batchCaptor.getValue();
         Assertions.assertEquals(events.size(), batchRecords.size(), "Batch size mismatch");

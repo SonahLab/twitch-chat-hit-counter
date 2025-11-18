@@ -14,7 +14,6 @@ import java.util.List;
  * Recommended Learning materials to learn Spring Boot + SQL integration:
  * - https://docs.spring.io/spring-boot/reference/data/sql.html
  */
-@Service
 public class GreetingSqlService extends AbstractSqlService<GreetingEvent> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GreetingSqlService.class);
@@ -27,7 +26,7 @@ public class GreetingSqlService extends AbstractSqlService<GreetingEvent> {
     }
 
     @Override
-    protected String sqlTableName() {
+    public String sqlTableName() {
         /**
          * TODO: Implement as part of Module 3
          * */
@@ -35,19 +34,11 @@ public class GreetingSqlService extends AbstractSqlService<GreetingEvent> {
     }
 
     @Override
-    protected List<String> columns() {
+    public List<String> columns() {
         /**
          * TODO: Implement as part of Module 3
          * */
         return List.of();
-    }
-
-    @Override
-    protected String primaryKey() {
-        /**
-         * TODO: Implement as part of Module 3
-         * */
-        return "";
     }
 
     @Override

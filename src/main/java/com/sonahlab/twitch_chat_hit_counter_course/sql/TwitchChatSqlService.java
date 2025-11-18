@@ -27,7 +27,7 @@ public class TwitchChatSqlService extends AbstractSqlService<TwitchChatEvent> {
     }
 
     @Override
-    protected String sqlTableName() {
+    public String sqlTableName() {
         /**
          * TODO: Implement as part of Module 5
          * */
@@ -35,19 +35,11 @@ public class TwitchChatSqlService extends AbstractSqlService<TwitchChatEvent> {
     }
 
     @Override
-    protected List<String> columns() {
+    public List<String> columns() {
         /**
          * TODO: Implement as part of Module 5
          * */
         return List.of();
-    }
-
-    @Override
-    protected String primaryKey() {
-        /**
-         * TODO: Implement as part of Module 5
-         * */
-        return "";
     }
 
     @Override

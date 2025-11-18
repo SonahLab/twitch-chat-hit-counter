@@ -2,82 +2,78 @@
 ## Twitch Chat Hit Counter
 ## Module 2: Kafka
 ### Recommended Learning Materials
-- **Kafka**: https://kafka.apache.org/intro
-- **Cloud Karafka Kafka Overview**: https://www.cloudkarafka.com/blog/part1-kafka-for-beginners-what-is-apache-kafka.html
-- **Confluent**: https://docs.confluent.io/kafka/introduction.html
-- **Spring Boot Kafka**: https://spring.io/projects/spring-kafka
-- **Baeldung Spring Kafka:** https://www.baeldung.com/spring-kafka
-- Spring Boot Kafka Integration: https://www.geeksforgeeks.org/spring-boot-integration-with-kafka/
-
-> [!TIP]
->
-> Take the time to read through the Kafka links listed above.<br>
+- [Official Apache Kafka Docs <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://kafka.apache.org/intro)
+- [Cloud Karafka's Kafka Overview <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.cloudkarafka.com/blog/part1-kafka-for-beginners-what-is-apache-kafka.html)
+- [Confluent's Kafka Overview <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.confluent.io/kafka/introduction.html)
+- [Official Spring Boot Kafka Docs <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://spring.io/projects/spring-kafka)
+- [Baeldung's Spring Kafka Guide <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/spring-kafka)
+- [GeeksForGeek's Spring Boot Kafka Guide <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.geeksforgeeks.org/spring-boot-integration-with-kafka/)
 
 <br>
 
 ## Overview
-I highly recommend reading through the Kafka Introduction above to learn what Kafka is, how it works, and why it’s used ubiquitously in large distributed systems.
+I highly recommend reading through the various **Kafka Overviews** + **Spring Kafka Integration Guides** above to learn: what Kafka is, how it works, and how to set it up in our Spring Boot project. 
 
-Kafka is a distributed message log, where it temporarily holds incoming events.
+Kafka, or some other sort of message/task queue, is used ubiquitously in large distributed systems in all tech companies dealing with large amounts of real-time/streaming/always-on data. Netflix, Youtube, TikTok, Uber, Facebook, or {INSERT_YOUR_FAVORITE_TECH_COMPANY_HERE} is expected to be **always on**, **always up**, **always working**, and **always available**, logging user impressions that powers all parts of a company's core business. Data is at the foundation of every company and as companies scale for 100s of millions of users, the goal is to collect/distribute the data to your consumers as fast as possible.<br>
+
+### Some anecdotal examples:
+#### Netflix
+We use Apache Kafka as the go to real-time streaming message queue.
+
+We have client teams recording Playback events to Kafka.
+
+On the **Ads Reporting Team**, we take these billions of raw impressions, filter for ad impressions, transform them into clean Ad events, and dump them downstream to other Kafka topics or databases for all other teams in the Ads Platform to use for their daily operations.
+
+#### Snapchat
+At Snapchat, we had a partnership w/ Google Cloud Platform (GCP), so we used **Google PubSub**. It's not necessarily the same as Kafka but achieved roughly the same thing as a task queue.
+
+On the **Ads Reporting Team** there, we did essentially the same thing that Netflix is doing to build our Realtime Reporting dashboards that powered the internal Ad Manager tool where managers can login to see how their ad campaigns were performing in real-time. 
+
+I built the E2E Reach Insights Reporting Pipeline, streaming a daily 600+ billion events to aggregate unique reach stats up to different time-series (Minutely/Hourly/Daily/Lifetime) for all different dimensions (Age/Gender/DMA/region/etc). Some other pipelines have even more data, so your pipelines better scale and they better be fast/durable/fault-tolerant/stable/acurrate/all of the above.
+
+#### Yelp
+As an intern here, Apache Kafka was a core part of the company's real-time streaming pipelines. It's been years since I worked there, so I don't remember exactly the use cases but I know it was at the core of the data pipelines.
+
+**TL;DR:** Read any Tech blogs from major tech companies and you'll see just how prevalent message log/queues are for streaming a large amount of events.
+
+#
+
+<ins>Kafka</ins> is a distributed, stateful message log, temporarily storing events for decoupled event processing.<br>
+<ins>Kafka producers</ins> don't need to wait for any consumers to ack that they've received the data, producers simply write data to kafka topics, which durably store events for a configured period of time.<br>
+<ins>Kafka consumers</ins> don't need to interact with the producers at all, they can just poll kafka topics to check if there's new data. Kafka is able to statefully track consumer group ids (offsets), so that consumers can read data while checkpointing where they are in the log of events so events.
+
+Kafka has the ability to let you go back in time and to replay/backfill data by allowing consumers to start reading earlier offsets.
+
+Kafka is not generally known to be used as a DB, think of it more as an **ephemeral holding area** where producers/consumers come and go as they please to write/read packages. Also, the higher the TTL, the more costly it becomes on your server maintenance costs to store events for 24 hours vs 365 days.
+
+I normally see TTLs closer to 24 hours during normal operations, and extended up to 1-7 day(s) during operational issues to give teams a bit of buffer to deal with real production issues (time to **root cause**, **debug**, **deploy fixes**, and potentially **backfill** data).
+
+
+#### Case Study
 Imagine we work at Netflix, and support streaming on several playback devices (i.e.: Web, Mobile (iOS/Android), and TV).</br>
 For this case study, let's just divide responsibility of teams by device.
-- iOS Team: collects all user events from all iOS devices.
-- Android Team: collects all user events from all android devices.
-- Web Team: collects all user events from all Web devices.
-- TV Team: collects all user events from TV devices.
-Imagine that we now own 3 products: Google Search, YouTube, and Google Photos.
+- **iOS Team**: collects all user events from all iOS devices.
+- **Android Team**: collects all user events from all android devices.
+- **Web Team**: collects all user events from all Web devices.
+- **TV Team**: collects all user events from TV devices.
 
-We are the UserEventing Team, in charge of processing all events into UserEvents for all of our downstream teams to use as the Source of Truth for all user data.
+Let's call ourselves the **UserEventing Team**, in charge of processing all events from the upstream client teams into **UserEvents** for all of our downstream teams to use as the **SoT** for all user data.
 
-Downstream we might have:
-User Insights/Engagement Team: in charge of analyzing user engagement data to
-User Identity Team: in charge of building the Day-over-day or Month-over-Month metrics to analyze DAU/MAU over time.
-User Bonus Team: in charge of rewarding the power users of our product with bonuses in cash outs or special perks.
+#### Downstream stakeholder(s):
+- **Content Recommendation Team**: Analyzes user engagement data to see what a particular User likes to watch so we can better recommend shows/movies in their Top 10 list that are more tailored to their taste (i.e.: Rom Com, Horror, Thriller, Comedy).
+- **User Growth Team**: Analyzes user growth with DAU/MAUs, maybe driving new initiatives like push notifications about new releases to encourage stale users to get back on the platform.
+- **Ads Team**: Analyzes ad performance to show advertisers improved ROAS on their campaigns, driving increased ad spend to Netflix vs other streaming platforms.
 
-In a large scale organization where many teams and systems depend on each other, decoupling is essential to scalability, reliability. We can setup kafka topics as the intermediary link between teams where the producer will publish/write any events, and consumers will subscribe/read any new events as they come in.
+This a just a hypothetical example of how teams power each other with data to help drive business growth by, first, gathering and making sense of the data, and then using the findings to drive new products or initiatives.
 
-A bad example is Team A sends data directly to Team B through some endpoint. What if either side fails in this handoff? What if Team B fails to process an event, will Team A know to re-process an old event?
-
-Think of Kafka as a temporary message queue where events are stored with an expiration date of, usually <24 hours. The longer the TTL on the events, the more cost is incurred in storing and managing older events.
-
-*** My rule of thumb: if you work at a big tech company and are in charge of a realtime event pipeline, and you don’t have mechanisms in place to catch/fix issues within 24 hours before old events are purged, this is a clear engineering diff, and there are big gaps in the system. Kafka isn’t meant for long-term storage, so you shouldn’t have super long TTL’s on the events, git gud and fix your system.
-
+**TL;DR:**
+In a large scale organization where many teams and systems are interconnected, decoupling as much as possible is essential to scalability. We can setup kafka topics as the intermediary link between teams where the producer will publish/write events to, and consumers will subscribe/read events from as they come in. Zero **direct** dependency between any two teams. **TeamA** doesn't need to wait on **TeamB** to confirm they received the data, and vice versa.
 
 <br>
-
 
 ## File Structure
 For `Module 2`, the below file structure are all the relevant files needed.
 
-[//]: # (```)
-[//]: # (twitch-chat-hit-counter/src/)
-[//]: # (├── main/)
-[//]: # (│   ├── java/)
-[//]: # (│   │   └── com.sonahlab.twitch_chat_hit_counter/)
-[//]: # (│   │       ├── config/)
-[//]: # (│   │       │   └── KafkaConfig.java)
-[//]: # (│   │       ├── kafka/)
-[//]: # (│   │       │   ├── consumer/)
-[//]: # (│   │       │   │   ├── GreetingEventBatchConsumer.java)
-[//]: # (│   │       │   │   └── GreetingEventConsumer.java)
-[//]: # (│   │       │   └── producer/)
-[//]: # (│   │       │       └── GreetingEventProducer.java)
-[//]: # (│   │       ├── model/)
-[//]: # (│   │       │   └── GreetingEvent.java)
-[//]: # (│   │       └── rest/)
-[//]: # (│   │           └── ApplicationRestController.java)
-[//]: # (│   └── resources/)
-[//]: # (│       └── application.yml)
-[//]: # (└── test/)
-[//]: # (    └── java/)
-[//]: # (        └── com.sonahlab.twitch_chat_hit_counter/)
-[//]: # (            └── kafka/)
-[//]: # (                ├── consumer/)
-[//]: # (                │   ├── GreetingEventBatchConsumerTest.java)
-[//]: # (                │   └── GreetingEventConsumerTest.java)
-[//]: # (                └── producer/)
-[//]: # (                    └── GreetingEventProducerTest.java)
-[//]: # (```)
 <img src="assets/common/module.svg" align="center"/> twitch-chat-hit-counter/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/folder.svg" align="center"/> src/<br>
@@ -138,7 +134,11 @@ For `Module 2`, the below file structure are all the relevant files needed.
 
 ## Objective
 ![](assets/module2/images/Module2_Overview.svg)<br>
-**Module 2** is mostly about setting up an HTTP request endpoint that will take a User submitted GreetingEvent and pub/sub the event onto a kafka topic. 
+**Module 2** is mostly about:
+1. Setting up an HTTP request endpoint that will take a User submitted greeting
+2. Convert the input fields into a `GreetingEvent`
+3. PubSub the event through a kafka topic
+4. Log the event to stdout for us to verify the event was read from kafka
 
 <br>
 
@@ -146,13 +146,13 @@ For `Module 2`, the below file structure are all the relevant files needed.
 Start our local Kafka instance via Docker: [Kafka Quickstart <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://kafka.apache.org/quickstart)<br>
 1. Open and login to **Docker Desktop**
 2. Get the Docker image:
-```bash
-docker pull apache/kafka:4.1.0
-```
+    ```bash
+    docker pull apache/kafka:4.1.0
+    ```
 3. Start the Kafka Docker container:
-```bash
-docker run -p 9092:9092 apache/kafka:4.1.0
-```
+    ```bash
+    docker run -p 9092:9092 apache/kafka:4.1.0
+    ```
 
 <br>
 
@@ -172,13 +172,13 @@ In **Offset Explorer 3**, connect to our Kafka cluster running in Docker.
 
 <br>
 
-## Create your first kafka topic
+## Create Kafka Topic: `greeting-events`
 1. Navigate to the _**Clusters/twitch-chat-hit-counter/Topics**_ folder
 2. Click '+' to add a new kafka topic
 3. Input kafka topic configs:
-   1. **Topic name**: greeting-events<br>
-   2. **Partition Count**: 3<br>
-   3. **Replica Count**: 1
+   1. **Topic name**: `greeting-events`<br>
+   2. **Partition Count**: `3`<br>
+   3. **Replica Count**: `1`
 4. Select our kafka topic in **_Clusters/twitch-chat-hit-counter/Topics/greeting-events_**
 5. Change the **Content Types** for the key and value from **'Byte Array'** → **'String'**, and save by clicking **Update**.
 
@@ -192,32 +192,105 @@ In **Offset Explorer 3**, connect to our Kafka cluster running in Docker.
 > **Relevant Files**<br>
 > `application.yml` ─ our service's property file<br>
 
-### Task 1: Configure application.yml
-| Property                                   | Required?    | Role         | Supported/Example Values                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Description                                                                                                                                      |
-|--------------------------------------------|--------------|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| `spring.kafka.bootstrap-servers`           | **Required** | **Both**     | i.e.: "host:port"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Specifies the Kafka broker(s) to connect to. No connection without it.                                                                           |
-| `spring.kafka.consumer.group-id`           | **Required** | **Consumer** | i.e.: "applicationName-group-id-0"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Defines the consumer group name. Kafka uses this to track message consumption. Multiple consumers with the same group ID share the message load. |
-| `spring.kafka.consumer.auto-offset-reset`  | Optional     | **Consumer** | `latest` **(default)**<br>`earliest`<br> `none`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | Controls where to start reading if no offset is committed. Default: `latest`.                                                                    |
-| `spring.kafka.consumer.enable-auto-commit` | Optional     | **Consumer** | `true` **(default)**<br>`false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | Whether to auto-commit offsets. Default: `true`. Use `false` for manual acks.                                                                    |
-| `spring.kafka.consumer.key-deserializer`   | **Required** | **Consumer** | <ul><li>`org.apache.kafka.common.serialization.StringDeserializer`</li><li>`org.apache.kafka.common.serialization.IntegerDeserializer`</li><li>`org.apache.kafka.common.serialization.LongDeserializer`</li><li>`org.apache.kafka.common.serialization.DoubleDeserializer`</li><li>`org.apache.kafka.common.serialization.FloatDeserializer`</li><li>`org.apache.kafka.common.serialization.ByteArrayDeserializer`</li><li>`org.apache.kafka.common.serialization.UUIDDeserializer`</li><li>`org.springframework.kafka.support.serializer.JsonDeserializer`</li></ul> | Converts incoming kafka message key back to object (e.g., `String`). Must match key-serializer on producer.                                      |
-| `spring.kafka.consumer.value-deserializer` | **Required** | **Consumer** | Same list as `key-deserializer` (most common: `StringDeserializer`, `JsonDeserializer`, `ByteArrayDeserializer`).<br> Converts incoming value bytes back to object. Must match serializer.                                                                                                                                                                                                                                                                                                                                                                            | Converts incoming kafka message value back to object (e.g., `String`). Must match value-serializer on producer.                                  |
-| `spring.kafka.producer.key-serializer`     | **Required** | **Producer** | <ul><li>`org.apache.kafka.common.serialization.StringSerializer`</li><li>`org.apache.kafka.common.serialization.IntegerSerializer`</li><li>`org.apache.kafka.common.serialization.LongSerializer`</li><li>`org.apache.kafka.common.serialization.DoubleSerializer`</li><li>`org.apache.kafka.common.serialization.FloatSerializer`</li><li>`org.apache.kafka.common.serialization.ByteArraySerializer`</li><li>`org.apache.kafka.common.serialization.UUIDSerializer`</li><li>`org.springframework.kafka.support.serializer.JsonSerializer`</li></ul>                 | Converts produced kafka message key to object (e.g., `String`). Must match key-deserializer on consumer.                                         |
-| `spring.kafka.producer.value-serializer`   | **Required** | **Producer** | Same list as `key-serializer` (most common: `StringSerializer`, `JsonSerializer`, `ByteArraySerializer`).<br>                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Converts produced kafka message value to object (e.g., `String`). Must match value-deserializer on consumer.                                     |
+### Lesson: Autoconfiguration
+> [!IMPORTANT]
+>
+> Autoconfiguration is a core aspect of Spring Boot.<br>
+> _"Spring Boot’s auto-configuration feature is one of its standout functionalities, allowing developers to build applications with minimal boilerplate code"_
+>
+> Links:
+> - [How Spring Boot Auto-Configuration Works [Medium] <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://medium.com/@AlexanderObregon/how-spring-boot-auto-configuration-works-68f631e03948)<br>
+> - [Understanding Auto-Configured Beans [Spring Docs] <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html#features.developing-auto-configuration.understanding-auto-configured-beans)<br>
+> - [Spring Boot Auto-Configuration [GeeksForGeeks] <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.geeksforgeeks.org/java/spring-boot-auto-configuration/)<br>
+
+Case Study:
+Imagine I created a new revolutionary open source Database called **SonahDB**.
+
+In order to connect to a generic SonahDB **cluster** you need:
+1. server-location
+2. username
+3. password
+
+Imagine I created a public open source Java Library that for all developers around the world to import into their project to use.<br>
+Now say Alice is spins up her own **SonahDB**, and wants to connect to it so that she can store data on it.<br>
+In Alice's application she would normally need to manually create some client to use in her project:
+```java
+@Bean
+public SonahDbClient() {
+    SonahDbClient client = new SonahDbClient(
+            "localhost:1234",
+            "aliceUsername",
+            "aliceSecretPassword"
+    );
+}
+```
+
+This is where Spring Boot autoconfiguration becomes so powerful. Let's assume that for the open source Java Library I tell developers,
+if you import my library into your project and if you provide me `spring.sonahDB.server-location`, `spring.sonahDB.username`, and `spring.sonahDB.password`
+my library will create this `SonahDbClient` object on your behalf at runtime when you run your Spring Boot application.
+And in the case where Alice neither creates the `SonahDbClient` herself or provide the 3 fields required, I will still build her the `SonahDbClient` object
+but using some default values.
+
+Alice's code never explicitly needs to create the `SonahDbClient`, she just defines the fields from a library's guidance and
+can safely assume it works out of the box.
+
+This is what Spring Boot's Autoconfiguration boils down to. For any library you pull in, you should read the documentation of a library to see if it supports autoconfiguration and also what fields you need to set,
+meaning you just define some properties in your `application.yml` property file and when you run `./gradlew bootRun` you trust that
+the libraries you depend on will build all the relevant Beans on your behalf. Less code and manual setup, for increased development velocity.
+
+[KafkaAutoConfiguration.java <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-boot/api/java/org/springframework/boot/autoconfigure/kafka/KafkaAutoConfiguration.html) is the class that autoconfigures Kafka behind the scenes.
+Spring Kafka library will build all the relevant Beans on our behalf, unless we:
+1. Explicitly override the Beans ourselves
+2. Disable a library from Autoconfiguration
+
+Spring Kafka Autoconfiguration Lifecycle:
+
+
+### Task 1: Spring Kafka Producer/Consumer properties
+In `application.yml`, set the **Spring Kafka** properties listed in the table below.
+
+
+| Property                                   | Required?    | Role         | Supported/Example Values                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Description                                                                                                                              |
+|--------------------------------------------|--------------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| `spring.kafka.bootstrap-servers`           | **Required** | **Both**     | i.e.: "host:port"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Specifies the Kafka broker(s) to connect to. No connection without it.                                                                   |
+| `spring.kafka.consumer.group-id`           | **Required** | **Consumer** | i.e.: "applicationName-group-id-0"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Defines the consumer group name. Kafka uses this to track message consumption. Multiple consumers with the same group ID share the message load. |
+| `spring.kafka.consumer.auto-offset-reset`  | Optional     | **Consumer** | `latest` **(default)**<br>`earliest`<br> `none`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | Controls where to start reading if no offset is committed. Default: `latest`.                                                            |
+| `spring.kafka.consumer.enable-auto-commit` | Optional     | **Consumer** | `true` **(default)**<br>`false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | Whether to auto-commit offsets. Default: `true`. Use `false` for manual acks.                                                            |
+| `spring.kafka.consumer.key-deserializer`   | **Required** | **Consumer** | <ul><li>`org.apache.kafka.common.serialization.StringDeserializer`</li><li>`org.apache.kafka.common.serialization.IntegerDeserializer`</li><li>`org.apache.kafka.common.serialization.LongDeserializer`</li><li>`org.apache.kafka.common.serialization.DoubleDeserializer`</li><li>`org.apache.kafka.common.serialization.FloatDeserializer`</li><li>`org.apache.kafka.common.serialization.ByteArrayDeserializer`</li><li>`org.apache.kafka.common.serialization.UUIDDeserializer`</li><li>`org.springframework.kafka.support.serializer.JsonDeserializer`</li></ul>                                                                                                                                                                                                                                                                                                                                                                                                     | Converts incoming kafka message key back to object (e.g., `String`). Must match key-serializer on producer.                              |
+| `spring.kafka.consumer.value-deserializer` | **Required** | **Consumer** | Same list as `key-deserializer` (most common: `StringDeserializer`, `JsonDeserializer`, `ByteArrayDeserializer`).<br> Converts incoming value bytes back to object. Must match serializer.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Converts incoming kafka message value back to object (e.g., `String`). Must match value-serializer on producer.                          |
+| `spring.kafka.listener.ack-mode`           | Optional     | **Consumer** | <ul><li>**RECORD**: Commit the offset when the listener returns after processing the record.</li><li>**BATCH** (**default**): Commit the offset when all the records returned by the poll() have been processed.</li><li>**TIME**: Commit the offset when all the records returned by the poll() have been processed, as long as the ackTime since the last commit has been exceeded.</li><li>**COUNT**: Commit the offset when all the records returned by the poll() have been processed, as long as ackCount records have been received since the last commit.</li><li>**COUNT_TIME**: Similar to TIME and COUNT, but the commit is performed if either condition is true.</li><li>**MANUAL**: The message listener is responsible to acknowledge() the Acknowledgment. After that, the same semantics as BATCH are applied.</li><li>**MANUAL_IMMEDIATE**: Commit the offset immediately when the Acknowledgment.acknowledge() method is called by the listener.</li></ul> | Listener AckMode.                                     |
+| `spring.kafka.producer.key-serializer`     | **Required** | **Producer** | <ul><li>`org.apache.kafka.common.serialization.StringSerializer`</li><li>`org.apache.kafka.common.serialization.IntegerSerializer`</li><li>`org.apache.kafka.common.serialization.LongSerializer`</li><li>`org.apache.kafka.common.serialization.DoubleSerializer`</li><li>`org.apache.kafka.common.serialization.FloatSerializer`</li><li>`org.apache.kafka.common.serialization.ByteArraySerializer`</li><li>`org.apache.kafka.common.serialization.UUIDSerializer`</li><li>`org.springframework.kafka.support.serializer.JsonSerializer`</li></ul>                                                                                                                                                                                                                                                                                                                                                                                                                     | Converts produced kafka message key to object (e.g., `String`). Must match key-deserializer on consumer.                                 |
+| `spring.kafka.producer.value-serializer`   | **Required** | **Producer** | Same list as `key-serializer` (most common: `StringSerializer`, `JsonSerializer`, `ByteArraySerializer`).<br>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Converts produced kafka message value to object (e.g., `String`). Must match value-deserializer on consumer.                             |
 - List of [Spring Kafka supported fields <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://gist.github.com/geunho/77f3f9a112ea327457353aa407328771)<br>
   ![](assets/module2/images/ser_deser.svg)<br>
 
 #### Requirements:
-1. **bootstrap-server**: Set it to the default local values
+1. **bootstrap-server**: Set it to the default bootstrap-server [`localhost:9092` <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/spring-projects/spring-boot/blob/2e52c3c35e0bd44ec35dceaeaed1737905a00196/module/spring-boot-kafka/src/main/java/org/springframework/boot/kafka/autoconfigure/KafkaProperties.java#L71)
 2. **group-id**: Set it to follow this format `{application_name}-group-id-{number}`
-3. **auto-offset-reset**: Set it to use the `earliest` for the consumer `group-id`
+3. **auto-offset-reset**: Set it to `earliest`
 4. **enable-auto-commit**: Set it to `true` so we have full control in processing/ack'ing each message
 5. **key-deserializer/value-deserializer**: Set it to write kafka messages as **<K (String), V (ByteArray)>** pairs
 6. **key-serializer/value-serializer**: Set it to read kafka messages as **<K (String), V (ByteArray)>** pairs
+7. **ack-mode**: Set it MANUAL so we have full control over acking the messages.
 
 #
 
-### Task 2: Set our `greeting-events` topic name property
-We need to define the property for the `greeting-events` topic we just created in **Offset Explorer 3**.
+### Testing
+- [ ] Open `PropertiesApplicationTest.java` ─ already implemented, testing each property against the expected values we want for this course.
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method: `springKafkaConfigsTest()`
+- [ ] Open `KafkaConfigTest.java` ─ already implemented, testing the autoconfigured Beans that Spring Kafka injects for us.
+- [ ] Remove `@Disabled` in `KafkaConfigTest.java` for the test method: `testKafkaTemplateConfig()` and `kafkaListenerContainerFactory_beanTest()`
+- [ ] Test with:
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
+    ```
+
+<br>
+
+#
+
+### Task 2: Set topic name property: `greeting-events`
+In `application.yml`, set the property for the `greeting-events` topic we just created in **Offset Explorer 3**.
 
 The updated `application.yml` should look like this:
 ```yaml
@@ -226,23 +299,19 @@ spring:
 
 twitch-chat-hit-counter:
   kafka:
-    consumer:
-      greeting-topic:
-        greeting-events
-    producer:
-      greeting-topic:
-        greeting-events
+    greeting-topic:
+      greeting-events
 ```
 
 #
 
 ### Testing
-- [ ] Open `ProfileApplicationTest.java` ─ already implemented, testing each property against the expected values we want for this course.
-- [ ] Remove `@Disabled` in `ProfileApplicationTest.java` for the test method: `testDefaultProfile_kafkaConfigs()` and `testDefaultProfile_kafka_greetingTopicName()`
+- [ ] Open `PropertiesApplicationTest.java` ─ already implemented, testing each property against the expected values we want for this course.
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method: `kafkaGreetingTopicNameTest()`
 - [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
-```
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
+    ```
 
 <br>
 
@@ -251,89 +320,48 @@ twitch-chat-hit-counter:
 
 > [!NOTE]
 >
-> **Relevant Files**<br>
-> `KafkaConfig.java` ─ Configuration class to store our Kafka related Beans</br>
+> **Relevant Files**:<br>
 > `GreetingEvent.java` ─ data model to encapsulate a simple greeting.</br> 
 > `GreetingEventProducer.java` ─ the class that publishes `GreetingEvent` objects to our dedicated kafka topic `greeting_topic`
 
+<br>
 
-### Task 1: Kafka Producer Beans
-In `KafkaConfig.java`, create two `@Bean` objects for `ProducerFactory.java` and `KafkaTemplate.java` these are **required** by **Spring Kafka** at runtime to autoconfigure operations to/from our kafka topic within our application.
+### Task 1: AbstractEventProducer
+Our `AbstractEventProducer.java` is the parent class for writing any type of Event object into a kafka topic.
+Core principle of good programming: D.R.Y (Don't Repeat Yourself). All child classes that `extend AbstractEventProducer`,
+don't need to worry about the kafka topic write logic once it's defined in the parent.
 
-> [!IMPORTANT]
->
-> [KafkaAutoConfiguration.java <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-boot/api/java/org/springframework/boot/autoconfigure/kafka/KafkaAutoConfiguration.html) is the class that autoconfigures Kafka behind the scenes.
-> 
-> Autoconfiguration is an important part of Spring Boot.<br>
-> _"Spring Boot’s auto-configuration feature is one of its standout functionalities, allowing developers to build applications with minimal boilerplate code"_
->
-> Links:
-> - [How Spring Boot Auto-Configuration Works [Medium] <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://medium.com/@AlexanderObregon/how-spring-boot-auto-configuration-works-68f631e03948)<br>
-> - [Understanding Auto-Configured Beans [Spring Docs] <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html#features.developing-auto-configuration.understanding-auto-configured-beans)<br>
-> - [Spring Boot Auto-Configuration [GeeksForGeeks] <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.geeksforgeeks.org/java/spring-boot-auto-configuration/)<br>
-
-**Requirements:**
-1. Create `ProducerFactory` @Bean by passing in the `bootstrap-servers`, `key-serializer`, `value-serializer` configs from the `application.yml`.
-2. Create `KafkaTemplate` @Bean by Dependency Injecting (DI) the `ProducerFactory`.
+In `AbstractEventProducer.java`, implement:
+- the constructor: `public AbstractEventProducer()`
+- `public boolean publish(String key, T event)`. The method expects a `String key` and a generic `T event`, and writes a new message into the kafka topic.<br>
+Return the boolean status of the kafka topic write operation.
 
 > [!TIP]
 >
-> Passing Spring properties from `application.yml` is usually done through the Spring [@Value <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-framework/reference/core/beans/annotation-config/value-annotations.html) annotation
->
-> **Example flow for the `@Beans` setup at runtime:**
-> 
-> `application.yml` properties → `ProducerFactory` Bean → `KafkaTemplate` Bean
-> 
-> `application.yml`:
-> ```yaml
-> spring:
->   kafka:
->     property: value
-> ```
->
-> `KafkaConfig.java`:
-> ```java
-> class KafkaConfig {
->    @Bean
->    public ProducerFactory producerFactory(
->       @Value("{spring.kafka.property}") String property
->    ) {
->       return new ProducerFactory(...);
->    }
->
->    @Bean
->    public KafkaTemplate kafkaTemplate(ProducerFactory producerFactory) {
->       return new KafkaTemplate(...);
->    }
-> }
-> ```
-
-#
-
-### Testing
-- [ ] Open `KafkaConfigTest.java` ─ already implemented, testing each Bean is properly configured using the `application.yml` properties from earlier.
-- [ ] Remove `@Disabled` in `KafkaConfigTest.java` for the test method(s): `testProducerFactoryConfig()` and `testKafkaTemplateConfig()`
-- [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
-```
-
-#
-
-### Task 2: Kafka `GreetingEvent` Producer
-In `AbstractEventProducer.java`, implement `public boolean publish(String key, T event)`. The method expects a `key` and a `GreetingEvent`, and writes a new message into the kafka topic.
-
-Return the boolean status of the kafka topic write operation.
+> Get familiar with the [KafkaTemplate <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-kafka/api/org/springframework/kafka/core/KafkaTemplate.html)
+> class' source code ─ this class handles all IO operations to/from kafka topics.<br>
+> In the source code, you will find this helpful method: `kafkaTemplate.send(String topic, @Nullable V data)`.
 
 **Requirements:**
-1. `AbstractEventProducer.java` will need to have the KafkaTemplate bean DI'ed. Any subclasses (`GreetingEventProducer`) will also need to DI the KafkaTemplate.
-2. The key needs to be store to as a String in kafka
-3. The value needs to be stored as a ByteArray in kafka
-4. The topic name property needs to be DI into the `GreetingEventProducer`
+1. Inject the autoconfigured `KafkaTemplate` Bean into the constructor of `AbstractEventProducer.java`.
+2. Write the topic message to the `topicName()` Kafka topic. (Assume this method is already implemented)
+3. Write the topic message key as a String (should be a NO-OP since our `key` is already a String)
+4. Write the topic message value as a ByteArray (you're given a generic POJO event but need to convert it to ByteArray)
 
-> [!TIP]s
-> 
-> Get familiar with the KafkaTemplate class source code ─ this class deals with the connection to a kafka topic and any IO operations to/from the topic. In the source code, you will find this helpful method: `kafkaTemplate.send(String topic, @Nullable V data)`.
+<br>
+
+#
+
+### Task 2: GreetingEventProducer
+In `GreetingEventProducer.java`, implement:
+- the constructor: `public GreetingEventProducer.java`
+- `protected String topicName()`
+
+**Requirements**:
+1. Inject the same `KafkaTemplate` Bean into the constructors of all subclass of `AbstractEventProducer.java`. (`GreetingEventProducer.java`, `TwitchChatEventProducer.java`)
+2. Inject the `greeting-events` topic name property defined in `application.yml` into the constructor of `GreetingEventProducer.java`, and overwrite the `protected String topicName()` to return that injected topic name.
+
+<br>
 
 ### Example 1:
 > **Input**:<br>
@@ -356,63 +384,79 @@ Return the boolean status of the kafka topic write operation.
 - [ ] Open `GreetingEventProducerTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `GreetingEventProducerTest.java`
 - [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
-```
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
+    ```
+
+<br>
 
 #
 
 ### Task 3: Kafka API
+![](assets/module2/images/kafkaApi.svg)<br>
+
 > [!NOTE]
 >
-> **Relevant Files**
+> **Relevant Files**<br>
 > `KafkaRestController.java` ─ REST controller to handle `POST /api/kafka/publishGreetingEvent`.
 
-In `KafkaRestController.java`, implement `public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestParam String receiver, @RequestParam String message)` endpoint to trigger `GreetingEventProducer.publish(...);`
+In `KafkaRestController.java`, implement:
+- the constructor: `public KafkaRestController()`
+- `public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestParam String receiver, @RequestParam String message)` endpoint to trigger `GreetingEventProducer.publish(...);`
 
 **Requirements:**
-1. Dependency Inject (DI) the `GreetingEventProducer` into the controller's constructor
-2. Generate an `eventId` ([UUID <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/java-uuid))
-3. Call `GreetingEventProducer.publish()` to handle actual publishing of the kafka message
+1. Inject the `GreetingEventProducer` into the constructor
+2. Generate a unique `eventId` ([UUID <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/java-uuid)) per greeting request
+3. Create a `GreetingEvent` using the: generated `eventId` and the user input parameters
+4. Call `GreetingEventProducer.publish()` to handle actual publishing of the kafka message
 
-```java
-@PostMapping("/publishGreetingEvent")
-@Operation(summary = "Publish Kafka Event", description = "Publish a GreetingEvent")
-public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestParam String receiver, @RequestParam String message) {
-    // Hook up to GreetingEventProducer.publish(...)
-}
-```
+[//]: # (```java)
+[//]: # (@PostMapping&#40;"/publishGreetingEvent"&#41;)
+[//]: # (@Operation&#40;summary = "Publish Kafka Event", description = "Publish a GreetingEvent"&#41;)
+[//]: # (public Boolean produceKafkaGreetingEvent&#40;@RequestParam String sender, @RequestParam String receiver, @RequestParam String message&#41; {)
+[//]: # (    // Hook up to GreetingEventProducer.publish&#40;...&#41;)
+[//]: # (})
+[//]: # (```)
+
+<br>
 
 ### Example 1:
-> ```java
-> WebClient webClient = WebClient.builder()
->         .baseUrl("http://localhost:8080/api/")
->         .build();
->
-> boolean output1 = webClient.post()
->         .uri(uriBuilder -> uriBuilder
->                 .path("/kafka/publishGreetingEvent")
->                 .queryParam("sender", "Alice")
->                 .queryParam("receiver", "Bob")
->                 .queryParam("message", "Hi Bob, I'm Alice!")
->                 .build())
->         .retrieve()
->         .bodyToMono(Boolean.class)
->         .block();
-> 
-> boolean output2 = webClient.post()
->         .uri(uriBuilder -> uriBuilder
->                 .path("/kafka/publishGreetingEvent")
->                 .queryParam("sender", "Charlie")
->                 .queryParam("receiver", "David")
->                 .queryParam("message", "Yo.")
->                 .build())
->         .retrieve()
->         .bodyToMono(Boolean.class)
->         .block();
-> ```
-> **Output1**: true<br>
-> **Output2**: true
+```bash
+$ curl -X POST "http://localhost:8080/api/kafka/publishGreetingEvent?sender=Alice&receiver=Bob&message=Hi%20Bob%2C%20I%27m%20Alice%21"
+true
+
+$ curl -X POST "http://localhost:8080/api/kafka/publishGreetingEvent?sender=Charlie&receiver=David&message=Yo."
+true
+````
+[//]: # (> ```java)
+[//]: # (> WebClient webClient = WebClient.builder&#40;&#41;)
+[//]: # (>         .baseUrl&#40;"http://localhost:8080/api/"&#41;)
+[//]: # (>         .build&#40;&#41;;)
+[//]: # (>)
+[//]: # (> boolean output1 = webClient.post&#40;&#41;)
+[//]: # (>         .uri&#40;uriBuilder -> uriBuilder)
+[//]: # (>                 .path&#40;"/kafka/publishGreetingEvent"&#41;)
+[//]: # (>                 .queryParam&#40;"sender", "Alice"&#41;)
+[//]: # (>                 .queryParam&#40;"receiver", "Bob"&#41;)
+[//]: # (>                 .queryParam&#40;"message", "Hi Bob, I'm Alice!"&#41;)
+[//]: # (>                 .build&#40;&#41;&#41;)
+[//]: # (>         .retrieve&#40;&#41;)
+[//]: # (>         .bodyToMono&#40;Boolean.class&#41;)
+[//]: # (>         .block&#40;&#41;;)
+[//]: # (> )
+[//]: # (> boolean output2 = webClient.post&#40;&#41;)
+[//]: # (>         .uri&#40;uriBuilder -> uriBuilder)
+[//]: # (>                 .path&#40;"/kafka/publishGreetingEvent"&#41;)
+[//]: # (>                 .queryParam&#40;"sender", "Charlie"&#41;)
+[//]: # (>                 .queryParam&#40;"receiver", "David"&#41;)
+[//]: # (>                 .queryParam&#40;"message", "Yo."&#41;)
+[//]: # (>                 .build&#40;&#41;&#41;)
+[//]: # (>         .retrieve&#40;&#41;)
+[//]: # (>         .bodyToMono&#40;Boolean.class&#41;)
+[//]: # (>         .block&#40;&#41;;)
+[//]: # (> ```)
+[//]: # (> **Output1**: true<br>)
+[//]: # (> **Output2**: true)
 
 #
 
@@ -420,22 +464,23 @@ public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestPa
 - [ ] Open `KafkaRestControllerTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `KafkaRestControllerTest.java`
 - [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
-```
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
+    ```
 
 #
 
 ### Integration Testing
 - [ ] Run the application:
-```shell
-./gradlew bootRun
-```
+    ```shell
+    ./gradlew bootRun
+    ```
 - [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
 - [ ] Play around with **Kafka API**: `POST /api/kafka/publishGreetingEvent`
-- [ ] Check **Offset Explorer 3** to see that your GreetingEvent is actually published to our kafka topic
-
+- [ ] Check **Offset Explorer 3** to see that your GreetingEvent is actually published to your kafka topic
 ![](assets/module2/images/kafkaSwagger.png)<br>
+
+<br>
 
 #
 
@@ -446,34 +491,31 @@ public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestPa
 >
 > **Relevant Files**<br>
 > `application.yml` ─ our service's property file<br>
-> `KafkaConfig.java` ─ Configuration class to store our Kafka related Beans<br>
 > `GreetingEvent.java` ─ data model to encapsulate a simple greeting.<br>
 > `AbstractEventConsumer.java` ─ the abstract class that defines the way all event consumers should act.<br>
 > `GreetingEventConsumer.java` ─ the class that subscribes to our `greeting_event` kafka topics to read `GreetingEvent` objects
 
-### Task 1: Kafka Consumer Beans
-In `KafkaConfig.java`, create two `@Beans` needed for **Spring Kafka** consumers: `ConsumerFactory` and `ConcurrentKafkaListenerContainerFactory`.
+#
 
-You should've already added the consumer related Kafka spring properties in `application.yml`, so no changes needed there.
+### Task 1: AbstractEventConsumer
+Our `AbstractEventConsumer.java` is the parent class for reading any type of Event object from a kafka topic.
+Core principle of good programming: D.R.Y (Don't Repeat Yourself). All child classes that `extend AbstractEventConsumer`,
+don't need to worry about the kafka topic read logic once it's defined in the parent. They will only focus on the core logic that may differ between different consumers.
+
+In `AbstractEventConsumer.java`, implement:
+- the constructor: `public AbstractEventConsumer()`
+- `protected T convertRecordToEvent(ConsumerRecord<String, byte[]> record)`: this method will convert a generic `ConsumerRecord<String, byte[]> record` value from a `byte[]` → a generic class `T` event.
+- `public void processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack)`: The method will be called once our container picks up a new kafka record.
+  - Convert the raw record back to a generic `T event`
 
 **Requirements:**
-1. Create `ConsumerFactory` @Bean by passing in the `bootstrap-servers`, `group-id`, `auto-offset-reset`, `enable-auto-commit`, `key-deserializer`, `value-deserializer` configs from the `application.yml`.
-2. Create `ConcurrentKafkaListenerContainerFactory` @Bean by Dependency Injecting (DI) the `ConsumerFactory`.
-   1. Because we've set `enable-auto-commit = false`, we also need to set AckMode to `ContainerProperties.AckMode.MANUAL` on the `ConcurrentKafkaListenerContainerFactory`
+
+
+<br>
 
 #
 
-### Testing
-- [ ] Open `KafkaConfigTest.java` ─ already implemented, testing each Bean is properly configured using the `application.yml` properties from earlier.
-- [ ] Remove `@Disabled` in `KafkaConfigTest.java` for the test method(s): `testConsumerFactoryConfig()` and `testConcurrentKafkaListenerContainerFactoryConfig()`
-- [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
-```
-
-#
-
-### Task 2: Kafka `GreetingEvent` Consumer
+### Task 2: GreetingEventConsumer
 In `GreetingEventConsumer.java`, implement `public void processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack)`.
 
 The main goal for now is to simply **log or print** the kafka message that was read from the kafka topic to **stdout** (our application logs).
@@ -482,7 +524,7 @@ The main goal for now is to simply **log or print** the kafka message that was r
 >
 > You will need to add the [@KafkaListener <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-annotation.html) annotation above the `processMessage(...)` method.
 > 
-> Properties required: `topics`, `containerFactory`
+> Properties required: `topics`<br>
 
 ### Example 1:
 > **Input**:<br>
@@ -507,17 +549,17 @@ The main goal for now is to simply **log or print** the kafka message that was r
 - [ ] Open `GreetingEventConsumerTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `GreetingEventConsumerTest.java`
 - [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
-```
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
+    ```
 
 #
 
 ### Integration Testing
 - [ ] Run the application:
-```shell
-./gradlew bootRun
-```
+    ```shell
+    ./gradlew bootRun
+    ```
 - [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
 - [ ] Play around with **Kafka API**: `POST /api/kafka/publishGreetingEvent`
 - [ ] In **Offset Explorer 3**, validate your `GreetingEvent` is actually published to the kafka topic
@@ -566,17 +608,59 @@ This simple extreme example shows the benefit of introducing batch operations in
 ### Exercise 4: BATCH Message Kafka Consumer
 ![](assets/module2/images/exercise3.svg)<br>
 
+Spring Kafka autoconfigures `KafkaTemplate` and `ConcurrentKafkaListenerContainerFactory` for us. If Spring sees that the developer doesn't set a field, it usually uses _some_ default value.
+If we take a look at the default
+[Listener <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/spring-projects/spring-boot/blob/2e52c3c35e0bd44ec35dceaeaed1737905a00196/module/spring-boot-kafka/src/main/java/org/springframework/boot/kafka/autoconfigure/KafkaProperties.java#L971)
+object, you can see that the default is set to `SINGLE`, meaning the default `ConcurrentKafkaListenerContainerFactory` will process one event at a time.
+We want to create a consumer that will poll and batch multiple records at once.
+
+Spring Kafka autconfiguration is helpful for setting up some default/quick setup, but as an application's use cases evolve and expand,
+it's up to developers to tailor Beans further than what autoconfigurations usually allow for. So we will need to setup our own `ConcurrentKafkaListenerContainerFactory` explicitly for the batch consumer.
+
 ### Task 1: Configure application.yml
-| Property                                 | Required? | Role         | Supported/Example Values | Description                                                    |
-|------------------------------------------|-----------|--------------|--------------------------|----------------------------------------------------------------|
-| `spring.kafka.consumer.max-poll-records` | Optional  | **Consumer** | i.e.: 500                | Maximum number of records returned in a single call to poll(). |
-- List of [Spring Kafka supported fields <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://gist.github.com/geunho/77f3f9a112ea327457353aa407328771)<br>
+What properties differ between the autconfigured `ConcurrentKafkaListenerContainerFactory kafkaListenerContainerFactory` we have vs. a new `ConcurrentKafkaListenerContainerFactory batchKafkaListenerContainerFactory` we'd need to handle the batch consumer?
+```yaml
+# kafkaListenerContainerFactory
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: twitch-chat-hit-counter-group-id-X
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+    listener:
+      type: SINGLE # property is not set in our application.yml because it's the default setting used by Spring Kafka
+      ack-mode: MANUAL
+
+# batchKafkaListenerContainerFactory
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: twitch-chat-hit-counter-group-id-batch-X # This field should be different from the single consumer group-id
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+    listener:
+      type: BATCH # This field should be different from the single consumer listener.type default to enable the batch listener
+      ack-mode: MANUAL
+```
+
+The fields that should differ between these Beans are the `spring.kafka.consumer.group-id` and `spring.kafka.listener.type`.
+If we overwrite any of these fields, it'll affect the autconfigured single consumer so we will define these differing properties in some other properties.
 
 **Requirements:**
-1. `max-poll-record`: controls the maximum kafka records that are processed in a single poll.
-2. `group-id-batch`: our `GreetingEventConsumer` class is already using the earlier defined `group-id` property.<br>
-Our Batch consumer will need to define a new group-id so that none of the commits (acks) on the kafka partitions interfere with each other.<br>
-Otherwise, there can be race conditions where each consumer are picking up subsets of the kafka topic.
+1. `twitch-chat-hit-counter.kafka.batch-consumer.group-id`: {application_name}-group-id-batch-{num}
+2. `twitch-chat-hit-counter.kafka.batch-consumer.listener.type`: BATCH
 
 > [!IMPORTANT]
 >
@@ -586,30 +670,67 @@ Otherwise, there can be race conditions where each consumer are picking up subse
 #
 
 ### Testing
+- [ ] Open `PropertiesApplicationTest.java` ─ already implemented, testing that the two requirements above are met.
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method(s): `kafkaBatchConfigsTest()`
+- [ ] Test with:
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
+    ```
 
 #
 
-### Task 2: Kafka BATCH Consumer Beans
-This task will be nearly identical with the previous [exercise <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#task-1-kafka-consumer-beans).
+### Task 2: Kafka BATCH Consumer Bean
+Because of Spring Kafka's autoconfiguration we were able to (with no manual set up) use the:
+- `KafkaTemplate kafkaTemplate` used by the EventProducer class
+- `ConcurrentKafkaListenerContainerFactory kafkaListenerContainerFactory` used by the Single EventConsumer class
 
-Only difference here is to the use the `group-id-batch` property when creating the @Bean for the batch use case coming up.
+Now we need to create a new `@Bean ConcurrentKafkaListenerContainerFactory` named **batchKafkaListenerContainerFactory** for our Batch EventConsumer class.
+
+In `KafkaConfigs.java`, implement `public ConcurrentKafkaListenerContainerFactory<String, byte[]> batchKafkaListenerContainerFactory()` to be exactly the same as the autconfigured `kafkaListenerContainerFactory`,
+with the two changes being that the batchKafkaListenerContainerFactory's `group-id` and `listener.type` are what's defined in the `application.yml`.
+
+**Requirements:**
+- Inject the autconfigured `ConsumerFactory consumerFactory` into the method signature
+- Inject the `group-id` property defined in the previous task into the method signature
+- Inject the `listener.type` property defined in the previous task into the method signature
+- Copy over the consumerFactory's properties to a new map and replace the `group-id` using the group-id defined for the Batch Consumer
+- Create a new instance of a `ConsumerFactory` and use the new property map as the base
+- Create a new instance of a `ConcurrentKafkaListenerContainerFactory` and .setConsumerFactory() using the newly created ConsumerFactory
+- Set the `factory.setListener(true/false)` depending on the value of the listenerType
+- Set the `factory.getContainerProperties().setAckMode()` to MANUAL (as this property is not copied over in the ConsumerFactory properties)
 
 #
 
 ### Testing
-- [ ] Open `KafkaConfigTest.java` ─ already implemented, testing each Bean is properly configured using the `application.yml` properties from earlier.
-- [ ] Remove `@Disabled` in `KafkaConfigTest.java` for the test method(s): `testBatchConsumerFactoryConfig()` and `testBatchConcurrentKafkaListenerContainerFactoryConfig()`
+- [ ] Open `KafkaConfigTest.java` ─ already implemented, testing a new @Bean named `batchKafkaListenerContainerFactory` is properly configured with different `group-id` and `listener.type`
+- [ ] Remove `@Disabled` in `KafkaConfigTest.java` for the test method(s): `batchKafkaListenerContainerFactory_beanTest()`
 - [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
-```
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
+    ```
 
 #
 
-### Task 3: Kafka `GreetingEvent` BATCH Consumer
-In `GreetingEventBatchConsumer.java`, implement `public void processMessage(List<ConsumerRecord<String, byte[]>> records, Acknowledgment ack)`.
+### Task 3: AbstractEventConsumer
+In `AbstractEventConsumer.java`, implement `public void processMessages(List<ConsumerRecord<String, byte[]>> records, Acknowledgment ack)`
+which accepts a `List<ConsumerRecord<String, byte[]>> records` to process. This will be invoked for any Batch consumers we want to define.
 
-This task will be nearly identical with the previous `GreetingEventConsumer.java`. Make sure to pass in the correct Batch `@Bean`.
+**Requirements:**
+1. Process all the raw kafka records and convert them back to a generic `T event` using the already implemented `convertRecordToEvent()`
+2. Aggregate the `T event` into a list
+3. Log the events to _stdout_
+
+<br>
+
+#
+
+### Task 4: BatchGreetingEventConsumer
+In `GreetingEventBatchConsumer.java`, implement:
+- `protected EventType eventType()`
+- `protected Class<GreetingEvent> eventClass()`
+- `public void processMessages(List<ConsumerRecord<String, byte[]>> records, Acknowledgment ack)`: KafkaListener + super() invocation
+
+This task will be nearly identical with the previous `GreetingEventConsumer.java`.
 
 ### Example 1:
 > **Input**:<br>
@@ -622,10 +743,12 @@ This task will be nearly identical with the previous `GreetingEventConsumer.java
 > consumer.processMessage(List.of(kafkaRecord1, kafkaRecord2, kafkaRecord3)); // processes the 3 kafka records at once
 > ```
 > **std**:<br>
-> <span style="color:#0000008c">INFO GreetingEventBatchConsumer {event1}<br></span>
-> <span style="color:#0000008c">INFO GreetingEventBatchConsumer {event2}<br></span>
-> <span style="color:#0000008c">INFO GreetingEventBatchConsumer {event3}<br></span>
-> <span style="color:#0000008c">INFO GreetingEventBatchConsumer Processed 3 events in this batch<br></span>
+> ```
+> INFO GreetingEventBatchConsumer {event1}
+> INFO GreetingEventBatchConsumer {event2}
+> INFO GreetingEventBatchConsumer {event3}
+> INFO GreetingEventBatchConsumer Processed 3 events in this batch
+> ```
 
 #
 
@@ -633,20 +756,21 @@ This task will be nearly identical with the previous `GreetingEventConsumer.java
 - [ ] Open `GreetingEventBatchConsumerTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `GreetingEventBatchConsumerTest.java`
 - [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
-```
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
+    ```
 
 #
 
 ### Integration Testing
+- [ ] Try to have multiple kafka events already stored in your kafka topic
 - [ ] Run the application:
-```shell
-./gradlew bootRun
-```
-- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
-- [ ] Play around with **Kafka API**: `POST /api/kafka/publishGreetingEvent`
-- [ ] Check **Offset Explorer 3** to see that your GreetingEvent is actually published to our kafka topic
-- [ ] Verify application **stdout** logs are actually receiving the newly written kafka records
+    ```shell
+    ./gradlew bootRun
+    ```
+[//]: # (- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />]&#40;http://localhost:8080/swagger-ui/index.html&#41;<br>)
+[//]: # (- [ ] Play around with **Kafka API**: `POST /api/kafka/publishGreetingEvent`)
+[//]: # (- [ ] Check **Offset Explorer 3** to see that your GreetingEvent is actually published to our kafka topic)
+- [ ] Verify application **stdout** logs to see the consumer is actually processing multiple events in a single `processMessages()` call
 
 #

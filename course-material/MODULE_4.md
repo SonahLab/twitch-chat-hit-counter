@@ -561,6 +561,20 @@ Return a Map\<String, String> for all keys matching a key prefix.
 
 <br>
 
+## Lesson: Redis Autoconfiguration
+https://github.com/spring-projects/spring-boot/blob/main/module/spring-boot-data-redis/src/main/java/org/springframework/boot/data/redis/autoconfigure/DataRedisAutoConfiguration.java
+
+Spring Data Redis autoconfigures the RedisTemplate for us, but if you follow the trail of how RedisProperties is created it'll use some default values:
+- `spring.data.redis.database`: 0
+- `spring.data.redis.host`: localhost
+- `spring.data.redis.port`: 6379
+
+We will set the host/port, but since we're creating more than 1+ RedisTemplates we will need to manually create some @Beans so that any operations on these separate templates will interact with the correct DB.
+
+Set the properties in application.yml.
+
+Create the Map<Integer, RedisTemplate> bean.
+
 ## Exercise 2: Event Deduper
 ![](assets/module4/images/EventDeduper.svg)<br>
 Zooming in on the diagram from the **[Objective <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_3.md#objective)** section, we want our `GreetingEventConsumer` to be "smart" by adding some deduplication logic.
@@ -600,8 +614,8 @@ twitch-chat-hit-counter:
 #
 
 ### Testing
-- [ ] Open `ProfileApplicationTest.java` ─ already implemented
-- [ ] Remove `@Disabled` in `ProfileApplicationTest.java` for method(s): `testDefaultProfile_redisConfigs()` and `testDefaultProfile_redis_deduperDB`
+- [ ] Open `PropertiesApplicationTest.java` ─ already implemented
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for method(s): `springRedisConfigsTest()` and `redisDeduperDatabaseTest()`
 - [ ] Test with:
 ```shell
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -784,8 +798,8 @@ twitch-chat-hit-counter:
 #
 
 ### Testing
-- [ ] Open `ProfileApplicationTest.java` ─ already implemented with the property test above.
-- [ ] Remove `@Disabled` in `ProfileApplicationTest.java` for method(s): `testDefaultProfile_redis_greetingFeedDB()`
+- [ ] Open `PropertiesApplicationTest.java` ─ already implemented with the property test above.
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for method(s): `redisGreetingFeedDatabaseTest()`
 - [ ] Test with:
 ```shell
 ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4

@@ -1,8 +1,8 @@
 package com.sonahlab.twitch_chat_hit_counter_course.config;
 
+import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 
 /**
  * Config class for all of our application's beans. The beans defined here are singletons that we
@@ -13,15 +13,16 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
  *  - Bean (https://docs.spring.io/spring-framework/reference/core/beans/java/bean-annotation.html)
  */
 @Configuration
-public class KafkaConfig {
+public class SqlConfig {
+    // TODO: Add Sql configs here
+    @Bean
+    public GreetingSqlService singleGreetingSqlService() {
+        return null;
+    }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, byte[]> batchKafkaListenerContainerFactory() {
-        /**
-         * TODO: Implement as part of Module 2
-         * */
-        ConcurrentKafkaListenerContainerFactory<String, byte[]> dummyFactory =
-                new ConcurrentKafkaListenerContainerFactory<>();
-        return dummyFactory;
+    public GreetingSqlService batchGreetingSqlService() {
+        return null;
     }
 }
+

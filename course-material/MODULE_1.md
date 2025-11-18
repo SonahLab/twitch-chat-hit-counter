@@ -4,77 +4,146 @@
 
 ### Lesson
 All network communication — whether the "internet", or between microservices — boils down to this fundamental idea:<br>
-One server sends a request to another server that does something in response. Cause/Effect; Call/Response; Ask/Answer.
 
-I'll give you simple examples that illustrate this point:
-#### Case Study: The Internet
-You visit Google.com and see this:
+> _**One server sends a request to another server that does something in response.**_
+> - **_Request → Response_**
+> - **_Cause → Effect_**
+> - **_Call → Action_**
+> - **_Question → Answer_**
 
-What's actually happening behind the scenes?
-TL;DR:
--> Your device (server) uses a DNS to find out what `Google.com` means.
-These domains are readable for us, but machines map `Google.com` -> `IP`. 
+I'll give you simple examples that illustrate this point.
+
+<br>
+
+#
+
+### Case Study #1: Web Browsing
+You visit **Google.com** and see this:
+![](assets/module1/images/google.png)<br>
+
+**Question**: What's actually happening behind the scenes?
+
+**TL;DR:**<br>
+**→ DNS Resolution**<br>
+`Google.com` is a human-readable domain name that makes it easy for humans to remember when we want to visit a web hosted page/application/service.<br>
+Computers don't understand this domain, they need **IP addresses** (i.e.: 123.456.789.0)<br>
+Your device sends a **request** to a nearby DNS server to find out what `Google.com` means.<br>
+The DNS server **responds** with a valid mapping: `Google.com` → `XXX.XXX.XXX.X`.<br>
+
 IP Addresses are the actual server address that has information about this request.
-Think of this as if a group of friends - Alice, Bob, and Charlie - discussing who's house to work on a school project at.
-They say Alice's house. Alice's address is really i.e.: 123 Sesame Street, but saying "Alice's House" in this context is the alias understood by the entire friend group.
 
-Networks work the same way lots of these easily memorizable names are easier than typing in a website IP address.
+**ELI5:**<br>
+In a group of friends - Alice, Bob, and Charlie, they want to meet up at each others' house to work on a school project.<br>
+They all agree on **"Alice's house"**. Alice's _actual_ address is really i.e.: **123 Sesame Street**, but saying "Alice's House" in this context is the _alias_ understood by the entire friend group.
+
+Networks work the same way, lots of these easily memorizable names are easier than typing in a website IP address.
+
+**Fun Exercise**:<br>
+Open up your terminal and run:
 ```shell
 ping www.google.com
 ```
-\> PING www.google.com (142.250.176.4): 56 data bytes
-by typing http://142.250.176.4 it takes me to Google.com, but nobody does this because:
-1. it's hard to remember IP Addresses
-2. IP addresses change
 
-But even this DNS mapping process is a request (what is Google.com) and a response (XXX.XXX.XXX.X address)
+You should see an output similar to this:<br>
+```
+> PING google.com (142.250.72.174): 56 data bytes
+```
+If you open up a new browser and type `http://{GOOGLE_IP_ADDRESS}` it'll take you to the same **Google.com** page.
 
--> Now that we know where `Google.com` leads, our server sends a request to this IP address asking "Get me the data at this location Google.com".
-The network routers will send the data bytes through the network (possibly to other routers along the way) until it gets to Google's servers.
-Google says here is the data, and sends it back through the netflix
+Nobody does this because:
+1. Remembering IP addresses are hard
+2. IP addresses change (If you `ping www.google.com` on another day you will notice that the original IP address I retrieved at the time I ran this command is different than the IP address you will see)
 
--> This point we see the webpage contents that Googles' servers responded to our request with.
-
-** Think of data (letter/package), network router (mailman), Google (store).
-We are essentially mailing a letter to Google's offices asking for Google.com data. The network (mailman) will take the letter to the factory where other mailmen might drive
-it to other factories. It reaches Google (store) and looks at our request and responds with the webpage data (package) and mails it back. Delivery process happens the same way back.
-We finally receive the package. Again, request/response.
+**Main Takeaway:**<br>
+The DNS resolution process is simply a **request → response**.<br>
+Device → **asks** what's the IP address for Google.com? → DNS server<br> 
+DNS server → **answers** the IP address is `142.250.72.174` → Device<br>
 
 
-This section provides a brief TL;DR on how the internet works. When you open your browser and navigate to Google.com, several processes occur behind the scenes:<br>
-1. **DNS Resolution**:<br>
-   Google.com is a user-friendly, human-readable name that is easy to remember. This domain name corresponds to an actual IP address, which your machine resolves using a DNS server.
-2. **Request to Server**:<br>
-   Once the IP address is resolved, your machine sends a request to that IP address to retrieve the data located at this address
-3. **Response from Server**:<br>
-   Google's servers receive the incoming request from your machine and return a response with the "data" that you see as Google.com.<br>
+**→ Google Server Request**<br>
+Now that we know the current IP address for `Google.com`, our machine sends an **HTTP request** to Google's server at this address:<br>
+"GET the data at location Google.com`/` (the homepage)".
 
+This **request** travels through multiple **network routers** in the form of **bytes** until it reaches Google's servers.
 
-#### Case Study: Microservices
-Say we're shopping online on Nike.com for some new shoes and we buy the last pair of Nike Air Force 1s. 
+**→ Google Server Response**<br>
+Google's servers will be listening for incoming requests, and say they receive our request.
+They will accept it, fetch the data for Google.com's homepage, and sends it back to the requester's location (passing back through the network routers).
 
-What happens behind the scenes?
--> Our Checkout action on the webpage triggers a whole processes of events.
-First, it might charge our credit card for a new transaction.
-Nike servers will communicate that payment in their databases for transaction history.
-They most likely will be already integrated with several payment SaaS companies like PayPal, etc. This purchase triggers that event.
+**→ Browser Renders the Webpage**<br>
+Our device receives the data response from Google's servers and renders the UI with the content.
 
-Nike needs to deduct their inventory in their database. At their warehouse they had 1 last pair of Air Force 1s, now that you've purchased it
-Nike servers notify some other team's servers saying deduct the inventory by 1. Nike Air Force 1s quantity goes from 1 to 0.
+**ELI5:**<br>
+Imagine it's pre-internet days:<br>
+Alice lives at `123 Sesame Street, Los Angeles CA, 12345`<br>
+Bob lives at `666 Hell Street, New York NY, 98765`<br>
 
-When a user across the country visits the Nike website, the UI will load the products and for Nike Air Force 1s since they communicate to the DB and see 0 quantity
-and depending on the product design for the webpage, the UI team might choose to 1) not show the Air force 1s entirely or 2) disable "add to cart" and display a "Sold Out" message on the product.
+Alice sends a letter to `666 Hell Street` asking: "Hey Bob, will you be able to attend my birthday party?"
+Bob receives it and mails a letter back to `123 Sesame Street`, responding with: "Yes."
 
-Our checkout action is a request/response from server to server saying we bought this item.
-There's another request/response from Nike server to payment SaaS servers saying this user bought this item and should be charged $X.
-The payment servers will respond with a confirmation saying the charge of this user went through.
-The UI team to Nike's database team is another request/response: UI team says decrement the inventory of this item, db receives the request decrements the quantity and responds to UI team saying this has been done.
-Users access Nike's web store is another request/response: User machine says show me the products available, UI responds saying heres the data (they also call the DB team asking for all the products available another request/response).
+Alice and Bob might not have a deep understanding of how their letter travels across the country, but it'll be processed/driven between multiple factories and multiple deliverers across the country.
 
-**Every process here can be boiled down to a request/response.**<br>
-There are many communication protocols, but the two most common protocols I’ve used ubiquitously in big tech are: HTTP and gRPC.
-We will focus only on HTTP in this course. gRPC is mostly used within the microservice s2s architecture, so usually within a company TeamA and TeamB, who work closely with each other,
-have gRPC service contracts allowing for direct service calls, instead of sending over HTTP requests.
+This is very similar to how requests/responses are handled and how data is moved over the internet.
+
+<br>
+
+#
+
+#### Case Study #2: Microservices
+Say you're buying movie tickets online through AMC theatres. You select your seats and checkout to confirm your seats/tickets, and see the "Processing..." spinner in the UI. 
+> ![](assets/module1/images/seatpicker.gif)<br>
+
+Question: What happens behind the scenes?<br>
+Let's simplify the backend system to 3 components:<br>
+- Frontend Team: team in charge of all the UI interactions on a movie booking webpage
+- Inventory Team: team in charge of storing all information about past/present/future showings and status on bookings
+- Payments Team: team in charge of all payment related data for AMC theatres
+
+**Frontend Team** sends the **Inventory Team** a booking event for your user. This temporarily "blocks" (i.e.: 2 minutes) other Users from trying to book the same seats at the same time to prevent race conditions of
+two individuals from purchasing the same movie and the same seats.
+- Movie: Avatar
+- Theater Location: 1 Hollywood Blvd (assume this is one of the many theatres AMC runs/operates)
+- Showing Date: December 19, 2009
+- Showing Time: 6:00 PM
+- Seat(s): [D6, D7]
+- Amount: $20
+- Ticket Owner: {YOUR NAME}
+- User ID: User123
+- Status: **RESERVED**
+- Timestamp: December 18, 2009 5:00 PM
+- Expiration: December 18, 2009 5:02 PM
+
+**Inventory Team** can send the **Payments Team** an event to process the actual payment to charge your user Line of Credit with a partner 3P SaaS company like PayPal.
+
+**PayPal** successfully charges your input Line of Credit for $20 and notifies the **Payment Team**.
+
+**AMC Payment Team** notifies the **Inventory Team** of the successful transaction/charge.
+
+The **Inventory Team** updates the event to officially "BOOK" the tentative seats chosen for:
+- Movie: Avatar
+- Theater Location: 1 Hollywood Blvd (assume this is one of the many theatres AMC runs/operates)
+- Showing Date: December 19, 2009
+- Showing Time: 6:00 PM
+- Seat(s): [D6, D7]
+- Amount: $20
+- Ticket Owner: {YOUR NAME}
+- User ID: User123
+- Status: **BOOKED**
+- Timestamp: December 18, 2009 5:00 PM
+
+No other users will be able to book these seats unless you cancel your reservation or maybe there was an issue with the many backend processes within the different backend systems, thus lifting the temporary lock on seats: [D5, D6].
+
+This is just an example of how one seemingly small action on the UI can trigger a chain reaction of processes in the backend to ensure that Users can book movie seats.<br>
+BTS, there's many teams made of up multiple microservices all communicating with each other via request/responses to ensure the booking process is secure.
+
+There's no single way of building products company to company or even team to team, this is just a brief example.
+
+**Main Takeaway: Every process can be boiled down to a request/response built within a single microservice, further built between multiple services to create an ecosystem of communication.**<br>
+
+There are many communication protocols, but the two most common protocols I’ve used ubiquitously in most backend systems in big tech are: **HTTP** and **gRPC**.
+
+We will focus only on **HTTP** in this course. **gRPC** is mostly used within the microservice S2S architecture. In a company with say 20 teams, **TeamA** and **TeamB** work closely with each other.
+They will usually have gRPC service contracts allowing for direct service calls, instead of sending over HTTP requests.
 
 Swagger
 Let’s start by setting up our Spring Boot service’s API endpoints that can be easily integrated using Swagger. Another popular tool I’ve used to locally test my service’s API endpoints is Postman (at Snap), but Swagger integrates nicely with Spring Boot, which is what we ubiquitously use for most Netflix microservices.
@@ -97,6 +166,13 @@ Swagger: [What is Swagger? <img src="assets/common/export.svg" width="16" height
 > Both Netflix/Snapchat are very Java backend heavy, but even Snapchat is more rudimentary in it's microservice architecture whereas Netflix uses Spring Boot to unify all microservices.
 > Yelp's backend is predominantly built using Python. So it just varies from company to company (and even team to team) between programming languages and tooling used,
 > but the core principles of developing large distributed systems are pretty similar from one company to the next.
+
+
+
+
+
+
+
 
 
 <br>
@@ -147,6 +223,13 @@ For `Module 1`, the below file structure are all the relevant files needed.
 <img src="assets/common/testClass_newui.svg" align="center"/> GreetingRestControllerTest.java<br>
 
 
+
+
+
+
+
+
+
 <br>
 
 ## Exercise 1: Greeting API
@@ -157,24 +240,38 @@ For `Module 1`, the below file structure are all the relevant files needed.
 > **Relevant Files**<br>
 > `GreetingRestController.java` ─ REST controller to handle our service's simple greeting methods: `/api/greeting/hello`.
 
-In `GreetingRestController.java`, implement the `public String sayHello(@RequestParam(required = false) String name)` method.
+In `GreetingRestController.java`, implement the `public String sayHello(@RequestParam(required = false) String name)` method. This method is the entry point for all incoming HTTP requests routed to `GET /api/greeting/hello`.
 
-This method is the entry point for all incoming HTTP requests routed to `GET /api/greeting/hello`.
+Return a simple greeting response String tailored to the input `name`.
 
-It takes an incoming request parameter `name` and returns a simple greeting response.
-
-If no input `name` parameter is provided, we should default the greeting message to address a `Mysterious Individual`.
+**Requirements:**<br>
+1. String response should always return a greeting using this template: `"Hello, {name}!"`.
+2. When `name` parameter isn't provided, we should direct this greeting message to address a `Mysterious Individual`.
 
 ### Example 1:
-> **Input**: <span style="color:#0000008c">name = "Alice"<br></span>
-> **Output**: <span style="color:#0000008c">"Hello, Alice!"</span>
+> **Input**:<br>
+> ```java
+> GreetingRestController controller = new GreetingRestController();
+> String output = controller.sayHello("Alice");
+> ```
+> **Output**:
+> ```java
+> "Hello, Alice!"
+> ```
 
 #
 
 ### Example 2:
-> **Input**: <span style="color:#0000008c">name = ""<br></span>
-> **Output**: <span style="color:#0000008c">"Hello, Mysterious Individual!"<br></span>
-> **Explanation**: <span style="color:#0000008c">no `name` parameter is provided, so the greeting response should address "Mysterious Individual"</span>
+> **Input**:<br>
+> ```java
+> GreetingRestController controller = new GreetingRestController();
+> String output = controller.sayHello("");
+> ```
+> **Output**:
+> ```java
+> "Hello, Mysterious Individual!"
+> ```
+> **Explanation**: no `name` parameter is provided (only whitespace), so the greeting response should address "Mysterious Individual"
 
 #
 
@@ -182,25 +279,32 @@ If no input `name` parameter is provided, we should default the greeting message
 - [ ] Open `GreetingRestControllerTest.java` ─ already implemented test cases with the example(s) above.<br>
 - [ ] Remove `@Disabled` in `GreetingRestControllerTest.java`<br>
 - [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
-```
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
+    ```
 
 #
 
 ### Integration Testing
 - [ ] Run the application:
-```shell
-./gradlew bootRun
-```
+    ```shell
+    ./gradlew bootRun
+    ```
 - [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
 - [ ] Play around with the **Greeting API** endpoint(s)
-
 ![](assets/module1/images/greetingSwagger.png)<br>
 
 
-<br>
 
+
+
+
+
+
+
+
+
+<br>
 
 ## Exercise 2: Game API
 > [!NOTE]
@@ -215,14 +319,14 @@ If no input `name` parameter is provided, we should default the greeting message
 Before we can implement our API endpoints in `GameRestController.java`, we need to create our Data Model object for a generic fantasy game character.
 
 In `GameCharacter.java`, implement the following:
-- `public GameCharacter()` (CONSTRUCTOR)
-- `public int getStat(Stat stat)` (GETTER)
-- `public Map<Potion, Integer> getInventory()` (GETTER)
-- `public void setHp(int hp)` (SETTER)
-- `public void setMp(int mp)` (SETTER)
-- `public int takeDamage(int damage)` (STATE CHANGE)
-- `public int consumePotion(Potion potion)` (STATE CHANGE)
-- `public Map<String, Object> getCharacterState()` (GETTER)
+- `public GameCharacter()` (_CONSTRUCTOR_)
+- `public int getStat(Stat stat)` (_GETTER_)
+- `public Map<Potion, Integer> getInventory()` (_GETTER_)
+- `public void setHp(int hp)` (_SETTER_)
+- `public void setMp(int mp)` (_SETTER_)
+- `public int takeDamage(int damage)` (_STATE CHANGE_)
+- `public int consumePotion(Potion potion)` (_STATE CHANGE_)
+- `public Map<String, Object> getCharacterState()` (_GETTER_)
 
 > [!TIP]
 >
@@ -296,55 +400,69 @@ In `GameCharacter.java`, implement the following:
 > }
 > ```
 >
-> `car1` and `car2` are both `Car` class objects, but they each have their own separate memory space in the program and each object maintains its own independent state:<br>
-> `car1`: make = "Toyota", model = "Prius", and its own speed<br>
-> `car2`: make = "Honda", model = "Civic", and its own speed
+> `car1` and `car2` are both `Car` class objects, but they each have their own separate memory space in the program and each object maintains its own independent state:
+> ```json
+> car1 = {
+>   "make": "Toyota",
+>   "model": "Prius",
+>   "speed": 30
+> }
+> 
+> car2 = {
+>   "make": "Honda",
+>   "model": "Civic",
+>   "speed": 0
+> }
+> ```
 >
 > This is the core idea of objects in OOP: 1 class → N objects (each with its own data).
 >
-> Think of the Car class like a car factory blueprint.<br>
-> You can use the same blueprint to build many cars, but each car has their own unique set of variables that're
-> independent of each other and have state altering methods within the Class (Encapsulation).
+> Think of the POJOs as an Object blueprint. You can use the same blueprint to build many Objects, but each Object is encapsulated with its own set of variables/state.
+> What happens to another `car2` does not affect `car1`, and vice versa.
 
-### Constructor
-In `GameCharacter.java` our constructor is empty, so anytime we create a new instance of this class, it holds 0 state.
-
-Implement `public GameCharacter()` based on the requirements below.
+### Part 1: Constructor
+In `GameCharacter.java`, implement `public GameCharacter()` constructor.
 
 **Requirements:**<br>
 1. `GameCharacter` object should have 3 fields:
-    1. **Stat.HP (int):** Character's health points (between `0` and `100`)
-    2. **Stat.MP (int):** Character's mana points (between `0` and `100`)
-    3. **Inventory (Map<Potion, Integer>):** Character's bag of `Potion` enum to quantity count
-2. Default values on `GameCharacter` init:
-    1. Initial **HP** of 100
-    2. Initial **MP** of 100
-    3. Initial **inventory**:
+    1. `Stat.HP` (int): Character's health points (between `0` and `100`)
+    2. `Stat.MP` (int): Character's mana points (between `0` and `100`)
+    3. `Inventory` (Map<Potion, Integer>): Character's bag of `Potion` enum to quantity count
+2. Default values for a new `GameCharacter` instance:
+    1. Initial `Stat.HP` of 100
+    2. Initial `Stat.MP` of 100
+    3. Initial `inventory` containing:
         1. 5 `Potion.HP_POTION`
         2. 5 `Potion.MP_POTION`
 
 #
 
-### Get Stat
-Implement `public int getStat(Stat stat)` and return the current value for the input `stat`.
+### Part 2: Get Stat
+In `GameCharacter.java`, implement `public int getStat(Stat stat)`.
+
+Return the current value for the input `Stat` enum.
 
 **Requirements:**
-1. If `stat == Stat.HP`: return the `GameCharacter` current HP value
-2. If `stat == Stat.MP`: return the `GameCharacter` current MP value
+1. If `stat == Stat.HP`: return the `GameCharacter` current **HP** int value
+2. If `stat == Stat.MP`: return the `GameCharacter` current **MP** int value
 
 #
 
-### Get Inventory
-Implement `public Map<Potion, Integer> getInventory()`, and return the current `inventory` map.
+### Part 3: Get Inventory
+In `GameCharacter.java`, implement `public Map<Potion, Integer> getInventory()`.
+
+Return the character's current `inventory` map.
 
 #
 
-### Setters
-Implement `public void setHp(int hp)` and `public void setMp(int mp)` by overriding the HP/MP value.
+### Part 4: Setters
+In `GameCharacter.java`, implement:
+- `public void setHp(int hp)`
+- `public void setMp(int mp)`
 
 **Requirements:**
-1. HP/MP is bounded by [0, 100]
-2. Any values outside of this range should be ignored (no overwrite should happen)
+1. HP/MP should be bounded by [0, 100]
+2. Attempts to set the **HP/MP** with values outside the valid range should be ignored.
 
 **Let's test what we have up to this point.**
 
@@ -364,27 +482,31 @@ Implement `public void setHp(int hp)` and `public void setMp(int mp)` by overrid
 > // Validate the HP/MP setting logic (between 0 and 100)
 > character.setHp(10000);
 > int output4 = character.getStat(Stat.HP); // Expected: 100 (hp should be between 0 and 100
->                                           // we should ignore the previous 10000 set value)
-> character.setHp(-10000);
-> int output5 = character.getStat(Stat.HP); // Expected: 100 (hp should be between 0 and 100
->                                           // we should ignore the previous -10000 set value)
-> 
-> character.setMp(10000);
-> int output6 = character.getStat(Stat.MP); // Expected: 100 (hp should be between 0 and 100
->                                           // we should ignore the previous 10000 set value)
+>                                           // we should ignore this method call)
+> character.setHp(50);
+> int output5 = character.getStat(Stat.HP); // Expected: 50 (hp is valid between 0 and 100)
 > 
 > character.setMp(-10000);
-> int output7 = character.getStat(Stat.MP); // Expected: 100 (hp should be between 0 and 100
->                                           // so we should ignore the previous -10000 set value)
+> int output6 = character.getStat(Stat.MP); // Expected: 100 (mp should be between 0 and 100
+>                                           // we should ignore this method call)
+> 
+> character.setMp(0);
+> int output7 = character.getStat(Stat.MP); // Expected: 0 (mp is valid between 0 and 100)
 > ```
 >
-> **Output1**: <span style="color:#0000008c">100<br></span>
-> **Output2**: <span style="color:#0000008c">100<br></span>
-> **Output3**: <span style="color:#0000008c">{ "HP_POTION": 5, "MP_POTION": 5 }<br></span>
-> **Output4**: <span style="color:#0000008c">100<br></span>
-> **Output5**: <span style="color:#0000008c">100<br></span>
-> **Output6**: <span style="color:#0000008c">100<br></span>
-> **Output7**: <span style="color:#0000008c">100</span>
+> **Output1**: `100`<br>
+> **Output2**: `100`<br>
+> **Output3**:<br>
+> ```json
+> {
+>   Potion.HP_POTION: 5,
+>   Potion.MP_POTION: 5
+> }
+> ```
+> **Output4**: `100`<br>
+> **Output5**: `50`<br>
+> **Output6**: `100`<br>
+> **Output7**: `0`<br>
 
 #
 
@@ -392,33 +514,41 @@ Implement `public void setHp(int hp)` and `public void setMp(int mp)` by overrid
 - [ ] Open `GameCharacterTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `GameCharacterTest.java` for the test method: `initTest()`
 - [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
-```
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
+    ```
 
 #
 
-### takeDamage
-Implement `public int takeDamage(int damage)`, where you will reduce the `character` object's HP by the `damage` amount.
+### Part 5: takeDamage
+In `GameCharacter.java`, implement `public int takeDamage(int damage)`. You will reduce the `character` object's HP by the `damage` amount.
 
 Return the updated character `HP` int.
 
 > [!TIP]
 >
-> Remember: a `GameCharacter` HP has a minimum value of `0`
+> A `GameCharacter` HP/MP has a minimum value of `0`
 
 ### Example 1:
 > ![](assets/module1/images/takeDamage_50.png)<br>
-> **Input**: <span style="color:#0000008c">damage = 50 // Assume HP = 100<br></span>
-> **Output**: <span style="color:#0000008c">50</span>
+> **Input**:
+> ```java
+> GameCharacter character = new GameCharacter();
+> int output = character.takeDamage(50);
+> ```
+> **Output**: `50`
 
 #
 
 ### Example 2:
 > ![](assets/module1/images/takeDamage_110.png)<br>
-> **Input**: <span style="color:#0000008c">damage = 110 // Assume HP = 100<br></span>
-> **Output**: <span style="color:#0000008c">0<br></span>
-> **Explanation**: <span style="color:#0000008c">A character's HP should never be negative. (min capped at 0)</span>
+> **Input**:
+> ```java
+> GameCharacter character = new GameCharacter();
+> int output = character.takeDamage(110);
+> ```
+> **Output**: `0`<br>
+> **Explanation**: A character's HP should never be negative (min capped at 0).
 
 #
 
@@ -426,67 +556,108 @@ Return the updated character `HP` int.
 - [ ] Open `GameCharacterTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `GameCharacterTest.java` for the test method: `takeDamageTest()`
 - [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
-```
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
+    ```
 
 #
 
-### consumePotion
-Implement `public int consumePotion(Potion potion)`, where you will increment the `character` object's HP/MP depending on the potion.
+### Part 6: consumePotion
+In `GameCharacter.java`, implement `public int consumePotion(Potion potion)`. You will increment the `character` object's HP/MP depending on the potion.
 
 Return the updated character `HP`/`MP` int, or -1 for any errors.
 
 > [!TIP]
 >
-> Remember: a `GameCharacter` HP has a maximum value of `100`
+> A `GameCharacter` HP/MP has a maximum value of `100`
 
 > [!IMPORTANT]
 > 
-> Look at how I defined the `Potion.java` enum. Each potion has some helpful methods to tell you what `Stat` should be affected and by how much.
+> Look at how I defined the `Potion.java` enum. Each potion has some helpful methods to tell you what `Stat` enum should be affected and the nominal amount.
 
 **Rules:**</br>
-1. The `GameCharacter` object must have the `Potion` currently in their inventory.
+1. A `GameCharacter` object must have the `Potion` currently in their inventory.
 2. `Potion.HP_POTION` should increment the `character` HP by `50`.<br>
    `Potion.MP_POTION` should increment the `character` MP by `50`.
 3. Decrement the quantity of the consumed `Potion` by 1 in the `GameCharacter.inventory`
-4. Remove the `Potion` from the `character` inventory if the quantity hits `0`.
+4. Remove the `Potion` from the character's `inventory` if the quantity hits `0`.
 
 ### Example 1:
 > ![](assets/module1/images/consumePotion_HP_25.jpg)<br>
-> **Input**: <span style="color:#0000008c">potion = Potion.HP_POTION // Assume HP = 25<br></span>
-> **Output**: <span style="color:#0000008c">75</span>
+> **Input**:<br>
+> ```java
+> GameCharacter character = new GameCharacter();
+> character.setHp(25);
+> int output = character.consumePotion(Potion.HP_POTION);
+> ```
+> **Output**: `75`<br>
+> **Explanation**: HP=25 before we consume the `HP_Potion`, after consuming it we have 25 (current HP) + 50 (potion bonus) = 70HP.
 
 #
 
 ### Example 2:
 > ![](assets/module1/images/consumePotion_HP_99.jpg)<br>
-> **Input**: <span style="color:#0000008c">potion = Potion.HP_POTION // Assume HP = 99<br></span>
-> **Output**: <span style="color:#0000008c">100<br></span>
-> **Explanation**: <span style="color:#0000008c">A character's HP should never be above 100. (max capped at 100)</span>
+> **Input**:<br>
+> ```java
+> GameCharacter character = new GameCharacter();
+> character.setHp(75);
+> int output = character.consumePotion(Potion.HP_POTION);
+> ```
+> **Output**: `100`<br>
+> **Explanation**: HP=75 before we consume the `HP_Potion`, after consuming it we have 75 (current HP) + 50 (potion bonus) = 125HP, but we cap it at 100 (max).
 
 #
 
 ### Example 3:
 > ![](assets/module1/images/consumePotion_MP_25.jpg)<br>
-> **Input**: <span style="color:#0000008c">potion = Potion.MP_POTION // Assume MP = 25<br></span>
-> **Output**: <span style="color:#0000008c">75</span>
+> **Input**:<br>
+> ```java
+> GameCharacter character = new GameCharacter();
+> character.setMp(25);
+> int output = character.consumePotion(Potion.MP_POTION);
+> ```
+> **Output**: `75`<br>
+> **Explanation**: MP=75 before we consume the `MP_Potion`, after consuming it we have 25 (current MP) + 50 (potion bonus) = 75MP.
 
 #
 
 ### Example 4:
 > ![](assets/module1/images/consumePotion_MP_99.jpg)<br>
-> **Input**: <span style="color:#0000008c">potion = Potion.MP_POTION // Assume MP = 99<br></span>
-> **Output**: <span style="color:#0000008c">100<br></span>
-> **Explanation**: <span style="color:#0000008c">A character's MP should never be above 100. (max capped at 100)</span>
+> **Input**:<br>
+> ```java
+> GameCharacter character = new GameCharacter();
+> character.setMp(99);
+> int output = character.consumePotion(Potion.MP_POTION);
+> ```
+> **Output**: `100`<br>
+> **Explanation**: MP=99 before we consume the `MP_Potion`, after consuming it we have 99 (current MP) + 50 (potion bonus) = 149MP, but we cap it at 100 (max).
 
 #
 
 ### Example 5:
 > ![](assets/module1/images/consumePotion_Remove.jpg)<br>
-> **Input**: <span style="color:#0000008c">potion = Potion.HP_POTION // Assume HP = 25<br></span>
-> **Output**: <span style="color:#0000008c">75<br></span>
-> **Explanation**: <span style="color:#0000008c">The Inventory should no longer contain the HP_POTION now that the quantity of this item is 0.</span>
+> **Input**:<br>
+> ```java
+> GameCharacter character = new GameCharacter();
+> character.consumePotion(Potion.HP_POTION);
+> character.consumePotion(Potion.HP_POTION);
+> character.consumePotion(Potion.HP_POTION);
+> character.consumePotion(Potion.HP_POTION);
+> character.setHp(25);
+> 
+> int output = character.consumePotion(Potion.HP_POTION);
+> Map<Potion, Integer> output2 = character.getInventory();
+> ```
+> **Output1**: `100`<br>
+> **Explanation**: HP=25 before we consume the last `HP_Potion`, after consuming it we have 25 (current HP) + 50 (potion bonus) = 75.
+>
+> **Output2**:<br>
+> ```json
+> {
+>   Potion.MP_POTION: 5
+> }
+> ```
+> **Explanation**: The Inventory should no longer contain the HP_POTION now that the quantity of this Potion reaches 0.
 
 #
 
@@ -508,10 +679,15 @@ Return the updated character `HP`/`MP` int, or -1 for any errors.
 
 #
 
-### getCharacterState
-Implement `public void getCharacterState() {}`.
+### Part 7: getCharacterState
+In `GameCharacter.java`, implement `public void getCharacterState()`.
 
 Return a `Map<String, Object>` representing the character's current state (**HP**, **MP**, and **INVENTORY**).
+
+**Requirements:**
+- `Stat.HP` should be stored as **"HP"** (key) and **HP** int (value).
+- `Stat.MP` should be stored as **"MP"** (key) and **MP** int (value).
+- `inventory` should be stored as **"INVENTORY"** (key) and **Map<Potion, Integer>** (value).
 
 ### Example 1:
 > ![](assets/module1/images/characterState.jpg)<br>
@@ -539,17 +715,17 @@ Return a `Map<String, Object>` representing the character's current state (**HP*
 - [ ] Open `GameCharacterTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `GameCharacterTest.java` for the test method: `getCharacterStateTest()`
 - [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
-```
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
+    ```
 
 #
 
-### Task 3: Hookup our `GameRestController.java` to our `GameCharacter.java` application logic
-Now we should have all the application logic in `GameCharacter.java` to handle the Game API endpoints, we simply need to call them.
+### Task 3: Hookup `GameRestController.java` to `GameCharacter.java`
 ![](assets/module1/images/gameController.svg)<br>
+Now we should have all the application logic in `GameCharacter.java` to handle the Game API endpoints, we simply need to call them.
 
-In the constructor for `GameRestController.java`, initialize a default `GameCharacter` object.<br>
+In `GameRestController.java`, implement `public GameRestController.java` constructor by initialize our Main `GameCharacter` object.<br>
 
 > [!IMPORTANT]
 > 
@@ -563,9 +739,9 @@ In the constructor for `GameRestController.java`, initialize a default `GameChar
 > → Run the application (again): `./gradlew bootRun`<br>
 > → Call the `GET /characterState` endpoint (the character object's HP will be 100 because `GameRestController` will init a new `GameCharacter` object)
 
-For each of these API endpoints simply call the respective methods we previously implemented in `GameRestController.java`.
+For each of these API endpoints below, simply call the respective methods we previously implemented in `GameCharacter.java`.
 
-Return the result output from each of these `GameCharacter.java` function calls back through the HTTP Response.
+Return the result from the `GameCharacter.java` function calls back through the HTTP Response.
 
 ```java
 @PutMapping("/takeDamage")
@@ -584,20 +760,22 @@ public Map<String, Object> getCharacterState() {
 }
 ```
 
+<br>
+
 ### Example 1:
 > ```java
 > WebClient webClient = WebClient.builder()
 >         .baseUrl("http://localhost:8080/api")
 >         .build();
 > 
-> // 1. Get default character state: {HP=100, MP=100, inventory={HP_POTION=5, MP_POTION=5}}
+> // 1. Get main character state: {HP=100, MP=100, inventory={HP_POTION=5, MP_POTION=5}}
 > Map<String, Object> output1 = webClient.get()
 >         .uri("/fantasyGame/characterState")
 >         .retrieve()
 >         .bodyToMono(Map.class)
 >         .block();
 > 
-> // 2. Character takes 70 damage: 100 (current HP) - 70 (damage) = 30 HP
+> // 2. Main character takes 70 damage: 100 (current HP) - 70 (damage) = 30 HP
 > int output2 = webClient.put()
 >         .uri(uriBuilder -> uriBuilder
 >                 .path("/fantasyGame/takeDamage")
@@ -607,7 +785,7 @@ public Map<String, Object> getCharacterState() {
 >         .bodyToMono(Integer.class)
 >         .block();
 > 
-> // 3. Character drinks an HP potion: 30 (current HP) + 50 (HP potion) = 80 HP
+> // 3. Main character drinks an HP potion: 30 (current HP) + 50 (HP potion) = 80 HP
 > int output3 = webClient.put()
 >         .uri(uriBuilder -> uriBuilder
 >                 .path("/fantasyGame/consumePotion")
@@ -617,7 +795,7 @@ public Map<String, Object> getCharacterState() {
 >         .bodyToMono(Integer.class)
 >         .block();
 > 
-> // 4. Get updated character state: {HP=80, MP=100, inventory={HP_POTION=4, MP_POTION=5}}
+> // 4. Get updated main character state: {HP=80, MP=100, inventory={HP_POTION=4, MP_POTION=5}}
 > int output4 = webClient.get()
 >         .uri("/fantasyGame/characterState")
 >         .retrieve()
@@ -635,18 +813,17 @@ public Map<String, Object> getCharacterState() {
 - [ ] Open `GameRestControllerTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `GameRestControllerTest.java`
 - [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
-```
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
+    ```
 
 #
 
 ### Integration Testing
 - [ ] Run the application:
-```shell
-./gradlew bootRun
-```
+    ```shell
+    ./gradlew bootRun
+    ```
 - [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
 - [ ] Play around with the **Character API** endpoint(s)
-
 ![](assets/module1/images/gameSwagger.png)<br>

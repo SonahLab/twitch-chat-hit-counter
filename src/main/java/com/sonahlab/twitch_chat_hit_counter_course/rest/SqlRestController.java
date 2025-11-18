@@ -33,14 +33,14 @@ public class SqlRestController {
     }
 
     /**
-     * HTTP GET request handler for endpoint /api/sql/queryGreetingEventsFromSQL. Endpoint that will:
+     * HTTP GET request handler for endpoint /api/sql/queryGreetingEvents. Endpoint that will:
      * call the GreetingSqlService to queryAllEvents() and return all the GreetingEvent objects.
      *
      * @return List of GreetingEvent objects currently stored in our SQL greeting_events table.
      */
-    @GetMapping("/queryGreetingEventsFromSQL")
-    @Operation(summary = "Query all events from dev_db.greeting_events SQL table", description = "Returns a List<GreetingEvent>")
-    public List<GreetingEvent> getSqlGreetingEvents() {
+    @GetMapping("/queryGreetingEvents")
+    @Operation(summary = "Query all Greeting events from dev_db.{tableName} SQL table", description = "Returns a List<GreetingEvent>")
+    public List<GreetingEvent> getSqlGreetingEvents(@RequestParam String tableName) {
         /**
          * TODO: Implement as part of Module 3
          * */

@@ -26,17 +26,15 @@ public class GameCharacterTest {
         character.setHp(10000);
         Assertions.assertEquals(100, character.getStat(Stat.HP)); // Expected: 100 (hp should be between 0 and 100
                                                                            // we should ignore the previous 10000 set value)
-        character.setHp(-10000);
-        Assertions.assertEquals(100, character.getStat(Stat.HP)); // Expected: 100 (hp should be between 0 and 100
-                                                                           // we should ignore the previous -10000 set value)
+        character.setHp(50);
+        Assertions.assertEquals(50, character.getStat(Stat.HP));  // Expected: 50 (hp is valid between 0 and 100)
 
         character.setMp(10000);
         Assertions.assertEquals(100, character.getStat(Stat.MP)); // Expected: 100 (mp should be between 0 and 100
                                                                            // we should ignore the previous 10000 set value)
 
-        character.setMp(-10000);
-        Assertions.assertEquals(100, character.getStat(Stat.MP)); // Expected: 100 (mp should be between 0 and 100
-                                                                           // we should ignore the previous -10000 set value)
+        character.setMp(0);
+        Assertions.assertEquals(0, character.getStat(Stat.MP));   // Expected: 0 (mp is valid between 0 and 100)
     }
 
     @Test

@@ -53,5 +53,7 @@ spring:
 
 twitch-chat-hit-counter:
   kafka:
+    batch-consumer:
+      group-id: twitch-chat-hit-counter-group-id-batch-0
     greeting-topic:
       greeting-events

@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.kafka.ConcurrentKafkaListenerContainerFactoryConfigurer;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,14 +37,14 @@ public class KafkaConfigTest {
     private KafkaTemplate<String, byte[]> kafkaTemplate;
 
     @Autowired
+    @Qualifier("kafkaListenerContainerFactory")
     private ConcurrentKafkaListenerContainerFactory<String, byte[]> kafkaListenerContainerFactory;
 
     @Autowired
+    @Qualifier("batchKafkaListenerContainerFactory")
     private ConcurrentKafkaListenerContainerFactory<String, byte[]> batchKafkaListenerContainerFactory;
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 1, Task 2.
-    @Disabled
     @Tag("Module2")
     /**
      * IMPORTANT: This bean gets Autoconfigured for us by Spring Kafka
@@ -69,8 +70,6 @@ public class KafkaConfigTest {
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 2, Task 1.
-    @Disabled
     @Tag("Module2")
     /**
      * IMPORTANT: This bean gets Autoconfigured for us by Spring Kafka
@@ -109,8 +108,6 @@ public class KafkaConfigTest {
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 3, Task 1.
-    @Disabled
     @Tag("Module2")
     /**
      * IMPORTANT: This bean DOES NOT get Autoconfigured for us by Spring Kafka

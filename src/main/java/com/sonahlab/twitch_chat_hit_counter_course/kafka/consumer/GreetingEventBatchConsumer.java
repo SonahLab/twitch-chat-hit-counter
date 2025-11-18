@@ -5,6 +5,7 @@ import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +35,7 @@ public class GreetingEventBatchConsumer extends AbstractEventConsumer<GreetingEv
         /**
          * TODO: Implement as part of Module 2
          * */
-        return null;
+        return EventType.GREETING_EVENT;
     }
 
     @Override
@@ -42,7 +43,7 @@ public class GreetingEventBatchConsumer extends AbstractEventConsumer<GreetingEv
         /**
          * TODO: Implement as part of Module 2
          * */
-        return null;
+        return GreetingEvent.class;
     }
 
     @Override
@@ -53,9 +54,14 @@ public class GreetingEventBatchConsumer extends AbstractEventConsumer<GreetingEv
     }
 
     @Override
+    @KafkaListener(
+            topics = "${twitch-chat-hit-counter.kafka.greeting-topic}",
+            containerFactory = "batchKafkaListenerContainerFactory"
+    )
     public void processMessages(List<ConsumerRecord<String, byte[]>> records, Acknowledgment ack) {
         /**
          * TODO: Implement as part of Module 2
          * */
+        super.processMessages(records, ack);
     }
 }

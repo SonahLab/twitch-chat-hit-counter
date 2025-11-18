@@ -29,8 +29,6 @@ import java.util.List;
         "spring.kafka.consumer.group-id=test-batch-group-id"
 })
 @DirtiesContext
-@Tag("Module2")
-// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
 @Disabled
 public class GreetingEventBatchConsumerTest {
 

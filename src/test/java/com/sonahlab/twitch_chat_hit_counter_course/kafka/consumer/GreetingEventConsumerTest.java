@@ -26,8 +26,6 @@ import java.util.List;
 })
 @DirtiesContext
 @Tag("Module2")
-// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
-@Disabled
 public class GreetingEventConsumerTest {
 
     @Autowired

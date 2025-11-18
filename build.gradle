@@ -76,10 +76,9 @@ tasks.named('test') {
 test {
     useJUnitPlatform {
         // Allows for individual module unit testing using @Tag("moduleX")
-        // Example usage: ./gradlew test -DtestModule=module1
-        def included = System.getProperty("testModule")
-        if (included) {
-            includeTags included
+        // Example usage: ./gradlew test --tests "*" -Ptags=Module1
+        if (project.hasProperty("tags")) {
+            includeTags project.tags
         }
     }
 }

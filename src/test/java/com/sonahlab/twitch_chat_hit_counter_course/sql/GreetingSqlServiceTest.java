@@ -6,13 +6,16 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.helpers.NOPLogger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -24,15 +27,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @Testcontainers
 @ExtendWith(SpringExtension.class)
 @Tag("Module3")
-// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
-@Disabled
 public class GreetingSqlServiceTest {
 
     @Container
     static MySQLContainer<?> MYSQL_CONTAINER = new MySQLContainer<>("mysql:8.0")
             .withDatabaseName("test-db")
             .withUsername("username")
-            .withPassword("password");
+            .withPassword("password")
+            .withLogConsumer(new Slf4jLogConsumer(NOPLogger.NOP_LOGGER));
 
     @DynamicPropertySource
     static void overrideProperties(DynamicPropertyRegistry registry) {
@@ -40,20 +42,35 @@ public class GreetingSqlServiceTest {
         registry.add("spring.datasource.username", MYSQL_CONTAINER::getUsername);
         registry.add("spring.datasource.password", MYSQL_CONTAINER::getPassword);
         registry.add("spring.datasource.driver-class-name", MYSQL_CONTAINER::getDriverClassName);
-        registry.add("twitch-chat-hit-counter.sql.greeting-table", () -> "test_greeting_table");
-        registry.add("twitch-chat-hit-counter.sql.greeting-batch-table", () -> "test_greeting_table");
+        registry.add("twitch-chat-hit-counter.sql.greeting-table", () -> "test_greeting_table1");
+        registry.add("twitch-chat-hit-counter.sql.greeting-table-batch", () -> "test_greeting_table_batch1");
     }
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
+    @Qualifier("singleGreetingSqlService")
     private GreetingSqlService greetingSqlService;
+
+    @Autowired
+    @Qualifier("batchGreetingSqlService")
+    private GreetingSqlService batchGreetingSqlService;
 
     @BeforeEach
     void setup() {
+        jdbcTemplate.execute("DROP TABLE IF EXISTS test_greeting_table1;");
         jdbcTemplate.execute("""
-            CREATE TABLE IF NOT EXISTS test_greeting_table (
+            CREATE TABLE IF NOT EXISTS test_greeting_table1 (
+                event_id VARCHAR(255) PRIMARY KEY,
+                sender VARCHAR(255),
+                receiver VARCHAR(255),
+                message TEXT
+            );
+        """);
+        jdbcTemplate.execute("DROP TABLE IF EXISTS test_greeting_table_batch1;");
+        jdbcTemplate.execute("""
+            CREATE TABLE IF NOT EXISTS test_greeting_table_batch1 (
                 event_id VARCHAR(255) PRIMARY KEY,
                 sender VARCHAR(255),
                 receiver VARCHAR(255),
@@ -63,8 +80,6 @@ public class GreetingSqlServiceTest {
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
-    @Disabled
     void insertTest() {
         GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
         GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");
@@ -80,7 +95,7 @@ public class GreetingSqlServiceTest {
         assertEquals(0, insert3);
 
         List<GreetingEvent> results = jdbcTemplate.query(
-                "SELECT event_id, sender, receiver, message FROM test_greeting_table",
+                "SELECT event_id, sender, receiver, message FROM test_greeting_table1",
                 (rs, rowNum) -> new GreetingEvent(
                         rs.getString("event_id"),
                         rs.getString("sender"),
@@ -95,20 +110,18 @@ public class GreetingSqlServiceTest {
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
-    @Disabled
     void insertBatchTest() {
         GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hello");
         GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Hi!");
         // This event is a duplicate, will be ignored by SQL
         GreetingEvent event3 = new GreetingEvent("id1", "Echo", "Frank", "Hello there.");
 
-        int result = greetingSqlService.insert(List.of(event1, event2, event3));
+        int result = batchGreetingSqlService.insert(List.of(event1, event2, event3));
 
         assertEquals(2, result);
 
         List<GreetingEvent> results = jdbcTemplate.query(
-                "SELECT event_id, sender, receiver, message FROM test_greeting_table",
+                "SELECT event_id, sender, receiver, message FROM test_greeting_table_batch1",
                 (rs, rowNum) -> new GreetingEvent(
                         rs.getString("event_id"),
                         rs.getString("sender"),
@@ -123,8 +136,6 @@ public class GreetingSqlServiceTest {
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
-    @Disabled
     void queryTest() {
         GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
         GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");

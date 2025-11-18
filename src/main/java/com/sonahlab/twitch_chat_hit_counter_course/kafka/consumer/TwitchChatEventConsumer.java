@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * Kafka consumer to read TwitchChatEvents from 'twitch_chat_events' topic in Module 5.
  *
@@ -46,7 +48,7 @@ public class TwitchChatEventConsumer extends AbstractEventConsumer<TwitchChatEve
     }
 
     @Override
-    protected void coreLogic() {
+    protected void coreLogic(List<TwitchChatEvent> events) {
         /**
          * TODO: Implement as part of Module 5
          * */

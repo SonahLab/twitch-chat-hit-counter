@@ -42,8 +42,6 @@ public class PropertiesApplicationTest {
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
-    @Disabled
     @Tag("Module2")
     public void kafkaBatchConfigsTest() {
         assertTrue(env.getProperty("twitch-chat-hit-counter.kafka.batch-consumer.group-id").toLowerCase().contains("twitch-chat-hit-counter-group-id-batch-"));
@@ -55,16 +53,12 @@ public class PropertiesApplicationTest {
     // MODULE 3
     // =================================================================================================================
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
-    @Disabled
     @Tag("Module3")
     public void sqlGreetingTableNameTest() {
         assertEquals("greeting_events", env.getProperty("twitch-chat-hit-counter.sql.greeting-table"));
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
-    @Disabled
     @Tag("Module3")
     public void sqlBatchGreetingTableNameTest() {
         assertEquals("batch_greeting_events", env.getProperty("twitch-chat-hit-counter.sql.greeting-table-batch"));

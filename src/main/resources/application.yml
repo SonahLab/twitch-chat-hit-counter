@@ -55,5 +55,10 @@ twitch-chat-hit-counter:
   kafka:
     batch-consumer:
       group-id: twitch-chat-hit-counter-group-id-batch-0
+      listener:
+        type: BATCH
     greeting-topic:
       greeting-events
+  sql:
+    greeting-table: greeting_events
+    greeting-table-batch: batch_greeting_events

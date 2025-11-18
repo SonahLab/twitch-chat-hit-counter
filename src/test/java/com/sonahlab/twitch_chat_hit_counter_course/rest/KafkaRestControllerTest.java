@@ -33,7 +33,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext
 @TestPropertySource(properties = {
         "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
-        "twitch-chat-hit-counter.kafka.greeting-topic=test_controller_topic"
+        "twitch-chat-hit-counter.kafka.greeting-topic=test_controller_topic",
+        "logging.level.org.springframework.kafka=warn",
+        "logging.level.org.apache.kafka=warn"
 })
 @Tag("Module2")
 class KafkaRestControllerTest {

@@ -1,10 +1,12 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
+import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
 import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -23,11 +25,14 @@ public class GreetingEventBatchConsumer extends AbstractEventConsumer<GreetingEv
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GreetingEventBatchConsumer.class);
 
+    private GreetingSqlService greetingSqlService;
+
     // Constructor
-    public GreetingEventBatchConsumer() {
+    public GreetingEventBatchConsumer(@Qualifier("batchGreetingSqlService") GreetingSqlService greetingSqlService) {
         /**
          * TODO: Implement as part of Module 3+
          * */
+        this.greetingSqlService = greetingSqlService;
     }
 
     @Override
@@ -47,10 +52,11 @@ public class GreetingEventBatchConsumer extends AbstractEventConsumer<GreetingEv
     }
 
     @Override
-    protected void coreLogic() {
+    protected void coreLogic(List<GreetingEvent> events) {
         /**
          * TODO: Implement as part of Module 3+
          * */
+        greetingSqlService.insert(events);
     }
 
     @Override

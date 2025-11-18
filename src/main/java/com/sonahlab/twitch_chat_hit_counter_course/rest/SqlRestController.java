@@ -1,11 +1,13 @@
 package com.sonahlab.twitch_chat_hit_counter_course.rest;
 
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
+import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,11 +27,18 @@ public class SqlRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SqlRestController.class);
 
+    private GreetingSqlService singleGreetingSqlService;
+    private GreetingSqlService batchGreetingSqlService;
+
     // Constructor
-    public SqlRestController() {
+    public SqlRestController(
+            @Qualifier("singleGreetingSqlService") GreetingSqlService singleGreetingSqlService,
+            @Qualifier("batchGreetingSqlService") GreetingSqlService batchGreetingSqlService) {
         /**
          * TODO: Implement as part of Module 3
          * */
+        this.singleGreetingSqlService = singleGreetingSqlService;
+        this.batchGreetingSqlService = batchGreetingSqlService;
     }
 
     /**
@@ -40,10 +49,19 @@ public class SqlRestController {
      */
     @GetMapping("/queryGreetingEvents")
     @Operation(summary = "Query all Greeting events from dev_db.{tableName} SQL table", description = "Returns a List<GreetingEvent>")
-    public List<GreetingEvent> getSqlGreetingEvents(@RequestParam String tableName) {
+    public List<GreetingEvent> getSqlGreetingEvents(@RequestParam(name = "tableName") String tableName) {
         /**
          * TODO: Implement as part of Module 3
          * */
-        return null;
+        LOGGER.info("/queryGreetingEvents tableName: {}", tableName);
+        if (singleGreetingSqlService.sqlTableName().equals(tableName)) {
+            LOGGER.info("Querying {}", singleGreetingSqlService.sqlTableName());
+            return singleGreetingSqlService.queryAllEvents();
+        } else if (batchGreetingSqlService.sqlTableName().equals(tableName)) {
+            LOGGER.info("Querying {}", batchGreetingSqlService.sqlTableName());
+            return batchGreetingSqlService.queryAllEvents();
+        } else {
+            throw new UnsupportedOperationException("Unsupported table name: " + tableName);
+        }
     }
 }

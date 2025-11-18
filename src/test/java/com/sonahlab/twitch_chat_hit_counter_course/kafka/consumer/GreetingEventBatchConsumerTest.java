@@ -2,6 +2,7 @@ package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
+import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
@@ -11,6 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
@@ -26,7 +28,9 @@ import java.util.List;
 @TestPropertySource(properties = {
         "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
         "twitch-chat-hit-counter.kafka.greeting-topic=test_batch_consumer_topic",
-        "spring.kafka.consumer.group-id=test-batch-group-id"
+        "spring.kafka.consumer.group-id=test-batch-group-id",
+        "logging.level.org.springframework.kafka=warn",
+        "logging.level.org.apache.kafka=warn"
 })
 @DirtiesContext
 @Disabled

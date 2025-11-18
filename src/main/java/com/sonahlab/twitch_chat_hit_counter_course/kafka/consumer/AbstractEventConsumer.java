@@ -22,7 +22,7 @@ public abstract class AbstractEventConsumer<T> {
 
     protected abstract Class<T> eventClass();
 
-    protected abstract void coreLogic();
+    protected abstract void coreLogic(List<T> events);
 
     public void processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack) {
         /**

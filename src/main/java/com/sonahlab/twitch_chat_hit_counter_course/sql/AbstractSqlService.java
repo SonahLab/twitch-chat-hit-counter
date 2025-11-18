@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 public abstract class AbstractSqlService<T> {
@@ -21,7 +23,9 @@ public abstract class AbstractSqlService<T> {
 
     public abstract List<String> columns();
 
-    protected abstract void bind(PreparedStatement ps, T event);
+    protected abstract Object[] values(T event);
+
+    protected abstract T parseEventFromResultSet(ResultSet rs) throws SQLException;
 
     public int insert(List<T> events) {
         /**

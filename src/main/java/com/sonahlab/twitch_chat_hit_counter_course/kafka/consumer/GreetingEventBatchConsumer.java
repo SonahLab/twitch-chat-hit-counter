@@ -46,7 +46,7 @@ public class GreetingEventBatchConsumer extends AbstractEventConsumer<GreetingEv
     }
 
     @Override
-    protected void coreLogic() {
+    protected void coreLogic(List<GreetingEvent> events) {
         /**
          * TODO: Implement as part of Module 3+
          * */

@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -42,9 +44,18 @@ public class GreetingSqlService extends AbstractSqlService<GreetingEvent> {
     }
 
     @Override
-    protected void bind(PreparedStatement ps, GreetingEvent event) {
+    protected Object[] values(GreetingEvent event) {
         /**
          * TODO: Implement as part of Module 3
          * */
+        return new Object[0];
+    }
+
+    @Override
+    protected GreetingEvent parseEventFromResultSet(ResultSet rs) throws SQLException {
+        /**
+         * TODO: Implement as part of Module 3
+         * */
+        return null;
     }
 }

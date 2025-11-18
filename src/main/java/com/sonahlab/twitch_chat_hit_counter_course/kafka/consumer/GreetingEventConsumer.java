@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * Kafka consumer to read GreetingEvents from 'greeting_events' topic in Module 2.
  *
@@ -44,7 +46,7 @@ public class GreetingEventConsumer extends AbstractEventConsumer<GreetingEvent> 
     }
 
     @Override
-    protected void coreLogic() {
+    protected void coreLogic(List<GreetingEvent> events) {
         /**
          * TODO: Implement as part of Module 3+
          * */

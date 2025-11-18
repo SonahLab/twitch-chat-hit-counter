@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -48,10 +49,16 @@ public class GreetingSqlServiceTest {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
+    @Qualifier("singleGreetingSqlService")
     private GreetingSqlService greetingSqlService;
+
+    @Autowired
+    @Qualifier("batchGreetingSqlService")
+    private GreetingSqlService batchGreetingSqlService;
 
     @BeforeEach
     void setup() {
+        jdbcTemplate.execute("DROP TABLE IF EXISTS test_greeting_table;");
         jdbcTemplate.execute("""
             CREATE TABLE IF NOT EXISTS test_greeting_table (
                 event_id VARCHAR(255) PRIMARY KEY,
@@ -103,7 +110,7 @@ public class GreetingSqlServiceTest {
         // This event is a duplicate, will be ignored by SQL
         GreetingEvent event3 = new GreetingEvent("id1", "Echo", "Frank", "Hello there.");
 
-        int result = greetingSqlService.insert(List.of(event1, event2, event3));
+        int result = batchGreetingSqlService.insert(List.of(event1, event2, event3));
 
         assertEquals(2, result);
 

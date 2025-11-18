@@ -7,6 +7,7 @@ import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -55,12 +56,18 @@ public class SqlRestControllerTest {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
+    @Qualifier("singleGreetingSqlService")
     private GreetingSqlService greetingSqlService;
+
+    @Autowired
+    @Qualifier("batchGreetingSqlService")
+    private GreetingSqlService batchGreetingSqlService;
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @BeforeEach
     void setup() {
+        jdbcTemplate.execute("DROP TABLE IF EXISTS test_greeting_table;");
         jdbcTemplate.execute("""
             CREATE TABLE IF NOT EXISTS test_greeting_table (
                 event_id VARCHAR(255) PRIMARY KEY,
@@ -102,7 +109,8 @@ public class SqlRestControllerTest {
     }
 
     private List<GreetingEvent> callQueryAllEventsEndpoint() throws Exception {
-        String jsonResponse = mockMvc.perform(get("/api/sql/queryAllEvents"))
+        String jsonResponse = mockMvc.perform(get("/api/sql/queryGreetingEvents")
+                .param("tableName", "test_greeting_table"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()

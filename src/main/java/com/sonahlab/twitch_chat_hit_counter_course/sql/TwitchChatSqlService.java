@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -43,9 +45,18 @@ public class TwitchChatSqlService extends AbstractSqlService<TwitchChatEvent> {
     }
 
     @Override
-    protected void bind(PreparedStatement ps, TwitchChatEvent event) {
+    protected Object[] values(TwitchChatEvent event) {
         /**
          * TODO: Implement as part of Module 5
          * */
+        return new Object[0];
+    }
+
+    @Override
+    protected TwitchChatEvent parseEventFromResultSet(ResultSet rs) throws SQLException {
+        /**
+         * TODO: Implement as part of Module 5
+         * */
+        return null;
     }
 }

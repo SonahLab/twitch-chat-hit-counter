@@ -1,11 +1,15 @@
 package com.sonahlab.twitch_chat_hit_counter_course.rest;
 
+import com.sonahlab.twitch_chat_hit_counter_course.kafka.producer.GreetingEventProducer;
+import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 /**
  * REST Controller for all of our service's Kafka related endpoints.
@@ -21,11 +25,14 @@ public class KafkaRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaRestController.class);
 
+    private GreetingEventProducer greetingEventProducer;
+
     // Constructor
-    public KafkaRestController() {
+    public KafkaRestController(GreetingEventProducer greetingEventProducer) {
         /**
          * TODO: Implement as part of Module 2
          * */
+        this.greetingEventProducer = greetingEventProducer;
     }
 
     /**
@@ -44,6 +51,7 @@ public class KafkaRestController {
         /**
          * TODO: Implement as part of Module 2
          * */
-        return null;
+        String eventId = UUID.randomUUID().toString();
+        return greetingEventProducer.publish(eventId, new GreetingEvent(eventId, sender, receiver, message));
     }
 }

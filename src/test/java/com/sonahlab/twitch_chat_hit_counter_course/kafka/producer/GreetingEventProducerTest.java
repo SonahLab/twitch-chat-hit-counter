@@ -44,8 +44,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 })
 @DirtiesContext
 @Tag("Module2")
-// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
-@Disabled
 public class GreetingEventProducerTest {
 
     @Autowired

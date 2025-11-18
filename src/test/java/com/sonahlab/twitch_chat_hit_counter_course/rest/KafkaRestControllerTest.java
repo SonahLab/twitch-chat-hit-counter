@@ -36,8 +36,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "twitch-chat-hit-counter.kafka.greeting-topic=test_controller_topic"
 })
 @Tag("Module2")
-// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
-@Disabled
 class KafkaRestControllerTest {
 
     @Autowired MockMvc mockMvc;

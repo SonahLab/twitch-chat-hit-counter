@@ -43,7 +43,6 @@ public class PropertiesApplicationTest {
     @Tag("Module2")
     public void kafkaGreetingTopicNameTest() {
         assertEquals("greeting-events", env.getProperty("twitch-chat-hit-counter.kafka.greeting-topic"));
-        assertEquals("greeting-events", env.getProperty("twitch-chat-hit-counter.kafka.greeting-topic"));
     }
 
     @Test
@@ -111,7 +110,6 @@ public class PropertiesApplicationTest {
     @Disabled
     @Tag("Module5")
     public void kafkaTwitchChatTopicNameTest() {
-        assertEquals("twitch-chat-events", env.getProperty("twitch-chat-hit-counter.kafka.twitch-chat-topic"));
         assertEquals("twitch-chat-events", env.getProperty("twitch-chat-hit-counter.kafka.twitch-chat-topic"));
     }
 

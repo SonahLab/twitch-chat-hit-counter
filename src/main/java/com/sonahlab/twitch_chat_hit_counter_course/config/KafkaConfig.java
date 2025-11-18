@@ -15,7 +15,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 @Configuration
 public class KafkaConfig {
 
-    @Bean
+    @Bean(name = "batchKafkaListenerContainerFactory")
     public ConcurrentKafkaListenerContainerFactory<String, byte[]> batchKafkaListenerContainerFactory() {
         /**
          * TODO: Implement as part of Module 2

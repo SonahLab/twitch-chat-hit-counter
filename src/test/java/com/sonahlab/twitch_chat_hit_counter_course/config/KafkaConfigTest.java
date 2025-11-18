@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.kafka.ConcurrentKafkaListenerContainerFactoryConfigurer;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,9 +37,11 @@ public class KafkaConfigTest {
     private KafkaTemplate<String, byte[]> kafkaTemplate;
 
     @Autowired
+    @Qualifier("kafkaListenerContainerFactory")
     private ConcurrentKafkaListenerContainerFactory<String, byte[]> kafkaListenerContainerFactory;
 
     @Autowired
+    @Qualifier("batchKafkaListenerContainerFactory")
     private ConcurrentKafkaListenerContainerFactory<String, byte[]> batchKafkaListenerContainerFactory;
 
     @Test

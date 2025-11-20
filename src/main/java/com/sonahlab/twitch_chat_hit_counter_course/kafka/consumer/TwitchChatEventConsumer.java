@@ -1,7 +1,5 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 
-
-import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import com.sonahlab.twitch_chat_hit_counter_course.model.TwitchChatEvent;
 import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
 import org.apache.kafka.clients.consumer.ConsumerRecord;

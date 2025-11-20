@@ -82,8 +82,8 @@ public class PropertiesApplicationTest {
     @Disabled
     @Tag("Module4")
     public void springRedisConfigsTest() {
-        assertEquals("localhost", env.getProperty("spring.redis.host"));
-        assertEquals("6379", env.getProperty("spring.redis.port"));
+        assertEquals("localhost", env.getProperty("spring.data.redis.host"));
+        assertEquals("6379", env.getProperty("spring.data.redis.port"));
     }
 
     @Test
@@ -91,7 +91,7 @@ public class PropertiesApplicationTest {
     @Disabled
     @Tag("Module4")
     public void redisDeduperDatabaseTest() {
-        assertEquals(0, env.getProperty("twitch-chat-hit-counter.redis.event-dedupe-database"));
+        assertEquals("0", env.getProperty("twitch-chat-hit-counter.redis.event-dedupe-database"));
     }
 
     @Test
@@ -99,7 +99,7 @@ public class PropertiesApplicationTest {
     @Disabled
     @Tag("Module4")
     public void redisGreetingFeedDatabaseTest() {
-        assertEquals(1, env.getProperty("twitch-chat-hit-counter.redis.greeting-feed-database"));
+        assertEquals("1", env.getProperty("twitch-chat-hit-counter.redis.greeting-feed-database"));
     }
 
     // =================================================================================================================
@@ -113,4 +113,19 @@ public class PropertiesApplicationTest {
         assertEquals("twitch-chat-events", env.getProperty("twitch-chat-hit-counter.kafka.twitch-chat-topic"));
     }
 
+    @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
+    @Disabled
+    @Tag("Module5")
+    public void redisOAuthTokenDatabaseTest() {
+        assertEquals("2", env.getProperty("twitch-chat-hit-counter.redis.oauth-token-database"));
+    }
+
+    @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
+    @Disabled
+    @Tag("Module5")
+    public void redisTwitchChatHitCounterDatabaseTest() {
+        assertEquals("3", env.getProperty("twitch-chat-hit-counter.redis.twitch-chat-hit-counter-database"));
+    }
 }

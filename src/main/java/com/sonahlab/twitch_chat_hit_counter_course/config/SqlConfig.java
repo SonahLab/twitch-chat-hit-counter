@@ -1,6 +1,7 @@
 package com.sonahlab.twitch_chat_hit_counter_course.config;
 
 import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,14 +15,22 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class SqlConfig {
-    // TODO: Add Sql configs here
+
     @Bean
+    @Qualifier("singleGreetingSqlService")
     public GreetingSqlService singleGreetingSqlService() {
+        /**
+         * TODO: Implement as part of Module 3
+         * */
         return null;
     }
 
     @Bean
+    @Qualifier("batchGreetingSqlService")
     public GreetingSqlService batchGreetingSqlService() {
+        /**
+         * TODO: Implement as part of Module 3
+         * */
         return null;
     }
 }

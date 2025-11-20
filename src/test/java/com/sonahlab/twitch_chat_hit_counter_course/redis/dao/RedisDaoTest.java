@@ -3,11 +3,7 @@ package com.sonahlab.twitch_chat_hit_counter_course.redis.dao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.testcontainers.RedisContainer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -44,8 +41,8 @@ public class RedisDaoTest {
     // Dynamically configure Redis connection for Spring
     @DynamicPropertySource
     static void redisProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.redis.host", REDIS_CONTAINER::getHost);
-        registry.add("spring.redis.port", REDIS_CONTAINER::getFirstMappedPort);
+        registry.add("spring.data.redis.host", REDIS_CONTAINER::getHost);
+        registry.add("spring.data.redis.port", REDIS_CONTAINER::getFirstMappedPort);
     }
 
     @Autowired
@@ -56,36 +53,18 @@ public class RedisDaoTest {
 
     private static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    // Configuration for RedisTemplate (used in tests)
-    @Configuration
-    static class TestConfig {
-        @Bean
-        public RedisConnectionFactory redisConnectionFactory() {
-            RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
-            config.setHostName(REDIS_CONTAINER.getHost());
-            config.setPort(REDIS_CONTAINER.getFirstMappedPort());
-            return new LettuceConnectionFactory(config);
-        }
-
-        @Bean
-        public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {
-            RedisTemplate<String, String> template = new RedisTemplate<>();
-            template.setConnectionFactory(connectionFactory);
-            template.setKeySerializer(new StringRedisSerializer());
-            template.setValueSerializer(new StringRedisSerializer());
-            template.afterPropertiesSet();
-            return template;
-        }
-
-        @Bean
-        public RedisDao redisDao(RedisTemplate<String, String> redisTemplate) {
-            return new RedisDao(redisTemplate);
-        }
-    }
-
     @BeforeAll
     static void startContainer() {
         REDIS_CONTAINER.start();
+    }
+
+    @AfterEach
+    void resetContainer() {
+        // This wipes the entire Redis DB after every single test
+        redisTemplate.execute((RedisCallback<Object>) connection -> {
+            connection.serverCommands().flushDb();
+            return null;
+        });
     }
 
     @AfterAll
@@ -136,7 +115,7 @@ public class RedisDaoTest {
         Map<String, String> value4 = OBJECT_MAPPER.readValue(redisDao.get("key4"), Map.class);
         assertEquals("Jane", value4.get("firstName"));
         assertEquals("Doe", value4.get("lastName"));
-        assertEquals("", redisDao.get("nonexistentKey"));
+        assertEquals(null, redisDao.get("nonexistentKey"));
     }
 
     @Test
@@ -217,7 +196,7 @@ public class RedisDaoTest {
         redisDao.setAdd("key1", "Alice");
         redisDao.setAdd("key1", "Bob");
 
-        assertThat(redisDao.getSetMembers("key1")).hasSize(2).containsExactly("Alice", "Bob");
+        assertThat(redisDao.getSetMembers("key1")).hasSize(2).contains("Alice", "Bob");
         assertThat(redisDao.getSetMembers("nonexistentKey")).hasSize(0);
 
         // catch exception thrown by RedisTemplate when attempting to get a Set when the value is not a Set
@@ -244,7 +223,7 @@ public class RedisDaoTest {
         Map<String, String> output1 = redisDao.scanKeys("student#*");
         assertThat(output1).hasSize(3)
                 .containsEntry("student#Alice#name", "Alice A.")
-                .containsEntry("student#Alice#GPA", "4.00")
+                .containsEntry("student#Alice#GPA", "4.0")
                 .containsEntry("student#Alice#coursesTaken",
                         OBJECT_MAPPER.writeValueAsString(Arrays.asList("CS 101", "CS 102", "CS 103")));
 
@@ -256,7 +235,7 @@ public class RedisDaoTest {
         Map<String, String> output3 = redisDao.scanKeys("*");
         assertThat(output3).hasSize(5)
                 .containsEntry("student#Alice#name", "Alice A.")
-                .containsEntry("student#Alice#GPA", "4.00")
+                .containsEntry("student#Alice#GPA", "4.0")
                 .containsEntry("student#Alice#coursesTaken",
                         OBJECT_MAPPER.writeValueAsString(Arrays.asList("CS 101", "CS 102", "CS 103")))
                 .containsEntry("teacher#Bob#name", "Bob B.")

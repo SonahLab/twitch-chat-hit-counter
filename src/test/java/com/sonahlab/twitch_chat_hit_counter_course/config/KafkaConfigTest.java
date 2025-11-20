@@ -44,10 +44,6 @@ public class KafkaConfigTest {
     @Qualifier("batchKafkaListenerContainerFactory")
     private ConcurrentKafkaListenerContainerFactory<String, byte[]> batchKafkaListenerContainerFactory;
 
-    @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 1, Task 2.
-    @Disabled
-    @Tag("Module2")
     /**
      * IMPORTANT: This bean gets Autoconfigured for us by Spring Kafka
      * {@link KafkaAutoConfiguration}
@@ -57,6 +53,10 @@ public class KafkaConfigTest {
      * @ConditionalOnMissingBean(KafkaTemplate.class)
      * public KafkaTemplate<?, ?> kafkaTemplate(...) {}
      * */
+    @Test
+    @Tag("Module2")
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 1, Task 2.
+    @Disabled
     public void kafkaTemplate_beanTest() {
         // Test that the default 'kafkaTemplate' is autoconfigured by Spring as part of Spring Kafka library
         assertTrue(context.containsBean("kafkaTemplate"));
@@ -72,9 +72,9 @@ public class KafkaConfigTest {
     }
 
     @Test
+    @Tag("Module2")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 2, Task 1.
     @Disabled
-    @Tag("Module2")
     /**
      * IMPORTANT: This bean gets Autoconfigured for us by Spring Kafka
      * {@link KafkaAutoConfiguration}
@@ -112,9 +112,9 @@ public class KafkaConfigTest {
     }
 
     @Test
+    @Tag("Module2")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 3, Task 1.
     @Disabled
-    @Tag("Module2")
     /**
      * IMPORTANT: This bean DOES NOT get Autoconfigured for us by Spring Kafka
      * This @Bean is something we should be creating manually in {@link KafkaConfig}.

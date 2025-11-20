@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,11 +24,14 @@ public class RedisDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RedisDao.class);
 
+    private RedisTemplate<String, String> redisTemplate;
+
     // Constructor
     public RedisDao(RedisTemplate<String, String> redisTemplate) {
         /**
          * TODO: Implement as part of Module 4
          * */
+        this.redisTemplate = redisTemplate;
     }
 
     /** VALUE OPERATIONS */
@@ -36,7 +40,7 @@ public class RedisDao {
         /**
          * TODO: Implement as part of Module 4
          * */
-        return null;
+        return redisTemplate.opsForValue().increment(key);
     }
 
     // INCRBY: https://redis.io/docs/latest/commands/incrby/
@@ -44,7 +48,7 @@ public class RedisDao {
         /**
          * TODO: Implement as part of Module 4
          * */
-        return null;
+        return redisTemplate.opsForValue().increment(key, delta);
     }
 
     // SET: https://redis.io/docs/latest/commands/set/
@@ -52,6 +56,7 @@ public class RedisDao {
         /**
          * TODO: Implement as part of Module 4
          * */
+        redisTemplate.opsForValue().set(key, value);
     }
 
     // GET: https://redis.io/docs/latest/commands/get/
@@ -59,7 +64,7 @@ public class RedisDao {
         /**
          * TODO: Implement as part of Module 4
          * */
-        return null;
+        return redisTemplate.opsForValue().get(key);
     }
 
     /** LIST OPERATIONS */
@@ -68,7 +73,7 @@ public class RedisDao {
         /**
          * TODO: Implement as part of Module 4
          * */
-        return null;
+        return redisTemplate.opsForList().rightPushAll(key, values);
     }
 
     // LRANGE: https://redis.io/docs/latest/commands/lrange/
@@ -76,7 +81,7 @@ public class RedisDao {
         /**
          * TODO: Implement as part of Module 4
          * */
-        return null;
+        return redisTemplate.opsForList().range(key, 0, -1);
     }
 
     /** SET OPERATIONS */
@@ -85,7 +90,7 @@ public class RedisDao {
         /**
          * TODO: Implement as part of Module 4
          * */
-        return null;
+        return redisTemplate.opsForSet().add(key, values);
     }
 
     // SREM: https://redis.io/docs/latest/commands/srem/
@@ -93,7 +98,7 @@ public class RedisDao {
         /**
          * TODO: Implement as part of Module 4
          * */
-        return null;
+        return redisTemplate.opsForSet().remove(key, values);
     }
 
     // SMEMBERS: https://redis.io/docs/latest/commands/smembers/
@@ -101,7 +106,7 @@ public class RedisDao {
         /**
          * TODO: Implement as part of Module 4
          * */
-        return null;
+        return redisTemplate.opsForSet().members(key);
     }
 
     /** KEY OPERATIONS */
@@ -110,6 +115,27 @@ public class RedisDao {
         /**
          * TODO: Implement as part of Module 4
          * */
-        return null;
+        Map<String, String> result = new HashMap<>();
+
+        Set<String> keys = redisTemplate.keys(prefix + "*");
+        try {
+            // First, determine the type
+            for (String key : keys) {
+                String type = redisTemplate.type(key).code();
+
+                String value = null;
+                switch (type) {
+                    case "string" -> value = get(key);
+                    case "list"   -> value = listGet(key).toString();
+                    case "set"    -> value = getSetMembers(key).toString();
+                    default       -> throw new RuntimeException("Unsupported type: " + type);
+                };
+                result.put(key, value);
+            }
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+        return result;
     }
 }

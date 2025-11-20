@@ -1,6 +1,8 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
+import com.sonahlab.twitch_chat_hit_counter_course.redis.EventDeduperRedisService;
+import com.sonahlab.twitch_chat_hit_counter_course.redis.GreetingRedisService;
 import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
 import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -26,13 +28,20 @@ public class GreetingEventConsumer extends AbstractEventConsumer<GreetingEvent> 
     private static final Logger LOGGER = LoggerFactory.getLogger(GreetingEventConsumer.class);
 
     private GreetingSqlService greetingSqlService;
+    private EventDeduperRedisService eventDeduperRedisService;
+    private GreetingRedisService greetingRedisService;
 
     // Constructor
-    public GreetingEventConsumer(@Qualifier("singleGreetingSqlService") GreetingSqlService greetingSqlService) {
+    public GreetingEventConsumer(
+            @Qualifier("singleGreetingSqlService") GreetingSqlService greetingSqlService,
+            EventDeduperRedisService eventDeduperRedisService,
+            GreetingRedisService greetingRedisService) {
         /**
          * TODO: Implement as part of Module 3+
          * */
         this.greetingSqlService = greetingSqlService;
+        this.eventDeduperRedisService = eventDeduperRedisService;
+        this.greetingRedisService = greetingRedisService;
     }
 
     @Override
@@ -57,7 +66,20 @@ public class GreetingEventConsumer extends AbstractEventConsumer<GreetingEvent> 
          * TODO: Implement as part of Module 3+
          * */
         LOGGER.info("Inserting into table: {} {} events", greetingSqlService.sqlTableName(), events.size());
-        int result = greetingSqlService.insert(events);
+        GreetingEvent greetingEvent = events.get(0);
+        if (eventDeduperRedisService.isDupeEvent(eventType(), greetingEvent.eventId())) {
+            LOGGER.warn("Duplicate event id {} found", greetingEvent.eventId());
+            return;
+        }
+
+        int result = 0;
+        try {
+            result = greetingSqlService.insert(events);
+            greetingRedisService.addGreetingToFeed(greetingEvent);
+            eventDeduperRedisService.processEvent(eventType(), greetingEvent.eventId());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         LOGGER.info("Inserted into table: {} {} events", greetingSqlService.sqlTableName(), result);
     }
 

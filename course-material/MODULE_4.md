@@ -861,6 +861,13 @@ Return a Long that represents the length of the List after the `GreetingEvent` i
 
 #
 
+### Task 4: Update Consumer
+In `GreetingEventConsumer.java`, update dat.
+
+<br>
+
+#
+
 ### Exercise 4: Redis API
 ![](assets/module4/images/redisController.svg)<br>
 

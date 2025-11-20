@@ -1,26 +1,13 @@
 package com.sonahlab.twitch_chat_hit_counter_course.redis;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.testcontainers.RedisContainer;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
-import com.sonahlab.twitch_chat_hit_counter_course.redis.dao.RedisDao;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.junit.jupiter.Container;
@@ -28,14 +15,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @Testcontainers
 @Tag("Module4")
-// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
-@Disabled
 public class GreetingRedisServiceTest {
 
     @Container
@@ -44,54 +28,24 @@ public class GreetingRedisServiceTest {
     // Dynamically configure Redis connection for Spring
     @DynamicPropertySource
     static void redisProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.redis.host", REDIS_CONTAINER::getHost);
-        registry.add("spring.redis.port", REDIS_CONTAINER::getFirstMappedPort);
+        registry.add("spring.data.redis.host", REDIS_CONTAINER::getHost);
+        registry.add("spring.data.redis.port", REDIS_CONTAINER::getFirstMappedPort);
     }
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
 
     @Autowired
     private GreetingRedisService greetingRedisService;
 
-    // Configuration for RedisTemplate (used in tests)
-    @Configuration
-    static class TestConfig {
-        @Bean
-        public RedisConnectionFactory redisConnectionFactory() {
-            RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
-            config.setHostName(REDIS_CONTAINER.getHost());
-            config.setPort(REDIS_CONTAINER.getFirstMappedPort());
-            return new LettuceConnectionFactory(config);
-        }
-
-        @Bean
-        public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {
-            RedisTemplate<String, String> template = new RedisTemplate<>();
-            template.setConnectionFactory(connectionFactory);
-            template.setKeySerializer(new StringRedisSerializer());
-            template.setValueSerializer(new StringRedisSerializer());
-            template.afterPropertiesSet();
-            return template;
-        }
-
-        @Bean(name = "greetingRedisDao") // Match @Qualifier
-        public RedisDao greetingRedisDao(RedisTemplate<String, String> redisTemplate) {
-            return new RedisDao(redisTemplate);
-        }
-
-        @Bean
-        public GreetingRedisService greetingRedisService(@Qualifier("greetingRedisDao") RedisDao redisDao, ObjectMapper objectMapper) {
-            // TODO: Update when RedisConfig.java is implemented
-            return new GreetingRedisService();
-        }
-
-        @Bean
-        public ObjectMapper objectMapper() {
-            return new ObjectMapper();
-        }
-    }
-
     @BeforeAll
     static void startContainer() {
         REDIS_CONTAINER.start();
+    }
+
+    @BeforeEach
+    void resetContainer() {
+        redisTemplate.getConnectionFactory().getConnection().serverCommands().flushAll();
     }
 
     @AfterAll
@@ -100,6 +54,7 @@ public class GreetingRedisServiceTest {
     }
 
     @Test
+    // TODO: add the @Disabled tag here in the main branch
     void addGreetingToFeedTest() throws JsonProcessingException {
         GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice");
         GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "Bob", "Hey Bob, it's been a while.");
@@ -115,6 +70,7 @@ public class GreetingRedisServiceTest {
     }
 
     @Test
+    // TODO: add the @Disabled tag here in the main branch
     void getGreetingFeedTest() throws JsonProcessingException {
         GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice");
         GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "Bob", "Hey Bob, it's been a while.");

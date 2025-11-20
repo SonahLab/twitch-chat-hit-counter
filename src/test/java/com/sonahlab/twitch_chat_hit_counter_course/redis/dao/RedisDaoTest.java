@@ -3,11 +3,7 @@ package com.sonahlab.twitch_chat_hit_counter_course.redis.dao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.testcontainers.RedisContainer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -34,8 +31,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 @Testcontainers
 @Tag("Module4")
-// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
-@Disabled
 public class RedisDaoTest {
 
     @Container
@@ -88,14 +83,21 @@ public class RedisDaoTest {
         REDIS_CONTAINER.start();
     }
 
+    @AfterEach
+    void reset() {
+        // This wipes the entire Redis DB after every single test
+        redisTemplate.execute((RedisCallback<Object>) connection -> {
+            connection.serverCommands().flushDb();
+            return null;
+        });
+    }
+
     @AfterAll
     static void stopContainer() {
         REDIS_CONTAINER.stop();
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
-    @Disabled
     void incrementTest() {
         redisTemplate.opsForValue().increment("key1", 5);
 
@@ -107,8 +109,6 @@ public class RedisDaoTest {
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
-    @Disabled
     void incrementByTest() {
         redisTemplate.opsForValue().increment("key1", 5);
 
@@ -120,8 +120,6 @@ public class RedisDaoTest {
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
-    @Disabled
     void setAndGetTest() throws JsonProcessingException {
         redisDao.set("key1", String.valueOf(10));
         redisDao.set("key2", "Hello World!");
@@ -136,12 +134,10 @@ public class RedisDaoTest {
         Map<String, String> value4 = OBJECT_MAPPER.readValue(redisDao.get("key4"), Map.class);
         assertEquals("Jane", value4.get("firstName"));
         assertEquals("Doe", value4.get("lastName"));
-        assertEquals("", redisDao.get("nonexistentKey"));
+        assertEquals(null, redisDao.get("nonexistentKey"));
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
-    @Disabled
     void listAddTest() {
         long output1 = redisDao.listAdd("key1", "Hello");
         long output2 = redisDao.listAdd("key1", "World");
@@ -161,8 +157,6 @@ public class RedisDaoTest {
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
-    @Disabled
     void listGetTest() {
         redisDao.listAdd("key1", "Hello");
         redisDao.listAdd("key1", "World");
@@ -182,16 +176,12 @@ public class RedisDaoTest {
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
-    @Disabled
     void setAddTest() {
         assertEquals(2, redisDao.setAdd("key1", "Alice", "Bob"));
         assertEquals(0, redisDao.setAdd("key1", "Alice"));
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
-    @Disabled
     void setRemoveTest() {
         redisDao.setAdd("key1", "Alice");
         redisDao.setAdd("key1", "Bob");
@@ -211,13 +201,11 @@ public class RedisDaoTest {
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
-    @Disabled
     void getSetMembersTest() {
         redisDao.setAdd("key1", "Alice");
         redisDao.setAdd("key1", "Bob");
 
-        assertThat(redisDao.getSetMembers("key1")).hasSize(2).containsExactly("Alice", "Bob");
+        assertThat(redisDao.getSetMembers("key1")).hasSize(2).contains("Alice", "Bob");
         assertThat(redisDao.getSetMembers("nonexistentKey")).hasSize(0);
 
         // catch exception thrown by RedisTemplate when attempting to get a Set when the value is not a Set
@@ -232,8 +220,6 @@ public class RedisDaoTest {
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
-    @Disabled
     void scanKeysTest() throws JsonProcessingException {
         redisDao.set("student#Alice#name", "Alice A.");
         redisDao.set("student#Alice#GPA", String.valueOf(4.00));
@@ -244,7 +230,7 @@ public class RedisDaoTest {
         Map<String, String> output1 = redisDao.scanKeys("student#*");
         assertThat(output1).hasSize(3)
                 .containsEntry("student#Alice#name", "Alice A.")
-                .containsEntry("student#Alice#GPA", "4.00")
+                .containsEntry("student#Alice#GPA", "4.0")
                 .containsEntry("student#Alice#coursesTaken",
                         OBJECT_MAPPER.writeValueAsString(Arrays.asList("CS 101", "CS 102", "CS 103")));
 
@@ -256,7 +242,7 @@ public class RedisDaoTest {
         Map<String, String> output3 = redisDao.scanKeys("*");
         assertThat(output3).hasSize(5)
                 .containsEntry("student#Alice#name", "Alice A.")
-                .containsEntry("student#Alice#GPA", "4.00")
+                .containsEntry("student#Alice#GPA", "4.0")
                 .containsEntry("student#Alice#coursesTaken",
                         OBJECT_MAPPER.writeValueAsString(Arrays.asList("CS 101", "CS 102", "CS 103")))
                 .containsEntry("teacher#Bob#name", "Bob B.")

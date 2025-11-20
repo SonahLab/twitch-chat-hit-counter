@@ -50,6 +50,10 @@ spring:
       value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
     listener:
       ack-mode: MANUAL
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 twitch-chat-hit-counter:
   kafka:
@@ -62,3 +66,6 @@ twitch-chat-hit-counter:
   sql:
     greeting-table: greeting_events
     greeting-table-batch: batch_greeting_events
+  redis:
+    event-dedupe-database: 0
+    greeting-feed-database: 1

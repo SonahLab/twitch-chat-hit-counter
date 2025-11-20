@@ -68,28 +68,22 @@ public class PropertiesApplicationTest {
     // MODULE 4
     // =================================================================================================================
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
-    @Disabled
     @Tag("Module4")
     public void springRedisConfigsTest() {
-        assertEquals("localhost", env.getProperty("spring.redis.host"));
-        assertEquals("6379", env.getProperty("spring.redis.port"));
+        assertEquals("localhost", env.getProperty("spring.data.redis.host"));
+        assertEquals("6379", env.getProperty("spring.data.redis.port"));
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
-    @Disabled
     @Tag("Module4")
     public void redisDeduperDatabaseTest() {
-        assertEquals(0, env.getProperty("twitch-chat-hit-counter.redis.event-dedupe-database"));
+        assertEquals("0", env.getProperty("twitch-chat-hit-counter.redis.event-dedupe-database"));
     }
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
-    @Disabled
     @Tag("Module4")
     public void redisGreetingFeedDatabaseTest() {
-        assertEquals(1, env.getProperty("twitch-chat-hit-counter.redis.greeting-feed-database"));
+        assertEquals("1", env.getProperty("twitch-chat-hit-counter.redis.greeting-feed-database"));
     }
 
     // =================================================================================================================

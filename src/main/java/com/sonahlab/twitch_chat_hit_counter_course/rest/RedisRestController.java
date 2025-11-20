@@ -1,6 +1,7 @@
 package com.sonahlab.twitch_chat_hit_counter_course.rest;
 
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
+import com.sonahlab.twitch_chat_hit_counter_course.redis.GreetingRedisService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+
 /**
  * REST Controller for all of our service's Redis related endpoints.
  *
@@ -25,11 +27,14 @@ public class RedisRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RedisRestController.class);
 
+    private GreetingRedisService greetingRedisService;
+
     // Constructor
-    public RedisRestController() {
+    public RedisRestController(GreetingRedisService greetingRedisService) {
         /**
          * TODO: Implement as part of Module 4
          * */
+        this.greetingRedisService = greetingRedisService;
     }
 
     /**
@@ -45,10 +50,14 @@ public class RedisRestController {
      */
     @GetMapping("/queryGreetingFeed")
     @Operation(summary = "Query all events from redis db1 for a user's Greeting feed", description = "Returns a List<GreetingEvent> of all incoming greetings")
-    public List<GreetingEvent> getRedisGreetingFeed(@RequestParam(required = false) String name) {
+    public List<GreetingEvent> getRedisGreetingFeed(@RequestParam(name = "name", required = false) String name) {
         /**
          * TODO: Implement as part of Module 4
          * */
-        return null;
+        try {
+            return greetingRedisService.getGreetingFeed(name);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

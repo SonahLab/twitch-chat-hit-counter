@@ -1,6 +1,18 @@
 package com.sonahlab.twitch_chat_hit_counter_course.config;
 
+import com.sonahlab.twitch_chat_hit_counter_course.redis.dao.RedisDao;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Config class for all of our application's beans. The beans defined here are singletons that we
@@ -13,4 +25,52 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RedisConfig {
     // TODO: Add Redis configs here
+    @Bean
+    public Map<Integer, RedisTemplate<String, String>> redisTemplateFactory(
+            @Value("${spring.data.redis.host}") String host,
+            @Value("${spring.data.redis.port}") int port,
+            @Value("${twitch-chat-hit-counter.redis.event-dedupe-database}") int databaseIndexDb0,
+            @Value("${twitch-chat-hit-counter.redis.greeting-feed-database}") int databaseIndexDb1
+    ) {
+        Map<Integer, RedisTemplate<String, String>> factory = new HashMap<>();
+
+        List<Integer> databaseIndexes = List.of(databaseIndexDb0, databaseIndexDb1);
+        for (int databaseIndex : databaseIndexes) {
+            RedisTemplate<String, String> template = new RedisTemplate<>();
+
+            RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(host, port);
+            redisStandaloneConfiguration.setDatabase(databaseIndex);
+
+            LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(redisStandaloneConfiguration);
+            lettuceConnectionFactory.afterPropertiesSet();
+            lettuceConnectionFactory.start();
+
+            template.setConnectionFactory(lettuceConnectionFactory);
+            template.setKeySerializer(new StringRedisSerializer());
+            template.setValueSerializer(new StringRedisSerializer());
+            template.afterPropertiesSet();
+
+            factory.putIfAbsent(databaseIndex, template);
+        }
+
+        return factory;
+    }
+
+    @Bean
+    @Qualifier("eventDedupeRedisDao")
+    public RedisDao eventDedupeRedisDao(
+            Map<Integer, RedisTemplate<String, String>> redisTemplateFactory,
+            @Value("${twitch-chat-hit-counter.redis.event-dedupe-database}") int databaseIndex
+    ) {
+        return new RedisDao(redisTemplateFactory.get(databaseIndex));
+    }
+
+    @Bean
+    @Qualifier("greetingFeedRedisDao")
+    public RedisDao greetingFeedRedisDao(
+            Map<Integer, RedisTemplate<String, String>> redisTemplateFactory,
+            @Value("${twitch-chat-hit-counter.redis.greeting-feed-database}") int databaseIndex
+    ) {
+        return new RedisDao(redisTemplateFactory.get(databaseIndex));
+    }
 }

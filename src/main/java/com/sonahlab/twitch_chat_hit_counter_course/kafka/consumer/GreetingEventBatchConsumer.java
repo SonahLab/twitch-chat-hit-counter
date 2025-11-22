@@ -1,6 +1,7 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
+import com.sonahlab.twitch_chat_hit_counter_course.redis.EventDeduperRedisService;
 import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
 import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -28,10 +29,13 @@ public class GreetingEventBatchConsumer extends AbstractEventConsumer<GreetingEv
     private GreetingSqlService greetingSqlService;
 
     // Constructor
-    public GreetingEventBatchConsumer(@Qualifier("batchGreetingSqlService") GreetingSqlService greetingSqlService) {
+    public GreetingEventBatchConsumer(
+            @Qualifier("batchGreetingSqlService") GreetingSqlService greetingSqlService,
+            EventDeduperRedisService eventDeduperRedisService) {
         /**
          * TODO: Implement as part of Module 3+
          * */
+        super(eventDeduperRedisService);
         this.greetingSqlService = greetingSqlService;
     }
 
@@ -49,6 +53,11 @@ public class GreetingEventBatchConsumer extends AbstractEventConsumer<GreetingEv
          * TODO: Implement as part of Module 2
          * */
         return GreetingEvent.class;
+    }
+
+    @Override
+    protected String eventKey(GreetingEvent event) {
+        return event.eventId();
     }
 
     @Override

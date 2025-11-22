@@ -60,6 +60,7 @@ dependencies {
 
     // Module 5: Twitch API
     implementation 'com.github.twitch4j:twitch4j:1.25.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1'
 
     // Testcontainers
     implementation "commons-codec:commons-codec:1.17.1" // Needed to work with mysql testcontainer

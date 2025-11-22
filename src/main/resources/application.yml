@@ -63,9 +63,14 @@ twitch-chat-hit-counter:
         type: BATCH
     greeting-topic:
       greeting-events
+    twitch-chat-topic:
+      twitch-chat-events
   sql:
     greeting-table: greeting_events
     greeting-table-batch: batch_greeting_events
+    twitch-chat-table: twitch_chat_events
   redis:
     event-dedupe-database: 0
     greeting-feed-database: 1
+    oauth-token-database: 2
+    twitch-chat-hit-counter-database: 3

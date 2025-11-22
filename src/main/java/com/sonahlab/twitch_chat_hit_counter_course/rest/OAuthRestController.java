@@ -1,12 +1,18 @@
 package com.sonahlab.twitch_chat_hit_counter_course.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.sonahlab.twitch_chat_hit_counter_course.twitch.TwitchAuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpSession;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Service responsible for interacting with the Twitch API Client.
@@ -17,11 +23,17 @@ public class OAuthRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuthRestController.class);
 
+    @Autowired
+    private HttpSession httpSession;
+
+    private TwitchAuthService twitchAuthService;
+
     // Constructor
-    public OAuthRestController() {
+    public OAuthRestController(TwitchAuthService twitchAuthService) {
         /**
          * TODO: Implement as part of Module 5
          * */
+        this.twitchAuthService = twitchAuthService;
     }
 
     /**
@@ -35,7 +47,10 @@ public class OAuthRestController {
         /**
          * TODO: Implement as part of Module 5
          * */
-        return null;
+        String stateUUID = UUID.randomUUID().toString();
+        String authUrl = twitchAuthService.getAuthUrl(stateUUID);
+        httpSession.setAttribute("state", stateUUID);
+        return authUrl;
     }
 
     /**
@@ -62,22 +77,52 @@ public class OAuthRestController {
         /**
          * TODO: Implement as part of Module 5
          * */
-        return null;
+        String cachedState = (String) httpSession.getAttribute("state");
+        if (cachedState == null || !cachedState.equals(state)) {
+            throw new RuntimeException(String.format("Fishy request! cached state=%s, callback state=%s", cachedState, state));
+        }
+
+        LOGGER.info("Processing a valid callback request");
+
+        Map<String, Map<String, Object>> callbackMap = new HashMap<>();
+
+        Map<String, Object> authParams = new HashMap<>() {{
+            put("code", code);
+            put("scope", scope);
+            put("state", state);
+            put("error", error);
+            put("error_description", errorDescription);
+        }};
+        callbackMap.put("authorize", authParams);
+        LOGGER.info("Twitch OAuth Callback parameters: {}", authParams);
+
+        if (StringUtils.isNotBlank(error)) {
+            LOGGER.error("Twitch OAuth Callback error: {}", error);
+            return callbackMap;
+        }
+
+        Map<String, Object> tokenParams = twitchAuthService.createOAuthToken(code);
+        callbackMap.put("token", tokenParams);
+        LOGGER.info("Twitch OAuth Token parameters: {}", tokenParams);
+
+        return callbackMap;
     }
 
     @GetMapping("/oauth2/refreshToken")
-    public String refresh(@RequestParam(name = "code", required = false) String refreshToken) {
+    public Map<String, Object> refresh(@RequestParam(name = "refresh_token", required = false) String refreshToken) {
         /**
          * TODO: Implement as part of Module 5
          * */
-        return null;
+        Map<String, Object> tokenParams = twitchAuthService.refreshOAuthToken(refreshToken);
+        LOGGER.info("Twitch OAuth Token REFRESH parameters: {}", tokenParams);
+        return twitchAuthService.refreshOAuthToken(refreshToken);
     }
 
     @GetMapping("/oauth2/validateToken")
-    public boolean validate(@RequestParam(name = "code", required = false) String accessToken) {
+    public boolean validate(@RequestParam(name = "access_token", required = false) String accessToken) {
         /**
          * TODO: Implement as part of Module 5
          * */
-        return false;
+        return twitchAuthService.validateOAuthToken(accessToken);
     }
 }

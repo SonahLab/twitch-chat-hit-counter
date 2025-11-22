@@ -1,12 +1,12 @@
 package com.sonahlab.twitch_chat_hit_counter_course.twitch;
 
+import com.sonahlab.twitch_chat_hit_counter_course.config.TwitchConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.env.Environment;
 
 import java.net.URI;
 
@@ -17,14 +17,12 @@ public class TwitchAuthServiceTest {
     private TwitchAuthService service;
 
     @Autowired
-    private Environment environment;
+    private TwitchConfig config;
 
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
-    @Disabled
     @Tag("Module5")
     public void getAuthUrlTest() {
-        String authUrl = service.getAuthUrl();
+        String authUrl = service.getAuthUrl("state1");
         URI uri = URI.create(authUrl);
 
         Assertions.assertEquals("https", uri.getScheme());
@@ -33,10 +31,10 @@ public class TwitchAuthServiceTest {
 
         String query = uri.getQuery();
         Assertions.assertTrue(query.contains("response_type=code"));
-        Assertions.assertTrue(query.contains("client_id=" + environment.getProperty("twitch-api.client-id")));
+        Assertions.assertTrue(query.contains("client_id=" + config.getTwitchApiClientId()));
         Assertions.assertTrue(query.contains("redirect_uri=http://localhost:8080/oauth2/callback"));
         Assertions.assertTrue(query.contains("scope=chat:read"));
-        Assertions.assertTrue(query.contains("state="));
+        Assertions.assertTrue(query.contains("state=state1"));
     }
 
     @Test

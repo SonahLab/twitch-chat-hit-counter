@@ -1,5 +1,6 @@
 package com.sonahlab.twitch_chat_hit_counter_course.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.common.events.domain.EventChannel;
 import com.github.twitch4j.common.events.domain.EventUser;
@@ -25,8 +26,14 @@ import com.github.twitch4j.common.events.domain.EventUser;
  *   - subscriptionMonths (int)
  *   - subscriptionTier (int)
  * */
-public record TwitchChatEvent() {
-    /**
-     * TODO: Implement as part of Module 5
-     * */
+public record TwitchChatEvent(
+        @JsonProperty("event_id") String eventId,
+        @JsonProperty("message") String message,
+        @JsonProperty("event_ts") long eventTs,
+        @JsonProperty("user_id") String userId,
+        @JsonProperty("username") String username,
+        @JsonProperty("channel_id") String channelId,
+        @JsonProperty("channel_name") String channelName,
+        @JsonProperty("subscription_months") int subscriptionMonths,
+        @JsonProperty("subscription_tier") int subscriptionTier) {
 }

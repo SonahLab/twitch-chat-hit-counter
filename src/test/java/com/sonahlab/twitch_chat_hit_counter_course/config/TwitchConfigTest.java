@@ -6,24 +6,37 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
 
+import java.io.IOException;
+import java.util.Properties;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @Tag("Module5")
-// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5
-@Disabled
 public class TwitchConfigTest {
 
     @Autowired
-    private String twitchClientId;
-
-    @Autowired
-    private String twitchClientSecret;
+    private TwitchConfig twitchConfig;
 
     @Test
     public void testTwitchClientKeys() {
-        assertTrue(StringUtils.isNotBlank(twitchClientId));
-        assertTrue(StringUtils.isNotBlank(twitchClientSecret));
+        Properties props = new Properties();
+        try (var stream = getClass().getClassLoader()
+                .getResourceAsStream("twitch-key.properties")) {
+            props.load(stream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String expectedClientId = props.getProperty("twitch-api.client-id");
+        String expectedClientSecret = props.getProperty("twitch-api.client-secret");
+
+        assertTrue(StringUtils.isNotBlank(twitchConfig.getTwitchApiClientId()));
+        assertTrue(StringUtils.isNotBlank(twitchConfig.getTwitchApiClientSecret()));
+        assertEquals(expectedClientId, twitchConfig.getTwitchApiClientId());
+        assertEquals(expectedClientSecret, twitchConfig.getTwitchApiClientSecret());
     }
 }

@@ -1,6 +1,7 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sonahlab.twitch_chat_hit_counter_course.redis.EventDeduperRedisService;
 import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
@@ -13,18 +14,23 @@ import java.util.List;
 public abstract class AbstractEventConsumer<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractEventConsumer.class);
-    private ObjectMapper objectMapper;
 
-    public AbstractEventConsumer() {
+    protected ObjectMapper objectMapper;
+    protected EventDeduperRedisService eventDeduperRedisService;
+
+    public AbstractEventConsumer(EventDeduperRedisService eventDeduperRedisService) {
         /**
          * TODO: Implement as part of Module 3+
          * */
+        this.eventDeduperRedisService  = eventDeduperRedisService;
         this.objectMapper = new ObjectMapper();
     }
 
     protected abstract EventType eventType();
 
     protected abstract Class<T> eventClass();
+
+    protected abstract String eventKey(T event);
 
     protected abstract void coreLogic(List<T> events);
 
@@ -35,11 +41,18 @@ public abstract class AbstractEventConsumer<T> {
         String key = record.key();
         byte[] value = record.value();
 
-        T event = convertRecordToEvent(record);
+        T event = convertRecordToEvent(value);
+
+        if (eventDeduperRedisService.isDupeEvent(eventType(), eventKey(event))) {
+            LOGGER.warn("Received DUPE message with key: {}, value: {}", key, key);
+            ack.acknowledge();
+            return;
+        }
+
         LOGGER.info("Received message with key: {}, value: {}", key, event);
 
         coreLogic(List.of(event));
-
+        eventDeduperRedisService.processEvent(eventType(), eventKey(event));
         ack.acknowledge();
     }
 
@@ -49,18 +62,12 @@ public abstract class AbstractEventConsumer<T> {
          * */
     }
 
-    protected void isDupeEvent() {
-        /**
-         * TODO: Implement as part of Module 4
-         * */
-    }
-
-    protected T convertRecordToEvent(ConsumerRecord<String, byte[]> record) {
+    protected T convertRecordToEvent(byte[] value) {
         /**
          * TODO: Implement as part of Module 2 Exercise 3
          */
         try {
-            return objectMapper.readValue(record.value(), eventClass());
+            return objectMapper.readValue(value, eventClass());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

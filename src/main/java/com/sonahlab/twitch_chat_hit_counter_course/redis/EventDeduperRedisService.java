@@ -35,7 +35,7 @@ public class EventDeduperRedisService {
          * */
         String key = getKey(eventType, eventId);
         Long update = redisDao.increment(key);
-        LOGGER.info("Deduper incremented key: {}, new value: {}", key, update);
+        LOGGER.debug("Deduper incremented key: {}, new value: {}", key, update);
     }
 
     public boolean isDupeEvent(EventType eventType, String eventId) {

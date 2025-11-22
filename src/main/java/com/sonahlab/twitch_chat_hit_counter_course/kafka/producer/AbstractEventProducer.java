@@ -32,7 +32,7 @@ public abstract class AbstractEventProducer<T> {
         try {
             CompletableFuture<SendResult<String, byte[]>> future = kafkaTemplate.send(topicName(), key, objectMapper.writeValueAsBytes(event));
             RecordMetadata recordMetadata = future.get().getRecordMetadata();
-            LOGGER.info("Succesfully published to topic={}, key={}, message={}, partition={}, offset={}",
+            LOGGER.debug("Succesfully published to topic={}, key={}, message={}, partition={}, offset={}",
                     topicName(),
                     key,
                     event,

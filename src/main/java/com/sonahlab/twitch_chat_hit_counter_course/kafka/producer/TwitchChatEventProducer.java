@@ -3,6 +3,7 @@ package com.sonahlab.twitch_chat_hit_counter_course.kafka.producer;
 import com.sonahlab.twitch_chat_hit_counter_course.model.TwitchChatEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -18,12 +19,16 @@ public class TwitchChatEventProducer extends AbstractEventProducer<TwitchChatEve
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitchChatEventProducer.class);
 
+    private String topicName;
+
     // Constructor
-    public TwitchChatEventProducer(KafkaTemplate<String, byte[]> kafkaTemplate) {
+    public TwitchChatEventProducer(KafkaTemplate<String, byte[]> kafkaTemplate,
+                                   @Value("${twitch-chat-hit-counter.kafka.twitch-chat-topic}") String topicName) {
         /**
          * TODO: Implement as part of Module 5
          * */
         super(kafkaTemplate);
+        this.topicName = topicName;
     }
 
     @Override
@@ -31,6 +36,6 @@ public class TwitchChatEventProducer extends AbstractEventProducer<TwitchChatEve
         /**
          * TODO: Implement as part of Module 5
          * */
-        return null;
+        return topicName;
     }
 }

@@ -28,7 +28,6 @@ public class GreetingEventConsumer extends AbstractEventConsumer<GreetingEvent> 
     private static final Logger LOGGER = LoggerFactory.getLogger(GreetingEventConsumer.class);
 
     private GreetingSqlService greetingSqlService;
-    private EventDeduperRedisService eventDeduperRedisService;
     private GreetingRedisService greetingRedisService;
 
     // Constructor
@@ -39,8 +38,8 @@ public class GreetingEventConsumer extends AbstractEventConsumer<GreetingEvent> 
         /**
          * TODO: Implement as part of Module 3+
          * */
+        super(eventDeduperRedisService);
         this.greetingSqlService = greetingSqlService;
-        this.eventDeduperRedisService = eventDeduperRedisService;
         this.greetingRedisService = greetingRedisService;
     }
 
@@ -61,22 +60,22 @@ public class GreetingEventConsumer extends AbstractEventConsumer<GreetingEvent> 
     }
 
     @Override
+    protected String eventKey(GreetingEvent event) {
+        return event.eventId();
+    }
+
+    @Override
     protected void coreLogic(List<GreetingEvent> events) {
         /**
          * TODO: Implement as part of Module 3+
          * */
         LOGGER.info("Inserting into table: {} {} events", greetingSqlService.sqlTableName(), events.size());
         GreetingEvent greetingEvent = events.get(0);
-        if (eventDeduperRedisService.isDupeEvent(eventType(), greetingEvent.eventId())) {
-            LOGGER.warn("Duplicate event id {} found", greetingEvent.eventId());
-            return;
-        }
 
         int result = 0;
         try {
             result = greetingSqlService.insert(events);
             greetingRedisService.addGreetingToFeed(greetingEvent);
-            eventDeduperRedisService.processEvent(eventType(), greetingEvent.eventId());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -90,11 +90,20 @@ public class PropertiesApplicationTest {
     // MODULE 5
     // =================================================================================================================
     @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
-    @Disabled
     @Tag("Module5")
     public void kafkaTwitchChatTopicNameTest() {
         assertEquals("twitch-chat-events", env.getProperty("twitch-chat-hit-counter.kafka.twitch-chat-topic"));
     }
 
+    @Test
+    @Tag("Module5")
+    public void redisOAuthTokenDatabaseTest() {
+        assertEquals("2", env.getProperty("twitch-chat-hit-counter.redis.oauth-token-database"));
+    }
+
+    @Test
+    @Tag("Module5")
+    public void redisTwitchChatHitCounterDatabaseTest() {
+        assertEquals("3", env.getProperty("twitch-chat-hit-counter.redis.twitch-chat-hit-counter-database"));
+    }
 }

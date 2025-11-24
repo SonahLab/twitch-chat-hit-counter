@@ -1,28 +1,19 @@
 package com.sonahlab.twitch_chat_hit_counter_course.twitch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.twitch4j.common.exception.UnauthorizedException;
-import com.sonahlab.twitch_chat_hit_counter_course.config.TwitchConfig;
+import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
+import com.github.twitch4j.auth.domain.TwitchScopes;
+import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
 import com.sonahlab.twitch_chat_hit_counter_course.redis.OAuthRedisService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
-import static com.sonahlab.twitch_chat_hit_counter_course.utils.UserUtils.USERNAME;
+import static com.sonahlab.twitch_chat_hit_counter_course.utils.TwitchApiUtils.CHAT_BOT_SCOPES;
+import static com.sonahlab.twitch_chat_hit_counter_course.utils.TwitchApiUtils.USERNAME;
 
 /**
  * Manages the lifecycle of Twitch OAuth2 access tokens for the chat hit counter application.
@@ -50,27 +41,21 @@ import static com.sonahlab.twitch_chat_hit_counter_course.utils.UserUtils.USERNA
 public class TwitchAuthService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitchAuthService.class);
-    private static final String SCHEME = "https";
-    private static final String HOST = "id.twitch.tv";
 
-    private static final String REDIRECT_URI = "http://localhost:8080/oauth2/callback";
-    private static final List<String> SCOPE = List.of("chat:read");
-
-    private static final String BASE_AUTH_URL = SCHEME + "://" + HOST;
-    private static final String AUTH_ENDPOINT ="/oauth2/authorize";
-    private static final String TOKEN_ENDPOINT ="/oauth2/token";
-    private static final String VALIDATE_ENDPOINT ="/oauth2/validate";
-
-    private TwitchConfig twitchConfig;
+    private TwitchIdentityProvider twitchIdentityProvider;
+    private TwitchClientManager twitchClientManager;
     private OAuthRedisService oAuthRedisService;
 
     // Constructor
-    public TwitchAuthService(TwitchConfig twitchConfig,
-                             OAuthRedisService oAuthRedisService) {
+    public TwitchAuthService(
+            TwitchIdentityProvider twitchIdentityProvider,
+            TwitchClientManager twitchClientManager,
+            OAuthRedisService oAuthRedisService) {
         /**
          * TODO: Implement as part of Module 5
          * */
-        this.twitchConfig = twitchConfig;
+        this.twitchIdentityProvider = twitchIdentityProvider;
+        this.twitchClientManager = twitchClientManager;
         this.oAuthRedisService = oAuthRedisService;
     }
 
@@ -97,16 +82,11 @@ public class TwitchAuthService {
         /**
          * TODO: Implement in Module 5
          */
-        UriComponentsBuilder builder = UriComponentsBuilder.newInstance()
-                .scheme(SCHEME)
-                .host(HOST)
-                .path(AUTH_ENDPOINT)
-                .queryParam("response_type", "code")
-                .queryParam("client_id", twitchConfig.getTwitchApiClientId())
-                .queryParam("redirect_uri", REDIRECT_URI)
-                .queryParam("scope", String.join(" ", SCOPE))
-                .queryParam("state", state);
-        return builder.toUriString();
+        List<Object> scopes = new ArrayList<>();
+        for (TwitchScopes scope : CHAT_BOT_SCOPES) {
+            scopes.add(scope.toString());
+        }
+        return twitchIdentityProvider.getAuthenticationUrl(scopes, state);
     }
 
     /**
@@ -154,39 +134,24 @@ public class TwitchAuthService {
      * @see <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#authorization-code-grant-flow">
      *      Twitch Authorization Code Grant Flow</a>
      */
-    public Map<String, Object> createOAuthToken(String authorizationCode) throws JsonProcessingException {
+    public OAuth2Credential createOAuthToken(String authorizationCode, String scope) throws JsonProcessingException {
         /**
          * TODO: Implement in Module 5
          * */
-        RestClient restClient = RestClient.create(URI.create(BASE_AUTH_URL + TOKEN_ENDPOINT));
-
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("client_id", twitchConfig.getTwitchApiClientId());
-        body.add("client_secret", twitchConfig.getTwitchApiClientSecret());
-        body.add("code", authorizationCode);
-        body.add("grant_type", "authorization_code");
-        body.add("redirect_uri", REDIRECT_URI);
-
-        try {
-            Map<String, Object> tokenResponse = restClient.post()
-                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                    .body(body)
-                    .retrieve()
-                    .onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {
-                        LOGGER.error("Status Code: {}, res: {}", res.getStatusCode(), res.getStatusText());
-                        throw new UnauthorizedException();
-                    })
-                    .onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
-                        throw new RuntimeException(String.format("Status Code: %s, res: %s", res.getStatusCode(), res.getStatusText()));
-                    })
-                    .body(new ParameterizedTypeReference<>() {});
-            LOGGER.info("Twitch OAuth Token parameters: {}", tokenResponse);
-
-            oAuthRedisService.updateLatestToken(USERNAME, tokenResponse);
-            return tokenResponse;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        // getCredentialByCode is buggy for the scopes field
+        OAuth2Credential oAuth2Credential = twitchIdentityProvider.getCredentialByCode(authorizationCode);
+        OAuth2Credential fixedCredential = new OAuth2Credential(
+                oAuth2Credential.getIdentityProvider(),
+                oAuth2Credential.getAccessToken(),
+                oAuth2Credential.getRefreshToken(),
+                null,
+                null,
+                oAuth2Credential.getExpiresIn(),
+                Arrays.stream(scope.split(" ")).toList()
+        );
+        oAuthRedisService.updateLatestToken(USERNAME, fixedCredential);
+        twitchClientManager.refreshCredential(fixedCredential);
+        return fixedCredential;
     }
 
     /**
@@ -226,38 +191,17 @@ public class TwitchAuthService {
      * @return a String containing the new access token, new refresh token, expiry, and scopes
      * @see <a href="https://dev.twitch.tv/docs/authentication/refresh-tokens">Twitch Refresh Tokens</a>
      */
-    public Map<String, Object> refreshOAuthToken(String refreshToken) {
+    public OAuth2Credential refreshOAuthToken() throws JsonProcessingException {
         /**
          * TODO: Implement in Module 5
          */
-        RestClient restClient = RestClient.create(URI.create(BASE_AUTH_URL + TOKEN_ENDPOINT));
-
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("client_id", twitchConfig.getTwitchApiClientId());
-        body.add("client_secret", twitchConfig.getTwitchApiClientSecret());
-        body.add("grant_type", "refresh_token");
-        body.add("refresh_token", refreshToken);
-
-        try {
-            Map<String, Object> tokenResponse = restClient.post()
-                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                    .body(body)
-                    .retrieve()
-                    .onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {
-                        LOGGER.error("Status Code: {}, res: {}", res.getStatusCode(), res.getStatusText());
-                        throw new UnauthorizedException();
-                    })
-                    .onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
-                        throw new RuntimeException(String.format("Status Code: %s, res: %s", res.getStatusCode(), res.getStatusText()));
-                    })
-                    .body(new ParameterizedTypeReference<>() {});
-            LOGGER.info("Twitch OAuth Token parameters: {}", tokenResponse);
-
-            oAuthRedisService.updateLatestToken(USERNAME, tokenResponse);
-            return tokenResponse;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+        OAuth2Credential oAuth2Credential = oAuthRedisService.getAccessToken(USERNAME);
+        Optional<OAuth2Credential> refreshedCredential = twitchIdentityProvider.refreshCredential(oAuth2Credential);
+        if (refreshedCredential.isPresent()) {
+            oAuthRedisService.updateLatestToken(USERNAME, refreshedCredential.get());
+            twitchClientManager.refreshCredential(refreshedCredential.get());
         }
+        return refreshedCredential.get();
     }
 
     /**
@@ -301,28 +245,12 @@ public class TwitchAuthService {
      * @return {@code true} if the token is valid and not expired; {@code false} if 401 is received
      * @see <a href="https://dev.twitch.tv/docs/authentication/validate-tokens">Validate Tokens</a>
      */
-    public boolean validateOAuthToken(String accessToken) {
+    public boolean validateOAuthToken() throws JsonProcessingException {
         /**
          * TODO: Implement in Module 5
          * */
-        RestClient restClient = RestClient.create(URI.create(BASE_AUTH_URL + VALIDATE_ENDPOINT));
-        try {
-            Map<String, Object> response = restClient.get()
-                    .header("Authorization", "OAuth " + accessToken)
-                    .retrieve()
-                    .onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {
-                        LOGGER.error("Status Code: {}, res: {}", res.getStatusCode(), res.getStatusText());
-                        throw new UnauthorizedException();
-                    })
-                    .onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
-                        throw new RuntimeException(String.format("Status Code: %s, res: %s", res.getStatusCode(), res.getStatusText()));
-                    })
-                    .body(new ParameterizedTypeReference<>() {
-                    });
-            LOGGER.info("Twitch OAuth Token VALIDATE Response: {}", response);
-            return true;
-        } catch (UnauthorizedException e) {
-            return false;
-        }
+        OAuth2Credential oAuth2Credential = oAuthRedisService.getAccessToken(USERNAME);
+        Optional<Boolean> isValid = twitchIdentityProvider.isCredentialValid(oAuth2Credential);
+        return isValid.get();
     }
 }

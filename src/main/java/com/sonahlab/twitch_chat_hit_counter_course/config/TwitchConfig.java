@@ -1,6 +1,6 @@
 package com.sonahlab.twitch_chat_hit_counter_course.config;
 
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,5 +30,10 @@ public class TwitchConfig {
 
     public String getTwitchApiClientSecret() {
         return twitchApiClientSecret;
+    }
+
+    @Bean
+    public TwitchIdentityProvider twitchIdentityProvider() {
+        return new TwitchIdentityProvider(twitchApiClientId, twitchApiClientSecret, "http://localhost:8080/oauth2/callback");
     }
 }

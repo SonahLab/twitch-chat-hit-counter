@@ -1,24 +1,22 @@
 package com.sonahlab.twitch_chat_hit_counter_course.twitch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
-import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import com.sonahlab.twitch_chat_hit_counter_course.config.TwitchConfig;
 import com.sonahlab.twitch_chat_hit_counter_course.kafka.producer.TwitchChatEventProducer;
 import com.sonahlab.twitch_chat_hit_counter_course.model.TwitchChatEvent;
-import com.sonahlab.twitch_chat_hit_counter_course.redis.OAuthRedisService;
+import com.sonahlab.twitch_chat_hit_counter_course.redis.TwitchChannelRedisService;
+import com.sonahlab.twitch_chat_hit_counter_course.utils.TwitchApiUtils;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.OptionalInt;
 import java.util.Set;
 
-import static com.sonahlab.twitch_chat_hit_counter_course.utils.UserUtils.USERNAME;
+import static com.sonahlab.twitch_chat_hit_counter_course.utils.TwitchApiUtils.USERNAME;
+
 
 /**
  * Service responsible for interacting with the Twitch Chat Bot API Client.
@@ -28,24 +26,25 @@ public class TwitchChatBotManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitchChatBotManager.class);
 
-    private TwitchConfig config;
-    private OAuthRedisService oauthRedisService;
     private TwitchAuthService twitchAuthService;
+    private TwitchClientManager twitchClientManager;
     private TwitchClient twitchClient;
     private TwitchChatEventProducer twitchChatEventProducer;
+    private TwitchChannelRedisService twitchChannelRedisService;
 
     // Constructor
-    public TwitchChatBotManager(TwitchConfig config,
-                                OAuthRedisService oauthRedisService,
+    public TwitchChatBotManager(TwitchClientManager twitchClientManager,
                                 TwitchAuthService twitchAuthService,
-                                TwitchChatEventProducer twitchChatEventProducer) {
+                                TwitchChatEventProducer twitchChatEventProducer,
+                                TwitchChannelRedisService twitchChannelRedisService) {
         /**
          * TODO: Implement as part of Module 5
          * */
-        this.config = config;
-        this.oauthRedisService = oauthRedisService;
+        this.twitchClientManager = twitchClientManager;
+        this.twitchClient = twitchClientManager.getTwitchClient();
         this.twitchAuthService = twitchAuthService;
         this.twitchChatEventProducer = twitchChatEventProducer;
+        this.twitchChannelRedisService = twitchChannelRedisService;
     }
 
     @PostConstruct
@@ -53,29 +52,46 @@ public class TwitchChatBotManager {
         /**
          * TODO: Implement as part of Module 5
          * */
-        validateAndRefreshUserOAuth();
-        twitchClient.getEventManager().onEvent(ChannelMessageEvent.class, this::handleMessage);
+        twitchClient.getEventManager().onEvent(ChannelMessageEvent.class, this::handleChatMessage);
 
         initChannelsToJoin();
     }
 
-    public void joinChannel(String channelName) throws JsonProcessingException {
+    public void joinChannel(String channelName) {
         /**
          * TODO: Implement as part of Module 5
          * */
-        validateAndRefreshUserOAuth();
+        twitchChannelRedisService.addChannel(USERNAME, channelName);
         twitchClient.getChat().joinChannel(channelName);
     }
 
-    public boolean leaveChannel(String channelName) throws JsonProcessingException {
+    public boolean leaveChannel(String channelName) {
         /**
          * TODO: Implement as part of Module 5
          * */
-        validateAndRefreshUserOAuth();
+        twitchChannelRedisService.removeChannel(USERNAME, channelName);
         return twitchClient.getChat().leaveChannel(channelName);
     }
 
-    private void handleMessage(ChannelMessageEvent event) {
+    public Set<String> getJoinedChannels() {
+        /**
+         * TODO: Implement as part of Module 5
+         * */
+        Set<String> channels = twitchChannelRedisService.getJoinedChannels(USERNAME);
+        LOGGER.info("Joined channels: {}", channels);
+        return channels;
+    }
+
+    public boolean sendMessage(String channelName, String message) {
+        try {
+            TwitchApiUtils.validateAndRefreshToken(twitchAuthService, twitchClientManager);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return twitchClient.getChat().sendMessage(channelName, message);
+    }
+
+    private void handleChatMessage(ChannelMessageEvent event) {
         LOGGER.debug("Processing event: " + event);
 
         OptionalInt subscriberMonths = event.getMessageEvent().getSubscriberMonths();
@@ -97,51 +113,14 @@ public class TwitchChatBotManager {
         LOGGER.debug("Published={} eventId={} to kafka topic", published, twitchChatEvent.eventId());
     }
 
-    private void initChannelsToJoin() throws JsonProcessingException {
+    private void initChannelsToJoin() {
         /**
          * TODO: Implement as part of Module 5
          * */
-        validateAndRefreshUserOAuth();
-
-        Set<String> channels = new HashSet<>() {{
-            add("s0mcs");
-//            add("Demon1");
-//            add("k3soju");
-        }};
+        Set<String> channels = twitchChannelRedisService.getJoinedChannels(USERNAME);
+        LOGGER.info("Initial channels to join: {}", channels);
         for (String channelName : channels) {
             twitchClient.getChat().joinChannel(channelName);
         }
-    }
-
-    private void validateAndRefreshUserOAuth() throws JsonProcessingException {
-        OAuth2Credential oAuth2Credential = oauthRedisService.getAccessToken(USERNAME);
-        if (oAuth2Credential == null) {
-            LOGGER.error("No access token found for username={}, authorize first!", USERNAME);
-            throw new RuntimeException(String.format("No access token found for username=%s, authorize first!", USERNAME));
-        }
-
-        boolean isValidToken = twitchAuthService.validateOAuthToken(oAuth2Credential.getAccessToken());
-        LOGGER.info("Validated accessToken={}, isValid={}", oAuth2Credential.getAccessToken(), isValidToken);
-        if (isValidToken) {
-            if (twitchClient == null) {
-                LOGGER.info("Initializing {} twitchClient and an already valid token", this.getClass().getSimpleName());
-                refreshTwitchClient(oAuth2Credential);
-            }
-        } else {
-            LOGGER.info("Refreshing TwitchClient with a fresh token", this.getClass().getSimpleName());
-            twitchAuthService.refreshOAuthToken(oAuth2Credential.getRefreshToken());
-            oAuth2Credential = oauthRedisService.getAccessToken(USERNAME);
-            refreshTwitchClient(oAuth2Credential);
-        }
-    }
-
-    private void refreshTwitchClient(OAuth2Credential oAuth2Credential) {
-        twitchClient = TwitchClientBuilder.builder()
-                .withEnableHelix(true)
-                .withEnableChat(true)
-                .withChatAccount(oAuth2Credential)
-                .withClientId(config.getTwitchApiClientId())
-                .withClientSecret(config.getTwitchApiClientSecret())
-                .build();
     }
 }

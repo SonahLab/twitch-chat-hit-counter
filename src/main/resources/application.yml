@@ -74,3 +74,4 @@ twitch-chat-hit-counter:
     greeting-feed-database: 1
     oauth-token-database: 2
     twitch-chat-hit-counter-database: 3
+    chatbot-channels-database: 4

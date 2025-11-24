@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class OAuthRedisService {
@@ -31,23 +30,14 @@ public class OAuthRedisService {
         this.redisDao = redisDao;
     }
 
-    public void updateLatestToken(String username, Map<String, Object> tokenResponse) throws JsonProcessingException {
+    public void updateLatestToken(String username, OAuth2Credential oAuth2Credential) throws JsonProcessingException {
         /**
          * TODO: Implement as part of Module 5
          * */
         String key = String.format(KEY_TEMPLATE, username);
-        OAuth2Credential oAuth2Credential = new OAuth2Credential(
-                "twitch",
-                tokenResponse.get("access_token").toString(),
-                tokenResponse.get("refresh_token").toString(),
-                null,
-                null,
-                (Integer) tokenResponse.get("expires_in"),
-                (List<String>) tokenResponse.get("scope")
-        );
         redisDao.set(key, MAPPER.writeValueAsString(oAuth2Credential));
 
-        LOGGER.info("Updated latest token for username={}, token={}", username, tokenResponse);
+        LOGGER.info("Updated latest token for username={}, token={}", username, oAuth2Credential);
     }
 
     public OAuth2Credential getAccessToken(String username) throws JsonProcessingException {
@@ -57,6 +47,10 @@ public class OAuthRedisService {
         String key = String.format(KEY_TEMPLATE, username);
         String token = redisDao.get(key);
         LOGGER.info("Retrieved access token for username={}, token={}", username, token);
+
+        if (token == null) {
+            return null;
+        }
 
         JsonNode node = MAPPER.readTree(token);
         String provider = node.get("identityProvider").asText();

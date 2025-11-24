@@ -3,12 +3,10 @@ package com.sonahlab.twitch_chat_hit_counter_course.config;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.Map;
 
@@ -42,6 +40,12 @@ public class RedisConfigTest {
     @Tag("Module5")
     public void twitchChatHitCounterRedisDaoTest() {
         validateRedisDB(3);
+    }
+
+    @Test
+    @Tag("Module5")
+    public void chatBotChannelsRedisDaoTest() {
+        validateRedisDB(4);
     }
 
     private void validateRedisDB(int databaseIndex) {

@@ -1,5 +1,9 @@
 package com.sonahlab.twitch_chat_hit_counter_course.rest;
 
+import com.github.twitch4j.helix.domain.User;
+import com.sonahlab.twitch_chat_hit_counter_course.redis.TwitchChatRedisService;
+import com.sonahlab.twitch_chat_hit_counter_course.twitch.TwitchChatBotManager;
+import com.sonahlab.twitch_chat_hit_counter_course.twitch.TwitchHelixService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -8,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,43 +29,73 @@ public class TwitchRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitchRestController.class);
 
+    private TwitchChatRedisService twitchChatRedisService;
+    private TwitchHelixService twitchHelixService;
+    private TwitchChatBotManager twitchChatBotManager;
+
     // Constructor
-    public TwitchRestController() {
+    public TwitchRestController(
+            TwitchChatRedisService twitchChatRedisService,
+            TwitchHelixService twitchHelixService,
+            TwitchChatBotManager twitchChatBotManager) {
         /**
          * TODO: Implement as part of Module 6
          * */
+        this.twitchChatRedisService = twitchChatRedisService;
+        this.twitchHelixService = twitchHelixService;
+        this.twitchChatBotManager = twitchChatBotManager;
     }
 
     @GetMapping("/hitCounter")
     @Operation(summary = "Get chat counter of a streamer", description = "")
-    public Map<String, Long> hitCounter(@RequestParam String channelName) {
+    public Map<String, Long> hitCounter(@RequestParam(name = "channelName") String channelName) {
         /**
          * TODO: Implement as part of Module 6
          * */
-        return null;
+        LOGGER.info("Get chat counter of a streamer: {}", channelName);
+        return twitchChatRedisService.getHitCounts(channelName);
     }
 
-    @GetMapping("/addChannel")
-    public ResponseEntity<String> addChannel(@RequestParam String channelName) {
+    @PutMapping("/addChannel")
+    public ResponseEntity addChannel(@RequestParam(name = "channelName") String channelName) {
         /**
          * TODO: Implement as part of Module 6
          * */
-        return null;
+        LOGGER.info("Adding channel {} to Twitch", channelName);
+        twitchChatBotManager.joinChannel(channelName);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/getChannels")
-    public Set<String> getChannels() {
+    public ResponseEntity<Set<String>> getChannels() {
         /**
          * TODO: Implement as part of Module 6
          * */
-        return null;
+        return ResponseEntity.ok(twitchChatBotManager.getJoinedChannels());
     }
 
-    @GetMapping("/removeChannel")
-    public boolean removeChannel(@RequestParam String channelName) {
+    @DeleteMapping("/removeChannel")
+    public ResponseEntity removeChannel(@RequestParam(name = "channelName") String channelName) {
         /**
          * TODO: Implement as part of Module 6
          * */
-        return false;
+        LOGGER.info("Removing channel {}", channelName);
+        twitchChatBotManager.leaveChannel(channelName);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/getChannelsMetadata")
+    public ResponseEntity<Map<String, User>> getChannelsMetadata() {
+        /**
+         * TODO: Implement as part of Module 6
+         * */
+        return ResponseEntity.ok(
+                twitchHelixService.getChannelInfo(
+                        twitchChatBotManager.getJoinedChannels().stream().toList()));
+    }
+
+    @GetMapping("/sendMessageToChannel")
+    public boolean sendMessageToChannel(@RequestParam String channelName, @RequestParam String message) {
+        return twitchChatBotManager.sendMessage(channelName, message);
     }
 }

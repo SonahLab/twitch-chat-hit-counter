@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -36,11 +37,18 @@ public class TwitchChatRedisService {
         return hitCounts;
     }
 
-    public Map<String, String> getHitCounts(String channelName) {
+    public Map<String, Long> getHitCounts(String channelName) {
         /**
          * TODO: Implement as part of Module 5
          * */
-        return redisDao.scanKeys(channelName);
+        Map<String, Long> hitCounts = new HashMap<>();
+
+        Map<String, String> entries = redisDao.scanKeys(channelName);
+        for (Map.Entry<String, String> entry : entries.entrySet()) {
+            hitCounts.put(entry.getKey(), Long.parseLong(entry.getValue()));
+        }
+        LOGGER.info("Found {} hits for channel: {}", hitCounts.size(), channelName);
+        return hitCounts;
     }
 
     private String getKey(String channelName, long eventTimestampMs) {

@@ -106,4 +106,13 @@ public class PropertiesApplicationTest {
     public void redisTwitchChatHitCounterDatabaseTest() {
         assertEquals("3", env.getProperty("twitch-chat-hit-counter.redis.twitch-chat-hit-counter-database"));
     }
+
+    // =================================================================================================================
+    // MODULE 6
+    // =================================================================================================================
+    @Test
+    @Tag("Module6")
+    public void redisTwitchChannelDatabaseTest() {
+        assertEquals("4", env.getProperty("twitch-chat-hit-counter.redis.twitch-channel-database"));
+    }
 }

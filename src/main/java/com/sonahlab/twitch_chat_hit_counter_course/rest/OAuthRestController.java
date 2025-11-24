@@ -1,6 +1,7 @@
 package com.sonahlab.twitch_chat_hit_counter_course.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.sonahlab.twitch_chat_hit_counter_course.twitch.TwitchAuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
@@ -68,7 +69,7 @@ public class OAuthRestController {
      * @return Map of the parameters that were passed in from Twitch's servers.
      */
     @GetMapping("/oauth2/callback")
-    public Map<String, Map<String, Object>> handleCallback(
+    public Map<String, Object> handleCallback(
             @RequestParam(name = "code", required = false) String code,
             @RequestParam(name = "scope", required = false) String scope,
             @RequestParam(name = "state", required = false) String state,
@@ -84,7 +85,7 @@ public class OAuthRestController {
 
         LOGGER.info("Processing a valid callback request");
 
-        Map<String, Map<String, Object>> callbackMap = new HashMap<>();
+        Map<String, Object> callbackMap = new HashMap<>();
 
         Map<String, Object> authParams = new HashMap<>() {{
             put("code", code);
@@ -101,28 +102,28 @@ public class OAuthRestController {
             return callbackMap;
         }
 
-        Map<String, Object> tokenParams = twitchAuthService.createOAuthToken(code);
-        callbackMap.put("token", tokenParams);
-        LOGGER.info("Twitch OAuth Token parameters: {}", tokenParams);
+        OAuth2Credential oAuth2Credential = twitchAuthService.createOAuthToken(code, scope);
+        callbackMap.put("token", oAuth2Credential);
+        LOGGER.info("Twitch OAuth Token parameters: {}", oAuth2Credential);
 
         return callbackMap;
     }
 
     @GetMapping("/oauth2/refreshToken")
-    public Map<String, Object> refresh(@RequestParam(name = "refresh_token", required = false) String refreshToken) {
+    public OAuth2Credential refresh() throws JsonProcessingException {
         /**
          * TODO: Implement as part of Module 5
          * */
-        Map<String, Object> tokenParams = twitchAuthService.refreshOAuthToken(refreshToken);
-        LOGGER.info("Twitch OAuth Token REFRESH parameters: {}", tokenParams);
-        return twitchAuthService.refreshOAuthToken(refreshToken);
+        OAuth2Credential oAuth2Credential = twitchAuthService.refreshOAuthToken();
+        LOGGER.info("Twitch OAuth Token REFRESH parameters: {}", oAuth2Credential);
+        return oAuth2Credential;
     }
 
     @GetMapping("/oauth2/validateToken")
-    public boolean validate(@RequestParam(name = "access_token", required = false) String accessToken) {
+    public boolean validate() throws JsonProcessingException {
         /**
          * TODO: Implement as part of Module 5
          * */
-        return twitchAuthService.validateOAuthToken(accessToken);
+        return twitchAuthService.validateOAuthToken();
     }
 }

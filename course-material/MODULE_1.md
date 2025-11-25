@@ -2,7 +2,52 @@
 ## Twitch Chat Hit Counter
 ## Module 1: HTTP/REST + Swagger
 
-### Lesson
+### Additional Learning Materials
+**Open Systems Interconnection (OSI):** [OSI Model <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.imperva.com/learn/application-security/osi-model/)
+> _"The Open Systems Interconnection (OSI) model describes seven layers that computer systems use to communicate over a network. The OSI model is divided into seven distinct layers, each with specific responsibilities, ranging from physical hardware connections to high-level application interactions"_
+- [System Design Primer <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/donnemartin/system-design-primer?tab=readme-ov-file#communication)
+
+**Hypertext Transfer Protocol (HTTP):** [What is HTTP? <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.cloudflare.com/learning/ddos/glossary/hypertext-transfer-protocol-http/)
+> _"A typical flow over HTTP involves a client machine making a request to a server, which then sends a response message."_
+- Layer 7 (Application) protocol
+
+**Representational State Transfer (REST):** [REST APIs <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.ibm.com/think/topics/rest-apis)
+> _"REST APIs communicate through HTTP requests to perform standard database functions like creating, reading, updating and deleting records (also known as CRUD) within a resource."_
+- Architectural style, NOT a transfer protocol, for designing applications
+
+**Swagger**: [What is Swagger? <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://swagger.io/docs/specification/v2_0/what-is-swagger/)
+- Swagger/OpenAPI transforms an application's API into a clear, interactive contract for everyone to build against
+
+> [!NOTE]
+>
+> For this project we will use **Swagger** to surface our API, which is what we use at Netflix as it integrates seamlessly with the Spring Boot framework.<br>
+> At Snapchat, we spun up our application APIs via **Jetty** and used Postman to debug/test during development and interfacing with a friendly UI tool rather than curling requests
+> in a terminal.
+>
+> There's no one silver-bullet way to solve a problem, every company differs from the tools they adopt. I'll just share my perspective based on my own experiences at the various companies I've been at.
+>
+> **Netflix**:
+> - Java (Backend)
+> - Spring Boot Framework for all java applications. Dedicated infra team for all microservices to be ready out the box.
+> - Amazon Web Services (AWS) dominant
+> - Huge proponent of open source (Apache Kafka, Apache Druid, Apache Iceberg, etc...)
+>
+> **Snapchat**:
+> - Java (Backend)
+> - Raw Java projects w/ 0 framework, no great templatized infra team to set up microservice architecture.
+> - Google Cloud Platform (GCP) dominant
+> - Stuck mainly within tools in GCP (Google Pub/Sub, Google BigTable, Google BigQuery, Google Cloud Scheduler, etc...)
+>
+> **Yelp**:
+> - Python (Backend)
+> - AWS dominant
+>
+> So it just varies from company to company (and even team to team) between programming languages and tooling used,
+> but the core principles of developing large distributed systems are pretty similar from one company to the next.
+
+
+
+## Overview
 All network communication — whether the "internet", or between microservices — boils down to this fundamental idea:<br>
 
 > _**One server sends a request to another server that does something in response.**_
@@ -11,13 +56,13 @@ All network communication — whether the "internet", or between microservices �
 > - **_Call → Action_**
 > - **_Question → Answer_**
 
-I'll give you simple examples that illustrate this point.
+Below is a simple example to illustrate this point.
 
 <br>
 
 #
 
-### Case Study #1: Web Browsing
+### Case Study: Web Browsing
 You visit **Google.com** and see this:
 ![](assets/module1/images/google.png)<br>
 
@@ -26,147 +71,78 @@ You visit **Google.com** and see this:
 **TL;DR:**<br>
 **→ DNS Resolution**<br>
 `Google.com` is a human-readable domain name that makes it easy for humans to remember when we want to visit a web hosted page/application/service.<br>
-Computers don't understand this domain, they need **IP addresses** (i.e.: 123.456.789.0)<br>
-Your device sends a **request** to a nearby DNS server to find out what `Google.com` means.<br>
-The DNS server **responds** with a valid mapping: `Google.com` → `XXX.XXX.XXX.X`.<br>
+Computers don't understand this domain, they require **IP addresses** (i.e.: `123.456.789.0`)<br>
+Your machine sends a **request** to a nearby DNS server to find out what `Google.com` means.<br>
+The DNS server searches for a valid mapping and **responds** with: `Google.com` → `XXX.XXX.XXX.X`.<br>
 
 IP Addresses are the actual server address that has information about this request.
 
-**ELI5:**<br>
-In a group of friends - Alice, Bob, and Charlie, they want to meet up at each others' house to work on a school project.<br>
-They all agree on **"Alice's house"**. Alice's _actual_ address is really i.e.: **123 Sesame Street**, but saying "Alice's House" in this context is the _alias_ understood by the entire friend group.
+It's easier for mass adoption to remember domain names versus typing in ephemeral IP addresses.
 
-Networks work the same way, lots of these easily memorizable names are easier than typing in a website IP address.
+> [!TIP]
+> 
+> **ELI5:**<br>
+> A group of friends — Alice, Bob, and Charlie — want to meet up at each other's house to work on a school project, and agree on **"Alice's house"**.<br>
+> Alice's _**actual**_ address is really **123 Sesame Street**, but saying "Alice's House" in this context is the _alias_ understood by the entire friend group.
+>
+> Alice, Bob, Charlie can all act as DNS for each other's houses. If they recruit a new group member — David — he would most likely ask any of the friends where "Alice's House" is.
 
-**Fun Exercise**:<br>
-Open up your terminal and run:
-```shell
-ping www.google.com
-```
-
-You should see an output similar to this:<br>
-```
+> [!Note]
+> 
+> **Fun Exercise**:<br>
+> Open up your terminal and run:
+> ```shell
+> ping www.google.com
+> ```
+>
+> You should see an output similar to this:<br>
+> ```
 > PING google.com (142.250.72.174): 56 data bytes
-```
-If you open up a new browser and type `http://{GOOGLE_IP_ADDRESS}` it'll take you to the same **Google.com** page.
-
-Nobody does this because:
-1. Remembering IP addresses are hard
-2. IP addresses change (If you `ping www.google.com` on another day you will notice that the original IP address I retrieved at the time I ran this command is different than the IP address you will see)
+> ```
+> If you open up a new browser and type `http://{GOOGLE_IP_ADDRESS}` it'll take you to the same **Google.com** page.
+>
+> Nobody does this because:
+> 1. IP addresses change (If you `ping www.google.com` on another day you will notice that the original IP address I retrieved at the time I ran this command is different from the IP address you see)
+> 2. Remembering IP addresses are hard
 
 **Main Takeaway:**<br>
 The DNS resolution process is simply a **request → response**.<br>
-Device → **asks** what's the IP address for Google.com? → DNS server<br> 
-DNS server → **answers** the IP address is `142.250.72.174` → Device<br>
+**Client → DNS server**: <ins>asks</ins> what's the IP address for Google.com?<br>
+**DNS server → Client**: <ins>answers</ins> with the IP address `142.250.72.174`<br>
 
 
 **→ Google Server Request**<br>
-Now that we know the current IP address for `Google.com`, our machine sends an **HTTP request** to Google's server at this address:<br>
+Now the client machine know the current IP address for `Google.com` and sends an **HTTP request** to Google's server at this address:<br>
 "GET the data at location Google.com`/` (the homepage)".
 
 This **request** travels through multiple **network routers** in the form of **bytes** until it reaches Google's servers.
 
 **→ Google Server Response**<br>
-Google's servers will be listening for incoming requests, and say they receive our request.
-They will accept it, fetch the data for Google.com's homepage, and sends it back to the requester's location (passing back through the network routers).
+Google's servers will be listening for incoming requests.
+They will accept it, fetch the data for Google.com's homepage, and send it back to the requester's location (passing back through the network routers).
 
 **→ Browser Renders the Webpage**<br>
 Our device receives the data response from Google's servers and renders the UI with the content.
 
-**ELI5:**<br>
-Imagine it's pre-internet days:<br>
-Alice lives at `123 Sesame Street, Los Angeles CA, 12345`<br>
-Bob lives at `666 Hell Street, New York NY, 98765`<br>
-
-Alice sends a letter to `666 Hell Street` asking: "Hey Bob, will you be able to attend my birthday party?"
-Bob receives it and mails a letter back to `123 Sesame Street`, responding with: "Yes."
-
-Alice and Bob might not have a deep understanding of how their letter travels across the country, but it'll be processed/driven between multiple factories and multiple deliverers across the country.
-
-This is very similar to how requests/responses are handled and how data is moved over the internet.
-
-<br>
-
-#
-
-#### Case Study #2: Microservices
-Say you're buying movie tickets online through AMC theatres. You select your seats and checkout to confirm your seats/tickets, and see the "Processing..." spinner in the UI. 
-> ![](assets/module1/images/seatpicker.gif)<br>
-
-Question: What happens behind the scenes?<br>
-Let's simplify the backend system to 3 components:<br>
-- Frontend Team: team in charge of all the UI interactions on a movie booking webpage
-- Inventory Team: team in charge of storing all information about past/present/future showings and status on bookings
-- Payments Team: team in charge of all payment related data for AMC theatres
-
-**Frontend Team** sends the **Inventory Team** a booking event for your user. This temporarily "blocks" (i.e.: 2 minutes) other Users from trying to book the same seats at the same time to prevent race conditions of
-two individuals from purchasing the same movie and the same seats.
-- Movie: Avatar
-- Theater Location: 1 Hollywood Blvd (assume this is one of the many theatres AMC runs/operates)
-- Showing Date: December 19, 2009
-- Showing Time: 6:00 PM
-- Seat(s): [D6, D7]
-- Amount: $20
-- Ticket Owner: {YOUR NAME}
-- User ID: User123
-- Status: **RESERVED**
-- Timestamp: December 18, 2009 5:00 PM
-- Expiration: December 18, 2009 5:02 PM
-
-**Inventory Team** can send the **Payments Team** an event to process the actual payment to charge your user Line of Credit with a partner 3P SaaS company like PayPal.
-
-**PayPal** successfully charges your input Line of Credit for $20 and notifies the **Payment Team**.
-
-**AMC Payment Team** notifies the **Inventory Team** of the successful transaction/charge.
-
-The **Inventory Team** updates the event to officially "BOOK" the tentative seats chosen for:
-- Movie: Avatar
-- Theater Location: 1 Hollywood Blvd (assume this is one of the many theatres AMC runs/operates)
-- Showing Date: December 19, 2009
-- Showing Time: 6:00 PM
-- Seat(s): [D6, D7]
-- Amount: $20
-- Ticket Owner: {YOUR NAME}
-- User ID: User123
-- Status: **BOOKED**
-- Timestamp: December 18, 2009 5:00 PM
-
-No other users will be able to book these seats unless you cancel your reservation or maybe there was an issue with the many backend processes within the different backend systems, thus lifting the temporary lock on seats: [D5, D6].
-
-This is just an example of how one seemingly small action on the UI can trigger a chain reaction of processes in the backend to ensure that Users can book movie seats.<br>
-BTS, there's many teams made of up multiple microservices all communicating with each other via request/responses to ensure the booking process is secure.
-
-There's no single way of building products company to company or even team to team, this is just a brief example.
-
-**Main Takeaway: Every process can be boiled down to a request/response built within a single microservice, further built between multiple services to create an ecosystem of communication.**<br>
-
-There are many communication protocols, but the two most common protocols I’ve used ubiquitously in most backend systems in big tech are: **HTTP** and **gRPC**.
-
-We will focus only on **HTTP** in this course. **gRPC** is mostly used within the microservice S2S architecture. In a company with say 20 teams, **TeamA** and **TeamB** work closely with each other.
-They will usually have gRPC service contracts allowing for direct service calls, instead of sending over HTTP requests.
-
-Swagger
-Let’s start by setting up our Spring Boot service’s API endpoints that can be easily integrated using Swagger. Another popular tool I’ve used to locally test my service’s API endpoints is Postman (at Snap), but Swagger integrates nicely with Spring Boot, which is what we ubiquitously use for most Netflix microservices.
-
-
-### Additional Learning Materials
-HTTP: [What is HTTP? <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.cloudflare.com/learning/ddos/glossary/hypertext-transfer-protocol-http/)
-
-REST: [REST APIs <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.ibm.com/think/topics/rest-apis)
-
-Swagger: [What is Swagger? <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://swagger.io/docs/specification/v2_0/what-is-swagger/)
-
-> [!NOTE]
+> [!TIP]
 > 
-> For this project we will use Swagger to setup our API, which is what we use at Netflix as it integrates seamlessly with the Spring Boot framework.<br>
-> At Snapchat, we spun up our APIs with Jetty and then Postman to debug/test during development and interfacing with a friendly UI tool rather than curling requests
-> in my terminal.
+> **ELI5:**<br>
+> Imagine it's pre-internet days:<br>
+> Alice lives at `123 Sesame Street, New York NY, 12345`<br>
+> Bob lives at `456 Hollywood Blvd, Los Angeles CA, 98765`<br>
 >
-> There's no one silver-bullet way to solve a problem, every company differs from the tools they adopt. I'll just share my perspective based on my own experiences at the various companies I've been at.
-> Both Netflix/Snapchat are very Java backend heavy, but even Snapchat is more rudimentary in it's microservice architecture whereas Netflix uses Spring Boot to unify all microservices.
-> Yelp's backend is predominantly built using Python. So it just varies from company to company (and even team to team) between programming languages and tooling used,
-> but the core principles of developing large distributed systems are pretty similar from one company to the next.
+> Alice sends a letter to `456 Hollywood Blvd` asking: `"Hey Bob, will you be able to attend my birthday party?"`<br>
+> Bob receives it and mails a letter back to `123 Sesame Street`, responding with: `"Yes."`
+>
+> Alice and Bob might not have a deep understanding of how their letter travels across the country, but it'll be processed/driven between multiple factories and multiple deliverers across the country.
+>
+> The underlying transport mechanism might be using HTTP/GRPC (Application Layer 7) with TCP/UDP (Network Layer 4).
+> This is very similar to how requests/responses are handled and how data is moved over the WWW.
 
+There are many communication protocols, but the two most common application protocols I’ve used ubiquitously in most backend systems in big tech are: **HTTP** and **gRPC**.
+
+We will focus only on **HTTP** in this course. **gRPC** is mostly used within the microservice S2S (service-to-service) architecture. In a company with many teams, assume **TeamA** and **TeamB** work closely with each other.
+They will usually have gRPC service contracts allowing for direct service calls, instead of sending HTTP requests.
 
 
 
@@ -193,18 +169,16 @@ For `Module 1`, the below file structure are all the relevant files needed.
 <img src="assets/common/package.svg" align="center"/> model/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/class.svg" align="center"/> GameCharacter.java<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/enum.svg" align="center"/> Potion.java<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/enum.svg" align="center"/> Stat.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/package.svg" align="center"/> rest/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/class.svg" align="center"/> GameRestController.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/class.svg" align="center"/> GreetingRestController.java<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="assets/common/package.svg" align="center"/> utils/<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="assets/common/enum.svg" align="center"/> Potion.java<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="assets/common/enum.svg" align="center"/> Stat.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/folder.svg" align="center"/> test/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -227,7 +201,11 @@ For `Module 1`, the below file structure are all the relevant files needed.
 
 
 
-
+> [!IMPORTANT]
+> 
+> `implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'`
+>
+> I've already implemented the Swagger library required for this project.
 
 
 <br>

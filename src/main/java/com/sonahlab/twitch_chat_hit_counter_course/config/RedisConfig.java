@@ -18,6 +18,7 @@ import java.util.Map;
  */
 @Configuration
 public class RedisConfig {
+
     @Bean
     public Map<Integer, RedisTemplate<String, String>> redisTemplateFactory() {
         /**
@@ -58,6 +59,15 @@ public class RedisConfig {
     public RedisDao twitchChatHitCounterRedisDao() {
         /**
          * TODO: Implement as part of Module 5
+         * */
+        return null;
+    }
+
+    @Bean
+    @Qualifier("chatBotChannelsRedisDao")
+    public RedisDao chatBotChannelsRedisDao() {
+        /**
+         * TODO: Implement as part of Module 6
          * */
         return null;
     }

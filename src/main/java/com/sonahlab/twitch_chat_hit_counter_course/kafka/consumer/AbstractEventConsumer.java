@@ -1,6 +1,6 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 
-import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
+import com.sonahlab.twitch_chat_hit_counter_course.model.EventType;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +22,8 @@ public abstract class AbstractEventConsumer<T> {
 
     protected abstract Class<T> eventClass();
 
+    protected abstract String eventKey(T event);
+
     protected abstract void coreLogic(List<T> events);
 
     public void processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack) {
@@ -42,7 +44,7 @@ public abstract class AbstractEventConsumer<T> {
          * */
     }
 
-    protected T convertRecordToEvent(ConsumerRecord<String, byte[]> record) {
+    protected T convertRecordToEvent(byte[] value) {
         /**
          * TODO: Implement as part of Module 2 Exercise 3
          */

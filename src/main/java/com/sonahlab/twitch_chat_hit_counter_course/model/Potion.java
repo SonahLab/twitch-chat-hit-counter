@@ -1,7 +1,6 @@
-package com.sonahlab.twitch_chat_hit_counter_course.utils;
+package com.sonahlab.twitch_chat_hit_counter_course.model;
 
-import static com.sonahlab.twitch_chat_hit_counter_course.utils.Stat.HP;
-import static com.sonahlab.twitch_chat_hit_counter_course.utils.Stat.MP;
+import static com.sonahlab.twitch_chat_hit_counter_course.model.Stat.*;
 
 public enum Potion {
     HP_POTION(HP, 50),

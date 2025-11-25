@@ -1,7 +1,5 @@
 package com.sonahlab.twitch_chat_hit_counter_course.model;
 
-import com.sonahlab.twitch_chat_hit_counter_course.utils.Potion;
-import com.sonahlab.twitch_chat_hit_counter_course.utils.Stat;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;

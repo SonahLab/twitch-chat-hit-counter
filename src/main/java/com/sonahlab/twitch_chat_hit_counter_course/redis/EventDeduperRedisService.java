@@ -1,6 +1,6 @@
 package com.sonahlab.twitch_chat_hit_counter_course.redis;
 
-import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
+import com.sonahlab.twitch_chat_hit_counter_course.model.EventType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

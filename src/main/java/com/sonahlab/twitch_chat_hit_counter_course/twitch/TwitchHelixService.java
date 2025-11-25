@@ -5,6 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class TwitchHelixService {
 
@@ -18,7 +21,7 @@ public class TwitchHelixService {
     }
 
     // GET https://api.twitch.tv/helix/users?login={channelName}
-    public User getChannelInfo(String channelName) {
+    public Map<String, User> getChannelInfo(List<String> channelNames) {
         /**
          * TODO: Implement as part of Module 5
          * */

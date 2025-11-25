@@ -1,5 +1,7 @@
 package com.sonahlab.twitch_chat_hit_counter_course.config;
 
+import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
@@ -15,7 +17,32 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:twitch-key.properties")
 public class TwitchConfig {
 
-    /**
-     * TODO: Implement as part of Module 5
-     * */
+    public String getTwitchApiClientId() {
+        /**
+         * TODO: Implement as part of Module 5
+         * */
+        return null;
+    }
+
+    public String getTwitchApiClientSecret() {
+        /**
+         * TODO: Implement as part of Module 5
+         * */
+        return null;
+    }
+
+    public String getTwitchApiRedirectUrl() {
+        /**
+         * TODO: Implement as part of Module 5
+         * */
+        return null;
+    }
+
+    @Bean
+    public TwitchIdentityProvider twitchIdentityProvider() {
+        /**
+         * TODO: Implement as part of Module 5
+         * */
+        return null;
+    }
 }

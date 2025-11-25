@@ -22,9 +22,9 @@ public class PropertiesApplicationTest {
     // MODULE 2
     // =================================================================================================================
     @Test
+    @Tag("Module2")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
     @Disabled
-    @Tag("Module2")
     public void springKafkaConfigsTest() {
         assertEquals("localhost:9092", env.getProperty("spring.kafka.bootstrap-servers"));
         assertTrue(env.getProperty("spring.kafka.consumer.group-id").toLowerCase().contains("twitch-chat-hit-counter-group-id-"));
@@ -38,17 +38,17 @@ public class PropertiesApplicationTest {
     }
 
     @Test
+    @Tag("Module2")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
     @Disabled
-    @Tag("Module2")
     public void kafkaGreetingTopicNameTest() {
         assertEquals("greeting-events", env.getProperty("twitch-chat-hit-counter.kafka.greeting-topic"));
     }
 
     @Test
+    @Tag("Module2")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
     @Disabled
-    @Tag("Module2")
     public void kafkaBatchConfigsTest() {
         assertTrue(env.getProperty("twitch-chat-hit-counter.kafka.batch-consumer.group-id").toLowerCase().contains("twitch-chat-hit-counter-group-id-batch-"));
         assertNotEquals(env.getProperty("spring.kafka.consumer.group-id"), env.getProperty("twitch-chat-hit-counter.kafka.batch-consumer.group-id"));
@@ -59,17 +59,17 @@ public class PropertiesApplicationTest {
     // MODULE 3
     // =================================================================================================================
     @Test
+    @Tag("Module3")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
     @Disabled
-    @Tag("Module3")
     public void sqlGreetingTableNameTest() {
         assertEquals("greeting_events", env.getProperty("twitch-chat-hit-counter.sql.greeting-table"));
     }
 
     @Test
+    @Tag("Module3")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
     @Disabled
-    @Tag("Module3")
     public void sqlBatchGreetingTableNameTest() {
         assertEquals("batch_greeting_events", env.getProperty("twitch-chat-hit-counter.sql.greeting-table-batch"));
     }
@@ -78,26 +78,26 @@ public class PropertiesApplicationTest {
     // MODULE 4
     // =================================================================================================================
     @Test
+    @Tag("Module4")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
     @Disabled
-    @Tag("Module4")
     public void springRedisConfigsTest() {
         assertEquals("localhost", env.getProperty("spring.data.redis.host"));
         assertEquals("6379", env.getProperty("spring.data.redis.port"));
     }
 
     @Test
+    @Tag("Module4")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
     @Disabled
-    @Tag("Module4")
     public void redisDeduperDatabaseTest() {
         assertEquals("0", env.getProperty("twitch-chat-hit-counter.redis.event-dedupe-database"));
     }
 
     @Test
+    @Tag("Module4")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
     @Disabled
-    @Tag("Module4")
     public void redisGreetingFeedDatabaseTest() {
         assertEquals("1", env.getProperty("twitch-chat-hit-counter.redis.greeting-feed-database"));
     }
@@ -106,26 +106,37 @@ public class PropertiesApplicationTest {
     // MODULE 5
     // =================================================================================================================
     @Test
+    @Tag("Module5")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
     @Disabled
-    @Tag("Module5")
     public void kafkaTwitchChatTopicNameTest() {
         assertEquals("twitch-chat-events", env.getProperty("twitch-chat-hit-counter.kafka.twitch-chat-topic"));
     }
 
     @Test
+    @Tag("Module5")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
     @Disabled
-    @Tag("Module5")
     public void redisOAuthTokenDatabaseTest() {
         assertEquals("2", env.getProperty("twitch-chat-hit-counter.redis.oauth-token-database"));
     }
 
     @Test
+    @Tag("Module5")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
     @Disabled
-    @Tag("Module5")
     public void redisTwitchChatHitCounterDatabaseTest() {
         assertEquals("3", env.getProperty("twitch-chat-hit-counter.redis.twitch-chat-hit-counter-database"));
+    }
+
+    // =================================================================================================================
+    // MODULE 6
+    // =================================================================================================================
+    @Test
+    @Tag("Module6")
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
+    @Disabled
+    public void redisTwitchChannelDatabaseTest() {
+        assertEquals("4", env.getProperty("twitch-chat-hit-counter.redis.twitch-channel-database"));
     }
 }

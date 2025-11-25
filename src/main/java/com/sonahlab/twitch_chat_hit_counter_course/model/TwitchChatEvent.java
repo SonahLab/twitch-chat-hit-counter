@@ -13,17 +13,15 @@ import com.github.twitch4j.common.events.domain.EventUser;
  * {@link EventChannel}: https://twitch4j.github.io/javadoc/com/github/twitch4j/common/events/domain/EventChannel.html
  *
  * Required fields:
- *   - eventId (String): unique eventId for the ChannelMessageEvent
+ *   - event_id (String): unique eventId for the ChannelMessageEvent
  *   - message (String): raw message of the ChannelMessageEvent
- *   - eventTs (long): Timestamp millis
- *   - user ({@link EventUser}):
- *      - id (String):
- *      - name (String):
- *   - channel ({@link EventChannel}):
- *      - id (String)
- *      - name (String)
- *   - subscriptionMonths (int)
- *   - subscriptionTier (int)
+ *   - event_ts (long): Timestamp millis
+ *   - user_id ({@link EventUser id}):
+ *   - username ({@link EventUser name}):
+ *   - channel_id ({@link EventChannel id}):
+ *   - channel_name ({@link EventChannel name}):
+ *   - subscription_months (int)
+ *   - subscription_tier (int)
  * */
 public record TwitchChatEvent() {
     /**

@@ -1,7 +1,7 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 
+import com.sonahlab.twitch_chat_hit_counter_course.model.EventType;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
-import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +39,14 @@ public class GreetingEventBatchConsumer extends AbstractEventConsumer<GreetingEv
 
     @Override
     protected Class<GreetingEvent> eventClass() {
+        /**
+         * TODO: Implement as part of Module 2
+         * */
+        return null;
+    }
+
+    @Override
+    protected String eventKey(GreetingEvent event) {
         /**
          * TODO: Implement as part of Module 2
          * */

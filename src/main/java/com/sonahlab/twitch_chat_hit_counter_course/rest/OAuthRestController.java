@@ -1,18 +1,20 @@
 package com.sonahlab.twitch_chat_hit_counter_course.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Service responsible for interacting with the Twitch API Client.
  */
 @RestController
-@Tag(name = "Twitch API", description = "Backend API endpoints that act as proxy to various Twitch API endpoints")
+@Tag(name = "Twitch Auth API", description = "Backend API endpoints that act as proxy to various Twitch Auth API endpoints")
 public class OAuthRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuthRestController.class);
@@ -53,7 +55,7 @@ public class OAuthRestController {
      * @return Map of the parameters that were passed in from Twitch's servers.
      */
     @GetMapping("/oauth2/callback")
-    public Map<String, Map<String, Object>> handleCallback(
+    public Map<String, Object> handleCallback(
             @RequestParam(name = "code", required = false) String code,
             @RequestParam(name = "scope", required = false) String scope,
             @RequestParam(name = "state", required = false) String state,
@@ -62,11 +64,20 @@ public class OAuthRestController {
         /**
          * TODO: Implement as part of Module 5
          * */
-        return null;
+        Map<String, Object> response = new HashMap<>();
+        Map<String, String> authParams = new HashMap<>() {{
+            put("code", code);
+            put("scope", scope);
+            put("state", state);
+            put("error", error);
+            put("error_description", errorDescription);
+        }};
+        response.put("authorization", authParams);
+        return response;
     }
 
     @GetMapping("/oauth2/refreshToken")
-    public String refresh(@RequestParam(name = "code", required = false) String refreshToken) {
+    public OAuth2Credential refresh(@RequestParam(name = "code", required = false) String refreshToken) {
         /**
          * TODO: Implement as part of Module 5
          * */

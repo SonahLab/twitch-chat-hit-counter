@@ -1,8 +1,8 @@
 package com.sonahlab.twitch_chat_hit_counter_course.redis;
 
 import com.redis.testcontainers.RedisContainer;
+import com.sonahlab.twitch_chat_hit_counter_course.model.EventType;
 import com.sonahlab.twitch_chat_hit_counter_course.redis.dao.RedisDao;
-import com.sonahlab.twitch_chat_hit_counter_course.utils.EventType;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

@@ -16,7 +16,7 @@ public class TwitchChatRedisService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitchChatRedisService.class);
 
     // Constructor
-    public TwitchChatRedisService(RedisTemplate<String, String> redisTemplate) {
+    public TwitchChatRedisService() {
         /**
          * TODO: Implement as part of Module 5
          * */
@@ -29,7 +29,7 @@ public class TwitchChatRedisService {
         return null;
     }
 
-    public Map<String, String> getHitCounts(String channelName) {
+    public Map<String, Long> getHitCounts(String channelName) {
         /**
          * TODO: Implement as part of Module 5
          * */

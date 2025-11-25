@@ -1,7 +1,5 @@
 package com.sonahlab.twitch_chat_hit_counter_course.model;
 
-import com.sonahlab.twitch_chat_hit_counter_course.utils.Potion;
-import com.sonahlab.twitch_chat_hit_counter_course.utils.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

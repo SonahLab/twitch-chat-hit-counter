@@ -14,6 +14,7 @@ import java.util.List;
  * Recommended Learning materials to learn Spring Boot + SQL integration:
  * - https://docs.spring.io/spring-boot/reference/data/sql.html
  */
+// NOTE: No @Service annotation meaning the class is not built at runtime. These will be created in SqlConfigs.java
 public class GreetingSqlService extends AbstractSqlService<GreetingEvent> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GreetingSqlService.class);

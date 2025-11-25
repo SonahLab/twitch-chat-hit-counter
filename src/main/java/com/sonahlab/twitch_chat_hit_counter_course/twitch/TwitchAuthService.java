@@ -1,11 +1,13 @@
 package com.sonahlab.twitch_chat_hit_counter_course.twitch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
+import com.github.twitch4j.auth.domain.TwitchScopes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * Manages the lifecycle of Twitch OAuth2 access tokens for the chat hit counter application.
@@ -103,7 +105,7 @@ public class TwitchAuthService {
      * @see <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#authorization-code-grant-flow">
      *      Twitch Authorization Code Grant Flow</a>
      */
-    public Map<String, Object> createOAuthToken(String authorizationCode) throws JsonProcessingException {
+    public OAuth2Credential createOAuthToken(String authorizationCode, List<TwitchScopes> scopes) throws JsonProcessingException {
         /**
          * TODO: Implement in Module 5
          * */
@@ -147,7 +149,7 @@ public class TwitchAuthService {
      * @return a String containing the new access token, new refresh token, expiry, and scopes
      * @see <a href="https://dev.twitch.tv/docs/authentication/refresh-tokens">Twitch Refresh Tokens</a>
      */
-    public String refreshOAuthToken(String refreshToken) {
+    public OAuth2Credential refreshOAuthToken(String refreshToken) {
         /**
          * TODO: Implement in Module 5
          */

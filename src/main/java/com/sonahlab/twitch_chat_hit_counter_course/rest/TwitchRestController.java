@@ -1,5 +1,6 @@
 package com.sonahlab.twitch_chat_hit_counter_course.rest;
 
+import com.github.twitch4j.helix.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -34,23 +35,15 @@ public class TwitchRestController {
 
     @GetMapping("/hitCounter")
     @Operation(summary = "Get chat counter of a streamer", description = "")
-    public Map<String, Long> hitCounter(@RequestParam String channelName) {
+    public Map<String, Long> hitCounter(@RequestParam(name = "channelName") String channelName) {
         /**
          * TODO: Implement as part of Module 6
          * */
         return null;
     }
 
-    @GetMapping("/addChannel")
-    public ResponseEntity<String> addChannel(@RequestParam String channelName) {
-        /**
-         * TODO: Implement as part of Module 6
-         * */
-        return null;
-    }
-
-    @GetMapping("/getChannels")
-    public Set<String> getChannels() {
+    @PutMapping("/addChannel")
+    public ResponseEntity addChannel(@RequestParam(name = "channelName") String channelName) {
         /**
          * TODO: Implement as part of Module 6
          * */
@@ -62,6 +55,27 @@ public class TwitchRestController {
         /**
          * TODO: Implement as part of Module 6
          * */
+        return false;
+    }
+
+    @GetMapping("/getChannels")
+    public ResponseEntity<Set<String>> getChannels() {
+        /**
+         * TODO: Implement as part of Module 6
+         * */
+        return null;
+    }
+
+    @GetMapping("/getChannelsMetadata")
+    public ResponseEntity<Map<String, User>> getChannelsMetadata() {
+        /**
+         * TODO: Implement as part of Module 6
+         * */
+        return null;
+    }
+
+    @GetMapping("/sendMessageToChannel")
+    public boolean sendMessageToChannel(@RequestParam String channelName, @RequestParam String message) {
         return false;
     }
 }

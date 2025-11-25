@@ -1,5 +1,10 @@
 package com.sonahlab.twitch_chat_hit_counter_course.rest;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
+import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
 import com.sonahlab.twitch_chat_hit_counter_course.config.TwitchConfig;
 import com.sonahlab.twitch_chat_hit_counter_course.twitch.TwitchAuthService;
 import org.junit.jupiter.api.Assertions;
@@ -9,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.env.Environment;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.shaded.com.google.common.base.Splitter;
 
@@ -18,7 +23,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -26,6 +39,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Tag("Module5")
 public class OAuthRestControllerTest {
+
+    private final OAuth2Credential MOCK_CREDENTIAL = new OAuth2Credential(
+            "twitch",
+            "dummyAccessToken",
+            "dummyRefreshToken",
+            null,
+            null,
+            14124,
+            null); // Setting scopes to null because Twitch4J has a bug where we need to manually override the OAuth2Credential object's scope field
 
     @Autowired
     private MockMvc mockMvc;
@@ -35,6 +57,11 @@ public class OAuthRestControllerTest {
 
     @Autowired
     private TwitchAuthService twitchAuthService;
+
+    @MockitoSpyBean
+    private TwitchIdentityProvider twitchIdentityProvider;
+
+    private static ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
@@ -46,18 +73,18 @@ public class OAuthRestControllerTest {
                 .andReturn().getResponse().getContentAsString();
         URI uri = URI.create(output);
 
-        Assertions.assertEquals("https", uri.getScheme());
-        Assertions.assertEquals("id.twitch.tv", uri.getHost());
-        Assertions.assertEquals("/oauth2/authorize", uri.getPath());
+        assertEquals("https", uri.getScheme());
+        assertEquals("id.twitch.tv", uri.getHost());
+        assertEquals("/oauth2/authorize", uri.getPath());
 
         String query = uri.getQuery();
         Map<String, String> queryParams = Splitter.on('&')
                 .withKeyValueSeparator('=')
                 .split(query);
 
-        Assertions.assertEquals("code", queryParams.get("response_type"));
-        Assertions.assertEquals(config.getTwitchApiClientId(), queryParams.get("client_id"));
-        Assertions.assertEquals("http://localhost:8080/oauth2/callback", queryParams.get("redirect_uri"));
+        assertEquals("code", queryParams.get("response_type"));
+        assertEquals(config.getTwitchApiClientId(), queryParams.get("client_id"));
+        assertEquals("http://localhost:8080/oauth2/callback", queryParams.get("redirect_uri"));
         List<String> scopes = Arrays.stream(queryParams.get("scope").split("\\+")).toList();
         Assertions.assertTrue(scopes.contains("chat:read"));
         Assertions.assertTrue(scopes.contains("chat:edit"));
@@ -68,6 +95,7 @@ public class OAuthRestControllerTest {
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
     @Disabled
     void handleCallbackSuccessTest() throws Exception {
+        doReturn(MOCK_CREDENTIAL).when(twitchIdentityProvider).getCredentialByCode(eq("mockAuthorizationCode1"));
         mockMvc.perform(get("/oauth2/callback")
                         .param("code", "mockAuthorizationCode1")
                         .param("scope", "chat:read")
@@ -85,16 +113,29 @@ public class OAuthRestControllerTest {
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
     @Disabled
     void handleCallbackSuccessTest_token() throws Exception {
-        mockMvc.perform(get("/oauth2/callback")
+        doReturn(MOCK_CREDENTIAL).when(twitchIdentityProvider).getCredentialByCode(eq("mockAuthorizationCode1"));
+
+        String response = mockMvc.perform(get("/oauth2/callback")
                         .param("code", "mockAuthorizationCode1")
                         .param("scope", "chat:read")
                         .param("state", "mockState123"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").exists())
-                .andExpect(jsonPath("$.token.accessToken").value("mockAccessToken123"))
-                .andExpect(jsonPath("$.token.expiresIn").value(3600))
-                .andExpect(jsonPath("$.token.refreshToken").value("mockRefreshToken"))
-                .andExpect(jsonPath("$.token.scopes").value(("chat:read")));
+                .andReturn().getResponse().getContentAsString();
+
+        JsonNode json = MAPPER.readTree(response);
+        JsonNode tokenJson = json.get("token");
+        assertEquals("twitch", tokenJson.get("identityProvider").asText());
+        assertEquals("dummyAccessToken", tokenJson.get("accessToken").asText());
+        assertEquals("dummyRefreshToken", tokenJson.get("refreshToken").asText());
+        assertEquals(14124, tokenJson.get("expiresIn").asInt());
+        assertTrue(tokenJson.get("scopes").isArray());
+        ArrayNode scopes = (ArrayNode) tokenJson.get("scopes");
+        List<String> scopeList = StreamSupport.stream(scopes.spliterator(), false)
+                .map(JsonNode::asText)
+                .toList();
+        assertThat(scopeList)
+                .containsExactlyInAnyOrder("chat:read", "chat:edit");
+        assertTrue(tokenJson.get("scopes").isArray());
     }
 
     @Test

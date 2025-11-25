@@ -145,11 +145,11 @@ public class TwitchAuthService {
      * }
      * </pre>
      *
-     * @param refreshToken token that is granted on the initially created OAuth Token
+     * @param oldCredential token that is granted on the initially created OAuth Token
      * @return a String containing the new access token, new refresh token, expiry, and scopes
      * @see <a href="https://dev.twitch.tv/docs/authentication/refresh-tokens">Twitch Refresh Tokens</a>
      */
-    public OAuth2Credential refreshOAuthToken(String refreshToken) {
+    public OAuth2Credential refreshOAuthToken(OAuth2Credential oldCredential) {
         /**
          * TODO: Implement in Module 5
          */

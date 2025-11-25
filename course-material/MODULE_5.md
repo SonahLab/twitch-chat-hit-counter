@@ -626,10 +626,13 @@ In `OAuthRestController.java`, update `handleCallback()` to call `TwitchAuthServ
 > First, exchanged by `TwitchIdentityProvider` and then<br>
 > Second, re-created by you just now with the additional `scopes` field properly populated.
 
-#
-
-#### Part 3
-In `OAuthRestController.java`, implement `public Map<String, String> handleToken(String jsonMAP?)`. Simply return the Map of all the fields similar to handlecallback so we can see it in the UI.
+### Testing
+- [ ] Open `OAuthRestControllerTest.java` ─ already implemented with the example(s) above.
+- [ ] Remove `@Disabled` in `OAuthRestControllerTest.java` for the test method(s): `handleCallbackSuccessTest_token()`
+- [ ] Test with:
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
+    ```
 
 ### Integration Testing
 - [ ] Run the application:
@@ -644,7 +647,7 @@ In `OAuthRestController.java`, implement `public Map<String, String> handleToken
 - [ ] Check your application logs to verify that you were able to fetch:
     - the authorization_code (`code`)
     - the **same** `state` that was filled into the authorize URL from `GET /oauth2/authorize`
-    - the **same** `scope` of "chat:read" that was filled into the authorize URL from `GET /oauth2/authorize`
+    - the **same** `scope` of "chat:read+chat:edit" that was filled into the authorize URL from `GET /oauth2/authorize`
     - the response from issuing the `POST /oauth2/token` HTTP request
 
 <br>
@@ -653,19 +656,18 @@ In `OAuthRestController.java`, implement `public Map<String, String> handleToken
 
 ### Task 3: OAuth Refresh Token API
 When your Auth Token expires, we will need to refresh our auth token. Tokens have a TTL (Time To Live) specified when a token is minted.<br>
-To access Twitch API we usually pass in our temporary `access_token`, but when that temporary token expires we need to ask Twitch to give us a new "key". 
-What a Key is to a treasure chest, is what a token is to the Twitch API. Except we need a new token everytime it expires.
-This is done by issuing a request to `https://id.twitch.tv/oauth2/token` with the `refresh_token`.
 
-In `TwitchAuthService.java`, implement `public String refreshOAuthToken(String refreshToken)`.
+Most Twitch API calls requires a valid ephemeral `access_token`, but when it expires Twitch will fail all subsequent calls using an expired token. Twitch exposes the same `https://id.twitch.tv/oauth2/token` endpoint whenever we need to a new "key".
 
-Return the String representation of a Map<String, String> payload from refreshing the token and add a log to print to _**stdout**_ the result from Twitch.
+In `TwitchAuthService.java`, implement `public String refreshOAuthToken(OAuth2Credential oldCredential)`.
+
+Return the OAuth2Credential returned from `TwitchIdentityProvider` after refreshing the token and add a log to print to _**stdout**_ the result from Twitch.
 
 ### Example 1:
 > **Input**:<br>
 > ```java
 > TwitchAuthService twitchAuthService = new TwitchAuthService(...);
-> String output = twitchAuthService.refreshOAuthToken("refresh_token123");
+> String output = twitchAuthService.refreshOAuthToken(new OAuth2Credential("", "", "refresh_token123", null, null, null);
 > ```
 > **Output**:<br>
 > ```json
@@ -686,7 +688,7 @@ Return the String representation of a Map<String, String> payload from refreshin
 > **Input**:<br>
 > ```java
 > TwitchAuthService twitchAuthService = new TwitchAuthService(...);
-> String output = twitchAuthService.refreshOAuthToken("invalid_refresh_token123");
+> String output = twitchAuthService.refreshOAuthToken(new OAuth2Credential("", "", "invalid_refresh_token123", null, null, null);
 > ```
 > **Output**:Exception is thrown.<br>
 
@@ -703,8 +705,8 @@ Return the String representation of a Map<String, String> payload from refreshin
 #
 
 ### Task 4: OAuth Validate Token API
-We need to have some way of health checking our current temporary `accessToken` to check that it's still alive.
-Twitch API exposes this endpoint `GET https://id.twitch.tv/oauth2/validate` for us to do just this.
+We need to have some way of health checking our `accessToken` to check that it's still alive.<br>
+Twitch API exposes `GET https://id.twitch.tv/oauth2/validate` for us to do just this.
 
 In `TwitchAuthService.java`, implement `public boolean validateOAuthToken(String accessToken)`.
 Send a GET HTTP request to the twitch endpoint using our temporary `accessToken`.
@@ -741,44 +743,76 @@ Also log Twitch's entire HTTP response.
 
 #
 
+## Token Redis DB
 ### Task 5: Token Redis DB
 Now that we have the ability to (1) create, (2) refresh, and (3) validate a token, we want to store the User token in Redis.<br>
 We need a persistent way of caching a User's latest token, so that we can create the token once and then refresh as needed upon expiration.<br>
 If we never store the User Token, we would need to follow the `/authorize` login flow everytime our application starts up.
 
-In `OAuthRedisService.java`, implement:
-1. `updateLatestToken(String username, String tokenResponse)` to set the token passed back by Twitch as a `OAuth2Credential` object represented as a String stored at a key
-2. `getLatestToken(String username)` to fetch the latest OAuth2Credential token stored at a key.
+Update `application.yaml` and `RedisConfig.java` to add our new Redis database properties.
 
 **Requirements:**
-1. Create a new Spring property for `twitch-chat-hit-counter.redis.oauth-token-database: 3`
-2. Create the beans needed to communicate with `db3` in `RedisConfigs.java`
-3. Key template: `"twitch#oauth#{userId}"`
-4. Value should be a JSON String of a `OAuth2Credential.java` object w/ the token metadata response passed back from Twitch's `/oauth2/token` endpoint
+1. Create a new Spring property for `twitch-chat-hit-counter.redis.oauth-token-database: 2`
+2. Update `RedisConfigs.java`, to create the RedisDao Bean needed to communicate with `db2`
 
-> [!NOTE]
->
-> Since this app is simply used by our application and your Twitch account will be used to grant tokens, just replace the {userId} in the key template with your own Twitch account username.<br>
-> It is possible to retrieve your account metadata through the Twitch API, but for now let's keep it simple, as we're dealing with multiple Twitch API endpoints already.
+### Testing
+- [ ] Open `PropertiesApplicationTest.java` ─ already implemented.
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method(s): `redisOAuthTokenDatabaseTest()`
+- [ ] Open `RedisConfigTest.java` ─ already implemented.
+- [ ] Remove `@Disabled` in `RedisConfigTest.java` for the test method(s): `oauthTokenRedisDaoTest()`
+- [ ] Test with:
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
+    ```
+
+<br>
+
+#
+
+### Task 6:
+#### Part 1
+In `OAuthRedisService.java`, implement `void updateLatestToken(String username, OAuth2Credential credential)` to persist the token passed back by Twitch.
+
+**Requirements:**
+1. Inject the `@Qualifier("oauthTokenRedisDato") RedisDao` into the constructor. (Now that we have many RedisDao beans it becomes important to inject the correct one by name)
+2. Key template: `"twitch#oauth#{username}"`
+3. Value should be an `OAuth2Credential` stored as a String
+`getLatestToken(String username)` to fetch the latest OAuth2Credential token stored for the User
+
+<br>
+
+#
+
+#### Part 2
+In `OAuthRedisService.java`, implement `OAuth2Credential getLatestToken(String username)` to fetch the latest OAuth2Credential token stored for that `username`.
+
+**Requirements:**
+1. Key template: `"twitch#oauth#{username}"` (same as part 1)
+2. Value needs to be translated from a `String` back to an `OAuth2Credential` object.<br>
+All of our values in Redis are stored as Strings. Due to the `Instant` data type of [OAuth2Credential.issuedAt <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/PhilippHeuer/credential-manager/blob/main/src/main/java/com/github/philippheuer/credentialmanager/domain/OAuth2Credential.java#L56),
+it might be tricky to just run the string value through the ObjectMapper deserializer.<br>
+I recommend:
+   1. Converting the String credential back to a `JsonNode`
+   2. Re-create a new `OAuth2Credential` object from the original String value
+
+<br>
 
 ### Example 1:
 > ```java
 > OAuthRedisService oAuthRedisService = new OAuthRedisService(...);
 > OAuth2Credential output1 = oAuthRedisService.getLatestToken("Alice");
 >
-> // Assume we called POST https://id.twitch.tv/oauth2/token
-> String tokenResponse = """
->         {
->           "access_token": "1ssjqsqfy6bads1ws7m03gras79zfr",
->           "refresh_token": "eyJfMzUtNDU0OC4MWYwLTQ5MDY5ODY4NGNlMSJ9%asdfasdf=",
->           "scope": [
->             "channel:read:subscriptions",
->             "channel:manage:polls"
->           ],
->           "token_type": "bearer"
->         }
->         """;
-> oAuthRedisService.updateLatestToken("Alice", tokenResponse);
+> // Assume we called POST https://id.twitch.tv/oauth2/token and got this credential object back
+> OAuth2Credential credential = new OAuth2Credential(
+>     "twitch", // identityProvider
+>     "accessToken123", // accessToken
+>     "refreshToken123", // refreshToken
+>     null, // userId
+>     null, // userName
+>     14124, // expiresIn
+>     List.of("chat:read") // scopes
+> );
+> oAuthRedisService.updateLatestToken("Alice", credential);
 >
 > OAuth2Credential output2 = oAuthRedisService.getLatestToken("Alice");
 > ```
@@ -788,34 +822,52 @@ In `OAuthRedisService.java`, implement:
 > **Output2**:TODO<br>
 > ```json
 > {
->   "access_token": "1ssjqsqfy6bads1ws7m03gras79zfr",
+>   "identityProvider": "twitch",
+>   "accessToken": "accessToken123",
+>   "refreshToken": "refreshToken123",
+>   "userId": null,
+>   "username": null,
+>   "expiresIn": 14124,
 >   "refresh_token": "eyJfMzUtNDU0OC4MWYwLTQ5MDY5ODY4NGNlMSJ9%asdfasdf=",
 >   "scope": [
->     "channel:read:subscriptions",
->     "channel:manage:polls"
+>     "chat:read"
 >   ],
->   "token_type": "bearer"
+>   "context": {},
+>   "receivedAt": 1764029905
 > }
 > ```
 > **Explanation**: Alice's account retrieves the latest cached token from Redis
 
-#### Part 2
-Now that we have the ability to store Tokens in Redis, we need to call this method.
+<br>
 
-In `TwitchAuthService.java`, update the methods below to update our User's latest User Token in Redis:
-1. `public String createOAuthToken(String accessToken)`
-2. `public String refreshOAuthToken(String refreshToken)`
+### Testing
+- [ ] Open `OAuthRedisServiceTest.java` ─ already implemented with the example(s) above.
+- [ ] Remove `@Disabled` in `OAuthRedisServiceTest.java`
+- [ ] Test with:
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
+    ```
 
-**Requirements**:<br>
-1. If and only if Twitch's `/oauth2/token` endpoints return a successful response of a newly minted token or a refreshed token should we update the User Token in Redis
-
-### Example 1:
-TODO example of successful overwrite
+<br>
 
 #
 
-### Example 2:
-TODO Example of non-successful call to /token so we skip overwrite
+#### Part 3
+Now that we have the ability to store/fetch tokens in Redis, we need to call this `TwitchAuthService`.
+
+In `TwitchAuthService.java`, update the methods below to update our User's latest User Token in Redis everytime we mint a new token:
+1. `public String createOAuthToken(String accessToken)`
+2. `public String refreshOAuthToken(String refreshToken)`
+
+> [!IMPORTANT]
+>
+> Since this app is simply used by our application and your Twitch account will be used to grant tokens, just pass in your personal Twitch account username for the `String username`.<br>
+> It is possible to retrieve your account metadata through the Twitch API, but for now let's keep things simple.
+
+**Requirements**:
+1. Add a `USERNAME` constant in `TwitchApiUtils.java` to have a single place to store your public Twitch account username.
+
+### Example 1:
 
 #
 
@@ -824,6 +876,47 @@ TODO Example of non-successful call to /token so we skip overwrite
 
 ### Integration Testing
 - [ ] TODO
+
+
+
+
+
+
+
+
+
+
+
+<br>
+
+#
+
+### Task 1: TwitchClientManager
+Our `TwitchClientManager` will be in charge of creating the `TwitchClient`, the main object with Twitch4j, that is used to issue any Twitch API calls.
+
+#### Part 1a
+In `TwitchClientManager.java`, implement `public void init()`. This will create a instance of Twitch4J's `TwitchClient`, which will be our client proxy to call into Twitch's API.
+
+**Requirements:**
+1. Track the OAuth2
+2. Get the latest `OAuth2Credential` from the Redis DB3 for your Twitch `USERNAME`
+    1. If the `OAuth2Credential` doesn't yet exist (think of a first time user on the application), then you will need to create an empty, dummy OAuth2Credential.<br>
+       This will allow your application to join twitch channels anonymously, but won't let you send messages in chat or call any of Twitch APIs other endpoints if the credential is not valid.
+2. Create a new `TwitchClient` with:
+    1. `.withClientId(...)`
+    2. `.withClientSecret(...)`
+    3. `.withEnableHelix(...)`
+    4. `.withEnableChat(...)`
+    5. `.withChatAccount(...)`
+
+#### Part 1b
+In `TwitchClientManager.java`, implement `TwitchClient getTwitchClient()`. This method should be trivial and return the twitchClient that should have been initialized before.
+
+#### Part 1c
+In `TwitchClientManager.java`, implement `public void refreshCredential(OAuth2Credential newCredential)`.
+
+Once we have run the `init()` method, we don't always want to create a new `TwitchClient` everytime we refresh our `OAuth2Credential` token.
+This method should just be replacing the existing token in-place. I recommend looking into `OAuth2Credential` to see if there is an existing helper method to do just this.
 
 
 
@@ -849,8 +942,7 @@ Now that we have a working OAuth Token cache, we will be mostly focusing on the 
 It's important to see what products data is even supported publicly and reverse engineer what products you can build out of free data.<br>
 In small projects using public API data, you first look at the data available, see what product you can build from it.
 
-Since we want to build a hit counter on different streamers, we will need to learn how to integrate with the Twitch Chat.<br>
-https://dev.twitch.tv/docs/chat/send-receive-messages/
+Since we want to build a hit counter on different streamers, we will need to learn how to integrate with the Twitch Chat as a [ChatBot <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://dev.twitch.tv/docs/chat/send-receive-messages/).<br>
 
 We will focus mainly on receiving Twitch Chat message. The API docs details on different way of connecting to Chats using Webhooks and Websockets,
 but that is outside the scope of this project and, tbh, outside of Networking/OS classes I've never once used these in my daily life as a SWE.
@@ -858,7 +950,8 @@ To simplify the ease of integration we will leverage a great Java client library
 
 Spend time reading through the Twitch Chat section.
 
-### Task 1: Twitch4J Client
+
+### Task 2: TwitchChatBotManager
 #### Part 1
 In `TwitchChatBotManager.java`, implement the `public void init()` post-constructor. We will need to build Twitch4J's `TwitchClient` object that acts as the proxy (client middleman) to all of Twitch API's endpoints.
 

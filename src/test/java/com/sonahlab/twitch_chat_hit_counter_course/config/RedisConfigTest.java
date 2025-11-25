@@ -53,7 +53,7 @@ public class RedisConfigTest {
 
     @Test
     @Tag("Module5")
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 6.
     @Disabled
     public void chatBotChannelsRedisDaoTest() {
         validateRedisDB(4);

@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -64,16 +63,7 @@ public class OAuthRestController {
         /**
          * TODO: Implement as part of Module 5
          * */
-        Map<String, Object> response = new HashMap<>();
-        Map<String, String> authParams = new HashMap<>() {{
-            put("code", code);
-            put("scope", scope);
-            put("state", state);
-            put("error", error);
-            put("error_description", errorDescription);
-        }};
-        response.put("authorization", authParams);
-        return response;
+        return null;
     }
 
     @GetMapping("/oauth2/refreshToken")

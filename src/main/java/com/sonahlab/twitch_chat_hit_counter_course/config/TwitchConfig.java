@@ -1,6 +1,7 @@
 package com.sonahlab.twitch_chat_hit_counter_course.config;
 
-import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
+import com.github.twitch4j.TwitchClient;
+import com.github.twitch4j.TwitchClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +34,13 @@ public class TwitchConfig {
     }
 
     @Bean
-    public TwitchIdentityProvider twitchIdentityProvider() {
-        return new TwitchIdentityProvider(twitchApiClientId, twitchApiClientSecret, "http://localhost:8080/oauth2/callback");
+    public TwitchClient twitchClient() {
+        // This will join as anonymous chatter (you can connect/disconnect from twitch chats meaning read is enabled, but write is disabled)
+        return TwitchClientBuilder.builder()
+                .withClientId(twitchApiClientId)
+                .withClientSecret(twitchApiClientSecret)
+                .withEnableHelix(true)
+                .withEnableChat(true)
+                .build();
     }
 }

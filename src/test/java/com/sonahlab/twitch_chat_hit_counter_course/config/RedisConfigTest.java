@@ -32,20 +32,14 @@ public class RedisConfigTest {
 
     @Test
     @Tag("Module5")
-    public void oauthTokenRedisDaoTest() {
+    public void twitchChatHitCounterRedisDaoTest() {
         validateRedisDB(2);
     }
 
     @Test
     @Tag("Module5")
-    public void twitchChatHitCounterRedisDaoTest() {
-        validateRedisDB(3);
-    }
-
-    @Test
-    @Tag("Module5")
     public void chatBotChannelsRedisDaoTest() {
-        validateRedisDB(4);
+        validateRedisDB(3);
     }
 
     private void validateRedisDB(int databaseIndex) {

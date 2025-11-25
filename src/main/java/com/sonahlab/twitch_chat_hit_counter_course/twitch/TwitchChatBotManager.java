@@ -6,7 +6,6 @@ import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.sonahlab.twitch_chat_hit_counter_course.kafka.producer.TwitchChatEventProducer;
 import com.sonahlab.twitch_chat_hit_counter_course.model.TwitchChatEvent;
 import com.sonahlab.twitch_chat_hit_counter_course.redis.TwitchChannelRedisService;
-import com.sonahlab.twitch_chat_hit_counter_course.utils.TwitchApiUtils;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,23 +25,18 @@ public class TwitchChatBotManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitchChatBotManager.class);
 
-    private TwitchAuthService twitchAuthService;
-    private TwitchClientManager twitchClientManager;
     private TwitchClient twitchClient;
     private TwitchChatEventProducer twitchChatEventProducer;
     private TwitchChannelRedisService twitchChannelRedisService;
 
     // Constructor
-    public TwitchChatBotManager(TwitchClientManager twitchClientManager,
-                                TwitchAuthService twitchAuthService,
+    public TwitchChatBotManager(TwitchClient twitchClient,
                                 TwitchChatEventProducer twitchChatEventProducer,
                                 TwitchChannelRedisService twitchChannelRedisService) {
         /**
          * TODO: Implement as part of Module 5
          * */
-        this.twitchClientManager = twitchClientManager;
-        this.twitchClient = twitchClientManager.getTwitchClient();
-        this.twitchAuthService = twitchAuthService;
+        this.twitchClient = twitchClient;
         this.twitchChatEventProducer = twitchChatEventProducer;
         this.twitchChannelRedisService = twitchChannelRedisService;
     }
@@ -82,15 +76,6 @@ public class TwitchChatBotManager {
         return channels;
     }
 
-    public boolean sendMessage(String channelName, String message) {
-        try {
-            TwitchApiUtils.validateAndRefreshToken(twitchAuthService, twitchClientManager);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return twitchClient.getChat().sendMessage(channelName, message);
-    }
-
     private void handleChatMessage(ChannelMessageEvent event) {
         LOGGER.debug("Processing event: " + event);
 
@@ -118,6 +103,7 @@ public class TwitchChatBotManager {
          * TODO: Implement as part of Module 5
          * */
         Set<String> channels = twitchChannelRedisService.getJoinedChannels(USERNAME);
+
         LOGGER.info("Initial channels to join: {}", channels);
         for (String channelName : channels) {
             twitchClient.getChat().joinChannel(channelName);

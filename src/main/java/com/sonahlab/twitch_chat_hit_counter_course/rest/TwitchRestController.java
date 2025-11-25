@@ -93,9 +93,4 @@ public class TwitchRestController {
                 twitchHelixService.getChannelInfo(
                         twitchChatBotManager.getJoinedChannels().stream().toList()));
     }
-
-    @GetMapping("/sendMessageToChannel")
-    public boolean sendMessageToChannel(@RequestParam String channelName, @RequestParam String message) {
-        return twitchChatBotManager.sendMessage(channelName, message);
-    }
 }

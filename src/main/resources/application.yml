@@ -72,6 +72,5 @@ twitch-chat-hit-counter:
   redis:
     event-dedupe-database: 0
     greeting-feed-database: 1
-    oauth-token-database: 2
     twitch-chat-hit-counter-database: 3
     chatbot-channels-database: 4

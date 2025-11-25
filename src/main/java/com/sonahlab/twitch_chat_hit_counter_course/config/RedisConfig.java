@@ -31,13 +31,12 @@ public class RedisConfig {
             @Value("${spring.data.redis.port}") int port,
             @Value("${twitch-chat-hit-counter.redis.event-dedupe-database}") int databaseIndexDb0,
             @Value("${twitch-chat-hit-counter.redis.greeting-feed-database}") int databaseIndexDb1,
-            @Value("${twitch-chat-hit-counter.redis.oauth-token-database}") int databaseIndexDb2,
             @Value("${twitch-chat-hit-counter.redis.twitch-chat-hit-counter-database}") int databaseIndexDb3,
             @Value("${twitch-chat-hit-counter.redis.chatbot-channels-database}") int databaseIndexDb4
     ) {
         Map<Integer, RedisTemplate<String, String>> factory = new HashMap<>();
 
-        List<Integer> databaseIndexes = List.of(databaseIndexDb0, databaseIndexDb1, databaseIndexDb2, databaseIndexDb3, databaseIndexDb4);
+        List<Integer> databaseIndexes = List.of(databaseIndexDb0, databaseIndexDb1, databaseIndexDb3, databaseIndexDb4);
         for (int databaseIndex : databaseIndexes) {
             RedisTemplate<String, String> template = new RedisTemplate<>();
 
@@ -73,15 +72,6 @@ public class RedisConfig {
     public RedisDao greetingFeedRedisDao(
             Map<Integer, RedisTemplate<String, String>> redisTemplateFactory,
             @Value("${twitch-chat-hit-counter.redis.greeting-feed-database}") int databaseIndex
-    ) {
-        return new RedisDao(redisTemplateFactory.get(databaseIndex));
-    }
-
-    @Bean
-    @Qualifier("oauthTokenRedisDao")
-    public RedisDao oauthTokenRedisDao(
-            Map<Integer, RedisTemplate<String, String>> redisTemplateFactory,
-            @Value("${twitch-chat-hit-counter.redis.oauth-token-database}") int databaseIndex
     ) {
         return new RedisDao(redisTemplateFactory.get(databaseIndex));
     }

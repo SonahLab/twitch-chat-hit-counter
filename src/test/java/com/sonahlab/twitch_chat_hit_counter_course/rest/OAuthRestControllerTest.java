@@ -95,7 +95,9 @@ public class OAuthRestControllerTest {
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
     @Disabled
     void handleCallbackSuccessTest() throws Exception {
+        // guard rail so test doesn't fail when you implement the actual getCredentialByCode() call later
         doReturn(MOCK_CREDENTIAL).when(twitchIdentityProvider).getCredentialByCode(eq("mockAuthorizationCode1"));
+
         mockMvc.perform(get("/oauth2/callback")
                         .param("code", "mockAuthorizationCode1")
                         .param("scope", "chat:read")
@@ -142,6 +144,9 @@ public class OAuthRestControllerTest {
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
     @Disabled
     void handleCallbackErrorTest() throws Exception {
+        // guard rail so test doesn't fail when you implement the actual getCredentialByCode() call later
+        doReturn(MOCK_CREDENTIAL).when(twitchIdentityProvider).getCredentialByCode(eq("mockAuthorizationCode1"));
+
         mockMvc.perform(get("/oauth2/callback")
                         .param("error", "access_denied")
                         .param("error_description", "The+user+denied+you+access")

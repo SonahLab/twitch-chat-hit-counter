@@ -976,11 +976,9 @@ TwitchClient twitchClient = TwitchClientBuilder.builder()
 #
 
 #### Part 2
-In `TwitchChatBotManager.java`, implement `public void joinChannel(String channelName)`. This method will allow our User account to join a Twitch stream by the `channelName`.
+In `TwitchChatBotManager.java`, implement `public void joinChannel(String channelName)`. This method will allow your ChatBot to join a Twitch stream by the `channelName`.
 
-> [!IMPORTANT]
-> 
-> Before using TwitchClient to join a channel we need to validate OAuth Token and refresh it if invalid.
+
 
 #
 
@@ -988,10 +986,6 @@ In `TwitchChatBotManager.java`, implement `public void joinChannel(String channe
 In `TwitchChatBotManager.java`, implement `public boolean leaveChannel(String channelName)`. This method will allow our User account to leave a Twitch stream by the `channelName`.
 
 Returns boolean on whether you successfully left the twitch channel (if User account was connected).
-
-> [!IMPORTANT]
->
-> Before using TwitchClient to leave a channel we need to validate OAuth Token and refresh it if invalid.
 
 #
 

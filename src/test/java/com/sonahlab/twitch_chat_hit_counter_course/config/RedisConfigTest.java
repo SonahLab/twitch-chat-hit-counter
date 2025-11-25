@@ -14,6 +14,8 @@ import java.util.Map;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @SpringBootTest
+// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
+@Disabled
 public class RedisConfigTest {
 
     @Autowired
@@ -39,16 +41,8 @@ public class RedisConfigTest {
     @Tag("Module5")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
     @Disabled
-    public void oauthTokenRedisDaoTest() {
-        validateRedisDB(2);
-    }
-
-    @Test
-    @Tag("Module5")
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
-    @Disabled
     public void twitchChatHitCounterRedisDaoTest() {
-        validateRedisDB(3);
+        validateRedisDB(2);
     }
 
     @Test
@@ -56,7 +50,7 @@ public class RedisConfigTest {
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 6.
     @Disabled
     public void chatBotChannelsRedisDaoTest() {
-        validateRedisDB(4);
+        validateRedisDB(3);
     }
 
     private void validateRedisDB(int databaseIndex) {

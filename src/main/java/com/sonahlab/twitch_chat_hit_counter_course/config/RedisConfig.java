@@ -46,15 +46,6 @@ public class RedisConfig {
     }
 
     @Bean
-    @Qualifier("oauthTokenRedisDao")
-    public RedisDao oauthTokenRedisDao() {
-        /**
-         * TODO: Implement as part of Module 5
-         * */
-        return null;
-    }
-
-    @Bean
     @Qualifier("twitchChatHitCounterRedisDao")
     public RedisDao twitchChatHitCounterRedisDao() {
         /**

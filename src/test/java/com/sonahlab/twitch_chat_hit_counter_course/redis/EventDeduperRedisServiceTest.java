@@ -18,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @Testcontainers
 @Tag("Module4")
+// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
+@Disabled
 public class EventDeduperRedisServiceTest {
 
     @Container

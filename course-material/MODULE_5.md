@@ -131,14 +131,14 @@ We will use everything we've learned up to this point to accomplish this.
 ```
 CREATE TABLE dev_db.twitch_chat_events (
     event_id VARCHAR(255) PRIMARY KEY,
-    message TEXT,
-    eventTs BIGINT,
-    user_id VARCHAR(255),
-    username VARCHAR(255),
+    event_ts BIGINT,
     channel_id VARCHAR(255),
     channel_name VARCHAR(255),
+    user_id VARCHAR(255),
+    username VARCHAR(255),
     subscription_months INT,
-    subscription_tier INT
+    subscription_tier INT,
+    message TEXT
 )
 ```
 ![](assets/module3/images/mysqlworkbench_create_table.gif)<br>
@@ -164,15 +164,13 @@ CREATE TABLE dev_db.twitch_chat_events (
 
 <br>
 
-## Exercise 1: Add Keys to Application
+## Exercise 1: Configure Twitch API keys
 1. In `twitchApiKey.yml`, set the following fields from setting up a new application from the **Twitch Developer Console**:
    1. **twitch-api.client-id**
    2. **twitch-api.client-secret**
-   3. **twitch-api.redirect-url**<br>
 2. In `TwitchConfig.java`, implement:
    1. `public String getTwitchApiClientId()`
    2. `public String getTwitchApiClientSecret()`
-   3. `public String getTwitchApiRedirectUrl()`
 
 This yaml file is already added in **.gitignore**, so your keys _**will not and should not**_ be published to Github.
 
@@ -188,742 +186,32 @@ This yaml file is already added in **.gitignore**, so your keys _**will not and 
 
 #
 
-<br>
+
+
+
+
+## Exercise 2: Configure `TwitchClient`
+In `TwitchConfig.java`, implement `public TwitchClient twitchClient()`.
+This should create our instance of Twitch4J's `TwitchClient`, which will be our client proxy to call into Twitch's API.
+
+Twitch4J is an open source Java library that abstracts away a lot of the details when integrating with Twitch's API.
+
+**Requirements:**
+1. Initialize the `TwitchClient` object with our Twitch API ClientId, Client Secret.
+2. Helix should be enabled
+3. Chat should be enabled
+
+```java
+TwitchClient twitchClient = TwitchClientBuilder.builder()
+            .withEnableHelix(true)
+            .build();
+```
 
 > [!IMPORTANT]
 >
 > When integrating with 3P APIs there is _always_ a bit of discovery work involved. Whether it's a publicly exposed API or a private API (direct B2B integration),
 > I always spend a large amount of time understanding how to integrate with the API and what data/endpoints are available.
 > Best advice is to keep learning by doing and spending time struggling through blocks.
-
-## Exercise 2: OAuth Tokens
-![](assets/module5/images/oauth_lifecycle.svg)<br>
-
-> [!IMPORTANT]
->
-> Here are some really important docs to read through on how Twitch API auth tokens work
-> - https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#authorization-code-grant-flow
-> - https://dev.twitch.tv/docs/authentication/refresh-tokens
-> - https://dev.twitch.tv/docs/authentication/validate-tokens/
-
-#### Twitch API's authentication flow:<br>
-**1a.** **Get the user to authorize your app**. In a browser you would go to:<br>
-```
-https://id.twitch.tv/oauth2/authorize
-    ?response_type=code
-    &client_id={YOUR_CLIENT_ID}
-    &redirect_uri=http://localhost:8080/oauth2/callback
-    &scope=chat:read+chat:edit
-```
-**1b.** If the user authorized your app by clicking **Authorize**, Twitch server sends the authorization code to your `redirect_uri`.<br>
-Your application needs to be running and needs to be listening to an API endpoint at `GET /oauth2/callback` to handle Twitch's redirect.<br>
-**2a.** use the authorization code to get an access token and refresh token.
-```
-POST https://id.twitch.tv/oauth2/token
-{
-    "client_id": {YOUR_CLIENT_ID},
-    "client_secret": {YOUR_CLIENT_SECRET},
-    "code": {YOUR_AUTHORIZATION_CODE},
-    "grant_type": "authorization_code",
-    "redirect_uri": "http://localhost:8080"
-}
-```
-**2b.** If the request succeeds, Twitch's servers returns an access token and refresh token.
-```json
-{
-  "Token": {
-    "access_token": {access_token},
-    "expires_in": 14193,
-    "refresh_token": {refresh_token},
-    "scope": [
-      "chat:read"
-    ],
-    "token_type": "bearer"
-  }
-}
-```
-Think of `access_token` as a **temporary key** that Twitch asks you everytime you want access to their API endpoints.
-The access_token has a specified TTL (Time to Live), meaning after that time in seconds has passed from issuance of the access_token (key), it will no longer be accepted by Twitch servers, and further requests will be rejected.<br>
-**3a.** If our token expires, we need to refresh the `access_token` by issuing another token call using our `refresh_token`:
-```
-POST https://id.twitch.tv/oauth2/token
-{
-    "client_id": {YOUR_CLIENT_ID},
-    "client_secret": {YOUR_CLIENT_SECRET},
-    "grant_type": "refresh_token",
-    "refresh_token": {YOUR_REFRESH_TOKEN}
-}
-```
-**3b.** If the request succeeds, the response contains the new access token, refresh token, and scopes associated with the new grant.
-This will give us an output similar to Twitch's response in **step 4**.
-
-<br>
-
-#
-
-### Task 1: Twitch4J's TwitchIdentityProvider
-It's possible to handle the entire auth lifecycle using your own HTTP request logic, but the Twitch4J library already handles most of this. Let's leverage that instead of re-inventing the wheel.
-
-In `TwitchConfig.java`, implement `public TwitchIdentityProvider twitchIdentityProvider()`. This will be used throughout our entire authentication flow.
-
-**Requirements:**
-- RTFM (Read the fucking manual) for Twitch4J's [TwitchIdentityProvider.java <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/twitch4j/twitch4j/blob/d7fec926104cd26d85f9cc1f7bcedac9a01c62c7/auth/src/main/java/com/github/twitch4j/auth/providers/TwitchIdentityProvider.java#L54)
-- Create a new instance of TwitchIdentityProvider by supplying your: `client-id`, `client-secret`, and `redirect-url`
-
-> [!TIP]
-> 
-> A great exercise — after fully completing this module — would be to implement this entire auth lifecycle on your own.
-> This is what I did initially on my first pass through this project and learned a lot by D.I.Y-ing and struggling through the initial learning curve.
-
-### Testing
-- [ ] Open `TwitchConfigTest.java` ─ already implemented and tests that the TwitchIdentityProvider bean is not null.
-- [ ] Remove `@Disabled` in `TwitchConfigTest.java` for method(s): `testTwitchIdentityProvider()`
-- [ ] Test with:
-    ```shell
-    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
-    ```
-- [ ] Run `testTwitchIdentityProvider()` through IntelliJ's debugger by:
-  - Set a breakpoint at `assertNotNull(twitchConfig.twitchIdentityProvider());`
-  - Click the Play button and click: `Debug testTwitchIdentity...()`
-  - Manually validate that the `TwitchIdentityProvider` **clientId**, **clientSecret**, and **redirectUrl** matches the values in `twitch-key.properties`.
-
-
-
-<br>
-
-#
-
-### Task 1: OAuth Authorize API
-#### Part 1a
-In `TwitchAuthService.java`, implement `public String getAuthUrl()`.
-
-Return the URL string that will be used to ping the `https://id.twitch.tv/oauth2/authorize`.
-
-The URL will need to fill in the fields in this template:
-```
-https://id.twitch.tv/oauth2/authorize
-    ?response_type=code
-    &client_id={client_id}
-    &redirect_uri={redirect_uri}
-    &scope={scope(s)}
-    &state={state}
-```
-
-**Requirements:**
-1. Inject `TwitchConfig` into the constructor.
-2. Set **scope(s)** to: `chat:read` and `chat:edit` (Look at [TwitchScopes <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/twitch4j/twitch4j/blob/d7fec926104cd26d85f9cc1f7bcedac9a01c62c7/auth/src/main/java/com/github/twitch4j/auth/domain/TwitchScopes.java#L3))
-3. Generate a generic UUID to set as the **state** (Unique identifier across a single auth lifecycle to verify sender)
-4. Utilize a helper method from `TwitchIdentityProvider` to do the heavy lifting of creating this auth URL for us.
-
-<br>
-
-### Testing
-- [ ] Open `OAuthRestControllerTest.java` ─ already implemented, almost identical test case as the previous part but with the added layer of calling the HTTP endpoint.
-- [ ] Remove `@Disabled` in `OAuthRestControllerTest.java` for the test method(s): `getAuthUrlTest()`
-- [ ] Test with:
-    ```shell
-    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
-    ```
-
-#
-
-#### Part 2
-![](assets/module5/images/OAuth_controller_authorize.svg)<br>
-In `OAuthRestController.java`, implement `public String getAuthUrl()`. This method should just directly call the `TwitchAuthService.getLoginUrl()`.
-
-Don't forget to inject the Bean of the `TwitchAuthService` into `OAuthRestController`.
-
-### Integration Testing
-- [ ] Run the application:
-    ```shell
-    ./gradlew bootRun
-    ```
-- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
-- [ ] Play with the **Twitch Auth API**: `GET /oauth2/authorize`
-- [ ] Validate that:
-    - `client_id={client_id}` matches your Twitch Application's clientId
-    - `redirect_uri=http://localhost:8080/oauth2/callback`
-    - `scope=chat:read+chat:edit`
-    - `state={UUID}` (any unique UUID string)
-
-<br>
-
-#
-
-### Task 2: OAuth Callback API
-![](assets/module5/images/twitch_callback.svg)<br>
-
-In `OAuthRestController.java`, implement:
-```java
-@GetMapping("/oauth2/callback")
-public Map<String, Object> handleCallback(
-    @RequestParam(name = "code", required = false) String code,
-    @RequestParam(name = "scope", required = false) String scope,
-    @RequestParam(name = "state", required = false) String state,
-    @RequestParam(name = "error", required = false) String error,
-    @RequestParam(name = "error_description", required = false) String errorDescription)
-```
-Return a `Map<String, Object>` of all the parameters that were passed into this method from Twitch when it redirects to this `GET /oauth2/callback` endpoint.
-
-**Requirements:**
-- Make sure to store the initial parameters under the key `"authorization"`.
-  - This task should return a `Map<String, Map<String, String>>`:
-  ```json
-    {
-      "authorization": {__Parameters_go_here__} 
-    }
-  ```
-  - The future tasks will explain why I've defined the return type this way. Don't worry about it for now.
-
-> From [Twitch Docs <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#authorization-code-grant-flow):<br>
-> _If the user authorized your app by clicking **Authorize**, the server sends the **authorization code** to your redirect URI (see the code query parameter):_
-> ```
-> http://localhost:3000/
->   ?code=gulfwdmys5lsm6qyz4xiz9q32l10
->   &scope=channel%3Amanage%3Apolls+channel%3Aread%3Apolls
->   &state=c3ab8aa609ea11e793ae92361f002671
-> ```
-> 
-> _If the user didn’t authorize your app, the server sends the error code and description to your redirect URI (see the error and error_description query parameters):_
-> ```
-> http://localhost:3000/
->   ?error=access_denied
->   &error_description=The+user+denied+you+access
->   &state=c3ab8aa609ea11e793ae92361f002671
-> ```
-> 
-> **TL;DR**:<br>
-> If `/oauth2/authorize`:<br>
-> → SUCCESS, you can expect Twitch to ping our server's `/oauth2/callback` endpoint w/: `code`, `scope`, and `state`.<br>
-> → FAIL, you can expect Twitch to ping our server's `/oauth2/callback` endpoint w/: `error`, `error_description`, and `state`.
-
-### Example 1:
-> **Input:**<br>
-> ```
-> Twitch servers send our application a request:
-> http://localhost:8080/oauth2/callback
->     ?code=access_token123
->     &scope=channel%3Aread
->     &state=stateUUID_1
->
-> Map<String, String> output = handleCallBack("access_token123", scope="channel%3Aread", state="stateUUID_1", null, null);
-> ```
-> **Output:**<br>
-> ```json
-> {
->   "authorization": {
->     "code": "access_token123",
->     "scope": "channel%3Aread",
->     "state": "stateUUID_1",
->     "error": null,
->     "error_description": null
->   }
-> }
-> ```
-
-### Example 2:
-> **Input:**<br>
-> ```
-> Twitch servers send our application a request:
-> http://localhost:8080/oauth2/callback
->     ?error=access_denied
->     &error_description=The+user+denied+you+access
->     &state=stateUUID_2
->
-> Map<String, String> output = handleCallBack(code=null, scope=null, state="stateUUID_2", "access_denied", "The+user+denied+you+access");
-> ```
-> **Output:**<br>
-> ```json
-> {
->   "authorization": {
->     "code": null,
->     "scope": null,
->     "state": "stateUUID_2",
->     "error": "access_denied",
->     "error_description": "The+user+denied+you+access"
->   }
-> }
-> ```
-
-#
-
-### Testing
-- [ ] Open `OAuthRestControllerTest.java` ─ already implemented to test the example(s) above.
-- [ ] Remove `@Disabled` in `OAuthRestControllerTest.java` for the test method(s): `handleCallbackSuccessTest()` and `handleCallbackErrorTest()`
-- [ ] Test with:
-    ```shell
-    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
-    ```
-
-#
-
-### Integration Testing
-- [ ] Run the application:
-    ```shell
-    ./gradlew bootRun
-    ```
-- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
-- [ ] Play with the **Twitch API**: `GET /oauth2/authorize`
-- [ ] Kick off the authorization by accessing your browser and entering the returned URL from `GET /oauth2/authorize`
-- [ ] Twitch will ask you to authorize your User Account, and when granted will return the `authorization_code` to your `/oauth2/callback` endpoint
-- [ ] Twitch should also have redirected your browser to `http://localhost:8080/oauth2/callback` endpoint displaying the `handleCallback()` output
-- [ ] Check your application logs to verify that you were able to fetch:
-  - the authorization_code (`code`)
-  - the **same** `state` that was filled into the authorize URL from `GET /oauth2/authorize`
-  - the **same** `scope` of "chat:read" that was filled into the authorize URL from `GET /oauth2/authorize`
-
-<br>
-
-#
-
-### Task 3: OAuth Token API
-#### Part 1a
-When Twitch sends us the **authorization code** (`code`), we can use it to create a token. Authorization codes usually have a short lifespan, so it's recommended that the server exchanges it for an **access token** quickly. 
-
-In `TwitchAuthService.java`, implement `public OAuth2Credential createOAuthToken(String authorizationCode, List<TwitchScopes> scopes)`.
-
-Return the OAuth2Credential object from utilizing Twitch4J's TwitchIdentityProvider to exchange our authorization `code` for a temporary access token and add a log to print to _**stdout**_ the result from Twitch.
-
-**Requirements:**
-- RTFM for Twitch4J's [TwitchIdentityProvider.java <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/twitch4j/twitch4j/blob/d7fec926104cd26d85f9cc1f7bcedac9a01c62c7/auth/src/main/java/com/github/twitch4j/auth/providers/TwitchIdentityProvider.java#L54). See if you can figure out the correct method to call.
-
-### Example 1:
-> **Input:**<br>
-> ```java
-import com.github.twitch4j.auth.domain.TwitchScopes; > TwitchAuthService twitchAuthService = new TwitchAuthService(...);
-> OAuth2Credential output = twitchAuthService.createOAuthToken("access_token123", List.of(TwitchScopes.CHAT_READ));
-> ```
-> **Output:**<br>
-> ```json
-> {
->   "access_token": "rfx2uswqe8l4g1mkagrvg5tv0ks3",
->   "expires_in": 14124,
->   "refresh_token": "5b93chm6hdve3mycz05zfzatkfdenfspp1h1ar2xxdalen01",
->   "scope": [
->     "chat:read"
->   ],
->   "token_type": "bearer"
-> }
-> ```
-> **Explanation**: `createOAuthToken()` is exchanging the **authorization code** for a temporary `access_token` with a 4 hour TTL.
-
-#
-
-### Example 2:
-> **Input:**<br>
-> ```java
-> TwitchAuthService twitchAuthService = new TwitchAuthService(...);
-> OAuth2Credential output = twitchAuthService.createOAuthToken("invalid_access_token123", List.of(TwitchScopes.CHAT_READ));
-> ```
-> **Output:** Exception is thrown<br>
-> **Explanation**: `createOAuthToken()` fails to exchange the invalid **authorization code** for a valid `access_token`.
-
-### Testing
-- [ ] Open `TwitchAuthServiceMockTest.java` ─ already implemented to test the example(s) above.
-- [ ] Remove `@Disabled` in `TwitchAuthServiceMockTest.java` for the test method(s): `createOAuthTokenSuccessTest()` and `createOAuthTokenFailTest()`
-- [ ] Test with (These tests should fail):
-    ```shell
-    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
-    ```
-
-#
-
-#### Part 1b
-I've intentionally set the unit tests up in `TwitchAuthServiceMockTest.java` to fail when asserting the OAuth2Credential scopes field.
-
-Why've I done this?<br>
-Mainly because — at the time of writing this — I found a bug in the latest open source library code that TwitchIdentityProvider uses when fetching back the `OAuth2Credential` object.
-
-[OAuth2IdentityProvider.java <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/PhilippHeuer/credential-manager/blob/main/src/main/java/com/github/philippheuer/credentialmanager/identityprovider/OAuth2IdentityProvider.java#L315)
-```java
-return new OAuth2Credential(
-        this.providerName, // identityProvider
-        (String) resultMap.get("access_token"), // accessToken
-        (String) resultMap.get("refresh_token"), // refreshToken
-        null, // userId
-        null, // userName
-        TokenResponseUtil.parseExpiresIn(resultMap.get("expires_in")), // expiresIn
-        null); // scopes - THE ISSUE IS HERE
-```
-When we issue authorize a token with scope=["chat:read"], we'd like for the `OAuth2Credential` object that Twitch4J's library returns
-in `TwitchIdentityProvider.getCredentialByCode(...)` to ideally contain all the same information when we get a valid token.
-
-> [!WARNING]
-> 
-> It's arguable that even the `userId`, `userName` fields should also be set if they exist, but these fields don't really matter for us. But we do care about the scopes metadata.
-> 
-> When I was first integrating with Twitch4J, I initially thought I did something wrong because
-> I was able to successfully fetch a valid token, but saw that the `scopes` were empty. It wasn't until I dove deeper into
-> the source code that I was able to root cause **_why_** I was noticing this behavior.
-> 
-> Main Takeaway: read the fucking manual.
-
-In `TwitchAuthService.java`, fix `public OAuth2Credential createOAuthToken(String authorizationCode, List<TwitchScopes> scopes)`. Notice the `scopes` argument that we never used in `Part 1a`.
-
-After receiving a valid `OAuth2Credential` from Twitch4J, let's create a new `OAuth2Credential` to fill in the missing scopes field.<br>
-Return the new `OAuth2Credential` that you manually create.
-
-**Requirements:**
-1. Create a new `OAuth2Credential` object
-2. Copy over all the fields from the original `OAuth2Credential` object that Twitch4J returns
-3. For `scopes`, just use the input `List<TwitchScopes> scopes` parameter
-
-### Testing
-- [ ] Open `TwitchAuthServiceMockTest.java` ─ already implemented.
-- [ ] Run the same methods that were previously failing: `createOAuthTokenSuccessTest()` and `createOAuthTokenFailTest()`
-- [ ] Test with:
-    ```shell
-    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
-    ```
-
-#
-
-#### Part 2
-As I've said earlier, authorization codes usually have a short lifespan, so it's recommended that the server exchanges it for an **access token** quickly.
-When our application gets called by Twitch's servers at our `http://localhost:8080/oauth2/callback` endpoint, we will immediately kick off the authorization_code → access_token exchange process.
-
-In `OAuthRestController.java`, update `handleCallback()` to call `TwitchAuthService.createOAuthToken()` using the same `code` that Twitch passes back to our server.
-
-**Requirements:**
-1. Add a new entry in the return `Map<String, Object>` for `"token"`
-2. Set the `OAuth2Credential` at that new `"token"` key
-
-### Example 1:
-> **Input:**<br>
-> ```
-> Twitch servers send our application a request:
-> http://localhost:8080/oauth2/callback
->     ?code=access_token123
->     &scope=channel%3Aread
->     &state=stateUUID_1
->
-> Map<String, String> output = handleCallBack("access_token123", scope="channel%3Aread", state="stateUUID_1", null, null);
-> ```
-> **Output:**<br>
-> ```json
-> {
->   "authorization": {
->     "code": "access_token123",
->     "scope": "channel%3Aread",
->     "state": "stateUUID_1",
->     "error": null,
->     "error_description": null
->   },
->   "token": {
->     "identityProvider": "twitch",
->     "accessToken": "access_token123",
->     "refreshToken": "refresh_token123",
->     "userId": null,
->     "userName": null,
->     "expiresIn": 14124,
->     "scopes": ["chat:read"]
->   }
-> }
-> ```
-> **Explanation**:
-> 1. "authorization" is just the bundled up input parameters that was sent from Twitch servers when the user's `/authorization` endpoint is redirected to our service.
-> 2. "token" is the `OAuth2Credential` object we put into the `Map<String, Object>` to visually see it in the redirected URL. This `OAuth2Credential` is the object that is:<br>
-> First, exchanged by `TwitchIdentityProvider` and then<br>
-> Second, re-created by you just now with the additional `scopes` field properly populated.
-
-### Testing
-- [ ] Open `OAuthRestControllerTest.java` ─ already implemented with the example(s) above.
-- [ ] Remove `@Disabled` in `OAuthRestControllerTest.java` for the test method(s): `handleCallbackSuccessTest_token()`
-- [ ] Test with:
-    ```shell
-    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
-    ```
-
-### Integration Testing
-- [ ] Run the application:
-    ```shell
-    ./gradlew bootRun
-    ```
-- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
-- [ ] Play with the **Twitch API**: `GET /oauth2/authorize`
-- [ ] Kick off the authorization by accessing your browser and entering the returned URL from `GET /oauth2/authorize`
-- [ ] Twitch will ask you to authorize your User Account, and when granted will return the `authorization_code` to your `/oauth2/callback` endpoint
-- [ ] Twitch should also have redirected your browser to `http://localhost:8080/oauth2/callback` endpoint displaying the `handleCallback()` output
-- [ ] Check your application logs to verify that you were able to fetch:
-    - the authorization_code (`code`)
-    - the **same** `state` that was filled into the authorize URL from `GET /oauth2/authorize`
-    - the **same** `scope` of "chat:read+chat:edit" that was filled into the authorize URL from `GET /oauth2/authorize`
-    - the response from issuing the `POST /oauth2/token` HTTP request
-
-<br>
-
-#
-
-### Task 3: OAuth Refresh Token API
-When your Auth Token expires, we will need to refresh our auth token. Tokens have a TTL (Time To Live) specified when a token is minted.<br>
-
-Most Twitch API calls requires a valid ephemeral `access_token`, but when it expires Twitch will fail all subsequent calls using an expired token. Twitch exposes the same `https://id.twitch.tv/oauth2/token` endpoint whenever we need to a new "key".
-
-In `TwitchAuthService.java`, implement `public String refreshOAuthToken(OAuth2Credential oldCredential)`.
-
-Return the OAuth2Credential returned from `TwitchIdentityProvider` after refreshing the token and add a log to print to _**stdout**_ the result from Twitch.
-
-### Example 1:
-> **Input**:<br>
-> ```java
-> TwitchAuthService twitchAuthService = new TwitchAuthService(...);
-> String output = twitchAuthService.refreshOAuthToken(new OAuth2Credential("", "", "refresh_token123", null, null, null);
-> ```
-> **Output**:<br>
-> ```json
-> {
->   "access_token": "newAccessToken123",
->   "expires_in": 14124,
->   "refresh_token": "5b93chm6hdve3mycz05zfzatkfdenfspp1h1ar2xxdalen01",
->   "scope": [
->     "chat:read"
->   ],
->   "token_type": "bearer"
-> }
-> ```
-> **Explanation**: When we refresh a token using the `refresh_token` you will notice the `refresh_token`, `scope`, and `token_type` don't change on refresh. The only fields that do change are the new "key", a.k.a the `access_token`, and the `expires_in` field which
-> is the updated TTL for this new key.
-
-### Example 2:
-> **Input**:<br>
-> ```java
-> TwitchAuthService twitchAuthService = new TwitchAuthService(...);
-> String output = twitchAuthService.refreshOAuthToken(new OAuth2Credential("", "", "invalid_refresh_token123", null, null, null);
-> ```
-> **Output**:Exception is thrown.<br>
-
-#
-
-### Testing
-- [ ] TODO
-
-### Integration Testing
-- [ ] TODO
-
-<br>
-
-#
-
-### Task 4: OAuth Validate Token API
-We need to have some way of health checking our `accessToken` to check that it's still alive.<br>
-Twitch API exposes `GET https://id.twitch.tv/oauth2/validate` for us to do just this.
-
-In `TwitchAuthService.java`, implement `public boolean validateOAuthToken(String accessToken)`.
-Send a GET HTTP request to the twitch endpoint using our temporary `accessToken`.
-
-Return a boolean on whether Twitch's `/oauth2/validate` endpoint returns a 200 response, signifying that our temporary token is still alive.<br>
-Also log Twitch's entire HTTP response.
-
-### Example 1:
-> **Input:**<br>
-> ```java
-> TwitchAuthService twitchAuthService = new TwitchAuthService(...);
-> boolean output1 = twitchAuthService.validateOAuthToken("access_token123");
-> 
-> twitchAuthService.createOAuthToken("access_token123");
-> boolean output2 = twitchAuthService.validateOAuthToken("access_token123");
-> ```
-> **Output1**: false<br>
-> **Explanation**: The OAuth token isn't granted initially
-> 
-> **Output2**: true<br>
-> **Explanation**: The OAuth token is granted, and then validated.
-
-#
-
-### Testing
-- [ ] TODO
-
-#
-
-### Integration Testing
-- [ ] TODO
-
-<br>
-
-#
-
-## Token Redis DB
-### Task 5: Token Redis DB
-Now that we have the ability to (1) create, (2) refresh, and (3) validate a token, we want to store the User token in Redis.<br>
-We need a persistent way of caching a User's latest token, so that we can create the token once and then refresh as needed upon expiration.<br>
-If we never store the User Token, we would need to follow the `/authorize` login flow everytime our application starts up.
-
-Update `application.yaml` and `RedisConfig.java` to add our new Redis database properties.
-
-**Requirements:**
-1. Create a new Spring property for `twitch-chat-hit-counter.redis.oauth-token-database: 2`
-2. Update `RedisConfigs.java`, to create the RedisDao Bean needed to communicate with `db2`
-
-### Testing
-- [ ] Open `PropertiesApplicationTest.java` ─ already implemented.
-- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method(s): `redisOAuthTokenDatabaseTest()`
-- [ ] Open `RedisConfigTest.java` ─ already implemented.
-- [ ] Remove `@Disabled` in `RedisConfigTest.java` for the test method(s): `oauthTokenRedisDaoTest()`
-- [ ] Test with:
-    ```shell
-    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
-    ```
-
-<br>
-
-#
-
-### Task 6:
-#### Part 1
-In `OAuthRedisService.java`, implement `void updateLatestToken(String username, OAuth2Credential credential)` to persist the token passed back by Twitch.
-
-**Requirements:**
-1. Inject the `@Qualifier("oauthTokenRedisDato") RedisDao` into the constructor. (Now that we have many RedisDao beans it becomes important to inject the correct one by name)
-2. Key template: `"twitch#oauth#{username}"`
-3. Value should be an `OAuth2Credential` stored as a String
-`getLatestToken(String username)` to fetch the latest OAuth2Credential token stored for the User
-
-<br>
-
-#
-
-#### Part 2
-In `OAuthRedisService.java`, implement `OAuth2Credential getLatestToken(String username)` to fetch the latest OAuth2Credential token stored for that `username`.
-
-**Requirements:**
-1. Key template: `"twitch#oauth#{username}"` (same as part 1)
-2. Value needs to be translated from a `String` back to an `OAuth2Credential` object.<br>
-All of our values in Redis are stored as Strings. Due to the `Instant` data type of [OAuth2Credential.issuedAt <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/PhilippHeuer/credential-manager/blob/main/src/main/java/com/github/philippheuer/credentialmanager/domain/OAuth2Credential.java#L56),
-it might be tricky to just run the string value through the ObjectMapper deserializer.<br>
-I recommend:
-   1. Converting the String credential back to a `JsonNode`
-   2. Re-create a new `OAuth2Credential` object from the original String value
-
-<br>
-
-### Example 1:
-> ```java
-> OAuthRedisService oAuthRedisService = new OAuthRedisService(...);
-> OAuth2Credential output1 = oAuthRedisService.getLatestToken("Alice");
->
-> // Assume we called POST https://id.twitch.tv/oauth2/token and got this credential object back
-> OAuth2Credential credential = new OAuth2Credential(
->     "twitch", // identityProvider
->     "accessToken123", // accessToken
->     "refreshToken123", // refreshToken
->     null, // userId
->     null, // userName
->     14124, // expiresIn
->     List.of("chat:read") // scopes
-> );
-> oAuthRedisService.updateLatestToken("Alice", credential);
->
-> OAuth2Credential output2 = oAuthRedisService.getLatestToken("Alice");
-> ```
-> **Output1**:null<br>
-> **Explanation**: Alice doesn't have a token yet cached in Redis
->
-> **Output2**:TODO<br>
-> ```json
-> {
->   "identityProvider": "twitch",
->   "accessToken": "accessToken123",
->   "refreshToken": "refreshToken123",
->   "userId": null,
->   "username": null,
->   "expiresIn": 14124,
->   "refresh_token": "eyJfMzUtNDU0OC4MWYwLTQ5MDY5ODY4NGNlMSJ9%asdfasdf=",
->   "scope": [
->     "chat:read"
->   ],
->   "context": {},
->   "receivedAt": 1764029905
-> }
-> ```
-> **Explanation**: Alice's account retrieves the latest cached token from Redis
-
-<br>
-
-### Testing
-- [ ] Open `OAuthRedisServiceTest.java` ─ already implemented with the example(s) above.
-- [ ] Remove `@Disabled` in `OAuthRedisServiceTest.java`
-- [ ] Test with:
-    ```shell
-    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
-    ```
-
-<br>
-
-#
-
-#### Part 3
-Now that we have the ability to store/fetch tokens in Redis, we need to call this `TwitchAuthService`.
-
-In `TwitchAuthService.java`, update the methods below to update our User's latest User Token in Redis everytime we mint a new token:
-1. `public String createOAuthToken(String accessToken)`
-2. `public String refreshOAuthToken(String refreshToken)`
-
-> [!IMPORTANT]
->
-> Since this app is simply used by our application and your Twitch account will be used to grant tokens, just pass in your personal Twitch account username for the `String username`.<br>
-> It is possible to retrieve your account metadata through the Twitch API, but for now let's keep things simple.
-
-**Requirements**:
-1. Add a `USERNAME` constant in `TwitchApiUtils.java` to have a single place to store your public Twitch account username.
-
-### Example 1:
-
-#
-
-### Testing
-- [ ] TODO
-
-### Integration Testing
-- [ ] TODO
-
-
-
-
-
-
-
-
-
-
-
-<br>
-
-#
-
-### Task 1: TwitchClientManager
-Our `TwitchClientManager` will be in charge of creating the `TwitchClient`, the main object with Twitch4j, that is used to issue any Twitch API calls.
-
-#### Part 1a
-In `TwitchClientManager.java`, implement `public void init()`. This will create a instance of Twitch4J's `TwitchClient`, which will be our client proxy to call into Twitch's API.
-
-**Requirements:**
-1. Track the OAuth2
-2. Get the latest `OAuth2Credential` from the Redis DB3 for your Twitch `USERNAME`
-    1. If the `OAuth2Credential` doesn't yet exist (think of a first time user on the application), then you will need to create an empty, dummy OAuth2Credential.<br>
-       This will allow your application to join twitch channels anonymously, but won't let you send messages in chat or call any of Twitch APIs other endpoints if the credential is not valid.
-2. Create a new `TwitchClient` with:
-    1. `.withClientId(...)`
-    2. `.withClientSecret(...)`
-    3. `.withEnableHelix(...)`
-    4. `.withEnableChat(...)`
-    5. `.withChatAccount(...)`
-
-#### Part 1b
-In `TwitchClientManager.java`, implement `TwitchClient getTwitchClient()`. This method should be trivial and return the twitchClient that should have been initialized before.
-
-#### Part 1c
-In `TwitchClientManager.java`, implement `public void refreshCredential(OAuth2Credential newCredential)`.
-
-Once we have run the `init()` method, we don't always want to create a new `TwitchClient` everytime we refresh our `OAuth2Credential` token.
-This method should just be replacing the existing token in-place. I recommend looking into `OAuth2Credential` to see if there is an existing helper method to do just this.
-
-
-
-
-
-
-
 
 
 
@@ -952,42 +240,47 @@ Spend time reading through the Twitch Chat section.
 
 
 ### Task 2: TwitchChatBotManager
-#### Part 1
-In `TwitchChatBotManager.java`, implement the `public void init()` post-constructor. We will need to build Twitch4J's `TwitchClient` object that acts as the proxy (client middleman) to all of Twitch API's endpoints.
+Our `TwitchChatBotManager.java` will be a very simple ChatBot in charge of:
+- joining/leaving twitch channels
+- retrieving all the channels it's connected to
+- ingesting in real-time the incoming twitch chat event message
 
-**Requirements:**
-1. Initialize the `TwitchClient` object with our Twitch API ClientId, Client Secret, and OAuth Token.
-2. Helix should be enabled
-3. Chat should be enabled
-4. Chat Account should be set using the OAuthCredentials
-   1. We should check Redis `db3` to see if our User Account has a token
-   2. If yes, validate this token to see that it hasn't expired.
-      1. If expired, refresh token and cache the refreshed token into Redis `db3`.
-   3. If no, create a token and cache it into Redis `db3`
-
-```java
-TwitchClient twitchClient = TwitchClientBuilder.builder()
-            .withEnableHelix(true)
-            .build();
-```
+> [!TIP]
+> 
+> R.T.F.M for [TwitchClient <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://twitch4j.github.io/javadoc/com/github/twitch4j/TwitchClient.html)
+> to see which methods you should be calling in the various methods you need to implement.
 
 <br>
 
 #
 
-#### Part 2
+#### Part 1
 In `TwitchChatBotManager.java`, implement `public void joinChannel(String channelName)`. This method will allow your ChatBot to join a Twitch stream by the `channelName`.
 
+`TwitchClient` has an API for [TwitchChat <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://twitch4j.github.io/javadoc/com/github/twitch4j/chat/TwitchChat.html)
+you should use.
 
+#
+
+#### Part 2
+In `TwitchChatBotManager.java`, implement `public boolean leaveChannel(String channelName)`. This method will allow our User account to leave a Twitch stream by the `channelName`.
+
+Returns boolean on whether you successfully left the twitch channel.
+
+`TwitchClient` has an API for [TwitchChat <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://twitch4j.github.io/javadoc/com/github/twitch4j/chat/TwitchChat.html)
+you should use.
 
 #
 
 #### Part 3
-In `TwitchChatBotManager.java`, implement `public boolean leaveChannel(String channelName)`. This method will allow our User account to leave a Twitch stream by the `channelName`.
+In `TwitchChatBotManager.java`, implement `private void handleChatMessage(ChannelMessageEvent event)`. This method will be the main handler for each incoming, real-time Twitch chat message for all the channels that our ChatBot is connected to.
 
-Returns boolean on whether you successfully left the twitch channel (if User account was connected).
+**Requirements**:
+- Simply log the `ChannelMessageEvent` to stdout
+- Define the event
+- Create a `TwitchChatEvent` from the original `ChannelMessageEvent`
+- Simply log the `TwitchChatEvent` to stdoud
 
-#
 
 #### Part 4
 Define the `TwitchChatEvent.java` record.
@@ -997,9 +290,8 @@ We will define our own POJO `TwitchChatEvent.java`, which is a simplified versio
 
 **Requirements:**
 1. `eventId`: (String) eventId for the ChannelMessageEvent
-2. `message`: (String) message content that the user sent to the chat
-3. `eventTs`: (long) timestamp millis of when the chat message was sent
-4. `user`: (EventUser)
+2. `eventTs`: (long) timestamp millis of when the chat message was sent
+3.`user_id`: (EventUser)
    - id: (String) user id on Twitch of the sender of the message
    - name: (String) username on Twitch of the sender of the message
 5. `channel`: (EventChannel)
@@ -1007,6 +299,7 @@ We will define our own POJO `TwitchChatEvent.java`, which is a simplified versio
    - name: (String) channel name on Twitch
 6. `subscriptionMonths`: (int) months the user who is chatting has been subscribed to the channel for
 7. `subscriptionTier`: (int) tier level of the user who is chatting has subscribed to (tier1, 2, 3)
+2. `message`: (String) message content that the user sent to the chat
 
 #
 
@@ -1077,12 +370,8 @@ the TwitchClient will stream, in real-time, the incoming chat messages that we n
 ```yaml
 twitch-chat-hit-counter:
   kafka:
-    consumer:
-      twitch-chat-topic:
-        twitch-chat-events
-    producer:
-      twitch-chat-topic:
-        twitch-chat-events
+    twitch-chat-topic:
+      twitch-chat-events
 ```
 
 ### Testing
@@ -1200,7 +489,7 @@ This will look very similar to the end state we had in **Module 3**. This exerci
 ![](assets/module5/images/RedisOverview.svg)<br>
 **Goals:**
 1. Deduplicate `TwitchChatEvent` so we don't process duplicates using the same `db0` we already have
-2. Aggregate chat message count at the minutely grain in a new Redis `db4`
+2. Aggregate chat message count at the minutely grain in a new Redis `db2`
 
 > [!TIP]
 >

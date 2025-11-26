@@ -4,4 +4,5 @@ public class TwitchApiUtils {
     /**
      * TODO: Implement as part of Module 5
      * */
+    public static final String USERNAME = "TODO";
 }

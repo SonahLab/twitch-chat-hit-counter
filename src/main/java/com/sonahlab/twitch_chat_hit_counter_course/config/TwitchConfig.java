@@ -1,8 +1,6 @@
 package com.sonahlab.twitch_chat_hit_counter_course.config;
 
 import com.github.twitch4j.TwitchClient;
-import com.github.twitch4j.TwitchClientBuilder;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -19,24 +17,18 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:twitch-key.properties")
 public class TwitchConfig {
 
-    @Value("${twitch-api.client-id}")
-    private String twitchApiClientId;
-
-    @Value("${twitch-api.client-secret}")
-    private String twitchApiClientSecret;
-
     public String getTwitchApiClientId() {
         /**
          * TODO: Implement as part of Module 5
          * */
-        return twitchApiClientId;
+        return null;
     }
 
     public String getTwitchApiClientSecret() {
         /**
          * TODO: Implement as part of Module 5
          * */
-        return twitchApiClientSecret;
+        return null;
     }
 
     @Bean
@@ -44,11 +36,6 @@ public class TwitchConfig {
         /**
          * TODO: Implement as part of Module 5
          * */
-        return TwitchClientBuilder.builder()
-                .withClientId(twitchApiClientId)
-                .withClientSecret(twitchApiClientSecret)
-                .withEnableHelix(true)
-                .withEnableChat(true)
-                .build();
+        return null;
     }
 }

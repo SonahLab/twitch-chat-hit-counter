@@ -312,10 +312,20 @@ In `TwitchChatBotManager.java`, implement `private void handleChatMessage(Channe
 > service.handleMessage(channelMessageEvent);
 > ```
 > **stdout**:<br>
-> ```json
-> 
 > ```
-
+> TwitchChatEvent[
+>     eventId="eventId1",
+>     eventTs=1764184492277,
+>     channelId="channelId123",
+>     channelName="s0mcs",
+>     userId="userId123",
+>     username="Alice",
+>     subscriptionMonths=27,
+>     subscriptionTier=1
+>     message="Hi s0m, it's Alice",
+> ]
+> ```
+ChannelMessageEvent(super=AbstractChannelMessageEvent(messageEvent=IRCMessageEvent(escapedTags={client-nonce=bd738bbd7b5025d85c0b8ed99c8955c8, user-type=, tmi-sent-ts=1764184492277, mod=0, subscriber=1, color=#1E90FF, turbo=0, user-id=535797897, flags=, badges=subscriber/9,share-the-love/1, room-id=540056482, display-name=Elaena_, emotes=, first-msg=0, id=058803f0-07aa-4af7-89dd-28c98bf47185, returning-chatter=0, badge-info=subscriber/27}, badges={subscriber=9, share-the-love=1}, badgeInfo={subscriber=27}, clientName=Optional[elaena_], commandType=PRIVMSG, channelId=540056482, channelName=Optional[shanks_ttv], message=Optional[DARJEET IS CRAZY], payload=Optional[:DARJEET IS CRAZY], clientPermissions=[EVERYONE, SUBSCRIBER], flags=[], rawMessage=@badge-info=subscriber/27;badges=subscriber/9,share-the-love/1;client-nonce=bd738bbd7b5025d85c0b8ed99c8955c8;color=#1E90FF;display-name=Elaena_;emotes=;first-msg=0;flags=;id=058803f0-07aa-4af7-89dd-28c98bf47185;mod=0;returning-chatter=0;room-id=540056482;subscriber=1;tmi-sent-ts=1764184492277;turbo=0;user-id=535797897;user-type= :elaena_!elaena_@elaena_.tmi.twitch.tv PRIVMSG #shanks_ttv :DARJEET IS CRAZY, botOwnerIds=[]), user=EventUser(id=535797897, name=elaena_), message=DARJEET IS CRAZY, subscriberMonths=27, subscriptionTier=1, nonce=bd738bbd7b5025d85c0b8ed99c8955c8), replyInfo=null, chantInfo=null)
 
 
 

@@ -272,43 +272,62 @@ you should use.
 
 #
 
-#### Part 3
-In `TwitchChatBotManager.java`, implement `private void handleChatMessage(ChannelMessageEvent event)`. This method will be the main handler for each incoming, real-time Twitch chat message for all the channels that our ChatBot is connected to.
-
-**Requirements**:
-- Simply log the `ChannelMessageEvent` to stdout
-- Define the event
-- Create a `TwitchChatEvent` from the original `ChannelMessageEvent`
-- Simply log the `TwitchChatEvent` to stdoud
-
 
 #### Part 4
-Define the `TwitchChatEvent.java` record.
+In `TwitchChatEvent.java`, implement the data model record.
 
-Twitch4J library has it's own POJO object, but this class has a lot of additional metadata fields that we won't need for our project.
-We will define our own POJO `TwitchChatEvent.java`, which is a simplified version of Twitch4J's `ChannelMessageEvent` object.
+Twitch4J library has its own event [`ChannelMessageEvent` <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://twitch4j.github.io/javadoc/com/github/twitch4j/chat/events/channel/ChannelMessageEvent.html), but this class has a lot of additional metadata fields that we won't need for our project.<br>
+We will define our own POJO `TwitchChatEvent.java`, which is a simplified/flattened version of Twitch4J's `ChannelMessageEvent` object.
 
 **Requirements:**
 1. `eventId`: (String) eventId for the ChannelMessageEvent
 2. `eventTs`: (long) timestamp millis of when the chat message was sent
-3.`user_id`: (EventUser)
-   - id: (String) user id on Twitch of the sender of the message
-   - name: (String) username on Twitch of the sender of the message
-5. `channel`: (EventChannel)
-   - id: (String) channel id on Twitch
-   - name: (String) channel name on Twitch
-6. `subscriptionMonths`: (int) months the user who is chatting has been subscribed to the channel for
-7. `subscriptionTier`: (int) tier level of the user who is chatting has subscribed to (tier1, 2, 3)
-2. `message`: (String) message content that the user sent to the chat
+3. `channelId`: (String) channel id on Twitch
+4. `channelName`: (String) channel name on Twitch
+5. `userId`: (String) user id on Twitch of the sender of the message
+6. `username`: (String) channel name on Twitch
+7. `subscriptionMonths`: (int) months the user who is chatting has been subscribed to the channel for
+8. `subscriptionTier`: (int) tier level of the user who is chatting has subscribed to (tier1, 2, 3)
+9. `message`: (String) message content that the user sent to the chat
+
+#
+
+#### Part 3
+In `TwitchChatBotManager.java`, implement `private void handleChatMessage(ChannelMessageEvent event)`. This method will be the main handler for each incoming, real-time Twitch chat message for all the channels that our ChatBot is connected to.
+
+**Requirements**:
+- Create a `TwitchChatEvent` from the original `ChannelMessageEvent` Twitch4J passes in
+- Simply log the `TwitchChatEvent` to **stdout**
+
+### Example 1:
+> **Input**:<br>
+> ```java
+> TwitchChatBotManager service = new TwitchChatBotManager(...);
+> ChannelMessageEvent event = new ChannelMessageEvent(
+>     new EventChannel("channelId123", "s0mcs"),
+>     ,
+>     new EventUser("userId123", "Alice"),
+>     "Hi s0m, it's Alice"
+> );
+> service.handleMessage(channelMessageEvent);
+> ```
+> **stdout**:<br>
+> ```json
+> 
+> ```
+
+
+
+
+
+
 
 #
 
 #### Part 5
 In `TwitchChatBotManager.java`, implement `public void handleMessage(ChannelMessageEvent channelMessageEvent)`.<br>
 
-This method will be the main handler for the incoming real-time twitch chat messages. Twitch4J will pass in the `ChannelMessageEvent`.
-We will need to create an instance of the `TwitchChatEvent.java` from the passed in event.
-All the required fields we defined in the schema for `TwitchChatEvent.java` are already contained in the schema of Twitch4J's `ChannelMessageEvent`.
+This method will be the main handler for the incoming real-time twitch chat messages. Twitch4J will pass in the `ChannelMessageEvent`.<br>
 
 Your goal is to simply, for now, log the simplified `TwitchChatEvent` to **stdout**.
 
@@ -348,16 +367,16 @@ Your goal is to simply, for now, log the simplified `TwitchChatEvent` to **stdou
 
 > **Relevant Files:**
 > 
-> `application.yml`
-> `KafkaConfigs.java`
+> `application.yml`<br>
+> `KafkaConfigs.java`<br>
 > 
 
 Now that we can connect to Twitch chats successfully, we need to build a Kafka producer/consumer to publish these `TwitchChatEvent` to a new separate kafka topic.
 
 This will look very similar to the end state we had in **Module 2** with the Producer/Consumer on the `greeting-events` kafka topic.<br>
-This exercise will be kept short and it's up to you to make your application achieve the end state in the diagram above.
+This exercise will be kept short, and it's up to you to make your application achieve the end state in the diagram above.
 
-**Goals:** 
+**Goals:**
 1. Stream the incoming chat messages from channel(s) using Twitch4J's `TwitchClient`
 2. Publish `TwitchChatEvent` to `twitch-chat-events` topic
 3. Consume `TwitchChatEvent` from `twitch-chat-events` topic and log them to **stdout**
@@ -392,11 +411,11 @@ This is where our abstract class pays dividends. We don't need to repeat code an
 > ```java
 > TwitchChatEventProducer producer = new TwitchChatEventProducer(...);
 > String eventId = "UUID1";
-> TwitchChatEvent event = new TwitchChatEvent(eventId, "Alice", "Bob", "Hi Bob, I'm Alice!");
+> TwitchChatEvent event = new TwitchChatEvent(eventId, 1767254400000L, "channelId123", "s0mcs", "userId123", "Alice", 12, 1, "Hi s0m, it's alice");
 > boolean output1 = producer.publish(eventId, event);
 > 
 > String eventId2 = "UUID2";
-> TwitchChatEvent event2 = new TwitchChatEvent(eventId2, "Charlie", "David", "Yo.");
+> TwitchChatEvent event2 = new TwitchChatEvent(eventId2, 1767254400000L, "channelId123", "s0mcs", "userId456", "Bob", null, null, "chat gift me a sub");
 > boolean output2 = producer.publish(eventId2, event2);
 > ```
 > **Output1**: <span style="color:#0000008c">true<br></span>

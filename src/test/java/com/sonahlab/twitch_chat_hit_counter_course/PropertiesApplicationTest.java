@@ -109,8 +109,16 @@ public class PropertiesApplicationTest {
     @Tag("Module5")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
     @Disabled
-    public void redisOAuthTokenDatabaseTest() {
-        assertEquals("2", env.getProperty("twitch-chat-hit-counter.redis.oauth-token-database"));
+    public void kafkaTwitchChatTopicNameTest() {
+        assertEquals("twitch-chat-events", env.getProperty("twitch-chat-hit-counter.kafka.twitch-chat-topic"));
+    }
+
+    @Test
+    @Tag("Module5")
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
+    @Disabled
+    public void sqlTwitchChatTableNameTest() {
+        assertEquals("twitch_chat_events", env.getProperty("twitch-chat-hit-counter.sql.twitch-chat-table"));
     }
 
     @Test
@@ -118,15 +126,7 @@ public class PropertiesApplicationTest {
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
     @Disabled
     public void redisTwitchChatHitCounterDatabaseTest() {
-        assertEquals("3", env.getProperty("twitch-chat-hit-counter.redis.twitch-chat-hit-counter-database"));
-    }
-
-    @Test
-    @Tag("Module5")
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
-    @Disabled
-    public void kafkaTwitchChatTopicNameTest() {
-        assertEquals("twitch-chat-events", env.getProperty("twitch-chat-hit-counter.kafka.twitch-chat-topic"));
+        assertEquals("2", env.getProperty("twitch-chat-hit-counter.redis.twitch-chat-hit-counter-database"));
     }
 
     // =================================================================================================================
@@ -136,7 +136,7 @@ public class PropertiesApplicationTest {
     @Tag("Module6")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
     @Disabled
-    public void redisTwitchChannelDatabaseTest() {
-        assertEquals("4", env.getProperty("twitch-chat-hit-counter.redis.twitch-channel-database"));
+    public void redisChatbotChannelsDatabaseTest() {
+        assertEquals("3", env.getProperty("twitch-chat-hit-counter.redis.twitch-channel-database"));
     }
 }

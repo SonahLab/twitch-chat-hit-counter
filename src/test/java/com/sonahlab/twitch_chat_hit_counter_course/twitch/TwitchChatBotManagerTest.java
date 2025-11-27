@@ -42,7 +42,9 @@ public class TwitchChatBotManagerTest {
 
     @BeforeEach
     public void setup() {
-        // TODO: uncomment out the line below once you're ready to test any of the Unit Tests below.
+        // TODO: uncomment out the line below once you're ready to test with Module 5
+        //twitchChatBotManager = new TwitchChatBotManager(mockTwitchClient);
+        // TODO: uncomment out the line below once you're ready to test with Module 6
         //twitchChatBotManager = new TwitchChatBotManager(mockTwitchClient, mockRedisService);
     }
 
@@ -76,19 +78,23 @@ public class TwitchChatBotManagerTest {
     @Tag("Module5")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
     @Disabled
-    public void getJoinedChannelsTest() {
-        Set<String> expectedChannels = Set.of(TEST_CHANNEL);
-        when(mockRedisService.getJoinedChannels(USERNAME)).thenReturn(expectedChannels);
+    public void handleChatMessageTest() {
+        ChannelMessageEvent mockEvent = mock(ChannelMessageEvent.class);
+        when(mockEvent.getMessage()).thenReturn("test message");
 
-        Set<String> actualChannels = twitchChatBotManager.getJoinedChannels(USERNAME);
-
-        verify(mockRedisService, times(1)).getJoinedChannels(USERNAME);
-        assertEquals(expectedChannels, actualChannels);
+        try {
+            java.lang.reflect.Method handleMessageMethod =
+                    TwitchChatBotManager.class.getDeclaredMethod("handleChatMessage", ChannelMessageEvent.class);
+            handleMessageMethod.setAccessible(true);
+            handleMessageMethod.invoke(twitchChatBotManager, mockEvent);
+        } catch (Exception e) {
+            fail("handleChatMessage should not throw an exception: " + e.getMessage());
+        }
     }
 
     @Test
-    @Tag("Module5")
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
+    @Tag("Module6")
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 6.
     @Disabled
     public void initTest() {
         Set<String> initialChannels = Set.of(TEST_CHANNEL);
@@ -107,20 +113,16 @@ public class TwitchChatBotManagerTest {
     }
 
     @Test
-    @Tag("Module5")
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
+    @Tag("Module6")
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 6.
     @Disabled
-    public void handleChatMessageTest() {
-        ChannelMessageEvent mockEvent = mock(ChannelMessageEvent.class);
-        when(mockEvent.getMessage()).thenReturn("test message");
+    public void getJoinedChannelsTest() {
+        Set<String> expectedChannels = Set.of(TEST_CHANNEL);
+        when(mockRedisService.getJoinedChannels(USERNAME)).thenReturn(expectedChannels);
 
-        try {
-            java.lang.reflect.Method handleMessageMethod =
-                    TwitchChatBotManager.class.getDeclaredMethod("handleChatMessage", ChannelMessageEvent.class);
-            handleMessageMethod.setAccessible(true);
-            handleMessageMethod.invoke(twitchChatBotManager, mockEvent);
-        } catch (Exception e) {
-            fail("handleChatMessage should not throw an exception: " + e.getMessage());
-        }
+        Set<String> actualChannels = twitchChatBotManager.getJoinedChannels(USERNAME);
+
+        verify(mockRedisService, times(1)).getJoinedChannels(USERNAME);
+        assertEquals(expectedChannels, actualChannels);
     }
 }

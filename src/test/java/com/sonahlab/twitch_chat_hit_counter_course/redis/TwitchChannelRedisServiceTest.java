@@ -73,24 +73,24 @@ public class TwitchChannelRedisServiceTest {
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 6.
     @Disabled
     void addChannelsTest() {
-        twitchChannelRedisService.addChannels(USERNAME, "s0mcs", "shroud");
+        Long output1 = twitchChannelRedisService.addChannels(USERNAME, "s0mcs", "shroud");
+        Long output2 = twitchChannelRedisService.addChannels(USERNAME, "s0mcs");
 
-        Set<String> output1 = twitchChannelRedisService.getJoinedChannels(USERNAME);
-        Set<String> output2 = twitchChannelRedisService.getJoinedChannels("nonexistentUser");
-
-        assertThat(output1).hasSize(2).contains("s0mcs", "shroud");
-        assertThat(output2).hasSize(0);
+        assertEquals(2L, output1.longValue());
+        assertEquals(0L, output2.longValue());
+        assertThat(twitchChannelRedisService.getJoinedChannels(USERNAME)).hasSize(2).contains("s0mcs", "shroud");
+        assertThat(twitchChannelRedisService.getJoinedChannels("nonexistentUser")).hasSize(0);
     }
 
     @Test
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 6.
     @Disabled
-    void removeChannelsTest() throws JsonProcessingException {
+    void removeChannelsTest() {
         redisTemplate.opsForSet().add(String.format("user#%s#channels", USERNAME), "s0mcs");
         redisTemplate.opsForSet().add(String.format("user#%s#channels", USERNAME), "shroud");
 
-        Long output1 = twitchChannelRedisService.removeChannels(USERNAME, "shroud", "nonexitentChannelName");
-        Long output2 = twitchChannelRedisService.removeChannels("nonexitentUser", "shroud");
+        Long output1 = twitchChannelRedisService.removeChannels(USERNAME, "shroud", "nonexistentChannelName");
+        Long output2 = twitchChannelRedisService.removeChannels("nonexistentUser", "shroud");
 
         assertEquals(1L, output1.longValue());
         assertEquals(0L, output2.longValue());

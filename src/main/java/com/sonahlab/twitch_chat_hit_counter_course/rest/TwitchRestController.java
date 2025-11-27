@@ -73,9 +73,4 @@ public class TwitchRestController {
          * */
         return null;
     }
-
-    @GetMapping("/sendMessageToChannel")
-    public boolean sendMessageToChannel(@RequestParam String channelName, @RequestParam String message) {
-        return false;
-    }
 }

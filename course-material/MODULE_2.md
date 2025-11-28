@@ -246,32 +246,138 @@ Spring Kafka library will build all the relevant Beans on our behalf, unless we:
 Spring Kafka Autoconfiguration Lifecycle:
 
 
-### Task 1: Spring Kafka Producer/Consumer properties
-In `application.yml`, set the **Spring Kafka** properties listed in the table below.
+### Lesson: Spring Kafka Properties
+This is a small list of properties I'm requiring you to set for this course.
 
-
-| Property                                   | Required?    | Role         | Supported/Example Values                                                                                     | Description                                                                                                                                      |
-|--------------------------------------------|--------------|--------------|--------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| `spring.kafka.bootstrap-servers`           | **Required** | **Both**     | i.e.: "host:port"                                                                                            | Specifies the Kafka broker(s) to connect to. No connection without it.                                                                           |
-| `spring.kafka.consumer.group-id`           | **Required** | **Consumer** | i.e.: "applicationName-group-id-0"                                                                           | Defines the consumer group name. Kafka uses this to track message consumption. Multiple consumers with the same group ID share the message load. |
-| `spring.kafka.consumer.auto-offset-reset`  | Optional     | **Consumer** | `latest` **(default)**<br>`earliest`<br> `none`                                                              | Controls where to start reading if no offset is committed. Default: `latest`.                                                                    |
-| `spring.kafka.consumer.enable-auto-commit` | Optional     | **Consumer** | `true` **(default)**<br>`false`                                                                              | Whether to auto-commit offsets. Default: `true`. Use `false` for manual acks.                                                                    |
-| `spring.kafka.consumer.key-deserializer`   | **Required** | **Consumer** | https://kafka.apache.org/21/javadoc/org/apache/kafka/common/serialization/Deserializer.html                  | Converts incoming kafka message key back to object (e.g., `String`). Must match key-serializer on producer.                                      |
-| `spring.kafka.consumer.value-deserializer` | **Required** | **Consumer** | https://kafka.apache.org/21/javadoc/org/apache/kafka/common/serialization/Deserializer.html                  | Converts incoming kafka message value back to object (e.g., `String`). Must match value-serializer on producer.                                  |
-| `spring.kafka.listener.ack-mode`           | Optional     | **Consumer** | https://docs.spring.io/spring-kafka/api/org/springframework/kafka/listener/ContainerProperties.AckMode.html  | Listener AckMode.                                                                                                                                |
-| `spring.kafka.producer.key-serializer`     | **Required** | **Producer** | https://kafka.apache.org/0102/javadoc/org/apache/kafka/common/serialization/Serializer.html                  | Converts produced kafka message key to object (e.g., `String`). Must match key-deserializer on consumer.                                         |
-| `spring.kafka.producer.value-serializer`   | **Required** | **Producer** | https://kafka.apache.org/0102/javadoc/org/apache/kafka/common/serialization/Serializer.html                  | Converts produced kafka message value to object (e.g., `String`). Must match value-deserializer on consumer.                                     |
+| Property                                                                                                                                                                                                                                                             | Required?    | Role         | Supported/Example Values                                                                                     | Description                                                                                                                                    |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|--------------|--------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| `spring.kafka.bootstrap-servers`                                                                                                                                                                                                                                     | **Required** | **Both**     | i.e.: "host:port"                                                                                            | Specifies the Kafka broker(s) to connect to. No connection without it.                                                                         |
+| `spring.kafka.consumer.group-id`                                                                                                                                                                                                                                     | **Required** | **Consumer** | i.e.: "applicationName-group-id-0"                                                                           | Defines the consumer group name. Kafka uses this to track message consumption. Multiple consumers with the same group ID share the message load. |
+| `spring.kafka.consumer.`[auto-offset-reset <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.confluent.io/platform/current/installation/configuration/consumer-configs.html#auto-offset-reset)   | Optional     | **Consumer** | `latest` **(default)**<br>`earliest`<br> `none`                                                              | Controls where to start reading if no offset is committed. Default: `latest`.                                                                  |
+| `spring.kafka.consumer.`[enable-auto-commit <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.confluent.io/platform/current/installation/configuration/consumer-configs.html#enable-auto-commit) | Optional     | **Consumer** | `true` **(default)**<br>`false`                                                                              | Whether to auto-commit offsets.<br>Default: `true`. Use `false` for manual acks.                                                               |
+| `spring.kafka.consumer.`[key-deserializer <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.confluent.io/platform/current/installation/configuration/consumer-configs.html#key-deserializer)     | **Required** | **Consumer** | https://kafka.apache.org/21/javadoc/org/apache/kafka/common/serialization/Deserializer.html                  | Converts incoming kafka message key back to object (e.g., `String`).<br>Must match key-serializer on producer.                                 |
+| `spring.kafka.consumer.`[value-deserializer <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.confluent.io/platform/current/installation/configuration/consumer-configs.html#value-deserializer) | **Required** | **Consumer** | https://kafka.apache.org/21/javadoc/org/apache/kafka/common/serialization/Deserializer.html                  | Converts incoming kafka message value back to object (e.g., `String`).<br>Must match value-serializer on producer.                                |
+| `spring.kafka.listener.`[ack-mode <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-kafka/api/org/springframework/kafka/listener/ContainerProperties.AckMode.html)              | Optional     | **Consumer** | `BATCH` **(default)**<br>`COUNT`<br>`COUNT_TIME`<br>`MANUAL`<br>`MANUAL_IMMEDIATE`<br>`RECORD`<br>`TIME`<br> | The offset commit behavior enumeration.                                                                                                        |
+| `spring.kafka.producer.`[key-serializer <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.confluent.io/platform/current/installation/configuration/producer-configs.html#key-serializer)         | **Required** | **Producer** | https://kafka.apache.org/0102/javadoc/org/apache/kafka/common/serialization/Serializer.html                  | Converts produced kafka message key to object (e.g., `String`).<br>Must match key-deserializer on consumer.                                       |
+| `spring.kafka.producer.`[value-serializer <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.confluent.io/platform/current/installation/configuration/producer-configs.html#value-serializer)     | **Required** | **Producer** | https://kafka.apache.org/0102/javadoc/org/apache/kafka/common/serialization/Serializer.html                  | Converts produced kafka message value to object (e.g., `String`).<br>Must match value-deserializer on consumer.                                   |
 - List of [Spring Kafka supported fields <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://gist.github.com/geunho/77f3f9a112ea327457353aa407328771)<br>
-  ![](assets/module2/images/ser_deser.svg)<br>
+
+### Lesson 1: Bootstrap Servers (a.k.a Brokers' address)
+> [!IMPORTANT]
+>
+> Couple of good reads on Kafka Consumer Groups:
+> - [Kafka Broker <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.cloudkarafka.com/blog/part1-kafka-for-beginners-what-is-apache-kafka.html)
+> - [What is a consumer group in Kafka <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://codingharbour.com/apache-kafka/what-is-a-consumer-group-in-kafka/)
+> - [Configuring Kafka Consumer Group Ids <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.confluent.io/blog/configuring-apache-kafka-consumer-group-ids/)
+
+![](assets/module2/images/kafka-broker-beginner.png)<br>
+`spring.kafka.bootstrap-servers` is basically a list of addresses of the actual Kafka cluster brokers for applications to connect to.
+
+Example:
+```yaml
+spring:
+  kafka:
+    bootstrap-servers:
+      b-1.clustername1.y15j9n.c2.kafka.us-west-1.amazonaws.com:9098, b-2.clustername1.y15j9n.c2.kafka.us-west-1.amazonaws.com:9098
+```
+
+These are sample bootstrap servers if I had used **Amazon's MSK** (Managed Streaming for Apache Kafka) to spin up a fully manager Kafka cluster hosted by AWS.
+As long as my application has an AWS IAM role with permissions to connect to my AWS MSK cluster, my application should be able to connect with the brokers at these addresses.
+
+
+### Lesson 2: Consumer Group Id
+![](assets/module2/images/consumer_offset.png)<br>
+![](assets/module2/images/mario_checkpoint.png)<br>
+
+
+The easiest way to think about group-id is with **Super Mario World**.<br>
+When you play **Super Mario World**, pass a checkpoint, and die, you would respawn at the latest checkpoint.
+This group-id is managed by Kafka's brokers to manage, for each partition, where a certain group-id is currently at within the partition's log.<br>
+The consumer must read events in order of the queue and **ACK** messages, telling the Kafka brokers, _"Hey I have finished processing messages X to Y, update my group-id checkpoint"_.
+
+### Example 1:
+Say we have 100 messages spread across 2 partitions.
+```
+Partition 1: [0, 1, 2, ..., 50]
+Partition 2: [0, 1, 2, ..., 50]
+```
+
+Say downstream **Team A** has a **group-id=teamA-group-id**, and their application has 2 consumers (1 consumer per partition).<br>
+Say downstream **Team B** has a **group-id=teamB-group-id**, and their application has 2 consumers (1 consumer per partition).<br>
+
+Assume **Team A** is able to read all 100 messages from a kafka topic.<br>
+```
+Partition 1: [0, 1, 2, ..., 50]
+                             └─ teamA-group-id
+Partition 2: [0, 1, 2, ..., 50]
+                             └─ teamA-group-id
+```
+
+Assume **Team B** is able to read 30 events from Partition 1, and 20 events from Partition 2.
+```
+Partition 1: [0, 1, 2, ................, 30, 31, ..., 50]
+                                          └─ teamB-group-id
+Partition 2: [0, 1, 2, ..., 20, 21, ..., 30, 31, ..., 50]
+                             └─ teamB-group-id
+```
+
+Assume **Team B** servers batch read the next set of events:
+- 20 events left in Partition 1
+- 30 events left in Partition 2
+
+Say **Team B's** servers have picked up the messages from Kafka, done some application logic processing, wrote records to some DB, and right before they **ACK** the messages back to Kafka's brokers that they are done, their server's crash.<br>
+Because the consumers never ACK'ed the messages, Kafka's brokers will not know to commit/checkpoint/update the group-id to the latest message offset. When **Team B's** service spins up again, they basically start back from the latest commited checkpoints.<br> 
+
+The final state for both consumer groups at the point in which **Team A** is fully caught up and **Team B** has just crashed would be:
+```
+Partition 1: [0, 1, 2, ................, 30, 31, ..., 50]
+                                          │            └─ teamA-group-id
+                                          └─ teamB-group-id
+Partition 2: [0, 1, 2, ..., 20, 21, ..., 30, 31, ..., 50]
+                             │                         └─ teamA-group-id
+                             └─ teamB-group-id
+```
+
+Group Ids should be unique per Consumer group. The fact that **Team A** is fully caught up has 0 impact on **Team B's** ability to catch up. The fact that **Team B's** service crashed has 0 impact on **Team A's** ability to read.<br>
+When Team B is able to get their service back up and running they will need to pick up where Kafka's brokers have last recorded a successful commit.<br>
+
+There's a lot of Kafka properties to configure consumers how as needed, but Spring Kafka also has default settings.<br>
+- `spring.kafka.consumer.group-id` — is the unique group-id "checkpoint" for a Consumer.
+- `spring.kafka.consumer.auto-offset-reset` — is the behavior on **WHERE** consumers start reading from a Kafka log if no group-id commit exists.<br>
+    > ```
+    > partition0: [0, 1, 2, ..., 99] (Assume no prior commit for our group-id)
+    >              │              └─ latest
+    >              └─ earliest
+    > ```
+    > If there's 100 messages in a partition and our consumer has never read from the topic before, these are how reading events is behaved:
+    > - `latest` (default): consumer starts reading from latest kafka message (100th message)
+    > - `earliest`: consumer starts reading from the earliest kafka message (1st message)
+    > - `none`: throw exception to the consumer if no previous offset is found for the consumer’s group
+- `spring.kafka.consumer.enable-auto-commit` — If true the consumer’s offset will be periodically committed in the background. False gives more control to developers.
+- `spring.kafka.listener.ack-mode` — offset commit behavior. MANUAL gives Listener (Consumer) responsibility for ACK'ing
+
+
+
+### Lesson 3: Serializers/Deserializers
+![](assets/module2/images/ser_deser.svg)<br>
+
+- `spring.kafka.producer.key-serializer`/`spring.kafka.producer.value-serializer`
+- `spring.kafka.consumer.key-deserializer`/`spring.kafka.consumer.value-deserializer`
+
+
+### Task 1: Spring Kafka Producer/Consumer properties
+In `application.yml`, set the **Spring Kafka** properties according to the requirements below.
+
+There are many more configs to control your Kafka application logic, but you don't need all of them if you don't have a specific use-case in mind. I've added the properties that I think are important for any application.
 
 #### Requirements:
 1. **bootstrap-server**: Set it to the default bootstrap-server [`localhost:9092` <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/spring-projects/spring-boot/blob/2e52c3c35e0bd44ec35dceaeaed1737905a00196/module/spring-boot-kafka/src/main/java/org/springframework/boot/kafka/autoconfigure/KafkaProperties.java#L71)
 2. **group-id**: Set it to follow this format `{application_name}-group-id-{number}`
 3. **auto-offset-reset**: Set it to `earliest`
 4. **enable-auto-commit**: Set it to `true` so we have full control in processing/ack'ing each message
-5. **key-deserializer/value-deserializer**: Set it to write kafka messages as **<K (String), V (ByteArray)>** pairs
-6. **key-serializer/value-serializer**: Set it to read kafka messages as **<K (String), V (ByteArray)>** pairs
-7. **ack-mode**: Set it MANUAL so we have full control over acking the messages.
+5. **key-serializer/value-serializer**: Set the correct class path to write kafka messages as **<K (String), V (ByteArray)>** pairs
+6. **key-deserializer/value-deserializer**: Set the correct class path to read kafka messages as **<K (String), V (ByteArray)>** pairs
+7. **ack-mode**: Set it `MANUAL` so we have full control over acking the messages in our Listener consumer functions.
 
 #
 
@@ -410,14 +516,6 @@ In `KafkaRestController.java`, implement:
 3. Create a `GreetingEvent` using the: generated `eventId` and the user input parameters
 4. Call `GreetingEventProducer.publish()` to handle actual publishing of the kafka message
 
-[//]: # (```java)
-[//]: # (@PostMapping&#40;"/publishGreetingEvent"&#41;)
-[//]: # (@Operation&#40;summary = "Publish Kafka Event", description = "Publish a GreetingEvent"&#41;)
-[//]: # (public Boolean produceKafkaGreetingEvent&#40;@RequestParam String sender, @RequestParam String receiver, @RequestParam String message&#41; {)
-[//]: # (    // Hook up to GreetingEventProducer.publish&#40;...&#41;)
-[//]: # (})
-[//]: # (```)
-
 <br>
 
 ### Example 1:
@@ -428,35 +526,6 @@ true
 $ curl -X POST "http://localhost:8080/api/kafka/publishGreetingEvent?sender=Charlie&receiver=David&message=Yo."
 true
 ````
-[//]: # (> ```java)
-[//]: # (> WebClient webClient = WebClient.builder&#40;&#41;)
-[//]: # (>         .baseUrl&#40;"http://localhost:8080/api/"&#41;)
-[//]: # (>         .build&#40;&#41;;)
-[//]: # (>)
-[//]: # (> boolean output1 = webClient.post&#40;&#41;)
-[//]: # (>         .uri&#40;uriBuilder -> uriBuilder)
-[//]: # (>                 .path&#40;"/kafka/publishGreetingEvent"&#41;)
-[//]: # (>                 .queryParam&#40;"sender", "Alice"&#41;)
-[//]: # (>                 .queryParam&#40;"receiver", "Bob"&#41;)
-[//]: # (>                 .queryParam&#40;"message", "Hi Bob, I'm Alice!"&#41;)
-[//]: # (>                 .build&#40;&#41;&#41;)
-[//]: # (>         .retrieve&#40;&#41;)
-[//]: # (>         .bodyToMono&#40;Boolean.class&#41;)
-[//]: # (>         .block&#40;&#41;;)
-[//]: # (> )
-[//]: # (> boolean output2 = webClient.post&#40;&#41;)
-[//]: # (>         .uri&#40;uriBuilder -> uriBuilder)
-[//]: # (>                 .path&#40;"/kafka/publishGreetingEvent"&#41;)
-[//]: # (>                 .queryParam&#40;"sender", "Charlie"&#41;)
-[//]: # (>                 .queryParam&#40;"receiver", "David"&#41;)
-[//]: # (>                 .queryParam&#40;"message", "Yo."&#41;)
-[//]: # (>                 .build&#40;&#41;&#41;)
-[//]: # (>         .retrieve&#40;&#41;)
-[//]: # (>         .bodyToMono&#40;Boolean.class&#41;)
-[//]: # (>         .block&#40;&#41;;)
-[//]: # (> ```)
-[//]: # (> **Output1**: true<br>)
-[//]: # (> **Output2**: true)
 
 #
 
@@ -661,11 +730,6 @@ If we overwrite any of these fields, it'll affect the autconfigured single consu
 **Requirements:**
 1. `twitch-chat-hit-counter.kafka.batch-consumer.group-id`: {application_name}-group-id-batch-{num}
 2. `twitch-chat-hit-counter.kafka.batch-consumer.listener.type`: BATCH
-
-> [!IMPORTANT]
->
-> This blog is a MUST read for understanding group ids
-> [Configuring Kafka Consumer Group Ids <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.confluent.io/blog/configuring-apache-kafka-consumer-group-ids/)
 
 #
 

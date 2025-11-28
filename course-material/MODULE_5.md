@@ -865,16 +865,17 @@ In `RedisConfig.java`, implement `public RedisDao twitchChatHitCounterRedisDao()
 ![](assets/module5/images/minutely_aggregation.png)<br>
 
 #### Part 3.1:
-In `TwitchChatRedisService.java`, implement `public Long incrementMinuteHitCounter(String channelName, long eventTimestampMs)`.
+In `TwitchChatRedisService.java`, implement `public Long incrementMinuteHitCounter(Granularity granularity, String channelName, long eventTimestampMs)`.
 
 Return the updated count value after we increment the key.
 
 **Requirements:**
 1. Inject the correct `RedisDao` Bean loaded by `RedisConfig.java`.
-2. Key Template: `"{channelName}#{minuteBoundaryInMillis}"`<br>
+2. Key Template: `"{Granularity}#{channelName}#{YYYYMMDD}"`<br>
+3. Field: `{minuteBoundaryInMillis}`
     This is the only math involved in this project.<br>
     You will need to figure out how to take a raw timestamp in milliseconds, and round it to the nearest minute timestamp in millis (rounded down).
-3. Value should be a `Long` object
+4. Value should be a `Long` object
 
 ### Example 1:
 > **Input**:<br>
@@ -885,15 +886,16 @@ Return the updated count value after we increment the key.
 > long eventTs1 = 1767254439000; // Thu Jan 01 2026 08:00:39 GMT+0000
 > long eventTs2 = 1767254445000; // Thu Jan 01 2026 08:00:45 GMT+0000
 >
-> long output1 = service.incrementMinuteHitCounter("s0mcs", eventTs1);
-> long output2 = service.incrementMinuteHitCounter("s0mcs", eventTs2);
-> Map<String, String> output3 = service.getHitCount("s0mcs");
+> long output1 = service.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs1);
+> long output2 = service.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs2);
 > ```
 > **Output1**: 1<br>
 > **Explanation**: After we increment the hit count for s0mcs's channel with the timestamp at 1767254439000, the minutely "bucket" it gets rounded down to is 1767254400000. Then it increments that key value.<br>
 > ```json
 > {
->   "s0mcs#1767254400000": 1
+>   "MINUTE#s0mcs#20260101": {
+>     "1767254400000": 1
+>   }
 > }
 > ```
 > 
@@ -901,7 +903,9 @@ Return the updated count value after we increment the key.
 > **Explanation**: After we increment the hit count for s0mcs's channel with the timestamp at 1767254445000, the minutely "bucket" it gets rounded down to is 1767254400000. Then it increments that key value.<br>
 > ```json
 > {
->   "s0mcs#1767254400000": 2
+>   "MINUTE#s0mcs#20260101": {
+>     "1767254400000": 2
+>   }
 > }
 > ```
 
@@ -916,14 +920,15 @@ Return the updated count value after we increment the key.
 #
 
 #### Part 3.2:
-In `TwitchChatRedisService.java`, implement `public Map<String, Long> getHitCounts(String channelName)`.
+In `TwitchChatRedisService.java`, implement `public Map<String, Long> getHitCounts(Granularity granularity, String channelName, long startTimestampMillis, long endTimestampMillis)`.
 
-Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified channelName. by utilizing the `RedisDao.scanKeys()`.
+Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified channelName.
 
 **Requirements:**
-1. Which helper function in `RedisDao` did you implement that can scan a prefix?
-2. Key Template: `"{channelName}#*"` (Wildcard `*` to scan everything as long as the prefix matches)<br>
-3. Redis will return all values represented as a `String`, you will need to make sure to convert the `String` back to a `Long`
+1. Key Template(s): `"{Granularity}#{channelName}#{YYYYMMDD}"`<br>
+   1. If we wanted to fetch a range of hit counts between a start and end date, i.e.: `2026-01-01T00:00:000Z` to `2026-01-03T12:00:000Z`,
+   we would want to make sure to search for 3 keys: `[MINUTE#s0mcs#20260101, MINUTE#s0mcs#20260102, MINUTE#s0mcs#20260103]`
+2. Get the Hashed maps located at the keys, and flatten the hit counts to a single map spanning the entire time range.
 
 ### Example 1:
 > **Input**:<br>
@@ -934,23 +939,41 @@ Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified
 > long eventTs1 = 1767254439000; // Thu Jan 01 2026 08:00:39 GMT+0000
 > long eventTs2 = 1767254445000; // Thu Jan 01 2026 08:00:45 GMT+0000
 > long eventTs3 = 1767254545000; // Thu Jan 01 2026 08:02:25 GMT+0000
+> long eventTs4 = 1767340800000; // Fri Jan 02 2026 00:00:00 GMT+0000
 >
-> service.incrementMinuteHitCounter("s0mcs", eventTs1);
-> service.incrementMinuteHitCounter("s0mcs", eventTs2);
-> service.incrementMinuteHitCounter("s0mcs", eventTs3);
-> Map<String, String> output3 = service.getHitCount("s0mcs");
+> service.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs1);
+> service.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs2);
+> service.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs3);
+> service.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs4);
+> Map<String, Long> output = service.getHitCounts(
+>       Granularity.MINUTE,
+>       "s0mcs",
+>       1767254400000L,  // Thu Jan 01 2026 00:00:00 GMT+0000
+>       1767427200000L); // Sat Jan 03 2026 00:00:00 GMT+0000
 > ```
-> **Output1**: 1<br>
+> **Output**: 1<br>
 > ```json
 > {
 >   "s0mcs#1767254400000": 2,
->   "s0mcs#1767254520000": 1
+>   "s0mcs#1767254520000": 1,
+>   "s0mcs#1767340800000": 1
 > }
 > ```
 > **Explanation**:<br>
 > eventTs1 = `1767254439000` (2026-01-01 08:**00:39** UTC) → `1767254400000` (2026-01-01 08:**00:00** UTC)<br>
 > eventTs2 = `1767254445000` (2026-01-01 08:**00:45** UTC) → `1767254400000` (2026-01-01 08:**00:00** UTC)<br>
 > eventTs3 = `1767254545000` (2026-01-01 08:**02:25** UTC) → `1767254520000` (2026-01-01 08:**02:00** UTC)<br>
+> eventTs4 = `1767340800000` (2026-01-02 00:**00:00** UTC) → `1767340800000` (2026-01-02 00:**00:00** UTC)<br>
+> 
+> The internal redis entries should look like this:
+> {
+>   "MINUTE#s0mcs#20260101": {
+>     "1767254400000": 2,
+>     "1767254520000": 1,
+>     "1767340800000": 1,
+>   }
+> }
+> We want to simplify the output to a flattened map of KV pairs `{"channelName#minuteTs", hitCounts}`
 
 ### Testing
 - [ ] Open `TwitchChatRedisServiceTest.java` ─ already implemented with the example(s) above

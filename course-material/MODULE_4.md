@@ -483,8 +483,9 @@ Return the Set\<String> stored at the key.
 
 #
 
-### Task 4: Keys/Scan Operations
-### Implement [KEYS <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/keys/)
+### Task 4: Hash Operations
+### Implement [HASH <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/develop/data-types/hashes/)
+# TODO
 In `RedisDao.java`, implement `public Map<String, String> scanKeys(String prefix)`.<br>
 Return a Map\<String, String> for all keys matching a key prefix.
 

@@ -2,7 +2,6 @@ package com.sonahlab.twitch_chat_hit_counter_course.redis.dao;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -24,7 +23,7 @@ public class RedisDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(RedisDao.class);
 
     // Constructor
-    public RedisDao(RedisTemplate<String, String> redisTemplate) {
+    public RedisDao() {
         /**
          * TODO: Implement as part of Module 4
          * */
@@ -104,9 +103,20 @@ public class RedisDao {
         return null;
     }
 
-    /** KEY OPERATIONS */
-    // KEYS: https://redis.io/docs/latest/commands/keys/
-    public Map<String, String> scanKeys(String prefix) {
+    /**
+     * HASH OPERATIONS
+     * https://redis.io/docs/latest/develop/data-types/hashes/
+     * */
+    // HINCRBY: https://redis.io/docs/latest/commands/hincrby/
+    public Map<String, String> hashIncrBy(String key, String field, long delta) {
+        /**
+         * TODO: Implement as part of Module 4
+         * */
+        return null;
+    }
+
+    // HGETALL: https://redis.io/docs/latest/commands/hgetall/
+    public Map<String, String> hashGetAll(String key) {
         /**
          * TODO: Implement as part of Module 4
          * */

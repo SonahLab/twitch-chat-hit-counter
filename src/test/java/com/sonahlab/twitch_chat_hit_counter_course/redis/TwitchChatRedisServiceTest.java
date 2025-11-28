@@ -1,6 +1,7 @@
 package com.sonahlab.twitch_chat_hit_counter_course.redis;
 
 import com.redis.testcontainers.RedisContainer;
+import com.sonahlab.twitch_chat_hit_counter_course.model.Granularity;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,9 +58,9 @@ public class TwitchChatRedisServiceTest {
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
     @Disabled
     void incrementMinuteHitCounterTest() {
-        Long output1 = twitchChatRedisService.incrementMinuteHitCounter("s0mcs", 0L);
-        Long output2 = twitchChatRedisService.incrementMinuteHitCounter("s0mcs", 500L);
-        Long output3 = twitchChatRedisService.incrementMinuteHitCounter("shroud", 61234L);
+        Long output1 = twitchChatRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", 0L);
+        Long output2 = twitchChatRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", 500L);
+        Long output3 = twitchChatRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "shroud", 61234L);
 
         assertEquals(1, output1);
         assertEquals(2, output2);
@@ -70,16 +71,40 @@ public class TwitchChatRedisServiceTest {
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
     @Disabled
     void getHitCountsTest() {
-        twitchChatRedisService.incrementMinuteHitCounter("s0mcs", 0L);
-        twitchChatRedisService.incrementMinuteHitCounter("s0mcs", 500L);
-        twitchChatRedisService.incrementMinuteHitCounter("shroud", 61234L);
+        long eventTs1 = 1767254439000L; // Thu Jan 01 2026 08:00:39 GMT+0000
+        long eventTs2 = 1767254445000L; // Thu Jan 01 2026 08:00:45 GMT+0000
+        long eventTs3 = 1767254545000L; // Thu Jan 01 2026 08:02:25 GMT+0000
+        long eventTs4 = 1767340800000L; // Fri Jan 02 2026 00:00:00 GMT+0000
 
-        Map<String, Long> output1 = twitchChatRedisService.getHitCounts("s0mcs");
-        Map<String, Long> output2 = twitchChatRedisService.getHitCounts("s0mcs");
-        Map<String, Long> output3 = twitchChatRedisService.getHitCounts("shroud");
+        twitchChatRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs1);
+        twitchChatRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs2);
+        twitchChatRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs3);
+        twitchChatRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs4);
 
-        Assertions.assertThat(output1).containsEntry("s0mcs#0", 1L);
-        Assertions.assertThat(output2).containsEntry("s0mcs#0", 2L);
-        Assertions.assertThat(output3).containsEntry("shroud#60000", 1L);
+        twitchChatRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "shroud", eventTs1);
+
+        Map<String, Long> output1 = twitchChatRedisService.getHitCounts(
+                Granularity.MINUTE,
+                "s0mcs",
+                1767254400000L,  // Thu Jan 01 2026 00:00:00 GMT+0000
+                1767427200000L); // Sat Jan 03 2026 00:00:00 GMT+0000
+        Map<String, Long> output2 = twitchChatRedisService.getHitCounts(
+                Granularity.MINUTE,
+                "shroud",
+                1767254400000L,  // Thu Jan 01 2026 00:00:00 GMT+0000
+                1767427200000L); // Sat Jan 03 2026 00:00:00 GMT+0000
+
+        Assertions.assertThat(output1).hasSize(3).containsExactlyInAnyOrderEntriesOf(
+                Map.of(
+                        "s0mcs#1767254400000", 2L,
+                        "s0mcs#1767254525000", 1L,
+                        "s0mcs#1767340800000", 1L
+                )
+        );
+        Assertions.assertThat(output2).hasSize(1).containsExactlyInAnyOrderEntriesOf(
+                Map.of(
+                        "shroud#1767254400000", 1L
+                )
+        );
     }
 }

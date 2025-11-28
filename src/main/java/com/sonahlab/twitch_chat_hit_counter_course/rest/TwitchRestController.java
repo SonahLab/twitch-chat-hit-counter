@@ -35,7 +35,12 @@ public class TwitchRestController {
 
     @GetMapping("/hitCounter")
     @Operation(summary = "Get chat counter of a streamer", description = "")
-    public Map<String, Long> hitCounter(@RequestParam(name = "channelName") String channelName) {
+    public Map<String, Long> hitCounter(
+            @RequestParam(name = "granularity") String granularity,
+            @RequestParam(name = "channelName") String channelName,
+            @RequestParam(name = "startTimestampMillis") long startTimestampMillis,
+            @RequestParam(name = "endTimestampMillis") long endTimestampMillis
+    ) {
         /**
          * TODO: Implement as part of Module 6
          * */

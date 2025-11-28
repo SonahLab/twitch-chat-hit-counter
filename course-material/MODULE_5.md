@@ -103,7 +103,7 @@ For `Module 5`, the below file structure are all the relevant files needed.
 <br>
 
 ## Overview
-![](assets/module5/images/Overview.svg)<br>
+![](assets/module5/images/OverviewV2.svg)<br>
 
 In **Module 5**, we will now be integrating with the public Twitch API. Instead of triggering the pipeline through HTTP requests, we will setup a pipeline to stream realtime chat messages from Twitch Chat.
 We will use everything we've learned up to this point to accomplish this.
@@ -224,7 +224,7 @@ TwitchClient twitchClient = TwitchClientBuilder.builder()
 
 #
 
-### Exercise 3: Twitch Chat Connection
+## Exercise 3: Twitch Chat Connection
 ![](assets/module5/images/ChatOverview.svg)<br>
 Now that we have a working OAuth Token cache, we will be mostly focusing on the various Twitch API endpoints we want to integrate with.<br>
 It's important to see what products data is even supported publicly and reverse engineer what products you can build out of free data.<br>
@@ -413,7 +413,7 @@ In `TwitchChatBotManager.java`, implement the PostConstructor: `public void init
 
 <br>
 
-### Exercise 4: Kafka
+## Exercise 4: Kafka
 ![](assets/module5/images/KafkaOverview.svg)<br>
 
 > **Relevant Files:**
@@ -650,7 +650,7 @@ In `TwitchChatEventConsumer.java`, implement `public void processMessage(Consume
 
 <br>
 
-### Exercise 5: SQL
+## Exercise 5: SQL
 ![](assets/module5/images/SqlOverview.svg)<br>
 Now that we are able to stream Twitch chat events and pub/sub events through our new kafka topic, we need to write the `TwitchChatEvent` to a new separate SQL table.
 
@@ -781,7 +781,7 @@ In `TwitchChatEventConsumer.java`, connect our consumer to write to the new `twi
 
 #
 
-### Exercise 6: Redis Hit Counter
+## Exercise 6: Redis Hit Counter
 ![](assets/module5/images/RedisOverview.svg)<br>
 
 **Goals:**
@@ -797,8 +797,6 @@ In `TwitchChatEventConsumer.java`, connect our consumer to write to the new `twi
 > In `db2`, this will be our schema:
 > Key (String): `"{channelName}#{minuteBoundaryInMillis}"`
 > Value (Long): # of chat messages that fall into the minute bucket (rounded down the nearest minute bucket)
->
-> TODO: add a picture of how events fall into minutely buckets using a simple timeline
 
 
 
@@ -863,6 +861,8 @@ In `RedisConfig.java`, implement `public RedisDao twitchChatHitCounterRedisDao()
 
 ### Task 3: TwitchChatRedisService
 ![](assets/module5/images/RedisAggOverview.svg)<br>
+
+![](assets/module5/images/minutely_aggregation.png)<br>
 
 #### Part 3.1:
 In `TwitchChatRedisService.java`, implement `public Long incrementMinuteHitCounter(String channelName, long eventTimestampMs)`.

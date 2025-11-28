@@ -63,7 +63,7 @@ public class RedisDao {
     }
 
     /** LIST OPERATIONS */
-    // LPUSH: https://redis.io/docs/latest/commands/lpush/
+    // RPUSH: https://redis.io/docs/latest/commands/rpush/
     public Long listAdd(String key, String... values) {
         /**
          * TODO: Implement as part of Module 4

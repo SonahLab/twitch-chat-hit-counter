@@ -23,8 +23,6 @@ At Netflix, I run SQL queries via:
 - SparkSQL on top of our Apache Iceberg tables
 - CQL (looks pretty much like SQL) on top of our Apache Cassandra tables
 
-This course won’t dive too deeply into SQL queries, we will instead be focusing on setting up and populating our own SQL db.
-
 <br>
 
 ## File Structure
@@ -152,13 +150,15 @@ In `build.gradle`, I've already imported Spring Boot JDBC:
 implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 implementation 'mysql:mysql-connector-java:8.0.33'
 ```
-In `application.yml`, I've already setup the expected configurations for connecting to the MySQL docker instance:
+In `application.yml`, add the properties Spring needs to autoconfigure the `JdbcTemplate` so that your application can connect to the MySQL DB.
 ```yaml
+spring:
   datasource:
     url: jdbc:mysql://localhost:3306/dev_db
     username: root
     password: ""
 ```
+https://spring.io/guides/gs/accessing-data-mysql
 
 <br>
 

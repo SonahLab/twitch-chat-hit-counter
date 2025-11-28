@@ -108,7 +108,7 @@ public class RedisDao {
      * https://redis.io/docs/latest/develop/data-types/hashes/
      * */
     // HINCRBY: https://redis.io/docs/latest/commands/hincrby/
-    public Map<String, String> hashIncrBy(String key, String field, long delta) {
+    public Long hashIncrBy(String key, String field, long delta) {
         /**
          * TODO: Implement as part of Module 4
          * */

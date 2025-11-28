@@ -799,25 +799,6 @@ In `TwitchChatEventConsumer.java`, connect our consumer to write to the new `twi
 > Value (Long): # of chat messages that fall into the minute bucket (rounded down the nearest minute bucket)
 
 
-
-[//]: # ()
-[//]: # (### Task 1: Hook up `TwitchChatEventConsumer` to the `EventDeduperRedisService`)
-[//]: # (![]&#40;assets/module5/images/RedisDeduperOverview.svg&#41;<br>)
-[//]: # (In `TwitchChatEventConsumer.java`, update `TODO&#40;&#41;` to now increment the hit count for the channel.)
-[//]: # ()
-[//]: # (**Consumer Process Flow:**)
-[//]: # (1. Check Redis to see if the kafka message key is a duplicate)
-[//]: # (2. If **isDupeEvent == True**:)
-[//]: # (    1. Do nothing &#40;skip processing the event&#41;)
-[//]: # (3. If **isDupeEvent == False**:)
-[//]: # (    1. Write the event to SQL)
-[//]: # (    2. Update the Redis DB to add the event's key, so that we can skip this event from being processed if we ever see an event with the same key again.)
-[//]: # ()
-[//]: # (### Testing)
-[//]: # (TODO?)
-[//]: # ()
-[//]: # (<br>)
-
 ### Task 1
 In `application.yml`, create a new property for our hit counter db.
 
@@ -834,6 +815,53 @@ twitch-chat-hit-counter:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
     ```
+
+
+### Task 2: Setup db2 Redis @Beans
+> [!TIP]
+>
+> Read through [Multiple Redis Connections in Spring Boot <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://medium.com/@raphael3213/multiple-redis-connections-in-spring-boot-37f632e8e64f)
+
+This is very similar to our initial setup for `DB0` and `DB1` in `RedisConfig.java`.
+
+### Part 1
+In `RedisConfig.java`, update `public Map<Integer, RedisTemplate<String, String>> redisTemplateFactory()`.
+
+**Example:**
+```
+    0: RedisTemplate (object that will operate on DB0),
+    1: RedisTemplate (object that will operate on DB1),
+    ...,
+    N: RedisTemplate (object that will operate on DBN),
+```
+
+**Requirements:**
+1. Inject the properties from `application.yml`: `twitch-chat-hit-counter-database`
+2. Update the list of indexes to include `2` (should be `List.of(0, 1, 2)`)
+
+### Part 2
+In `RedisConfig.java`, implement
+```java
+@Bean
+@Qualifier("twitchChatHitCounterRedisDao")
+public RedisDao twitchChatHitCounterRedisDao() {}
+```
+
+This RedisDao will be **dedicated** to handling operations on `DB2`.
+
+**Requirements:**
+1. Inject the `redisTemplateFactory` we just implemented in the previous task
+2. Inject the `twitch-chat-hit-counter-database` index
+3. Create a new `RedisDao` with the correct `RedisTemplate` from the factory
+
+### Testing
+- [ ] Open `RedisConfigTest.java` ─ already implemented
+- [ ] Remove `@Disabled` in `RedisConfigTest.java` for method(s): `twitchChatHitCounterRedisDaoTest()`
+- [ ] Test with:
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
+    ```
+
 
 <br>
 

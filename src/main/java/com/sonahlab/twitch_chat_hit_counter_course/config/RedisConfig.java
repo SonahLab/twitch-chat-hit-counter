@@ -37,8 +37,8 @@ public class RedisConfig {
     }
 
     @Bean
-    @Qualifier("greetingRedisDao")
-    public RedisDao greetingRedisDao() {
+    @Qualifier("greetingFeedRedisDao")
+    public RedisDao greetingFeedRedisDao() {
         /**
          * TODO: Implement as part of Module 4
          * */

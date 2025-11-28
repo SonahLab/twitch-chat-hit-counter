@@ -112,13 +112,43 @@ twitch-chat-hit-counter:
 
 #
 
-## Exercise 2: Configure Redis
-In `RedisConfig.java`, implement `public RedisDao chatBotChannelsRedisDao()`.
+
+## Task 2: Setup db3 Redis @Beans
+> [!TIP]
+>
+> Read through [Multiple Redis Connections in Spring Boot <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://medium.com/@raphael3213/multiple-redis-connections-in-spring-boot-37f632e8e64f)
+
+This is very similar to our initial setup for `DB0`, `DB1`, and `DB2` in `RedisConfig.java`.
+
+### Part 1
+In `RedisConfig.java`, update `public Map<Integer, RedisTemplate<String, String>> redisTemplateFactory()`.
+
+**Example:**
+```
+    0: RedisTemplate (object that will operate on DB0),
+    1: RedisTemplate (object that will operate on DB1),
+    ...,
+    N: RedisTemplate (object that will operate on DBN),
+```
 
 **Requirements:**
-1. Update `public Map<Integer, RedisTemplate<String, String>> redisTemplateFactory()` to hold a new mapping from
-   `{3: RedisTemplate}` dedicated for operations onto our new `db3`.
-2. Update `chatBotChannelsRedisDao()` to return the correct `RedisTemplate` from the factory map
+1. Inject the properties from `application.yml`: `chatbot-channels-database`
+2. Update the list of indexes to include `3` (should be `List.of(0, 1, 2, 3)`)
+
+### Part 2
+In `RedisConfig.java`, implement
+```java
+@Bean
+@Qualifier("chatBotChannelsRedisDao")
+public RedisDao chatBotChannelsRedisDao() {}
+```
+
+This RedisDao will be **dedicated** to handling operations on `DB2`.
+
+**Requirements:**
+1. Inject the `redisTemplateFactory` we just implemented in the previous task
+2. Inject the `chatbot-channels-database` index
+3. Create a new `RedisDao` with the correct `RedisTemplate` from the factory
 
 ### Testing
 - [ ] Open `RedisConfigTest.java` ─ already implemented

@@ -483,76 +483,98 @@ Return the Set\<String> stored at the key.
 
 #
 
-### Task 4: Hash Operations
-### Implement [HASH <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/develop/data-types/hashes/)
-# TODO
-In `RedisDao.java`, implement `public Map<String, String> scanKeys(String prefix)`.<br>
-Return a Map\<String, String> for all keys matching a key prefix.
+### Task 4: [Hash <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/develop/data-types/hashes/) Operations
 
-**Description**: Returns all keys matching pattern.<br>
-**Library API Call**: RedisTemplate.[keys(pattern) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/RedisTemplate.html#keys(K))
+### Implement [HINCRBY <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/hincrby/)
+In `RedisDao.java`, implement `public Long hashIncrBy(String key, String field, long delta)`.<br>
+Return a Long for the updated value at key,field.
+
+**Description**: Increments the number stored at field in the hash stored at key by increment. If key does not exist, a new key holding a hash is created. If field does not exist the value is set to 0 before the operation is performed.<br>
+**Library API Call**: RedisTemplate.[opsForHash().increment(key, hashKey, delta) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/HashOperations.html#increment(H,HK,long))
 
 ### Example 1:
 > **Input**:<br>
 > ```java
 > RedisDao redisDao = new RedisDao(...);
-> redisDao.set("student#Alice#name", "Alice A.");
-> redisDao.set("student#Alice#GPA", 4.00);
-> redisDao.set("student#Alice#coursesTaken", ["CS 101", "CS 102", "CS 103");
-> redisDao.set("teacher#Bob#name", "Bob B.");
-> redisDao.set("teacher#Bob#department", "Computer Science");
+> Long output1 = redisDao.hashIncrBy("Alice", "savingsAccountBalance", 100L);
+> Long output2 = redisDao.hashIncrBy("Alice", "savingsAccountBalance", 100L);
+> Long output3 = redisDao.hashIncrBy("Bob", "savingsAccountBalance", 150L);
+> ```
+> **Output1**: 100<br>
+> **Explanation**: After the HINCRBY operation our redis DB should be:<br>
+> ```json
+> {
+>   "Alice": {
+>     "savingsAccountBalance": 100
+>   }
+> }
+> ```
 > 
-> Map<String, String> output1 = redisDao.scanKeys("student#*");
-> Map<String, String> output2 = redisDao.scanKeys("teacher#*");
-> Map<String, String> output3 = redisDao.scanKeys("*");
-> Map<String, String> output4 = redisDao.scanKeys("nonexistentPrefix#*");
+> **Output2**: 200<br>
+> **Explanation**: After the HINCRBY operation our redis DB should be:<br>
+> ```json
+> {
+>   "Alice": {
+>     "savingsAccountBalance": 200
+>   }
+> }
+> ```
+>
+> **Output3**:150<br>
+> **Explanation**: After the HINCRBY operation our redis DB should be:<br>
+> ```json
+> {
+>   "Alice": {
+>     "savingsAccountBalance": 200
+>   },
+>   "Bob": {
+>     "savingsAccountBalance": 150
+>   }
+> }
+> ```
+
+#
+
+### Implement [HGETALL <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/hgetall/)
+In `RedisDao.java`, implement `public Map<String, String> hashGetAll(String key)`.<br>
+Return a Map<String, String> containing the entire hashmap stored at a given key.
+
+**Description**: Returns all fields and values of the hash stored at key. In the returned value, every field name is followed by its value, so the length of the reply is twice the size of the hash.<br>
+**Library API Call**: RedisTemplate.[opsForHash().entries(key) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/HashOperations.html#entries(H))
+
+### Example 1:
+> **Input**:<br>
+> ```java
+> RedisDao redisDao = new RedisDao(...);
+> redisDao.hashIncrBy("Alice", "savingsAccountBalance", 200L);
+> redisDao.hashIncrBy("Alice", "checkingsAccountBalance", 100L);
+> redisDao.hashIncrBy("Bob", "savingsAccountBalance", 150L);
+> 
+> Map<String, String> output1 = redisDao.hashGetAll("Alice");
+> Map<String, String> output2 = redisDao.hashGetAll("Bob");
 > ```
 > **Output1**:<br>
 > ```json
 > {
->   "student#Alice#name": "Alice A.",
->   "student#Alice#GPA": "4.00",
->   "student#Alice#coursesTaken": "[\"CS 101\", \"CS 102\", \"CS 103\"]"
+>   "checkingsAccountBalance": "100",
+>   "savingsAccountBalance": "200"
 > }
 > ```
-> **Explanation**:<br>
-> The prefix `student#*` does a regex scan on all keys and only returns the KV pairs that have a matching prefix. You'll notice, again, that no matter the value stored in Redis, the return is a String representation of the data type.
-> 
+> **Explanation**: key="Alice" has two hashKeys (fields): "checkingsAccountBalance" and "savingsAccountBalance"<br>
+>
 > **Output2**:<br>
 > ```json
 > {
->   "teacher#Bob#name": "Bob B.",
->   "teacher#Bob#department": "Computer Science"
+>   "savingsAccountBalance": "150"
 > }
 > ```
-> **Explanation**:<br>
-> The prefix `teacher#*` does a regex scan on all keys and only returns the KV pairs that have a matching prefix. You'll notice, again, that no matter the value stored in Redis, the return is a String representation of the data type.
->
-> **Output3**:<br>
-> ```json
-> {
->   "student#Alice#name": "Alice A.",
->   "student#Alice#GPA": "4.00",
->   "student#Alice#coursesTaken": "[\"CS 101\", \"CS 102\", \"CS 103\"]",
->   "teacher#Bob#name": "Bob B.",
->   "teacher#Bob#department": "Computer Science"
-> }
-> ```
-> **Explanation**:<br>
-> The prefix `*` does a regex scan on all keys and only returns the KV pairs that have a matching prefix. The wildcard '*' just means to scan the entire DB, so everything is read out.
-> 
-> **Output4**:<br>
-> ```json
-> {}
-> ```
-> **Explanation**:<br>
-> The prefix `nonexistentPrefix` doesn't exist when pattern matched, so nothing is loaded from Redis.
+> **Explanation**: key="Bob" has one hashKeys (fields): "savingsAccountBalance"<br>
 
 #
 
 ### Testing
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
-- [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `scanKeysTest()`
+- [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `hashGetAllTest()`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -625,7 +647,63 @@ twitch-chat-hit-counter:
 #
 
 ### Task 2: Setup db0 Redis @Beans
-TODO
+> [!TIP]
+>
+> Read through [Multiple Redis Connections in Spring Boot <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://medium.com/@raphael3213/multiple-redis-connections-in-spring-boot-37f632e8e64f)
+
+Because Spring Boot Redis only configures one `RedisTemplate` (limiting aspect of autoconfiguration), you will need to manually configure most of the beans yourself.
+
+### Part 1
+In `RedisConfig.java`, implement `public Map<Integer, RedisTemplate<String, String>> redisTemplateFactory()`. This factory @Bean will setup a mapping between our intended:<br>
+```{
+  dbIndex: RedisTemplate<String, String>
+}
+```
+
+Example:
+```
+    0: RedisTemplate (object that will operate on DB0),
+    1: RedisTemplate (object that will operate on DB1),
+    ...,
+    N: RedisTemplate (object that will operate on DBN),
+```
+
+**Requirements:**
+1. Inject the properties from `application.yml`: host/port and `event-dedupe-database`
+2. For each index (should just be a List<Integer> containing our only database index `0`):
+   1. Create a new `RedisStandaloneConfigure` and set the unique database index on it.
+   2. Create a new `LettuceConnectionFactory` using the `RedisStandaloneConfigure`
+      1. Manually configure `.afterPropertiesSet()`
+      2. Manually configure `.start()`
+   3. Create a new `RedisTemplate<String, String>`:
+      1. Set `.setConnectionFactory(lettuceConnectionFactory)`
+      2. Set `.setKeySerializer(new StringRedisSerializer())`
+      3. Set `.setValueSerializer(new StringRedisSerializer())`
+      4. Manually configure `.afterPropertiesSet()`
+   4. Add the mapping for the {databaseIndex: RedisTemplate} in the factory `Map<Integer, RedisTemplate<String, String>>`
+
+### Part 2
+In `RedisConfig.java`, implement
+```java
+@Bean
+@Qualifier("eventDedupeRedisDao")
+public RedisDao eventDedupeRedisDao() {}
+```
+
+This RedisDao will be **dedicated** to handling operations on `DB0`.
+
+**Requirements:**
+1. Inject the `redisTemplateFactory` we just implemented in the previous task
+2. Inject the `event-dedupe-database` index
+3. Create a new `RedisDao` with the correct `RedisTemplate` from the factory
+
+### Testing
+- [ ] Open `RedisConfigTest.java` ─ already implemented
+- [ ] Remove `@Disabled` in `RedisConfigTest.java` for method(s): `eventDedupeRedisDaoTest()`
+- [ ] Test with:
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
+    ```
 
 <br>
 
@@ -809,7 +887,51 @@ twitch-chat-hit-counter:
 #
 
 ### Task 2: Setup db1 Redis @Beans
-TODO
+> [!TIP]
+>
+> Read through [Multiple Redis Connections in Spring Boot <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://medium.com/@raphael3213/multiple-redis-connections-in-spring-boot-37f632e8e64f)
+
+This is very similar to our initial setup for `DB0` in `RedisConfig.java`. After implementing the support needed for `DB1`, you should the benefits of why I've set up the `redisTemplateFactory` the way I did.
+It becomes very easy to add and remove database indexes without requiring a lot of verbose, duplicate code as the original Medium article above shows. 
+
+### Part 1
+In `RedisConfig.java`, update `public Map<Integer, RedisTemplate<String, String>> redisTemplateFactory()`.
+
+**Example:**
+```
+    0: RedisTemplate (object that will operate on DB0),
+    1: RedisTemplate (object that will operate on DB1),
+    ...,
+    N: RedisTemplate (object that will operate on DBN),
+```
+
+**Requirements:**
+1. Inject the properties from `application.yml`: `greeting-feed-database`
+2. Update the list of indexes to include `1` (should be `List.of(0, 1)`)
+
+### Part 2
+In `RedisConfig.java`, implement
+```java
+@Bean
+@Qualifier("greetingFeedRedisDao")
+public RedisDao greetingFeedRedisDao() {}
+```
+
+This RedisDao will be **dedicated** to handling operations on `DB1`.
+
+**Requirements:**
+1. Inject the `redisTemplateFactory` we just implemented in the previous task
+2. Inject the `greeting-feed-database` index
+3. Create a new `RedisDao` with the correct `RedisTemplate` from the factory
+
+### Testing
+- [ ] Open `RedisConfigTest.java` ─ already implemented
+- [ ] Remove `@Disabled` in `RedisConfigTest.java` for method(s): `greetingFeedRedisDaoTest()`
+- [ ] Test with:
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
+    ```
+
 
 <br>
 

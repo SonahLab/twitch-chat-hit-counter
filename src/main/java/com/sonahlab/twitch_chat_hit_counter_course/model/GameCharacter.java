@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 /**
- * Data Model to represent a simple GameCharacter object to be used in Module 1, Exercise 2.
+ * DTO to represent a simple GameCharacter object to be used in Module 1, Exercise 2.
  *
  * This class will handle any state changes for the underlying HP, MP, and inventory fields.
  * */
@@ -69,10 +69,10 @@ public class GameCharacter {
     public void setHp(int hp) {}
 
     /**
-     * Sets the player's MP (Mana Points) to the specified value, with bounds checking.
+     * <p>Sets the player's MP (Mana Points) to the specified value, with bounds checking.</p>
      *
-     * The MP value must be between 0 and 100 (inclusive). If the input
-     * is outside this range, the operation is ignored and the current MP remains unchanged.
+     * The MP value must be between 0 and 100 (inclusive).<br>
+     * If the input is outside this range, the operation is ignored and the current MP remains unchanged.
      *
      * @param mp the new MP value to set (must be in range [0, 100])
      */

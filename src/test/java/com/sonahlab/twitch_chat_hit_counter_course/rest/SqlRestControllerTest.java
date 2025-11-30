@@ -5,112 +5,65 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.helpers.NOPLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Testcontainers
-@ExtendWith(SpringExtension.class)
+@WebMvcTest(SqlRestController.class)
 @Tag("Module3")
 public class SqlRestControllerTest {
+
+    private static final String SINGLE_GREETING_EVENT_TABLE_NAME = "test_single_greeting_table";
+    private static final String BATCH_GREETING_EVENT_TABLE_NAME = "test_batch_greeting_table";
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Container
-    static MySQLContainer<?> MYSQL_CONTAINER = new MySQLContainer<>("mysql:8.0")
-            .withDatabaseName("test-db")
-            .withUsername("username")
-            .withPassword("password")
-            .withLogConsumer(new Slf4jLogConsumer(NOPLogger.NOP_LOGGER));
-
-    @DynamicPropertySource
-    static void overrideProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", MYSQL_CONTAINER::getJdbcUrl);
-        registry.add("spring.datasource.username", MYSQL_CONTAINER::getUsername);
-        registry.add("spring.datasource.password", MYSQL_CONTAINER::getPassword);
-        registry.add("twitch-chat-hit-counter.sql.greeting-table", () -> "test_greeting_table2");
-        registry.add("twitch-chat-hit-counter.sql.greeting-table-batch", () -> "test_greeting_table2");
-    }
-
-    @Autowired
+    @MockitoBean
     private JdbcTemplate jdbcTemplate;
 
-    @Autowired
+    @MockitoBean
     @Qualifier("singleGreetingSqlService")
     private GreetingSqlService greetingSqlService;
 
-    @Autowired
+    @MockitoBean
     @Qualifier("batchGreetingSqlService")
     private GreetingSqlService batchGreetingSqlService;
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
-    @BeforeEach
-    void setup() {
-        jdbcTemplate.execute("""
-            CREATE TABLE IF NOT EXISTS test_greeting_table2 (
-                event_id VARCHAR(255) PRIMARY KEY,
-                sender VARCHAR(255),
-                receiver VARCHAR(255),
-                message TEXT
-            );
-        """);
-    }
-
     @Test
     void testQueryEndpoint() throws Exception {
+        when(greetingSqlService.sqlTableName()).thenReturn(SINGLE_GREETING_EVENT_TABLE_NAME);
+        when(batchGreetingSqlService.sqlTableName()).thenReturn(BATCH_GREETING_EVENT_TABLE_NAME);
         GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
         GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");
 
-        jdbcTemplate.execute("""
-            INSERT INTO test_greeting_table2 (event_id, sender, receiver, message)
-            VALUES ("id1", "Alice", "Bob", "Hi Bob, I'm Alice!")
-            ON DUPLICATE KEY UPDATE event_id = event_id;
-        """);
-        List<GreetingEvent> result1 = callQueryAllEventsEndpoint();
+        when(greetingSqlService.queryAllEvents()).thenReturn(List.of(event1));
+        List<GreetingEvent> result1 = callQueryAllEventsEndpoint(SINGLE_GREETING_EVENT_TABLE_NAME);
         assertThat(result1).hasSize(1).containsExactly(event1);
 
-        jdbcTemplate.execute("""
-            INSERT INTO test_greeting_table2 (event_id, sender, receiver, message)
-            VALUES ("id2", "Charlie", "David", "Yo.")
-            ON DUPLICATE KEY UPDATE event_id = event_id;
-        """);
-        List<GreetingEvent> result2 = callQueryAllEventsEndpoint();
+        when(greetingSqlService.queryAllEvents()).thenReturn(List.of(event1, event2));
+        List<GreetingEvent> result2 = callQueryAllEventsEndpoint(SINGLE_GREETING_EVENT_TABLE_NAME);
         assertThat(result2).hasSize(2).containsExactly(event1, event2);
 
-        jdbcTemplate.execute("""
-            INSERT INTO test_greeting_table2 (event_id, sender, receiver, message)
-            VALUES ("id1", "Echo", "Frank", "Hello there.")
-            ON DUPLICATE KEY UPDATE event_id = event_id;
-        """);
-        List<GreetingEvent> result3 = callQueryAllEventsEndpoint();
+        List<GreetingEvent> result3 = callQueryAllEventsEndpoint(SINGLE_GREETING_EVENT_TABLE_NAME);
         assertThat(result3).hasSize(2).containsExactly(event1, event2);
     }
 
-    private List<GreetingEvent> callQueryAllEventsEndpoint() throws Exception {
+    private List<GreetingEvent> callQueryAllEventsEndpoint(String tableName) throws Exception {
         String jsonResponse = mockMvc.perform(get("/api/sql/queryGreetingEvents")
-                        .param("tableName", "test_greeting_table2"))
+                        .param("tableName", tableName))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()

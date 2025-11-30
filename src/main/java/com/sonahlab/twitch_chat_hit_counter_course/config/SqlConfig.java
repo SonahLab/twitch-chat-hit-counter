@@ -1,6 +1,7 @@
 package com.sonahlab.twitch_chat_hit_counter_course.config;
 
 import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +19,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public class SqlConfig {
     // TODO: Add Sql configs here
     @Bean
+    @Qualifier("singleGreetingSqlService")
     public GreetingSqlService singleGreetingSqlService(
             JdbcTemplate jdbcTemplate,
             @Value("${twitch-chat-hit-counter.sql.greeting-table}") String greetingEventsTableName) {
@@ -25,6 +27,7 @@ public class SqlConfig {
     }
 
     @Bean
+    @Qualifier("batchGreetingSqlService")
     public GreetingSqlService batchGreetingSqlService(
             JdbcTemplate jdbcTemplate,
             @Value("${twitch-chat-hit-counter.sql.greeting-table-batch}") String batchGreetingEventsTableName) {

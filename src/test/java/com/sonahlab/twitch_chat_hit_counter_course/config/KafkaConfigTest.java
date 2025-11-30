@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.autoconfigure.kafka.ConcurrentKafkaListenerContainerFactoryConfigurer;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,7 +28,12 @@ import java.util.Map;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest(classes = {
+        KafkaAutoConfiguration.class,
+        KafkaConfig.class,
+        JacksonAutoConfiguration.class
+})
+@Tag("Module2")
 public class KafkaConfigTest {
 
     @Autowired
@@ -54,7 +60,6 @@ public class KafkaConfigTest {
      * public KafkaTemplate<?, ?> kafkaTemplate(...) {}
      * */
     @Test
-    @Tag("Module2")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 1, Task 2.
     @Disabled
     public void kafkaTemplate_beanTest() {
@@ -72,7 +77,6 @@ public class KafkaConfigTest {
     }
 
     @Test
-    @Tag("Module2")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 2, Task 1.
     @Disabled
     /**
@@ -112,7 +116,6 @@ public class KafkaConfigTest {
     }
 
     @Test
-    @Tag("Module2")
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2 Exercise 3, Task 1.
     @Disabled
     /**

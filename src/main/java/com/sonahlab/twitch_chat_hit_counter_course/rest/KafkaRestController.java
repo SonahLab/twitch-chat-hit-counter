@@ -40,7 +40,10 @@ public class KafkaRestController {
      */
     @PostMapping("/publishGreetingEvent")
     @Operation(summary = "Publish Kafka Event", description = "Publish a GreetingEvent")
-    public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestParam String receiver, @RequestParam String message) {
+    public Boolean produceKafkaGreetingEvent(
+            @RequestParam(name = "sender") String sender,
+            @RequestParam(name = "receiver") String receiver,
+            @RequestParam(name = "message") String message) {
         /**
          * TODO: Implement as part of Module 2
          * */

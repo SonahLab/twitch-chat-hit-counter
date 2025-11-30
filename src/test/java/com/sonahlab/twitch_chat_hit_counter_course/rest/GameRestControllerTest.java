@@ -17,10 +17,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(GameRestController.class)
-@AutoConfigureMockMvc
+@Tag("Module1")
 // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 1.
 @Disabled
-@Tag("Module1")
 public class GameRestControllerTest {
 
     @Autowired

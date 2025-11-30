@@ -1,6 +1,7 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.producer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sonahlab.twitch_chat_hit_counter_course.config.KafkaConfig;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -14,6 +15,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
@@ -34,7 +37,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * https://www.baeldung.com/spring-boot-kafka-testing
  * */
-@SpringBootTest
+@SpringBootTest(classes = {
+        KafkaAutoConfiguration.class,
+        KafkaConfig.class,
+        JacksonAutoConfiguration.class,
+        GreetingEventProducer.class
+})
 @EmbeddedKafka(partitions = 1, topics = { "test_producer_topic" }, brokerProperties = {
         "listeners=PLAINTEXT://localhost:0", "port=0"
 })

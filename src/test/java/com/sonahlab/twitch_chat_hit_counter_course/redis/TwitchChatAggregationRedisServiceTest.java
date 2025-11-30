@@ -19,12 +19,12 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataRedisTest
-@Import({RedisConfig.class, TwitchChatRedisService.class})
+@Import({RedisConfig.class, TwitchChatAggregationRedisService.class})
 @Testcontainers
 @Tag("Module5")
 // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
 @Disabled
-public class TwitchChatRedisServiceTest {
+public class TwitchChatAggregationRedisServiceTest {
 
     @Container
     private static final RedisContainer REDIS_CONTAINER = new RedisContainer("redis:7.0");
@@ -40,7 +40,7 @@ public class TwitchChatRedisServiceTest {
     private RedisTemplate<String, String> redisTemplate;
 
     @Autowired
-    private TwitchChatRedisService twitchChatRedisService;
+    private TwitchChatAggregationRedisService twitchChatAggregationRedisService;
 
     @BeforeAll
     static void startContainer() {
@@ -61,9 +61,9 @@ public class TwitchChatRedisServiceTest {
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
     @Disabled
     void incrementMinuteHitCounterTest() {
-        Long output1 = twitchChatRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", 0L);
-        Long output2 = twitchChatRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", 500L);
-        Long output3 = twitchChatRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "shroud", 61234L);
+        Long output1 = twitchChatAggregationRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", 0L);
+        Long output2 = twitchChatAggregationRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", 500L);
+        Long output3 = twitchChatAggregationRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "shroud", 61234L);
 
         assertEquals(1, output1);
         assertEquals(2, output2);
@@ -79,22 +79,22 @@ public class TwitchChatRedisServiceTest {
         long eventTs3 = 1767254545000L; // Thu Jan 01 2026 08:02:25 GMT+0000
         long eventTs4 = 1767340800000L; // Fri Jan 02 2026 00:00:00 GMT+0000
 
-        twitchChatRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs1);
-        twitchChatRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs2);
-        twitchChatRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs3);
-        twitchChatRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs4);
+        twitchChatAggregationRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs1);
+        twitchChatAggregationRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs2);
+        twitchChatAggregationRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs3);
+        twitchChatAggregationRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs4);
 
-        twitchChatRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "shroud", eventTs1);
+        twitchChatAggregationRedisService.incrementMinuteHitCounter(Granularity.MINUTE, "shroud", eventTs1);
 
-        Map<String, Long> output1 = twitchChatRedisService.getHitCounts(
+        Map<String, Long> output1 = twitchChatAggregationRedisService.getHitCounts(
                 Granularity.MINUTE,
                 "s0mcs",
                 20260101);
-        Map<String, Long> output2 = twitchChatRedisService.getHitCounts(
+        Map<String, Long> output2 = twitchChatAggregationRedisService.getHitCounts(
                 Granularity.MINUTE,
                 "s0mcs",
                 20260102);
-        Map<String, Long> output3 = twitchChatRedisService.getHitCounts(
+        Map<String, Long> output3 = twitchChatAggregationRedisService.getHitCounts(
                 Granularity.MINUTE,
                 "shroud",
                 20260101);

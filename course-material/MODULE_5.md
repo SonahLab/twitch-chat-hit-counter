@@ -56,7 +56,7 @@ For `Module 5`, the below file structure are all the relevant files needed.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/class.svg" align="center"/> EventDeduperRedisService.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="assets/common/class.svg" align="center"/> TwitchChatRedisService.java<br>
+<img src="assets/common/class.svg" align="center"/> TwitchChatAggregationRedisService.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/package.svg" align="center"/> rest/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -104,7 +104,7 @@ For `Module 5`, the below file structure are all the relevant files needed.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/package.svg" align="center"/> redis/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="assets/common/testClass_newui.svg" align="center"/> TwitchChatRedisServiceTest.java<br>
+<img src="assets/common/testClass_newui.svg" align="center"/> TwitchChatAggregationRedisServiceTest.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/package.svg" align="center"/> sql/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -903,13 +903,13 @@ In `RedisConfig.java`, implement `public RedisDao twitchChatHitCounterRedisDao()
 
 #
 
-### Task 3: TwitchChatRedisService
+### Task 3: TwitchChatAggregationRedisService
 ![](assets/module5/images/RedisAggOverview.svg)<br>
 
 ![](assets/module5/images/minutely_aggregation.png)<br>
 
 #### Part 3.1:
-In `TwitchChatRedisService.java`, implement `public Long incrementMinuteHitCounter(Granularity granularity, String channelName, long eventTimestampMs)`.
+In `TwitchChatAggregationRedisService.java`, implement `public Long incrementMinuteHitCounter(Granularity granularity, String channelName, long eventTimestampMs)`.
 
 Return the updated count value after we increment the key.
 
@@ -925,7 +925,7 @@ Return the updated count value after we increment the key.
 > **Input**:<br>
 > ```java
 > RedisDao redisDao = new RedisDao(...);
-> TwitchChatRedisService service = new TwitchChatRedisService(redisDao);
+> TwitchChatAggregationRedisService service = new TwitchChatAggregationRedisService(redisDao);
 > 
 > long eventTs1 = 1767254439000; // Thu Jan 01 2026 08:00:39 GMT+0000
 > long eventTs2 = 1767254445000; // Thu Jan 01 2026 08:00:45 GMT+0000
@@ -954,8 +954,8 @@ Return the updated count value after we increment the key.
 > ```
 
 ### Testing
-- [ ] Open `TwitchChatRedisServiceTest.java` ─ already implemented with the example(s) above
-- [ ] Remove `@Disabled` in `TwitchChatRedisServiceTest.java` for method(s): `incrementMinuteHitCounterTest()`
+- [ ] Open `TwitchChatAggregationRedisServiceTest.java` ─ already implemented with the example(s) above
+- [ ] Remove `@Disabled` in `TwitchChatAggregationRedisServiceTest.java` for method(s): `incrementMinuteHitCounterTest()`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
@@ -964,7 +964,7 @@ Return the updated count value after we increment the key.
 #
 
 #### Part 3.2:
-In `TwitchChatRedisService.java`, implement `public Map<String, Long> getHitCounts(Granularity granularity, String channelName, long startTimestampMillis, long endTimestampMillis)`.
+In `TwitchChatAggregationRedisService.java`, implement `public Map<String, Long> getHitCounts(Granularity granularity, String channelName, long startTimestampMillis, long endTimestampMillis)`.
 
 Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified channelName.
 
@@ -978,7 +978,7 @@ Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified
 > **Input**:<br>
 > ```java
 > RedisDao redisDao = new RedisDao(...);
-> TwitchChatRedisService service = new TwitchChatRedisService(redisDao);
+> TwitchChatAggregationRedisService service = new TwitchChatAggregationRedisService(redisDao);
 > 
 > long eventTs1 = 1767254439000; // Thu Jan 01 2026 08:00:39 GMT+0000
 > long eventTs2 = 1767254445000; // Thu Jan 01 2026 08:00:45 GMT+0000
@@ -1020,8 +1020,8 @@ Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified
 > We want to simplify the output to a flattened map of KV pairs `{"channelName#minuteTs", hitCounts}`
 
 ### Testing
-- [ ] Open `TwitchChatRedisServiceTest.java` ─ already implemented with the example(s) above
-- [ ] Remove `@Disabled` in `TwitchChatRedisServiceTest.java` for method(s): `getHitCountsTest()`
+- [ ] Open `TwitchChatAggregationRedisServiceTest.java` ─ already implemented with the example(s) above
+- [ ] Remove `@Disabled` in `TwitchChatAggregationRedisServiceTest.java` for method(s): `getHitCountsTest()`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
@@ -1031,11 +1031,11 @@ Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified
 
 #
 
-### Task 4: Hook up `TwitchChatEventConsumer` to the `TwitchChatRedisService`
+### Task 4: Hook up `TwitchChatEventConsumer` to the `TwitchChatAggregationRedisService`
 In `TwitchChatEventConsumer.java`, update `coreLogic()` to now increment the hit count for the channel.
 
 **Requirements:**
-1. Inject the `TwitchChatRedisService` into the constructor of the `TwitchChatEventConsumer`
+1. Inject the `TwitchChatAggregationRedisService` into the constructor of the `TwitchChatEventConsumer`
 2. Increment the hit count in redis by calling the method we defined earlier
 
 **Consumer process flow should now be:**
@@ -1057,7 +1057,7 @@ In `TwitchChatEventConsumer.java`, update `coreLogic()` to now increment the hit
   → `TwitchChatEventProducer` (Kafka Producer)<br>
   → `TwitchChatEventConsumer`(Kafka Consumer)<br>
   → `TwitchChatSqlService`(SQL Writer)
-  → `TwitchChatRedisService`(Redis Hit Counter Writer)
+  → `TwitchChatAggregationRedisService`(Redis Hit Counter Writer)
 - [ ] In [**Redis UI**](TODO), go to `db2`
 - [ ] Verify that the hit counters for the twitch channels you're connected to are updating
 - [ ] Periodically refresh to see the real-time hit counts increase with the twitch chat messages

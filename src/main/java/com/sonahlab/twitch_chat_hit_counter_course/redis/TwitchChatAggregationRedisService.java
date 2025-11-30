@@ -11,12 +11,12 @@ import java.util.Map;
  * Service for storing TwitchChatEvents using a Redis DB named 'twitch-chat-hit-counter-database' (that we will create).
  * */
 @Service
-public class TwitchChatRedisService {
+public class TwitchChatAggregationRedisService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TwitchChatRedisService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TwitchChatAggregationRedisService.class);
 
     // Constructor
-    public TwitchChatRedisService() {
+    public TwitchChatAggregationRedisService() {
         /**
          * TODO: Implement as part of Module 5
          * */

@@ -7,11 +7,11 @@ import org.springframework.stereotype.Service;
 import java.util.Set;
 
 @Service
-public class TwitchChannelRedisService {
+public class ChatBotChannelsRedisService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TwitchChannelRedisService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChatBotChannelsRedisService.class);
 
-    public TwitchChannelRedisService() {
+    public ChatBotChannelsRedisService() {
         /**
          * TODO: Implement as part of Module 6
          * */

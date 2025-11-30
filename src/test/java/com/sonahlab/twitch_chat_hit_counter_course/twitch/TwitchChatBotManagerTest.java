@@ -4,7 +4,7 @@ import com.github.philippheuer.events4j.core.EventManager;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import com.sonahlab.twitch_chat_hit_counter_course.redis.TwitchChannelRedisService;
+import com.sonahlab.twitch_chat_hit_counter_course.redis.ChatBotChannelsRedisService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
@@ -33,7 +33,7 @@ public class TwitchChatBotManagerTest {
     private TwitchChat mockTwitchChat;
 
     @Mock
-    private TwitchChannelRedisService mockRedisService;
+    private ChatBotChannelsRedisService mockRedisService;
 
     @Mock
     private EventManager mockEventManager;

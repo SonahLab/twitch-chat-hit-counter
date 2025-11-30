@@ -36,9 +36,9 @@ For `Module 6`, the below file structure are all the relevant files needed.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/class.svg" align="center"/> RedisDao.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="assets/common/class.svg" align="center"/> TwitchChatRedisService.java<br>
+<img src="assets/common/class.svg" align="center"/> TwitchChatAggregationRedisService.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="assets/common/class.svg" align="center"/> TwitchChannelRedisService.java<br>
+<img src="assets/common/class.svg" align="center"/> ChatBotChannelsRedisService.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/package.svg" align="center"/> rest/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -66,9 +66,9 @@ For `Module 6`, the below file structure are all the relevant files needed.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/package.svg" align="center"/> redis/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="assets/common/testClass_newui.svg" align="center"/> TwitchChatRedisServiceTest.java<br>
+<img src="assets/common/testClass_newui.svg" align="center"/> TwitchChatAggregationRedisServiceTest.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="assets/common/testClass_newui.svg" align="center"/> TwitchChannelRedisServiceTest.java<br>
+<img src="assets/common/testClass_newui.svg" align="center"/> ChatBotChannelsRedisServiceTest.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/package.svg" align="center"/> twitch/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -160,15 +160,15 @@ This RedisDao will be **dedicated** to handling operations on `DB2`.
 
 #
 
-## Exercise 3: TwitchChannelRedisService
+## Exercise 3: ChatBotChannelsRedisService
 ### Task 1
-In `TwitchChannelRedisService`, implement the constructor `public TwitchChannelRedisService()`.
+In `ChatBotChannelsRedisService`, implement the constructor `public ChatBotChannelsRedisService()`.
 
 **Requirements:**
 1. Inject the correct RedisDao
 
 ### Task 2
-In `TwitchChannelRedisService`, implement `public Set<String> getJoinedChannels(String username)`.
+In `ChatBotChannelsRedisService`, implement `public Set<String> getJoinedChannels(String username)`.
 
 Return the Set of channel names our ChatBot is connected to.
 
@@ -181,7 +181,7 @@ Return the Set of channel names our ChatBot is connected to.
 ### Example 1:
 > **Input**:<br>
 > ```java
-> TwitchChannelRedisService service = new TwitchChannelRedisService(...);
+> ChatBotChannelsRedisService service = new ChatBotChannelsRedisService(...);
 > 
 > // Assume our Redis DB3 looks like this:
 > // {
@@ -199,7 +199,7 @@ Return the Set of channel names our ChatBot is connected to.
 ### Example 2:
 > **Input**:<br>
 > ```java
-> TwitchChannelRedisService service = new TwitchChannelRedisService(...);
+> ChatBotChannelsRedisService service = new ChatBotChannelsRedisService(...);
 >
 > Set<String> output = service.getJoinedChannels("NonExistentUser");
 > ```
@@ -211,8 +211,8 @@ Return the Set of channel names our ChatBot is connected to.
 
 
 ### Testing
-- [ ] Open `TwitchChannelRedisServiceTest.java` ─ already implemented test cases with the example(s) above.
-- [ ] Remove `@Disabled` in `TwitchChannelRedisServiceTest.java` for method(s): `getJoinedChannelsTest()`
+- [ ] Open `ChatBotChannelsRedisServiceTest.java` ─ already implemented test cases with the example(s) above.
+- [ ] Remove `@Disabled` in `ChatBotChannelsRedisServiceTest.java` for method(s): `getJoinedChannelsTest()`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module6
@@ -220,7 +220,7 @@ Return the Set of channel names our ChatBot is connected to.
 
 
 ### Task 3
-In `TwitchChannelRedisService`, implement `public Long addChannels(String username, String... channelNames)`.
+In `ChatBotChannelsRedisService`, implement `public Long addChannels(String username, String... channelNames)`.
 
 Return the Long length of the channels Set after you've attempted to add the `channelNames`.
 
@@ -230,7 +230,7 @@ Return the Long length of the channels Set after you've attempted to add the `ch
 ### Example 1:
 > **Input**:<br>
 > ```java
-> TwitchChannelRedisService service = new TwitchChannelRedisService(...);
+> ChatBotChannelsRedisService service = new ChatBotChannelsRedisService(...);
 >
 > Long output1 = service.addChannels("Alice", "s0mcs", "shroud");
 > Long output2 = service.addChannels("Alice", "s0mcs");
@@ -244,8 +244,8 @@ Return the Long length of the channels Set after you've attempted to add the `ch
 > Since the channel "s0mcs" already exists in the Set value object, nothing gets added to the Set
 
 ### Testing
-- [ ] Open `TwitchChannelRedisServiceTest.java` ─ already implemented test cases with the example(s) above.
-- [ ] Remove `@Disabled` in `TwitchChannelRedisServiceTest.java` for method(s): `addChannelsTest()`
+- [ ] Open `ChatBotChannelsRedisServiceTest.java` ─ already implemented test cases with the example(s) above.
+- [ ] Remove `@Disabled` in `ChatBotChannelsRedisServiceTest.java` for method(s): `addChannelsTest()`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module6
@@ -253,7 +253,7 @@ Return the Long length of the channels Set after you've attempted to add the `ch
 
 
 ### Task 3
-In `TwitchChannelRedisService`, implement `public Long removeChannels(String username, String... channelNames)`.
+In `ChatBotChannelsRedisService`, implement `public Long removeChannels(String username, String... channelNames)`.
 
 Return the Long length of the channels Set after you've attempted to remove the `channelNames`.
 
@@ -262,7 +262,7 @@ Return the Long length of the channels Set after you've attempted to remove the 
 ### Example 1:
 > **Input**:<br>
 > ```java
-> TwitchChannelRedisService service = new TwitchChannelRedisService(...);
+> ChatBotChannelsRedisService service = new ChatBotChannelsRedisService(...);
 >
 > service.addChannels("Alice", "s0mcs", "shroud");
 > Long output = service.removeChannels("Alice", "shroud", "nonexistentChannelName");
@@ -276,7 +276,7 @@ Return the Long length of the channels Set after you've attempted to remove the 
 ### Example 1:
 > **Input**:<br>
 > ```java
-> TwitchChannelRedisService service = new TwitchChannelRedisService(...);
+> ChatBotChannelsRedisService service = new ChatBotChannelsRedisService(...);
 >
 > Long output = service.removeChannels("nonexistentUser", "shroud");
 > ```
@@ -285,8 +285,8 @@ Return the Long length of the channels Set after you've attempted to remove the 
 > The key "user#nonexistentUser#channels" doesn't exist in Redis, so attempting to remove any values from a non-existing key just treats the value as an empty Set.
 
 ### Testing
-- [ ] Open `TwitchChannelRedisServiceTest.java` ─ already implemented test cases with the example(s) above.
-- [ ] Remove `@Disabled` in `TwitchChannelRedisServiceTest.java` for method(s): `removeChannelsTest()`
+- [ ] Open `ChatBotChannelsRedisServiceTest.java` ─ already implemented test cases with the example(s) above.
+- [ ] Remove `@Disabled` in `ChatBotChannelsRedisServiceTest.java` for method(s): `removeChannelsTest()`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module6
@@ -297,7 +297,7 @@ Return the Long length of the channels Set after you've attempted to remove the 
 ### Task 1: Update the constructor
 
 **Requirements:**
-1. Inject the TwitchChannelRedisService into `TwitchChatBotManager`
+1. Inject the ChatBotChannelsRedisService into `TwitchChatBotManager`
 
 ### Task 2: Update the joinChannel()
 
@@ -335,14 +335,14 @@ Return a Map<String, User> that maps, for all joined channels, the channelName t
 ### Part 1: Update the constructor
 
 **Requirements:**
-1. Inject the `TwitchChatRedisService`
+1. Inject the `TwitchChatAggregationRedisService`
 2. Inject the `TwitchChatBotManager`
 3. Inject the `TwitchHelixService`
 
 ### Part 2: Implement HTTP request endpoints
 In `TwitchRestController`, implement `@GetMapping("/hitCounter")`.
 
-This should call the helper method in `TwitchChatRedisService`.
+This should call the helper method in `TwitchChatAggregationRedisService`.
 
 #
 

@@ -19,12 +19,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataRedisTest
-@Import({RedisConfig.class, TwitchChannelRedisService.class})
+@Import({RedisConfig.class, ChatBotChannelsRedisService.class})
 @Testcontainers
 @Tag("Module6")
 // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 6.
 @Disabled
-public class TwitchChannelRedisServiceTest {
+public class ChatBotChannelsRedisServiceTest {
 
     @Container
     private static final RedisContainer REDIS_CONTAINER = new RedisContainer("redis:7.0");
@@ -40,7 +40,7 @@ public class TwitchChannelRedisServiceTest {
     private RedisTemplate<String, String> redisTemplate;
 
     @Autowired
-    private TwitchChannelRedisService twitchChannelRedisService;
+    private ChatBotChannelsRedisService chatBotChannelsRedisService;
 
     @BeforeAll
     static void startContainer() {
@@ -64,8 +64,8 @@ public class TwitchChannelRedisServiceTest {
         redisTemplate.opsForSet().add(String.format("user#%s#channels", USERNAME), "s0mcs");
         redisTemplate.opsForSet().add(String.format("user#%s#channels", USERNAME), "shroud");
 
-        Set<String> output1 = twitchChannelRedisService.getJoinedChannels(USERNAME);
-        Set<String> output2 = twitchChannelRedisService.getJoinedChannels("nonexistentUser");
+        Set<String> output1 = chatBotChannelsRedisService.getJoinedChannels(USERNAME);
+        Set<String> output2 = chatBotChannelsRedisService.getJoinedChannels("nonexistentUser");
 
         assertThat(output1).hasSize(2).contains("s0mcs", "shroud");
         assertThat(output2).hasSize(0);
@@ -75,13 +75,13 @@ public class TwitchChannelRedisServiceTest {
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 6.
     @Disabled
     void addChannelsTest() {
-        Long output1 = twitchChannelRedisService.addChannels(USERNAME, "s0mcs", "shroud");
-        Long output2 = twitchChannelRedisService.addChannels(USERNAME, "s0mcs");
+        Long output1 = chatBotChannelsRedisService.addChannels(USERNAME, "s0mcs", "shroud");
+        Long output2 = chatBotChannelsRedisService.addChannels(USERNAME, "s0mcs");
 
         assertEquals(2L, output1.longValue());
         assertEquals(0L, output2.longValue());
-        assertThat(twitchChannelRedisService.getJoinedChannels(USERNAME)).hasSize(2).contains("s0mcs", "shroud");
-        assertThat(twitchChannelRedisService.getJoinedChannels("nonexistentUser")).hasSize(0);
+        assertThat(chatBotChannelsRedisService.getJoinedChannels(USERNAME)).hasSize(2).contains("s0mcs", "shroud");
+        assertThat(chatBotChannelsRedisService.getJoinedChannels("nonexistentUser")).hasSize(0);
     }
 
     @Test
@@ -91,12 +91,12 @@ public class TwitchChannelRedisServiceTest {
         redisTemplate.opsForSet().add(String.format("user#%s#channels", USERNAME), "s0mcs");
         redisTemplate.opsForSet().add(String.format("user#%s#channels", USERNAME), "shroud");
 
-        Long output1 = twitchChannelRedisService.removeChannels(USERNAME, "shroud", "nonexistentChannelName");
-        Long output2 = twitchChannelRedisService.removeChannels("nonexistentUser", "shroud");
+        Long output1 = chatBotChannelsRedisService.removeChannels(USERNAME, "shroud", "nonexistentChannelName");
+        Long output2 = chatBotChannelsRedisService.removeChannels("nonexistentUser", "shroud");
 
         assertEquals(1L, output1.longValue());
         assertEquals(0L, output2.longValue());
-        assertThat(twitchChannelRedisService.getJoinedChannels(USERNAME)).hasSize(1).contains("s0mcs");
-        assertThat(twitchChannelRedisService.getJoinedChannels("nonexistentUser")).hasSize(0);
+        assertThat(chatBotChannelsRedisService.getJoinedChannels(USERNAME)).hasSize(1).contains("s0mcs");
+        assertThat(chatBotChannelsRedisService.getJoinedChannels("nonexistentUser")).hasSize(0);
     }
 }

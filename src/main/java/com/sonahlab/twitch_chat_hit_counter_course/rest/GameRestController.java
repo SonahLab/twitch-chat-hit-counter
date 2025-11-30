@@ -45,7 +45,7 @@ public class GameRestController {
      * @return The updated health points (HP) of the character after taking damage.
      */
     @PutMapping("/takeDamage")
-    public int takeDamage(@RequestParam int damage) {
+    public int takeDamage(@RequestParam(name = "damage") int damage) {
         /**
          * TODO: Implement as part of Module 1 Exercise 2.
          * */
@@ -66,7 +66,7 @@ public class GameRestController {
      *         name is invalid or the potion is not in the inventory.
      */
     @PutMapping("/consumePotion")
-    public int consumePotion(@RequestParam String potionName) {
+    public int consumePotion(@RequestParam(name = "potionName") String potionName) {
         /**
          * TODO: Implement as part of Module 1 Exercise 2.
          * */

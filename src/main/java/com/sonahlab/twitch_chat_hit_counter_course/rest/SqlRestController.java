@@ -40,7 +40,7 @@ public class SqlRestController {
      */
     @GetMapping("/queryGreetingEvents")
     @Operation(summary = "Query all Greeting events from dev_db.{tableName} SQL table", description = "Returns a List<GreetingEvent>")
-    public List<GreetingEvent> getSqlGreetingEvents(@RequestParam String tableName) {
+    public List<GreetingEvent> getSqlGreetingEvents(@RequestParam(name = "tableName") String tableName) {
         /**
          * TODO: Implement as part of Module 3
          * */

@@ -45,7 +45,7 @@ public class RedisRestController {
      */
     @GetMapping("/queryGreetingFeed")
     @Operation(summary = "Query all events from redis db1 for a user's Greeting feed", description = "Returns a List<GreetingEvent> of all incoming greetings")
-    public List<GreetingEvent> getRedisGreetingFeed(@RequestParam(required = false) String name) {
+    public List<GreetingEvent> getRedisGreetingFeed(@RequestParam(name = "name", required = false) String name) {
         /**
          * TODO: Implement as part of Module 4
          * */

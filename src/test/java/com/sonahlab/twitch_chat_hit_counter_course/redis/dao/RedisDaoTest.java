@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.testcontainers.RedisContainer;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -21,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
+@DataRedisTest
 @Testcontainers
 @Tag("Module4")
 // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
@@ -36,6 +38,16 @@ public class RedisDaoTest {
     static void redisProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.data.redis.host", REDIS_CONTAINER::getHost);
         registry.add("spring.data.redis.port", REDIS_CONTAINER::getFirstMappedPort);
+    }
+
+    @TestConfiguration
+    static class RedisDaoTestConfig {
+        @Bean
+        public RedisDao redisDao(RedisTemplate<String, String> redisTemplate) {
+            // TODO: uncomment this line once you're ready to test this your RedisDao implementation.
+            //return new RedisDao(redisTemplate);
+            return null;
+        }
     }
 
     @Autowired

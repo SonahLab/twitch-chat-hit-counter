@@ -12,7 +12,9 @@ import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest(classes = {
+        TwitchConfig.class,
+})
 @Tag("Module5")
 // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5
 @Disabled

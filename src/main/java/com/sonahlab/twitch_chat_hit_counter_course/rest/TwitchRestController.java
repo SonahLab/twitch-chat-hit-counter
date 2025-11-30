@@ -56,7 +56,7 @@ public class TwitchRestController {
     }
 
     @GetMapping("/removeChannel")
-    public boolean removeChannel(@RequestParam String channelName) {
+    public boolean removeChannel(@RequestParam(name = "channelName") String channelName) {
         /**
          * TODO: Implement as part of Module 6
          * */

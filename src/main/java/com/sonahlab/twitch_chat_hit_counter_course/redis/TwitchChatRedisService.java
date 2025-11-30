@@ -29,7 +29,10 @@ public class TwitchChatRedisService {
         return null;
     }
 
-    public Map<String, Long> getHitCounts(Granularity granularity, String channelName, long startTimestampMillis, long endTimestampMillis) {
+    public Map<String, Long> getHitCounts(
+            Granularity granularity,
+            String channelName,
+            int dateInt) {
         /**
          * TODO: Implement as part of Module 5
          * */

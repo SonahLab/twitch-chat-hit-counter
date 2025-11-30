@@ -86,22 +86,28 @@ public class TwitchChatRedisServiceTest {
         Map<String, Long> output1 = twitchChatRedisService.getHitCounts(
                 Granularity.MINUTE,
                 "s0mcs",
-                1767254400000L,  // Thu Jan 01 2026 00:00:00 GMT+0000
-                1767427200000L); // Sat Jan 03 2026 00:00:00 GMT+0000
+                20260101);
         Map<String, Long> output2 = twitchChatRedisService.getHitCounts(
                 Granularity.MINUTE,
+                "s0mcs",
+                20260102);
+        Map<String, Long> output3 = twitchChatRedisService.getHitCounts(
+                Granularity.MINUTE,
                 "shroud",
-                1767254400000L,  // Thu Jan 01 2026 00:00:00 GMT+0000
-                1767427200000L); // Sat Jan 03 2026 00:00:00 GMT+0000
+                20260101);
 
-        Assertions.assertThat(output1).hasSize(3).containsExactlyInAnyOrderEntriesOf(
+        Assertions.assertThat(output1).hasSize(2).containsExactlyInAnyOrderEntriesOf(
                 Map.of(
                         "s0mcs#1767254400000", 2L,
-                        "s0mcs#1767254525000", 1L,
-                        "s0mcs#1767340800000", 1L
+                        "s0mcs#1767254525000", 1L
                 )
         );
         Assertions.assertThat(output2).hasSize(1).containsExactlyInAnyOrderEntriesOf(
+                Map.of(
+                        "s0mcs#1767340800000", 1L
+                )
+        );
+        Assertions.assertThat(output3).hasSize(1).containsExactlyInAnyOrderEntriesOf(
                 Map.of(
                         "shroud#1767254400000", 1L
                 )

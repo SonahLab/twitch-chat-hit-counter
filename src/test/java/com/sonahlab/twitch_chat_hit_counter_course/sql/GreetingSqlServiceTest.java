@@ -1,5 +1,6 @@
 package com.sonahlab.twitch_chat_hit_counter_course.sql;
 
+import com.sonahlab.twitch_chat_hit_counter_course.config.SqlConfig;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -8,7 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -20,7 +23,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@JdbcTest
+@Import({SqlConfig.class})
 @Testcontainers
 @Tag("Module3")
 // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.

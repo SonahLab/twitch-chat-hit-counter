@@ -49,7 +49,9 @@ public class RedisConfig {
 
             template.setConnectionFactory(lettuceConnectionFactory);
             template.setKeySerializer(new StringRedisSerializer());
+            template.setHashKeySerializer(new StringRedisSerializer());
             template.setValueSerializer(new StringRedisSerializer());
+            template.setHashValueSerializer(new StringRedisSerializer());
             template.afterPropertiesSet();
 
             factory.putIfAbsent(databaseIndex, template);

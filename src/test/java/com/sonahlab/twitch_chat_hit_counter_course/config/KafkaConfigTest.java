@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.autoconfigure.kafka.ConcurrentKafkaListenerContainerFactoryConfigurer;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,7 +28,11 @@ import java.util.Map;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest(classes = {
+        KafkaAutoConfiguration.class,
+        KafkaConfig.class,
+        JacksonAutoConfiguration.class
+})
 public class KafkaConfigTest {
 
     @Autowired
@@ -56,6 +61,8 @@ public class KafkaConfigTest {
      * public KafkaTemplate<?, ?> kafkaTemplate(...) {}
      * */
     public void kafkaTemplate_beanTest() {
+        String[] beanNames = context.getBeanDefinitionNames();
+        System.out.println("Total beans in context: " + beanNames.length);
         // Test that the default 'kafkaTemplate' is autoconfigured by Spring as part of Spring Kafka library
         assertTrue(context.containsBean("kafkaTemplate"));
 

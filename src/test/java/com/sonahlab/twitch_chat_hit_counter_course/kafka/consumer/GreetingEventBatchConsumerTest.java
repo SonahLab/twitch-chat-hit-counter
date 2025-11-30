@@ -1,6 +1,7 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sonahlab.twitch_chat_hit_counter_course.config.KafkaConfig;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.Assertions;
@@ -11,6 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
@@ -21,7 +23,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.util.List;
 
-@SpringBootTest
+@SpringBootTest(classes = {
+        KafkaAutoConfiguration.class,
+        KafkaConfig.class,
+        GreetingEventBatchConsumer.class
+})
 @EmbeddedKafka(partitions = 1, topics = {"test_batch_consumer_topic"}, brokerProperties = {"listeners=PLAINTEXT://localhost:9092"})
 @TestPropertySource(properties = {
         "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",

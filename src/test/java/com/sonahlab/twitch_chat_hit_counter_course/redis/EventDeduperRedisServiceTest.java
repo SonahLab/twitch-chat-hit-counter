@@ -1,12 +1,14 @@
 package com.sonahlab.twitch_chat_hit_counter_course.redis;
 
 import com.redis.testcontainers.RedisContainer;
+import com.sonahlab.twitch_chat_hit_counter_course.config.RedisConfig;
 import com.sonahlab.twitch_chat_hit_counter_course.model.EventType;
 import com.sonahlab.twitch_chat_hit_counter_course.redis.dao.RedisDao;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -15,7 +17,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
+@DataRedisTest
+@Import({RedisConfig.class, EventDeduperRedisService.class})
 @Testcontainers
 @Tag("Module4")
 // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.

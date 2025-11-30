@@ -1,10 +1,11 @@
 package com.sonahlab.twitch_chat_hit_counter_course.redis;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.redis.testcontainers.RedisContainer;
+import com.sonahlab.twitch_chat_hit_counter_course.config.RedisConfig;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -17,7 +18,8 @@ import static com.sonahlab.twitch_chat_hit_counter_course.utils.TwitchApiUtils.U
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
+@DataRedisTest
+@Import({RedisConfig.class, TwitchChannelRedisService.class})
 @Testcontainers
 @Tag("Module6")
 // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 6.

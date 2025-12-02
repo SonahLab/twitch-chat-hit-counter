@@ -1,36 +1,35 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sonahlab.twitch_chat_hit_counter_course.kafka.AbstractKafkaIntegrationTest;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
-import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.util.List;
 
-@SpringBootTest
-@EmbeddedKafka(partitions = 1, topics = {"test_consumer_topic"}, brokerProperties = {"listeners=PLAINTEXT://localhost:9092"})
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 @TestPropertySource(properties = {
-        "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
-        "twitch-chat-hit-counter.kafka.greeting-topic=test_consumer_topic",
-        "spring.kafka.consumer.group-id=test-group-id",
-        "logging.level.org.springframework.kafka=warn",
-        "logging.level.org.apache.kafka=warn"
+        "twitch-chat-hit-counter.kafka.greeting-topic=test-topic",
+        "spring.kafka.consumer.group-id=test-group-id"
 })
-@DirtiesContext
 @Tag("Module2")
-public class GreetingEventConsumerTest {
+@Execution(ExecutionMode.SAME_THREAD)
+public class GreetingEventConsumerTest extends AbstractKafkaIntegrationTest {
 
     @Autowired
     private KafkaTemplate<String, byte[]> kafkaTemplate;
@@ -40,6 +39,20 @@ public class GreetingEventConsumerTest {
 
     @MockitoSpyBean
     private GreetingEventConsumer consumer;
+
+    @MockitoBean
+    @Qualifier("singleGreetingSqlService")
+    private GreetingSqlService greetingSqlService;
+
+    @BeforeEach
+    void setUp() {
+        super.setup();
+        // Configure SQL mock
+        when(greetingSqlService.insert(any(List.class))).thenAnswer(invocation -> {
+            List<?> events = invocation.getArgument(0);
+            return events.size();
+        });
+    }
 
     @Test
     public void testProcessMessage() throws Exception {
@@ -51,7 +64,7 @@ public class GreetingEventConsumerTest {
 
         for (GreetingEvent event : events) {
             byte[] eventBytes = objectMapper.writeValueAsBytes(event);
-            kafkaTemplate.send("test_consumer_topic", event.sender(), eventBytes).get();
+            kafkaTemplate.send(TEST_TOPIC, event.sender(), eventBytes).get();
         }
 
         // Verify all events processed

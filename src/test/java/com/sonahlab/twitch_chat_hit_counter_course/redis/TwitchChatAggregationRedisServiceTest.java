@@ -135,7 +135,7 @@ public class TwitchChatAggregationRedisServiceTest {
         Assertions.assertThat(output3).hasSize(2).containsExactlyInAnyOrderEntriesOf(
                 Map.of(
                         "s0mcs#1767225600000", 3L,
-                        "s0mcs#1735776000000", 1L
+                        "s0mcs#1767312000000", 1L
                 )
         );
 

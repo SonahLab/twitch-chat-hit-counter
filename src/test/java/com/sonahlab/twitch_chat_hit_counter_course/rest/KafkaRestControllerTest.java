@@ -22,25 +22,9 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-<<<<<<< HEAD
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureMockMvc
-@EmbeddedKafka(
-        partitions = 1,
-        topics = { "test_controller_topic" },
-        brokerProperties = { "listeners=PLAINTEXT://localhost:0", "port=0" }
-)
-@DirtiesContext
-@TestPropertySource(properties = {
-        "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
-        "twitch-chat-hit-counter.kafka.greeting-topic=test_controller_topic",
-        "logging.level.org.springframework.kafka=warn",
-        "logging.level.org.apache.kafka=warn"
-})
-=======
+
 @WebMvcTest(KafkaRestController.class)
 @Import(GreetingEventProducer.class)
->>>>>>> 215080c84baf5bb82f705500459599650c402b79
 @Tag("Module2")
 class KafkaRestControllerTest {
 

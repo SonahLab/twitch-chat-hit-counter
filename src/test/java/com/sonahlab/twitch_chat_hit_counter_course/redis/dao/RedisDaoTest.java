@@ -5,15 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.testcontainers.RedisContainer;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.junit.jupiter.Container;
@@ -28,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
+@DataRedisTest
 @Testcontainers
 @Tag("Module4")
 public class RedisDaoTest {
@@ -51,27 +47,8 @@ public class RedisDaoTest {
 
     private static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    // Configuration for RedisTemplate (used in tests)
-    @Configuration
-    static class TestConfig {
-        @Bean
-        public RedisConnectionFactory redisConnectionFactory() {
-            RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
-            config.setHostName(REDIS_CONTAINER.getHost());
-            config.setPort(REDIS_CONTAINER.getFirstMappedPort());
-            return new LettuceConnectionFactory(config);
-        }
-
-        @Bean
-        public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {
-            RedisTemplate<String, String> template = new RedisTemplate<>();
-            template.setConnectionFactory(connectionFactory);
-            template.setKeySerializer(new StringRedisSerializer());
-            template.setValueSerializer(new StringRedisSerializer());
-            template.afterPropertiesSet();
-            return template;
-        }
-
+    @TestConfiguration
+    static class RedisDaoTestConfig {
         @Bean
         public RedisDao redisDao(RedisTemplate<String, String> redisTemplate) {
             return new RedisDao(redisTemplate);

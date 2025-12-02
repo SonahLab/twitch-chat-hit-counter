@@ -2,11 +2,14 @@ package com.sonahlab.twitch_chat_hit_counter_course.redis;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.redis.testcontainers.RedisContainer;
+import com.sonahlab.twitch_chat_hit_counter_course.config.RedisConfig;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -17,7 +20,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
+@DataRedisTest
+@Import({
+        RedisConfig.class,
+        GreetingRedisService.class,
+})
 @Testcontainers
 @Tag("Module4")
 public class GreetingRedisServiceTest {

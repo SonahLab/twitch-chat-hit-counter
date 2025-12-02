@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.support.Acknowledgment;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractEventConsumer<T> {
@@ -60,6 +61,29 @@ public abstract class AbstractEventConsumer<T> {
         /**
          * TODO: Implement as part of Module 2 Exercise 4
          * */
+        List<T> events = new ArrayList<>();
+
+        for (ConsumerRecord<String, byte[]> record : records) {
+            String key = record.key();
+            byte[] value = record.value();
+
+            T event = convertRecordToEvent(value);
+
+            if (eventDeduperRedisService.isDupeEvent(eventType(), eventKey(event))) {
+                LOGGER.warn("[BATCH] Received DUPE message with key: {}, value: {}", key, key);
+                continue;
+            }
+
+            LOGGER.info("[BATCH] Received message with key: {}, value: {}", key, event);
+            events.add(event);
+        }
+
+        coreLogic(events);
+
+        for (T event : events) {
+            eventDeduperRedisService.processEvent(eventType(), eventKey(event));
+        }
+        ack.acknowledge();
     }
 
     protected T convertRecordToEvent(byte[] value) {

@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -88,6 +89,9 @@ public class GreetingEventBatchConsumerTest extends AbstractKafkaIntegrationTest
             byte[] eventBytes = objectMapper.writeValueAsBytes(event);
             kafkaTemplate.send(TEST_TOPIC, event.sender(), eventBytes).get();
         }
+
+        verify(consumer, Mockito.timeout(5000).atLeast(1))
+                .processMessages(any(List.class), any(Acknowledgment.class));
 
         // Wait for all messages to be processed (may be in one or multiple batches)
         assertTrue(latch.await(10, TimeUnit.SECONDS), "Not all messages were processed in time");

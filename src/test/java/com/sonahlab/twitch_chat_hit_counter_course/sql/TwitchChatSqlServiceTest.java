@@ -1,13 +1,15 @@
-// TODO: uncomment this code when you're ready to test this class
+//// TODO: uncomment this code when you're ready to test this class
 //package com.sonahlab.twitch_chat_hit_counter_course.sql;
 //
+//import com.sonahlab.twitch_chat_hit_counter_course.config.SqlConfig;
 //import com.sonahlab.twitch_chat_hit_counter_course.model.TwitchChatEvent;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Disabled;
 //import org.junit.jupiter.api.Tag;
 //import org.junit.jupiter.api.Test;
 //import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.context.SpringBootTest;
+//import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+//import org.springframework.context.annotation.Import;
 //import org.springframework.jdbc.core.JdbcTemplate;
 //import org.springframework.test.context.DynamicPropertyRegistry;
 //import org.springframework.test.context.DynamicPropertySource;
@@ -19,7 +21,8 @@
 //
 //import static org.junit.jupiter.api.Assertions.*;
 //
-//@SpringBootTest
+//@JdbcTest
+//@Import({SqlConfig.class})
 //@Testcontainers
 //@Tag("Module5")
 //public class TwitchChatSqlServiceTest {

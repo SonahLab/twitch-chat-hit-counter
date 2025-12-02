@@ -124,24 +124,4 @@ public class RedisDao {
          * */
         return null;
     }
-
-    /**
-     * HASH OPERATIONS
-     * https://redis.io/docs/latest/develop/data-types/hashes/
-     * */
-    // HINCRBY: https://redis.io/docs/latest/commands/hincrby/
-    public Long hashIncrBy(String key, String field, long delta) {
-        /**
-         * TODO: Implement as part of Module 4
-         * */
-        return null;
-    }
-
-    // HGETALL: https://redis.io/docs/latest/commands/hgetall/
-    public Map<String, String> hashGetAll(String key) {
-        /**
-         * TODO: Implement as part of Module 4
-         * */
-        return null;
-    }
 }

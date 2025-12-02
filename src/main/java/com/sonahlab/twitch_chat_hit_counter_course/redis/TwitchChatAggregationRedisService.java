@@ -22,17 +22,25 @@ public class TwitchChatAggregationRedisService {
          * */
     }
 
-    public Long incrementMinuteHitCounter(Granularity granularity, String channelName, long eventTimestampMs) {
+    public boolean incrementHitCounter(String channelName, long eventTimestampMs) {
         /**
          * TODO: Implement as part of Module 5
          * */
-        return null;
+        return false;
     }
 
+    /**
+     * MINUTE#channelName#minBoundaryUTC
+     * HOUR#channelName#hourBoundaryUTC
+     * DAY#channelName#dayBoundaryUTC
+     *
+     * datestart/end loop through and get value
+     * */
     public Map<String, Long> getHitCounts(
             Granularity granularity,
             String channelName,
-            int dateInt) {
+            long startTimestampMillis,
+            long endTimestampMillis) {
         /**
          * TODO: Implement as part of Module 5
          * */

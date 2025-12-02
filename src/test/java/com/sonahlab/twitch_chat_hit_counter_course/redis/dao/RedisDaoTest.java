@@ -214,34 +214,4 @@ public class RedisDaoTest {
         }
         assertTrue(exceptionCaught);
     }
-
-    @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
-    @Disabled
-    void hashIncrByTest() {
-        redisDao.hashIncrBy("student#Alice#coursesTaken", "semester1", 5);
-        redisDao.hashIncrBy("student#Alice#coursesTaken", "semester2", 4);
-
-        String output1 = redisTemplate.opsForHash().get("student#Alice#coursesTaken", "semester1").toString();
-        String output2 = redisTemplate.opsForHash().get("student#Alice#coursesTaken", "semester2").toString();
-
-        assertEquals("5", output1);
-        assertEquals("4", output2);
-    }
-
-    @Test
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 4.
-    @Disabled
-    void hashGetAllTest() {
-        redisDao.hashIncrBy("student#Alice#coursesTaken", "semester1", 5);
-        redisDao.hashIncrBy("student#Alice#coursesTaken", "semester2", 4);
-
-        Map<String, String> output1 = redisDao.hashGetAll("student#Alice#coursesTaken");
-        assertThat(output1).hasSize(2)
-                .containsEntry("semester1", "5")
-                .containsEntry("semester2", "4");
-
-        Map<String, String> output2 = redisDao.hashGetAll("student#Bob");
-        assertThat(output2).hasSize(0);
-    }
 }

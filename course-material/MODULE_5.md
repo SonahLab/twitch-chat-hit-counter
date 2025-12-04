@@ -545,10 +545,11 @@ This class will look very similar to `GreetingEventConsumer.java`, so look there
 > consumer.processMessage(...); // processes 3rd TwitchChatEvent
 > ```
 > **stdout**:<br>
-> <span style="color:#0000008c">INFO TwitchChatEventConsumer {event1}<br></span>
-> <span style="color:#0000008c">INFO TwitchChatEventConsumer {event2}<br></span>
-> <span style="color:#0000008c">INFO TwitchChatEventConsumer {event3}</span>
-
+> ```
+> INFO TwitchChatEventConsumer: Received event=TwitchChatEvent[eventId=id1, eventTs=0, channelId=channelId1, channelName=s0mcs, userId=userId1, username=Alice, subscriptionMonths=12, subscriptionTier=1, message=Hi s0m!]
+> INFO TwitchChatEventConsumer: Received event=TwitchChatEvent[eventId=id2, eventTs=1, channelId=channelId2, channelName=shroud, userId=userId2, username=Bob, subscriptionMonths=null, subscriptionTier=null, message=Hey shroud]
+> INFO TwitchChatEventConsumer: Received event=TwitchChatEvent[eventId=id3, eventTs=2, channelId=channelId3, channelName=k3soju, userId=userId3, username=Charlie, subscriptionMonths=null, subscriptionTier=null, message=Hey KEJUICY]
+> ```
 
 <br>
 

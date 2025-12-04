@@ -624,9 +624,11 @@ The main goal for now is to simply **log or print** the kafka message that was r
 > consumer.processMessage(...); // processes 3rd GreetingEvent
 > ```
 > **stdout**:<br>
-> <span style="color:#0000008c">INFO GreetingEventConsumer {event1}<br></span>
-> <span style="color:#0000008c">INFO GreetingEventConsumer {event2}<br></span>
-> <span style="color:#0000008c">INFO GreetingEventConsumer {event3}</span>
+> ```
+> INFO GreetingEventConsumer: Received event=GreetingEvent[eventId=UUID1, sender=Alice, receiver=Bob, message=Hello, Bob!]
+> INFO GreetingEventConsumer: Received event=GreetingEvent[eventId=UUID2, sender=Bob, receiver=Charlie, message=Good morning, Charlie!]
+> INFO GreetingEventConsumer: Received event=GreetingEvent[eventId=UUID3, sender=Eve, receiver=Frank, message=Hi Frank, how are you?]
+> ```
 
 #
 
@@ -824,10 +826,11 @@ This task will be nearly identical with the previous `GreetingEventConsumer.java
 > ```
 > **std**:<br>
 > ```
-> INFO GreetingEventBatchConsumer {event1}
-> INFO GreetingEventBatchConsumer {event2}
-> INFO GreetingEventBatchConsumer {event3}
-> INFO GreetingEventBatchConsumer Processed 3 events in this batch
+> INFO GreetingEventBatchConsumer: Received 3 events in the batch, events=[
+>     GreetingEvent[eventId=UUID1, sender=Alice, receiver=Bob, message=Hello, Bob!],
+>     GreetingEvent[eventId=UUID2, sender=Bob, receiver=Charlie, message=Good morning, Charlie!],
+>     GreetingEvent[eventId=UUID3, sender=Eve, receiver=Frank, message=Hi Frank, how are you?]
+> ]
 > ```
 
 #

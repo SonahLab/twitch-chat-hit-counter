@@ -201,6 +201,8 @@ In **Offset Explorer 3**, connect to our Kafka cluster running in Docker.
 <br>
 
 ## Excercise 1: Configure Spring Kafka within our Application
+![](assets/module2/images/connect.png)<br>
+
 > [!NOTE]
 >
 > **Relevant Files**<br>

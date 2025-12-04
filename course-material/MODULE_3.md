@@ -147,6 +147,8 @@ CREATE TABLE dev_db.greeting_events (
 <br>
 
 ## Spring JDBC Autoconfiguration
+![](assets/module3/images/connection.png)<br>
+
 In `build.gradle`, I've already imported Spring Boot JDBC:
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-jdbc'

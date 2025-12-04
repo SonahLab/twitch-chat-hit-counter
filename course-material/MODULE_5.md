@@ -119,7 +119,7 @@ For `Module 5`, the below file structure are all the relevant files needed.
 <br>
 
 ## Overview
-![](assets/module5/images/OverviewV2.svg)<br>
+![](assets/module5/images/Overview.svg)<br>
 
 In **Module 5**, we will now be integrating with the public Twitch API. Instead of triggering the pipeline through HTTP requests, we will setup a pipeline to stream realtime chat messages from Twitch Chat.
 We will use everything we've learned up to this point to accomplish this.
@@ -906,19 +906,27 @@ In `RedisConfig.java`, implement `public RedisDao twitchChatHitCounterRedisDao()
 ### Task 3: TwitchChatAggregationRedisService
 ![](assets/module5/images/RedisAggOverview.svg)<br>
 
-![](assets/module5/images/minutely_aggregation.png)<br>
+![](assets/module5/images/eventing.png)<br>
+
+![](assets/module5/images/aggregation.png)<br>
 
 #### Part 3.1:
-In `TwitchChatAggregationRedisService.java`, implement `public Long incrementMinuteHitCounter(Granularity granularity, String channelName, long eventTimestampMs)`.
+In `TwitchChatAggregationRedisService.java`, implement `public Long incrementMinuteHitCounter(String channelName, long eventTimestampMs)`.
 
-Return the updated count value after we increment the key.
+Return a boolean for whether the aggregation happened successfully.
 
 **Requirements:**
 1. Inject the correct `RedisDao` Bean loaded by `RedisConfig.java`.
-2. Key Template: `"{Granularity}#{channelName}#{YYYYMMDD}"`<br>
-3. Field: `{minuteBoundaryInMillis}`
+2. Key Template: `"{Granularity}#{channelName}#{boundaryTimestampMs}"`<br>
+3. Field: `{boundaryTimestampMs}`
     This is the only math involved in this project.<br>
-    You will need to figure out how to take a raw timestamp in milliseconds, and round it to the nearest minute timestamp in millis (rounded down).
+    For each of the granularities (`MINUTE`, `HOUR`, `DAY`):
+    MINUTELY aggregation:
+    Round the raw timestamp ms to the nearest minutely bucket
+    HOURLY aggregation:
+    Round the raw timestamp ms to the nearest hourly bucket
+    DAILY aggregation:
+    Round the raw timestamp ms to the nearest daily bucket (UTC)
 4. Value should be a `Long` object
 
 ### Example 1:
@@ -927,31 +935,51 @@ Return the updated count value after we increment the key.
 > RedisDao redisDao = new RedisDao(...);
 > TwitchChatAggregationRedisService service = new TwitchChatAggregationRedisService(redisDao);
 > 
-> long eventTs1 = 1767254439000; // Thu Jan 01 2026 08:00:39 GMT+0000
-> long eventTs2 = 1767254445000; // Thu Jan 01 2026 08:00:45 GMT+0000
->
-> long output1 = service.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs1);
-> long output2 = service.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs2);
-> ```
-> **Output1**: 1<br>
-> **Explanation**: After we increment the hit count for s0mcs's channel with the timestamp at 1767254439000, the minutely "bucket" it gets rounded down to is 1767254400000. Then it increments that key value.<br>
-> ```json
-> {
->   "MINUTE#s0mcs#20260101": {
->     "1767254400000": 1
->   }
-> }
-> ```
+> long eventTs1 = 1767231010000L; // Thu Jan 01 2026 01:30:10 GMT+0000
+> long eventTs2 = 1767231055000L; // Thu Jan 01 2026 01:30:55 GMT+0000
 > 
-> **Output2**: 2<br>
-> **Explanation**: After we increment the hit count for s0mcs's channel with the timestamp at 1767254445000, the minutely "bucket" it gets rounded down to is 1767254400000. Then it increments that key value.<br>
+> boolean output1 = twitchChatAggregationRedisService.incrementHitCounter("s0mcs", eventTs1);
+> boolean output2 = twitchChatAggregationRedisService.incrementHitCounter("s0mcs", eventTs2);
+> boolean output3 = twitchChatAggregationRedisService.incrementHitCounter("shroud", eventTs1);
+> ```
+> **Output1**: true<br>
+> **Explanation**: After we increment the hit count for s0mcs's channel with the timestamp at 1767231010000, 3 keys MUST be successfully incremented:<br>
 > ```json
 > {
->   "MINUTE#s0mcs#20260101": {
->     "1767254400000": 2
->   }
+>   "MINUTE#s0mcs#1767231000000": 1,
+>   "HOUR#s0mcs#1767229200000": 1,
+>   "DAY#s0mcs#1767225600000": 1
 > }
 > ```
+> The minute aggregation key should round the timestamp to the nearest minutely bucket (rounded down). <br>
+> The hour aggregation key should round the timestamp to the nearest hourly bucket (rounded down). <br>
+> The day aggregation key should round the timestamp to the nearest daily UTC bucket (rounded down). <br>
+> 
+> **Output2**: true<br>
+> **Explanation**: After we increment the hit count for s0mcs's channel with the timestamp at 1767231055000, 3 keys MUST be successfully incremented:<br>
+> ```json
+> {
+>   "MINUTE#s0mcs#1767231000000": 2,
+>   "HOUR#s0mcs#1767229200000": 2,
+>   "DAY#s0mcs#1767225600000": 2
+> }
+> ```
+> The minute aggregation key should round the timestamp to the nearest minutely bucket (rounded down). <br>
+> The hour aggregation key should round the timestamp to the nearest hourly bucket (rounded down). <br>
+> The day aggregation key should round the timestamp to the nearest daily UTC bucket (rounded down). <br>
+> 
+> **Output3**: true<br>
+> **Explanation**: After we increment the hit count for shroud's channel with the timestamp at 1767231010000, 3 keys MUST be successfully incremented:<br>
+> ```json
+> {
+>   "MINUTE#shroud#1767231000000": 1,
+>   "HOUR#shroud#1767229200000": 1,
+>   "DAY#shroud#1767225600000": 1
+> }
+> ```
+> The minute aggregation key should round the timestamp to the nearest minutely bucket (rounded down). <br>
+> The hour aggregation key should round the timestamp to the nearest hourly bucket (rounded down). <br>
+> The day aggregation key should round the timestamp to the nearest daily UTC bucket (rounded down). <br>
 
 ### Testing
 - [ ] Open `TwitchChatAggregationRedisServiceTest.java` ─ already implemented with the example(s) above
@@ -966,7 +994,7 @@ Return the updated count value after we increment the key.
 #### Part 3.2:
 In `TwitchChatAggregationRedisService.java`, implement `public Map<String, Long> getHitCounts(Granularity granularity, String channelName, long startTimestampMillis, long endTimestampMillis)`.
 
-Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified channelName.
+Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified channelName between two timestamps at a given Granularity.
 
 **Requirements:**
 1. Key Template(s): `"{Granularity}#{channelName}#{YYYYMMDD}"`<br>
@@ -985,10 +1013,10 @@ Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified
 > long eventTs3 = 1767254545000; // Thu Jan 01 2026 08:02:25 GMT+0000
 > long eventTs4 = 1767340800000; // Fri Jan 02 2026 00:00:00 GMT+0000
 >
-> service.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs1);
-> service.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs2);
-> service.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs3);
-> service.incrementMinuteHitCounter(Granularity.MINUTE, "s0mcs", eventTs4);
+> service.incrementMinuteHitCounter("s0mcs", eventTs1);
+> service.incrementMinuteHitCounter("s0mcs", eventTs2);
+> service.incrementMinuteHitCounter("s0mcs", eventTs3);
+> service.incrementMinuteHitCounter("s0mcs", eventTs4);
 > Map<String, Long> output = service.getHitCounts(
 >       Granularity.MINUTE,
 >       "s0mcs",

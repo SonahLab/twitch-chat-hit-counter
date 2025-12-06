@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 
 @TestPropertySource(properties = {
         "twitch-chat-hit-counter.kafka.greeting-topic=test-topic",
-        "spring.kafka.consumer.group-id=test-group-id"
+        "spring.kafka.consumer.group-id=test-group-id",
 })
 @Tag("Module2")
 @Execution(ExecutionMode.SAME_THREAD)
@@ -39,6 +39,10 @@ public class GreetingEventConsumerTest extends AbstractKafkaIntegrationTest {
 
     @MockitoSpyBean
     private GreetingEventConsumer consumer;
+
+    // GreetingEventBatchConsumer reads from the same topic so we mock it just to isolate the GreetingEventConsumer logic
+    @MockitoBean
+    private GreetingEventBatchConsumer batchConsumer;
 
     @MockitoBean
     @Qualifier("singleGreetingSqlService")

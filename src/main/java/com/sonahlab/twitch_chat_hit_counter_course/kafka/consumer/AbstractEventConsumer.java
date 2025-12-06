@@ -28,7 +28,7 @@ public abstract class AbstractEventConsumer<T> {
 
     protected abstract void coreLogic();
 
-    public void processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack) {
+    protected void processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack) {
         /**
          * TODO: Implement as part of Module 2 Exercise 3
          * */
@@ -36,7 +36,7 @@ public abstract class AbstractEventConsumer<T> {
         byte[] value = record.value();
 
         T event = convertRecordToEvent(record);
-        LOGGER.info("Received message with key: {}, value: {}", key, event);
+        LOGGER.info("[Single] Received message with key: {}, value: {}", key, event);
 
         ack.acknowledge();
     }
@@ -45,6 +45,16 @@ public abstract class AbstractEventConsumer<T> {
         /**
          * TODO: Implement as part of Module 2 Exercise 4
          * */
+        LOGGER.info("[BATCH] Received {} message with key: {}, value: {}", records.size());
+        for (ConsumerRecord<String, byte[]> record : records) {
+            String key = record.key();
+            byte[] value = record.value();
+
+            T event = convertRecordToEvent(record);
+            LOGGER.info("[BATCH] Received message with key: {}, value: {}", key, event);
+
+            ack.acknowledge();
+        }
     }
 
     protected void isDupeEvent() {

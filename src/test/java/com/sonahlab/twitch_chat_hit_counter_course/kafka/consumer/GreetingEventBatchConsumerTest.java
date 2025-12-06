@@ -9,7 +9,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -32,13 +34,21 @@ import static org.mockito.Mockito.when;
  */
 @TestPropertySource(properties = {
         "twitch-chat-hit-counter.kafka.greeting-topic=test-topic",
-        "spring.kafka.consumer.group-id=test-batch-consumer-group-id"
+        "twitch-chat-hit-counter.kafka.batch-consumer.group-id=test-group-id",
+        "spring.kafka.consumer.group-id=test-group-id"
 })
 @Tag("Module2")
 public class GreetingEventBatchConsumerTest extends AbstractKafkaIntegrationTest {
 
+    @Autowired
+    ApplicationContext applicationContext;
+
     @MockitoSpyBean
     private GreetingEventBatchConsumer consumer;
+
+    // GreetingEventConsumer reads from the same topic so we mock it just to isolate the GreetingEventBatchConsumer logic
+    @MockitoBean
+    private GreetingEventConsumer mockedOutConsumer;
 
     @MockitoBean
     @Qualifier("batchGreetingSqlService")

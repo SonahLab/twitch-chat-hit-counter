@@ -1,5 +1,6 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 
+import com.sonahlab.twitch_chat_hit_counter_course.config.KafkaConfig;
 import com.sonahlab.twitch_chat_hit_counter_course.kafka.AbstractKafkaIntegrationTest;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
@@ -11,6 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.test.context.TestPropertySource;
@@ -32,10 +36,15 @@ import static org.mockito.Mockito.when;
  * - Uses real Kafka instead of EmbeddedKafka
  * - Container is reused across test runs for fast execution
  */
+@SpringBootTest(classes = {
+        KafkaAutoConfiguration.class,
+        KafkaConfig.class,
+        JacksonAutoConfiguration.class,
+        GreetingEventBatchConsumer.class
+})
 @TestPropertySource(properties = {
         "twitch-chat-hit-counter.kafka.greeting-topic=test-topic",
         "twitch-chat-hit-counter.kafka.batch-consumer.group-id=test-group-id",
-        "spring.kafka.consumer.group-id=test-group-id"
 })
 @Tag("Module2")
 public class GreetingEventBatchConsumerTest extends AbstractKafkaIntegrationTest {
@@ -45,10 +54,6 @@ public class GreetingEventBatchConsumerTest extends AbstractKafkaIntegrationTest
 
     @MockitoSpyBean
     private GreetingEventBatchConsumer consumer;
-
-    // GreetingEventConsumer reads from the same topic so we mock it just to isolate the GreetingEventBatchConsumer logic
-    @MockitoBean
-    private GreetingEventConsumer mockedOutConsumer;
 
     @MockitoBean
     @Qualifier("batchGreetingSqlService")

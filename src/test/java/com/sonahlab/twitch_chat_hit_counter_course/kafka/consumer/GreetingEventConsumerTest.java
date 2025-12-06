@@ -1,6 +1,7 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sonahlab.twitch_chat_hit_counter_course.config.KafkaConfig;
 import com.sonahlab.twitch_chat_hit_counter_course.kafka.AbstractKafkaIntegrationTest;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
@@ -12,6 +13,9 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.test.context.TestPropertySource;
@@ -23,6 +27,12 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest(classes = {
+        KafkaAutoConfiguration.class,
+        KafkaConfig.class,
+        JacksonAutoConfiguration.class,
+        GreetingEventConsumer.class
+})
 @TestPropertySource(properties = {
         "twitch-chat-hit-counter.kafka.greeting-topic=test-topic",
         "spring.kafka.consumer.group-id=test-group-id",
@@ -41,8 +51,8 @@ public class GreetingEventConsumerTest extends AbstractKafkaIntegrationTest {
     private GreetingEventConsumer consumer;
 
     // GreetingEventBatchConsumer reads from the same topic so we mock it just to isolate the GreetingEventConsumer logic
-    @MockitoBean
-    private GreetingEventBatchConsumer batchConsumer;
+//    @MockitoBean
+//    private GreetingEventBatchConsumer batchConsumer;
 
     @MockitoBean
     @Qualifier("singleGreetingSqlService")

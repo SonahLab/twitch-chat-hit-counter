@@ -1,7 +1,7 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.producer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonahlab.twitch_chat_hit_counter_course.config.KafkaConfig;
+import com.sonahlab.twitch_chat_hit_counter_course.kafka.AbstractKafkaIntegrationTest;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -11,17 +11,14 @@ import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.kafka.test.EmbeddedKafkaBroker;
-import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.kafka.test.utils.KafkaTestUtils;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 
 import java.time.Duration;
@@ -43,38 +40,32 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         JacksonAutoConfiguration.class,
         GreetingEventProducer.class
 })
-@EmbeddedKafka(partitions = 1, topics = { "test_producer_topic" }, brokerProperties = {
-        "listeners=PLAINTEXT://localhost:0", "port=0"
-})
 @TestPropertySource(properties = {
-        "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
-        "twitch-chat-hit-counter.kafka.greeting-topic=test_producer_topic"
+        "twitch-chat-hit-counter.kafka.greeting-topic=test-topic"
 })
-@DirtiesContext
 @Tag("Module2")
-// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
-@Disabled
-public class GreetingEventProducerTest {
-
-    @Autowired
-    private ObjectMapper objectMapper;
+@Execution(ExecutionMode.SAME_THREAD)
+public class GreetingEventProducerTest extends AbstractKafkaIntegrationTest {
 
     @Autowired
     private GreetingEventProducer greetingEventProducer;
-
-    @Autowired
-    private EmbeddedKafkaBroker embeddedKafkaBroker;
 
     private KafkaConsumer<String, byte[]> consumer;
 
     @BeforeEach
     void setUp() {
-        Map<String, Object> consumerProps = new HashMap<>(KafkaTestUtils.consumerProps("testGroup", "false", embeddedKafkaBroker));
+        super.setup();
+
+        Map<String, Object> consumerProps = new HashMap<>();
+        consumerProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_CONTAINER.getBootstrapServers());
+        consumerProps.put(ConsumerConfig.GROUP_ID_CONFIG, "test-producer-consumer-group");
+        consumerProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        consumerProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         consumerProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         consumerProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class);
 
         consumer = new KafkaConsumer<>(consumerProps);
-        consumer.subscribe(Collections.singletonList("test_producer_topic"));
+        consumer.subscribe(Collections.singletonList(TEST_TOPIC));
     }
 
     @AfterEach
@@ -90,11 +81,11 @@ public class GreetingEventProducerTest {
         );
 
         for (int index = 0; index < events.size(); index++) {
-            String messageId = "test-id-" + index;
-            boolean success = greetingEventProducer.publish(messageId, events.get(index));
+            boolean success = greetingEventProducer.publish(events.get(index).eventId(), events.get(index));
             assertTrue(success);
         }
-        ConsumerRecords<String, byte[]> records = KafkaTestUtils.getRecords(consumer, Duration.ofSeconds(10));
+        // Poll for records from real Kafka
+        ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofSeconds(10));
 
         List<GreetingEvent> consumedEvents = new ArrayList<>();
         for (ConsumerRecord<String, byte[]> record : records) {

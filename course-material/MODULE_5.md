@@ -904,6 +904,30 @@ In `RedisConfig.java`, implement `public RedisDao twitchChatHitCounterRedisDao()
 
 #
 
+### Lesson: Unix Timestamps
+<ins>[Unix time <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://en.wikipedia.org/wiki/Unix_time)</ins> - a date and time presentation widely used in computing.
+It measures time elapsed in seconds since **January 1st 1970 00:00:00 UTC** (epoch). It is represented by a signed 32-bit value, meaning that at _2038-01-19T03:14:07Z_ unix timestamps will overflow ([Year 2038 Problem <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://en.wikipedia.org/wiki/Year_2038_problem)).
+
+In modern computing, values are stored with higher granularity, such as _milliseconds_, _microseconds_ or _nanoseconds_. Most times I work with unix timestamps are usually always in _milliseconds_.
+
+<ins>[UTC <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://en.wikipedia.org/wiki/Coordinated_Universal_Time)</ins> - Coordinated Universal Time is the primary time standard globally used to regulate clocks and time. Successor of Greenwich Mean Time (GMT).
+
+[Unix Timestamp Tool <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.unixtimestamp.com/)
+
+#### What does '1767225600000' represent in different timezones?
+```
+1767225600 seconds since 1970-01-01 00:00:00 UTC == Thu Jan 01 2026 00:00:00 GMT+0000
+1767225600 seconds == 1767225600000 milliseconds
+```
+![](assets/module5/images/worldmap.png)<br>
+
+![](assets/module5/images/timezones.png)<br>
+
+
+<br>
+
+#
+
 ### Task 3: TwitchChatAggregationRedisService
 ![](assets/module5/images/RedisAggOverview.svg)<br>
 
@@ -912,7 +936,7 @@ In `RedisConfig.java`, implement `public RedisDao twitchChatHitCounterRedisDao()
 ![](assets/module5/images/aggregation.png)<br>
 
 #### Part 3.1:
-In `TwitchChatAggregationRedisService.java`, implement `public Long incrementMinuteHitCounter(String channelName, long eventTimestampMs)`.
+In `TwitchChatAggregationRedisService.java`, implement `public Long incrementHitCounter(String channelName, long eventTimestampMs)`.
 
 Return a boolean for whether the aggregation happened successfully.
 
@@ -935,56 +959,71 @@ Return a boolean for whether the aggregation happened successfully.
 > ```java
 > RedisDao redisDao = new RedisDao(...);
 > TwitchChatAggregationRedisService service = new TwitchChatAggregationRedisService(redisDao);
-> 
-> long eventTs1 = 1767231010000L; // Thu Jan 01 2026 01:30:10 GMT+0000
-> long eventTs2 = 1767231055000L; // Thu Jan 01 2026 01:30:55 GMT+0000
-> 
-> boolean output1 = twitchChatAggregationRedisService.incrementHitCounter("s0mcs", eventTs1);
-> boolean output2 = twitchChatAggregationRedisService.incrementHitCounter("s0mcs", eventTs2);
-> boolean output3 = twitchChatAggregationRedisService.incrementHitCounter("shroud", eventTs1);
+>
+> long eventTs1 = 1767231055000; // Thu Jan 01 2026 01:30:55 GMT+0000
+> long eventTs2 = 1767225645000; // Thu Jan 01 2026 00:00:45 GMT+0000
+> long eventTs3 = 1767225745000; // Thu Jan 01 2026 00:02:25 GMT+0000
+>
+> boolean output1 = service.incrementHitCounter("s0mcs", eventTs1);
+> boolean output2 = service.incrementHitCounter("s0mcs", eventTs2);
+> boolean output3 = service.incrementHitCounter("s0mcs", eventTs3);
 > ```
+> 
 > **Output1**: true<br>
-> **Explanation**: After we increment the hit count for s0mcs's channel with the timestamp at 1767231010000, 3 keys MUST be successfully incremented:<br>
+> **Explanation**:<br>
+> - Minutely Aggregation: The input timestamp should be rounded to the nearest, earliest minute (by subtracting the seconds)
+> - Hourly Aggregation: The input timestamp should be rounded to the nearest, earliest hour (by subtracting the minutes + seconds)
+> - Daily Aggregation: The input timestamp should be rounded to the nearest, earliest UTC day (by subtracting the hours + minutes + seconds)
+> 
+> ![](assets/module5/images/event1agg.svg)<br>
 > ```json
 > {
->   "MINUTE#s0mcs#1767231000000": 1,
->   "HOUR#s0mcs#1767229200000": 1,
->   "DAY#s0mcs#1767225600000": 1
+>   "MINUTE#s0mcs#1767231000000": 1, (NEW)
+>   "HOUR#s0mcs#1767229200000": 1, (NEW)
+>   "DAY#s0mcs#1767225600000": 1 (NEW)
 > }
 > ```
-> The minute aggregation key should round the timestamp to the nearest minutely bucket (rounded down). <br>
-> The hour aggregation key should round the timestamp to the nearest hourly bucket (rounded down). <br>
-> The day aggregation key should round the timestamp to the nearest daily UTC bucket (rounded down). <br>
-> 
+> <br>
+>
 > **Output2**: true<br>
-> **Explanation**: After we increment the hit count for s0mcs's channel with the timestamp at 1767231055000, 3 keys MUST be successfully incremented:<br>
+> **Explanation**:<br>
+> - Minutely Aggregation: The input timestamp should be rounded to the nearest, earliest minute (by subtracting the seconds)
+> - Hourly Aggregation: The input timestamp should be rounded to the nearest, earliest hour (by subtracting the minutes + seconds)
+> - Daily Aggregation: The input timestamp should be rounded to the nearest, earliest UTC day (by subtracting the hours + minutes + seconds)
+>
+> > ![](assets/module5/images/event2agg.svg)<br>
 > ```json
 > {
->   "MINUTE#s0mcs#1767231000000": 2,
->   "HOUR#s0mcs#1767229200000": 2,
->   "DAY#s0mcs#1767225600000": 2
+>   "MINUTE#s0mcs#1767225600000": 1, (NEW)
+>   "MINUTE#s0mcs#1767231000000": 1,
+>   "HOUR#s0mcs#1767225600000": 1, (NEW)
+>   "HOUR#s0mcs#1767229200000": 1,
+>   "DAY#s0mcs#1767225600000": 2 (UPDATE)
 > }
 > ```
-> The minute aggregation key should round the timestamp to the nearest minutely bucket (rounded down). <br>
-> The hour aggregation key should round the timestamp to the nearest hourly bucket (rounded down). <br>
-> The day aggregation key should round the timestamp to the nearest daily UTC bucket (rounded down). <br>
-> 
+> <br>
+>
 > **Output3**: true<br>
-> **Explanation**: After we increment the hit count for shroud's channel with the timestamp at 1767231010000, 3 keys MUST be successfully incremented:<br>
+> **Explanation**:<br>
+> - Minutely Aggregation: The input timestamp should be rounded to the nearest, earliest minute (by subtracting the seconds)
+> - Hourly Aggregation: The input timestamp should be rounded to the nearest, earliest hour (by subtracting the minutes + seconds)
+> - Daily Aggregation: The input timestamp should be rounded to the nearest, earliest UTC day (by subtracting the hours + minutes + seconds)
+>
+> > ![](assets/module5/images/event3agg.svg)<br>
 > ```json
 > {
->   "MINUTE#shroud#1767231000000": 1,
->   "HOUR#shroud#1767229200000": 1,
->   "DAY#shroud#1767225600000": 1
+>   "MINUTE#s0mcs#1767225600000": 1,
+>   "MINUTE#s0mcs#1767225720000": 1, (NEW)
+>   "MINUTE#s0mcs#1767231000000": 1,
+>   "HOUR#s0mcs#1767225600000": 2, (UPDATE)
+>   "HOUR#s0mcs#1767229200000": 1,
+>   "DAY#s0mcs#1767225600000": 3 (UPDATE)
 > }
 > ```
-> The minute aggregation key should round the timestamp to the nearest minutely bucket (rounded down). <br>
-> The hour aggregation key should round the timestamp to the nearest hourly bucket (rounded down). <br>
-> The day aggregation key should round the timestamp to the nearest daily UTC bucket (rounded down). <br>
 
 ### Testing
 - [ ] Open `TwitchChatAggregationRedisServiceTest.java` ─ already implemented with the example(s) above
-- [ ] Remove `@Disabled` in `TwitchChatAggregationRedisServiceTest.java` for method(s): `incrementMinuteHitCounterTest()`
+- [ ] Remove `@Disabled` in `TwitchChatAggregationRedisServiceTest.java` for method(s): `incrementHitCounterTest()`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
@@ -1006,47 +1045,90 @@ Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified
 ### Example 1:
 > **Input**:<br>
 > ```java
+> // EXACT SAME STATE AS THE PREVIOUS TASK
 > RedisDao redisDao = new RedisDao(...);
 > TwitchChatAggregationRedisService service = new TwitchChatAggregationRedisService(redisDao);
 > 
-> long eventTs1 = 1767254439000; // Thu Jan 01 2026 08:00:39 GMT+0000
-> long eventTs2 = 1767254445000; // Thu Jan 01 2026 08:00:45 GMT+0000
-> long eventTs3 = 1767254545000; // Thu Jan 01 2026 08:02:25 GMT+0000
-> long eventTs4 = 1767340800000; // Fri Jan 02 2026 00:00:00 GMT+0000
+> long eventTs1 = 1767231055000; // Thu Jan 01 2026 01:30:55 GMT+0000
+> long eventTs2 = 1767225645000; // Thu Jan 01 2026 00:00:45 GMT+0000
+> long eventTs3 = 1767225745000; // Thu Jan 01 2026 00:02:25 GMT+0000
 >
-> service.incrementMinuteHitCounter("s0mcs", eventTs1);
-> service.incrementMinuteHitCounter("s0mcs", eventTs2);
-> service.incrementMinuteHitCounter("s0mcs", eventTs3);
-> service.incrementMinuteHitCounter("s0mcs", eventTs4);
+> service.incrementHitCounter("s0mcs", eventTs1);
+> service.incrementHitCounter("s0mcs", eventTs2);
+> service.incrementHitCounter("s0mcs", eventTs3);
+> ```
+> ![](assets/module5/images/fetch_aggregation.png)<br>
+> 
+> ```java
 > Map<String, Long> output = service.getHitCounts(
 >       Granularity.MINUTE,
 >       "s0mcs",
->       1767254400000L,  // Thu Jan 01 2026 00:00:00 GMT+0000
->       1767427200000L); // Sat Jan 03 2026 00:00:00 GMT+0000
+>       1767225600000L,  // 20260101 00:00:00 UTC
+>       1767311940000L); // 20260101 23:59:00 UTC
 > ```
-> **Output**: 1<br>
+> **Output**:<br>
 > ```json
 > {
->   "s0mcs#1767254400000": 2,
->   "s0mcs#1767254520000": 1,
->   "s0mcs#1767340800000": 1
+>   "MINUTE#s0mcs#1767225600000": 1,
+>   "MINUTE#s0mcs#1767225720000": 1,
+>   "MINUTE#s0mcs#1767231000000": 1
 > }
 > ```
 > **Explanation**:<br>
-> eventTs1 = `1767254439000` (2026-01-01 08:**00:39** UTC) → `1767254400000` (2026-01-01 08:**00:00** UTC)<br>
-> eventTs2 = `1767254445000` (2026-01-01 08:**00:45** UTC) → `1767254400000` (2026-01-01 08:**00:00** UTC)<br>
-> eventTs3 = `1767254545000` (2026-01-01 08:**02:25** UTC) → `1767254520000` (2026-01-01 08:**02:00** UTC)<br>
-> eventTs4 = `1767340800000` (2026-01-02 00:**00:00** UTC) → `1767340800000` (2026-01-02 00:**00:00** UTC)<br>
+> ![](assets/module5/images/minutefetch.png)<br>
+> Between `1767225600000` and `1767311940000` (inclusive), you need to figure out all MINUTE buckets you need to query for (should be 1440 key(s)).<br>
+>
+> `3/1440` read(s) will return a successful hit, the rest of the Redis GET requests should return null. 
+
+<br>
+
+### Example 2:
+> ```java
+> Map<String, Long> output = service.getHitCounts(
+>       Granularity.HOUR,
+>       "s0mcs",
+>       1767225600000L,  // 20260101 00:00:00 UTC
+>       1767311940000L); // 20260101 23:59:00 UTC
+> ```
 > 
-> The internal redis entries should look like this:
+> **Output**:<br>
+> ```json
 > {
->   "MINUTE#s0mcs#20260101": {
->     "1767254400000": 2,
->     "1767254520000": 1,
->     "1767340800000": 1,
->   }
+>   "HOUR#s0mcs#1767225600000": 2,
+>   "HOUR#s0mcs#1767229200000": 1
 > }
-> We want to simplify the output to a flattened map of KV pairs `{"channelName#minuteTs", hitCounts}`
+> ```
+> 
+> **Explanation:**<br>
+> ![](assets/module5/images/hourlyfetch.png)<br>
+> Between `1767225600000` and `1767311940000` (inclusive), you need to figure out all HOUR buckets you need to query for (should be 24 key(s)).<br>
+>
+> `2/24` read(s) will return a successful hit, the rest of the Redis GET requests should return null.
+
+<br>
+
+### Example 3:
+> ```java
+> Map<String, Long> output = service.getHitCounts(
+>       Granularity.DAY,
+>       "s0mcs",
+>       1767225600000L,  // 20260101 00:00:00 UTC
+>       1767311940000L); // 20260101 23:59:00 UTC
+> ```
+>
+> **Output**:<br>
+> ```json
+> {
+>   "DAY#s0mcs#1767225600000": 3
+> }
+> ```
+> 
+> **Explanation:**<br>
+> ![](assets/module5/images/dailyfetch.png)<br>
+> Between `1767225600000` and `1767311940000` (inclusive), you need to figure out all DAY buckets you need to query for (should be 1 key(s)).<br>
+>
+> `1/1` read(s) will return a successful hit.
+
 
 ### Testing
 - [ ] Open `TwitchChatAggregationRedisServiceTest.java` ─ already implemented with the example(s) above

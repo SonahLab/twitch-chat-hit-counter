@@ -71,6 +71,16 @@ In a large scale organization where many teams and systems are interconnected, d
 
 <br>
 
+## Objective
+![](assets/module2/images/Module2_Overview.svg)<br>
+**Module 2** is mostly about:
+1. Setting up an HTTP request endpoint that will take a User submitted greeting
+2. Convert the input fields into a `GreetingEvent`
+3. PubSub the event through a kafka topic
+4. Log the event to stdout for us to verify the event was read from kafka
+
+<br>
+
 ## File Structure
 For `Module 2`, the below file structure are all the relevant files needed.
 
@@ -146,15 +156,6 @@ For `Module 2`, the below file structure are all the relevant files needed.
 
 <br>
 
-## Objective
-![](assets/module2/images/Module2_Overview.svg)<br>
-**Module 2** is mostly about:
-1. Setting up an HTTP request endpoint that will take a User submitted greeting
-2. Convert the input fields into a `GreetingEvent`
-3. PubSub the event through a kafka topic
-4. Log the event to stdout for us to verify the event was read from kafka
-
-<br>
 
 ## Setup Local Kafka Server
 Start our local Kafka instance via Docker: [Kafka Quickstart <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://kafka.apache.org/quickstart)<br>
@@ -206,7 +207,7 @@ In **Offset Explorer 3**, connect to our Kafka cluster running in Docker.
 > [!NOTE]
 >
 > **Relevant Files**<br>
-> `application.yml` ─ our service's property file<br>
+> `application.yml` ─ our service's property file
 
 ### Lesson: Autoconfiguration
 > [!IMPORTANT]

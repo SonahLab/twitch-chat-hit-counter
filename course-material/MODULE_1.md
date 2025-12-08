@@ -145,6 +145,14 @@ We will focus only on **HTTP** in this course. **gRPC** is mostly used within th
 They will usually have gRPC service contracts allowing for direct service calls, instead of sending HTTP requests.
 
 
+<br>
+
+
+
+## Objective
+In **Module 1**, you will be learning about setting up HTTP Rest Controllers to handle simple GET, PUT, and DELETE requests.
+
+
 
 
 

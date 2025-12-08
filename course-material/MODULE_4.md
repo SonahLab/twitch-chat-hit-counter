@@ -89,7 +89,12 @@ For `Module 4`, the below file structure are all the relevant files needed.
 ![](assets/module4/images/Overview4.svg)<br>
 
 **Recap:**
-In **Module 3**, we have an API that you can trigger event(s) to be published and consumed from Kafka and sent to SQL.
+In **Module 3**, we have a couple things:
+- an API endpoint to trigger `GreetingEvent` objects to be published to a Kafka topic
+- A single/batch event consumer to consume events from a Kafka topic 
+- persistent storage to store the `GreetingEvent` in SQL DB
+
+Moving forward, we will be dropping the **Batch Event Pipeline** and just continue to work with the **Single Event Pipeline**.
 
 In **Module 4**, we will be adding two Redis DBs.<br>
 Redis **db0** will be reserved for **Event Deduplication**.<br>
@@ -762,6 +767,7 @@ Alice     Charlie
   ]
 }
 ```
+![](assets/module4/images/feedmock.png)<br>
 
 #
 

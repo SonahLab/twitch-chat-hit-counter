@@ -489,6 +489,8 @@ Return the Set\<String> stored at the key.
 <br>
 
 ## Lesson: Redis Autoconfiguration
+![](assets/module4/images/connect.png)<br>
+
 https://github.com/spring-projects/spring-boot/blob/main/module/spring-boot-data-redis/src/main/java/org/springframework/boot/data/redis/autoconfigure/DataRedisAutoConfiguration.java
 
 Spring Data Redis autoconfigures the RedisTemplate for us, but if you follow the trail of how RedisProperties is created it'll use some default values:

@@ -9,6 +9,19 @@
 - [Baeldung's Spring Kafka Guide <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/spring-kafka)
 - [GeeksForGeek's Spring Boot Kafka Guide <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.geeksforgeeks.org/spring-boot-integration-with-kafka/)
 
+### Table of Contents
+- [Overview](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#module-2-kafka)
+- [Objective](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#objective)
+- [File Structure](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#file-structure)
+- [Setup Local Kafka Server](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#setup-local-kafka-server)
+- [Create Kafka Topic](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#create-kafka-topic-greeting-events)
+- [Exercise 1](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#excercise-1-configure-spring-kafka-within-our-application)
+- [Exercise 2: Kafka Producer](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#exercise-2-kafka-producer)
+- [Exercise 3: Kafka Consumer](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#exercise-3-single-message-kafka-consumer)
+- [Lesson: IO Operations](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#lesson-inputoutput-io-operations)
+- [Exercise 4: Batch Kafka Consumer](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#exercise-4-batch-message-kafka-consumer)
+- 
+
 <br>
 
 ## Overview
@@ -530,7 +543,7 @@ true
 
 #
 
-### Exercise 3: Single Message Kafka Consumer
+## Exercise 3: Single Message Kafka Consumer
 ![](assets/module2/images/exercise2.svg)<br>
 
 > [!NOTE]
@@ -615,7 +628,7 @@ The main goal for now is to simply **log or print** the kafka message that was r
 
 #
 
-### Lesson: Input/Output (IO) Operations
+## Lesson: Input/Output (IO) Operations
 ![](assets/module2/images/IO.svg)<br>
 _Quick overview on what happens when our application calls read/write IOs to a server.<br>_
 
@@ -653,7 +666,7 @@ This simple extreme example shows the benefit of introducing batch operations in
 
 #
 
-### Exercise 4: BATCH Message Kafka Consumer
+## Exercise 4: BATCH Message Kafka Consumer
 ![](assets/module2/images/exercise3.svg)<br>
 
 Spring Kafka autoconfigures `KafkaTemplate` and `ConcurrentKafkaListenerContainerFactory` for us. If Spring sees that the developer doesn't set a field, it usually uses _some_ default value.

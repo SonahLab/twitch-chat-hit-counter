@@ -220,48 +220,8 @@ In **Offset Explorer 3**, connect to our Kafka cluster running in Docker.
 > - [Understanding Auto-Configured Beans [Spring Docs] <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html#features.developing-auto-configuration.understanding-auto-configured-beans)<br>
 > - [Spring Boot Auto-Configuration [GeeksForGeeks] <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.geeksforgeeks.org/java/spring-boot-auto-configuration/)<br>
 
-Case Study:
-Imagine I created a new revolutionary open source Database called **SonahDB**.
-
-In order to connect to a generic SonahDB **cluster** you need:
-1. server-location
-2. username
-3. password
-
-Imagine I created a public open source Java Library that for all developers around the world to import into their project to use.<br>
-Now say Alice is spins up her own **SonahDB**, and wants to connect to it so that she can store data on it.<br>
-In Alice's application she would normally need to manually create some client to use in her project:
-```java
-@Bean
-public SonahDbClient() {
-    SonahDbClient client = new SonahDbClient(
-            "localhost:1234",
-            "aliceUsername",
-            "aliceSecretPassword"
-    );
-}
-```
-
-This is where Spring Boot autoconfiguration becomes so powerful. Let's assume that for the open source Java Library I tell developers,
-if you import my library into your project and if you provide me `spring.sonahDB.server-location`, `spring.sonahDB.username`, and `spring.sonahDB.password`
-my library will create this `SonahDbClient` object on your behalf at runtime when you run your Spring Boot application.
-And in the case where Alice neither creates the `SonahDbClient` herself or provide the 3 fields required, I will still build her the `SonahDbClient` object
-but using some default values.
-
-Alice's code never explicitly needs to create the `SonahDbClient`, she just defines the fields from a library's guidance and
-can safely assume it works out of the box.
-
-This is what Spring Boot's Autoconfiguration boils down to. For any library you pull in, you should read the documentation of a library to see if it supports autoconfiguration and also what fields you need to set,
-meaning you just define some properties in your `application.yml` property file and when you run `./gradlew bootRun` you trust that
-the libraries you depend on will build all the relevant Beans on your behalf. Less code and manual setup, for increased development velocity.
-
 [KafkaAutoConfiguration.java <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-boot/api/java/org/springframework/boot/autoconfigure/kafka/KafkaAutoConfiguration.html) is the class that autoconfigures Kafka behind the scenes.
-Spring Kafka library will build all the relevant Beans on our behalf, unless we:
-1. Explicitly override the Beans ourselves
-2. Disable a library from Autoconfiguration
-
-Spring Kafka Autoconfiguration Lifecycle:
-
+Spring Kafka library will build all the relevant Beans on our behalf
 
 ### Lesson: Spring Kafka Properties
 This is a small list of properties I'm requiring you to set for this course.

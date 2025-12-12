@@ -723,12 +723,68 @@ Everytime an event is read from Kafka, we will need to call `GreetingSqlService.
 **Requirements:**
 - Inject the correct `GreetingSqlService` bean into the `GreetingEventConsumer` constructor.<br>
 
-> [!TIP]
+### Quiz: Spring Bean Dependency Resolution
 >
+> 
 > Notice in `SqlConfig.java` there are two `@Bean`'s of the same type `GreetingSqlService`. When there are collisions for objects of the same type, Spring has trouble resolving which `@Bean` to pick, so Spring then uses the Bean **name** to best-effort resolve Bean conflicts.
 > It's good practice to refer to `@Bean`'s by **name** using the Spring `@Qualifier()` annotation.
+>
+> Example 1: No Bean resolution
+> ```
+> @Configuration
+> public ExampleConfiguration {
+>     @Bean
+>     public String string1() {
+>         return "Hello";
+>     }
+>
+>     @Bean
+>     public String string2() {
+>         return "World";
+>     }
+> }
 > 
-> Example:
+> public ExampleClass {
+>     public doSomething(
+>         String string3, // no @Bean named 'string3'
+>         String string4  // no @Bean named 'string4'
+>     ) {
+>         System.out.println(string3 + " " + string4);
+>     }
+> }
+> ```
+> **Output:** Exception is thrown.<br>
+> **Explanation:**
+> Spring sees two `String` beans (ambiguous). Since the **parameter names** (`string3`, `string4`) do not match any available bean names (`string1`, `string2`), Spring cannot resolve the conflict and throws a NoUniqueBeanDefinitionException.
+>
+> Example 2: Resolving by Parameter Name (Best-Effort)
+> ```
+> @Configuration
+> public ExampleConfiguration {
+>     @Bean
+>     public String string1() {
+>         return "Hello";
+>     }
+>
+>     @Bean
+>     public String string2() {
+>         return "World";
+>     }
+> }
+> 
+> public ExampleClass {
+>     public doSomething(
+>         String string1, // Matches @Bean string1()
+>         String string2  // Matches @Bean string2()
+>     ) {
+>         System.out.println(string1 + " " + string2);
+>     }
+> }
+> ```
+> **Output:** "Hello World"<br>
+> **Explanation:** Spring sees two String beans (ambiguous). Spring attempts to match the parameter names (`string1`, `string2`) to the @Bean method names (`string1()`, `string2()`). This resolves the conflict.
+>
+> Example 3: Resolving by `@Qualifier`
 > ```
 > @Configuration
 > public ExampleConfiguration {
@@ -748,15 +804,14 @@ Everytime an event is read from Kafka, we will need to call `GreetingSqlService.
 > public ExampleClass {
 >     public doSomething(
 >         @Qualifier("World") String string1,
->         @Qualifier("Hello") String string2,
+>         @Qualifier("Hello") String string2
 >     ) {
 >         System.out.println(string1 + " " + string2);
 >     }
 > }
-> 
-> Output: "World Hello"
 > ```
-> TODO first it uses the Qualifier name, then Priority, then the actual bean method name, then runtimes out.
+> **Output:** "World Hello"<br>
+> **Explanation:** Spring ignores the parameter names (`string1`, `string2`) and strictly uses the @Qualifier annotations (`@Qualifier("World")` and `@Qualifier("Hello")`) to pick the exact matching bean names from the configuration. This is the safest way to resolve ambiguity.
 
 #
 

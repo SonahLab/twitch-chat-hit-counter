@@ -15,12 +15,11 @@
 - [File Structure](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#file-structure)
 - [Setup Local Kafka Server](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#setup-local-kafka-server)
 - [Create Kafka Topic](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#create-kafka-topic-greeting-events)
-- [Exercise 1](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#excercise-1-configure-spring-kafka-within-our-application)
+- [Exercise 1: Spring Kafka](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#excercise-1-configure-spring-kafka-within-our-application)
 - [Exercise 2: Kafka Producer](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#exercise-2-kafka-producer)
 - [Exercise 3: Kafka Consumer](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#exercise-3-single-message-kafka-consumer)
 - [Lesson: IO Operations](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#lesson-inputoutput-io-operations)
 - [Exercise 4: Batch Kafka Consumer](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#exercise-4-batch-message-kafka-consumer)
-- 
 
 <br>
 
@@ -169,8 +168,14 @@ For `Module 2`, the below file structure are all the relevant files needed.
 
 <br>
 
+## Lab Setup
+> [!NOTE]
+>
+> All of the open source tools we use in this course should be run locally on your own machine. In a real production environment, you could imagine that a cloud provider like Amazon hosts your servers through in their data centers in various regions around the world (i.e.: "us-east-1", "us-west-1"). This, however, incurs a real cost to maintain so running locally-hosted, free servers is great to learn, build, and play around with.
+>
+> When hosting servers locally, think of your computer as your own personal data center that you don't need to pay a cloud provider, like Amazon, Google, or Microsoft, to host for you.
 
-## Setup Local Kafka Server
+### Setup Local Kafka Server
 Start our local Kafka instance via Docker: [Kafka Quickstart <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://kafka.apache.org/quickstart)<br>
 1. Open and login to **Docker Desktop**
 2. Get the Docker image:
@@ -200,7 +205,7 @@ In **Offset Explorer 3**, connect to our Kafka cluster running in Docker.
 
 <br>
 
-## Create Kafka Topic: `greeting-events`
+### Create Kafka Topic: `greeting-events`
 1. Navigate to the _**Clusters/twitch-chat-hit-counter/Topics**_ folder
 2. Click '+' to add a new kafka topic
 3. Input kafka topic configs:

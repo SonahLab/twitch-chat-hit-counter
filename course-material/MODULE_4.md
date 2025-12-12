@@ -1,12 +1,58 @@
-# Practical Backend Engineer
+# The Practical Backend Engineer
 ## Twitch Chat Hit Counter
 ## Module 4: Redis
-
-### Lesson
-
 ### Additional Learning Materials
 
+## Overview
 
+<br>
+
+## Objective
+![](assets/module4/images/Overview4.svg)<br>
+
+**Recap:**
+In **Module 3**, we have a couple things:
+- an API endpoint to trigger `GreetingEvent` objects to be published to a Kafka topic
+- A single/batch event consumer to consume events from a Kafka topic
+- persistent storage to store the `GreetingEvent` in SQL DB
+
+Moving forward, we will be dropping the **Batch Event Pipeline** and just continue to work with the **Single Event Pipeline**.
+
+In **Module 4**, we will be adding two Redis DBs.<br>
+Redis **db0** will be reserved for **Event Deduplication**.<br>
+Redis **db1** will be reserved for our **Greetings News Feed**.<br>
+
+> [!NOTE]
+>
+> Redis DB are namespaced by index (not by names) starting at 0, 1, ..., N.
+
+<br>
+
+## Lab Setup
+### Setup Local Redis Server
+Start our local Redis instance via Docker: [Redis Stack <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/operate/oss_and_stack/install/archive/install-stack/docker/)<br>
+1. Open and login to **Docker Desktop**
+2. Start the Redis Docker container:
+```bash
+docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
+```
+
+In **Docker**, you should now see the Redis container running locally.<br>
+We should have containers for: Kafka, MySQL, and now Redis.
+![](assets/module4/images/docker.jpg)<br>
+
+### Bookmark Redis Insight
+1. Go to `http://localhost:8001/` and bookmark this link
+
+The docker run command above also exposes [Redis Insight <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/insight/) on port 8001. You can use Redis Insight by pointing your browser to localhost:8001.
+The `redis/redis-stack` docker image contains both **Redis Stack server** and **Redis Insight**. A two-for-one combo to use Redis and have the Redis UI tool in one container.
+
+In a production environment, the most likely basic setup would be:
+- 3 instance(s) for the Leader nodes (M1, M2, M3)
+- 3 instance(s) for the Follower nodes (R1, R2, R3)
+- 1 instance(s) for the Redis Insight node (RI1)
+
+It wouldn't be advised to have each server run both the Redis Stack Server + Redis Insight as this adds a lot of overhead on each cloud machine.
 
 <br>
 
@@ -82,41 +128,6 @@ For `Module 4`, the below file structure are all the relevant files needed.
 <img src="assets/common/testClass_newui.svg" align="center"/> RedisRestControllerTest.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/testClass_newui.svg" align="center"/> PropertiesApplicationTest.java<br>
-
-<br>
-
-## Overview
-![](assets/module4/images/Overview4.svg)<br>
-
-**Recap:**
-In **Module 3**, we have a couple things:
-- an API endpoint to trigger `GreetingEvent` objects to be published to a Kafka topic
-- A single/batch event consumer to consume events from a Kafka topic 
-- persistent storage to store the `GreetingEvent` in SQL DB
-
-Moving forward, we will be dropping the **Batch Event Pipeline** and just continue to work with the **Single Event Pipeline**.
-
-In **Module 4**, we will be adding two Redis DBs.<br>
-Redis **db0** will be reserved for **Event Deduplication**.<br>
-Redis **db1** will be reserved for our **Greetings News Feed**.<br>
-
-> [!NOTE]
->
-> Redis DB are namespaced by index (not by names) starting at 0, 1, ..., N.
-
-<br>
-
-## Setup Local Redis Server
-Start our local Redis instance via Docker: [Redis Stack <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/operate/oss_and_stack/install/archive/install-stack/docker/)<br>
-1. Open and login to **Docker Desktop**
-2. Start the Redis Docker container:
-```bash
-docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
-```
-
-In **Docker**, you should now see the Redis container running locally.<br>
-We should have containers for: Kafka, MySQL, and now Redis.
-![](assets/module4/images/docker.jpg)<br>
 
 <br>
 

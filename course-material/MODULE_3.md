@@ -1,4 +1,4 @@
-# Practical Backend Engineer
+# The Practical Backend Engineer
 ## Twitch Chat Hit Counter
 
 ## Module 3: SQL
@@ -22,6 +22,71 @@ At Snapchat, I would run SQL queries via:
 At Netflix, I run SQL queries via:
 - SparkSQL on top of our Apache Iceberg tables
 - CQL (looks pretty much like SQL) on top of our Apache Cassandra tables
+
+<br>
+
+## Objective
+![](assets/module3/images/Module3_Overview.svg)<br>
+In **Module 2**, you should have now set up:
+- a HTTP Rest Controller to send a simple Greeting to our application and convert the parameters into a `GreetingEvent` DTO.
+- a Kafka producer to write/send the `GreetingEvent` to your local `greeting-events` topic.
+- a Kafka consumer to read/receive the `GreetingEvent` from your local `greeting-events` topic and log the event to **stdout**.
+
+In **Module 3**, you will go one step further and **persist/store** these `GreetingEvent` in a SQL DB.
+
+Goals:
+- Implement the ability to write a single `GreetingEvent` to a SQL table
+- Implement the ability to write a batch of `GreetingEvent` to a SQL table
+- Implement the ability to read all events from a SQL table + add a new Rest Controller to trigger the query
+
+<br>
+
+
+## Lab Setup
+### Setup Local MySQL Server
+Start your local MySQL Server via Docker:
+1. Open and login to **Docker Desktop**
+2. Start the MySQL Docker container:
+```shell
+docker run \
+    --name twitch-chat-hit-counter-mysql-dev \
+    -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
+    -e MYSQL_DATABASE=dev_db \
+    -p 3306:3306 \
+    -d mysql:latest
+```
+
+<br>
+
+In **Docker**, you should now see the MySQL container running locally. We now have both a Kafka server and a MySQL server.
+![](assets/module3/images/Docker.jpg)
+
+<br>
+
+Open **MySQLWorkbench** and connect to the MySQL instance running in Docker.
+1. Click Add Connection (circle with a '+' sign)<br>
+2. Input **twitch-chat-hit-counter-mysql-dev** as the connection name<br>
+3. Click '**Test Connection**' to verify that MySQLWorkbench is able to connect to the SQL server
+4. Click '**OK**' to finish setting up the connection
+5. Connect to the SQL instance
+
+![](assets/module3/images/mysqlworkbench_setup.jpg)<br>
+
+<br>
+
+## Create your first SQL table
+1. Click on **Schemas** tab
+2. Navigate to **dev_db** → **Tables**
+3. In the **SQL Editor**, run:
+```
+CREATE TABLE dev_db.greeting_events (
+    event_id VARCHAR(255) PRIMARY KEY,
+    sender VARCHAR(255),
+    receiver VARCHAR(255),
+    message TEXT
+)
+```
+![](assets/module3/images/mysqlworkbench_create_table.gif)<br>
 
 <br>
 
@@ -88,70 +153,6 @@ For `Module 3`, the below file structure are all the relevant files needed.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/testClass_newui.svg" align="center"/> PropertiesApplicationTest.java<br>
 
-
-<br>
-
-## Objective
-![](assets/module3/images/Module3_Overview.svg)<br>
-In **Module 2**, you should have now set up:
-- a HTTP Rest Controller to send a simple Greeting to our application and convert the parameters into a `GreetingEvent` DTO.
-- a Kafka producer to write/send the `GreetingEvent` to your local `greeting-events` topic.
-- a Kafka consumer to read/receive the `GreetingEvent` from your local `greeting-events` topic and log the event to **stdout**.
-
-In **Module 3**, you will go one step further and **persist/store** these `GreetingEvent` in a SQL DB.
-
-Goals:
-- Implement the ability to write a single `GreetingEvent` to a SQL table
-- Implement the ability to write a batch of `GreetingEvent` to a SQL table
-- Implement the ability to read all events from a SQL table + add a new Rest Controller to trigger the query
-
-<br>
-
-## Setup Local MySQL Server
-Start our local MySQL Server via Docker:
-1. Open and login to **Docker Desktop**
-2. Start the MySQL Docker container:
-```shell
-docker run \
-    --name twitch-chat-hit-counter-mysql-dev \
-    -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
-    -e MYSQL_DATABASE=dev_db \
-    -p 3306:3306 \
-    -d mysql:latest
-```
-
-<br>
-
-In **Docker**, you should now see the MySQL container running locally. We now have both a Kafka server and a MySQL server.
-![](assets/module3/images/Docker.jpg)
-
-<br>
-
-Open **MySQLWorkbench** and connect to the MySQL instance running in Docker.
-1. Click Add Connection (circle with a '+' sign)<br>
-2. Input **twitch-chat-hit-counter-mysql-dev** as the connection name<br>
-3. Click '**Test Connection**' to verify that MySQLWorkbench is able to connect to the SQL server
-4. Click '**OK**' to finish setting up the connection
-5. Connect to the SQL instance
-
-![](assets/module3/images/mysqlworkbench_setup.jpg)<br>
-
-<br>
-
-## Create your first SQL table
-1. Click on **Schemas** tab
-2. Navigate to **dev_db** → **Tables**
-3. In the **SQL Editor**, run:
-```
-CREATE TABLE dev_db.greeting_events (
-    event_id VARCHAR(255) PRIMARY KEY,
-    sender VARCHAR(255),
-    receiver VARCHAR(255),
-    message TEXT
-)
-```
-![](assets/module3/images/mysqlworkbench_create_table.gif)<br>
-
 <br>
 
 ## Spring JDBC Autoconfiguration
@@ -182,7 +183,7 @@ The main @Bean that this Spring library autoconfigures for us is the:
 <br>
 
 
-### Lesson: SQL Queries
+## Lesson: SQL Refresher
 > [!TIP]
 >
 > Spend time learning about different SQL queries.

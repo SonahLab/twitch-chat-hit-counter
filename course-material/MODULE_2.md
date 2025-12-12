@@ -1,4 +1,4 @@
-# Practical Backend Engineer
+# The Practical Backend Engineer
 ## Twitch Chat Hit Counter
 ## Module 2: Kafka
 ### Recommended Learning Materials
@@ -94,6 +94,57 @@ In a large scale organization where many teams and systems are interconnected, d
 
 <br>
 
+## Lab Setup
+> [!NOTE]
+>
+> All of the open source tools we use in this course should be run locally on your own machine. In a real production environment, you could imagine that a cloud provider like Amazon hosts your servers through in their data centers in various regions around the world (i.e.: "us-east-1", "us-west-1"). This, however, incurs a real cost to maintain so running locally-hosted, free servers is great to learn, build, and play around with.
+>
+> When hosting servers locally, think of your computer as your own personal data center that you don't need to pay a cloud provider, like Amazon, Google, or Microsoft, to host for you.
+
+### Setup Local Kafka Server
+Start our local Kafka instance via Docker: [Kafka Quickstart <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://kafka.apache.org/quickstart)<br>
+1. Open and login to **Docker Desktop**
+2. Get the Docker image:
+    ```bash
+    docker pull apache/kafka:4.1.0
+    ```
+3. Start the Kafka Docker container:
+    ```bash
+    docker run -p 9092:9092 apache/kafka:4.1.0
+    ```
+
+<br>
+
+In **Docker**, you should now see the kafka container running locally.
+![](assets/module2/images/Docker_kafka.jpg)
+
+<br>
+
+In **Offset Explorer 3**, connect to our Kafka cluster running in Docker.
+1. Input cluster configs:
+    1. **Cluster name:** twitch-chat-hit-counter
+    2. **Bootstrap servers:** localhost:9092
+2. Click '**Test**' to verify that OE3 is able to connect to the Docker container
+3. Double-click on the newly created cluster to connect to the instance
+
+![](assets/module2/OffsetExplorer3.gif)<br>
+
+<br>
+
+### Create Kafka Topic: `greeting-events`
+1. Navigate to the _**Clusters/twitch-chat-hit-counter/Topics**_ folder
+2. Click '+' to add a new kafka topic
+3. Input kafka topic configs:
+    1. **Topic name**: `greeting-events`<br>
+    2. **Partition Count**: `3`<br>
+    3. **Replica Count**: `1`
+4. Select our kafka topic in **_Clusters/twitch-chat-hit-counter/Topics/greeting-events_**
+5. Change the **Content Types** for the key and value from **'Byte Array'** → **'String'**, and save by clicking **Update**.
+
+![](assets/module2/create_topic.gif)<br>
+
+<br>
+
 ## File Structure
 For `Module 2`, the below file structure are all the relevant files needed.
 
@@ -166,57 +217,6 @@ For `Module 2`, the below file structure are all the relevant files needed.
 <img src="assets/common/testClass_newui.svg" align="center"/> KafkaRestControllerTest.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/testClass_newui.svg" align="center"/> PropertiesApplicationTest.java<br>
-
-<br>
-
-## Lab Setup
-> [!NOTE]
->
-> All of the open source tools we use in this course should be run locally on your own machine. In a real production environment, you could imagine that a cloud provider like Amazon hosts your servers through in their data centers in various regions around the world (i.e.: "us-east-1", "us-west-1"). This, however, incurs a real cost to maintain so running locally-hosted, free servers is great to learn, build, and play around with.
->
-> When hosting servers locally, think of your computer as your own personal data center that you don't need to pay a cloud provider, like Amazon, Google, or Microsoft, to host for you.
-
-### Setup Local Kafka Server
-Start our local Kafka instance via Docker: [Kafka Quickstart <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://kafka.apache.org/quickstart)<br>
-1. Open and login to **Docker Desktop**
-2. Get the Docker image:
-    ```bash
-    docker pull apache/kafka:4.1.0
-    ```
-3. Start the Kafka Docker container:
-    ```bash
-    docker run -p 9092:9092 apache/kafka:4.1.0
-    ```
-
-<br>
-
-In **Docker**, you should now see the kafka container running locally.
-![](assets/module2/images/Docker_kafka.jpg)
-
-<br>
-
-In **Offset Explorer 3**, connect to our Kafka cluster running in Docker.
-1. Input cluster configs:
-   1. **Cluster name:** twitch-chat-hit-counter
-   2. **Bootstrap servers:** localhost:9092
-2. Click '**Test**' to verify that OE3 is able to connect to the Docker container
-3. Double-click on the newly created cluster to connect to the instance
-
-![](assets/module2/OffsetExplorer3.gif)<br>
-
-<br>
-
-### Create Kafka Topic: `greeting-events`
-1. Navigate to the _**Clusters/twitch-chat-hit-counter/Topics**_ folder
-2. Click '+' to add a new kafka topic
-3. Input kafka topic configs:
-   1. **Topic name**: `greeting-events`<br>
-   2. **Partition Count**: `3`<br>
-   3. **Replica Count**: `1`
-4. Select our kafka topic in **_Clusters/twitch-chat-hit-counter/Topics/greeting-events_**
-5. Change the **Content Types** for the key and value from **'Byte Array'** → **'String'**, and save by clicking **Update**.
-
-![](assets/module2/create_topic.gif)<br>
 
 <br>
 
@@ -487,7 +487,7 @@ In `GreetingEventProducer.java`, implement:
 - [ ] Remove `@Disabled` in `GreetingEventProducerTest.java`
 - [ ] Test with:
     ```shell
-    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
     ```
 
 <br>
@@ -617,7 +617,7 @@ The main goal for now is to simply **log or print** the kafka message that was r
 - [ ] Remove `@Disabled` in `GreetingEventConsumerTest.java`
 - [ ] Test with:
     ```shell
-    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
     ```
 
 #
@@ -820,7 +820,7 @@ This task will be nearly identical with the previous `GreetingEventConsumer.java
 - [ ] Remove `@Disabled` in `GreetingEventBatchConsumerTest.java`
 - [ ] Test with:
     ```shell
-    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2`
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
     ```
 
 #

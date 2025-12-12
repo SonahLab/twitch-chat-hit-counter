@@ -1,13 +1,72 @@
-# Practical Backend Engineer
+# The Practical Backend Engineer
 ## Twitch Chat Hit Counter
 ## Module 5: Twitch API
-
-### Lesson
-
-
 ### Additional Learning Materials
 
+## Overview
 
+<br>
+
+## Objective
+![](assets/module5/images/Overview.svg)<br>
+
+In **Module 5**, we will now be integrating with the public Twitch API. Instead of triggering the pipeline through HTTP requests, we will setup a pipeline to stream realtime chat messages from Twitch Chat.
+We will use everything we've learned up to this point to accomplish this.
+
+<br>
+
+## Lab Setup
+### Create Kafka Topic: `twitch-chat-events`
+1. Navigate to the _**Clusters/twitch-chat-hit-counter/Topics**_ folder
+2. Click '+' to add a new kafka topic
+3. Input kafka topic configs:
+    1. **Topic name**: twitch-chat-events<br>
+    2. **Partition Count**: 3<br>
+    3. **Replica Count**: 1
+4. Select our kafka topic in **_Clusters/twitch-chat-hit-counter/Topics/twitch-chat-events_**
+5. Change the **Content Types** for the key and value from **'Byte Array'** → **'String'**, and save by clicking **Update**.
+
+![](assets/module2/create_topic.gif)<br>
+
+<br>
+
+### Create SQL Table: `dev_db.twitch_chat_events`
+1. Click on **Schemas** tab
+2. Navigate to **dev_db** → **Tables**
+3. In the **SQL Editor**, run:
+```
+CREATE TABLE dev_db.twitch_chat_events (
+    event_id VARCHAR(255) PRIMARY KEY,
+    event_ts BIGINT,
+    channel_id VARCHAR(255),
+    channel_name VARCHAR(255),
+    user_id VARCHAR(255),
+    username VARCHAR(255),
+    subscription_months INT,
+    subscription_tier INT,
+    message TEXT
+)
+```
+![](assets/module3/images/mysqlworkbench_create_table.gif)<br>
+
+<br>
+
+### [Getting Started with the Twitch API <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://dev.twitch.tv/docs/api/get-started/)
+1. Create a [Twitch.tv <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.twitch.tv/) account
+2. Login to [Twitch Developers Console <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://dev.twitch.tv/console)
+3. Under **Applications**, click on [Register Your Application <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://dev.twitch.tv/console/apps/create).
+    - **Name**: `Chat Hit Counter`
+    - **OAuth Redirect URLs**: `http://localhost:8080/oauth2/callback`
+    - **Category**: `Chat Bot`
+    - **Client Type**: `Confidential`
+
+![](assets/module5/images/twitch_createApplication.png)<br>
+
+4. You should now see your application created. Click **Manage**.
+
+5. Create a **New Secret**. Copy both of the **Client ID** and the **Client Secret**. This will be needed to access the Twitch API in our application.
+
+![](assets/module5/images/twitch_keys.png)<br>
 
 <br>
 
@@ -115,68 +174,6 @@ For `Module 5`, the below file structure are all the relevant files needed.
 <img src="assets/common/testClass_newui.svg" align="center"/> TwitchChatBotManagerTest.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/testClass_newui.svg" align="center"/> PropertiesApplicationTest.java<br>
-
-<br>
-
-## Overview
-![](assets/module5/images/Overview.svg)<br>
-
-In **Module 5**, we will now be integrating with the public Twitch API. Instead of triggering the pipeline through HTTP requests, we will setup a pipeline to stream realtime chat messages from Twitch Chat.
-We will use everything we've learned up to this point to accomplish this.
-
-<br>
-
-## Create Kafka Topic: `twitch-chat-events`
-1. Navigate to the _**Clusters/twitch-chat-hit-counter/Topics**_ folder
-2. Click '+' to add a new kafka topic
-3. Input kafka topic configs:
-    1. **Topic name**: twitch-chat-events<br>
-    2. **Partition Count**: 3<br>
-    3. **Replica Count**: 1
-4. Select our kafka topic in **_Clusters/twitch-chat-hit-counter/Topics/twitch-chat-events_**
-5. Change the **Content Types** for the key and value from **'Byte Array'** → **'String'**, and save by clicking **Update**.
-
-![](assets/module2/create_topic.gif)<br>
-
-<br>
-
-## Create SQL Table: `dev_db.twitch_chat_events`
-1. Click on **Schemas** tab
-2. Navigate to **dev_db** → **Tables**
-3. In the **SQL Editor**, run:
-```
-CREATE TABLE dev_db.twitch_chat_events (
-    event_id VARCHAR(255) PRIMARY KEY,
-    event_ts BIGINT,
-    channel_id VARCHAR(255),
-    channel_name VARCHAR(255),
-    user_id VARCHAR(255),
-    username VARCHAR(255),
-    subscription_months INT,
-    subscription_tier INT,
-    message TEXT
-)
-```
-![](assets/module3/images/mysqlworkbench_create_table.gif)<br>
-
-<br>
-
-## [Getting Started with the Twitch API <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://dev.twitch.tv/docs/api/get-started/)
-1. Create a [Twitch.tv <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.twitch.tv/) account
-2. Login to [Twitch Developers Console <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://dev.twitch.tv/console)
-3. Under **Applications**, click on [Register Your Application <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://dev.twitch.tv/console/apps/create).
-   - **Name**: `Chat Hit Counter`
-   - **OAuth Redirect URLs**: `http://localhost:8080/oauth2/callback`
-   - **Category**: `Chat Bot`
-   - **Client Type**: `Confidential`
-
-![](assets/module5/images/twitch_createApplication.png)<br>
-
-4. You should now see your application created. Click **Manage**.
-
-5. Create a **New Secret**. Copy both of the **Client ID** and the **Client Secret**. This will be needed to access the Twitch API in our application.
-
-![](assets/module5/images/twitch_keys.png)<br>
 
 <br>
 
@@ -499,7 +496,7 @@ This is where our abstract class (`AbstractEventProducer.java`) pays dividends. 
 - [ ] Uncomment the entire file (Did this to avoid compile time errors)
 - [ ] Test with:
     ```shell
-    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5`
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
     ```
 
 <br>
@@ -643,7 +640,7 @@ In `TwitchChatEventConsumer.java`, implement `public void processMessage(Consume
 - [ ] Uncomment the entire file (Did this to avoid compile time errors)
 - [ ] Test with:
     ```shell
-    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5`
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
     ```
 
 
@@ -976,7 +973,7 @@ Return a boolean for whether the aggregation happened successfully.
 > - Daily Aggregation: The input timestamp should be rounded to the nearest, earliest UTC day (by subtracting the hours + minutes + seconds)
 > 
 > ![](assets/module5/images/event1agg.svg)<br>
-> ```json
+> ```
 > {
 >   "MINUTE#s0mcs#1767231000000": 1, (NEW)
 >   "HOUR#s0mcs#1767229200000": 1, (NEW)
@@ -992,7 +989,7 @@ Return a boolean for whether the aggregation happened successfully.
 > - Daily Aggregation: The input timestamp should be rounded to the nearest, earliest UTC day (by subtracting the hours + minutes + seconds)
 >
 > > ![](assets/module5/images/event2agg.svg)<br>
-> ```json
+> ```
 > {
 >   "MINUTE#s0mcs#1767225600000": 1, (NEW)
 >   "MINUTE#s0mcs#1767231000000": 1,
@@ -1010,7 +1007,7 @@ Return a boolean for whether the aggregation happened successfully.
 > - Daily Aggregation: The input timestamp should be rounded to the nearest, earliest UTC day (by subtracting the hours + minutes + seconds)
 >
 > > ![](assets/module5/images/event3agg.svg)<br>
-> ```json
+> ```
 > {
 >   "MINUTE#s0mcs#1767225600000": 1,
 >   "MINUTE#s0mcs#1767225720000": 1, (NEW)

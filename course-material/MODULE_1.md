@@ -1,4 +1,4 @@
-# Practical Backend Engineer
+# The Practical Backend Engineer
 ## Twitch Chat Hit Counter
 ## Module 1: HTTP/REST + Swagger
 
@@ -292,102 +292,72 @@ Return a simple greeting response String tailored to the input `name`.
 
 <br>
 
-## Exercise 2: Game API
-> [!NOTE]
->
-> **Relevant Files**<br>
-> `Potion.java` ─ enum defining all potions.<br>
-> `Stat.java` ─ enum defining character stats.<br>
-> `GameCharacter.java` ─ Data Model for a generic game character in a game with state logic.<br>
-> `GameRestController.java` ─ REST controller to handle game related actions on our `GameCharacter`
+## Lesson: OOP (Object Oriented Programming) Refresher
+**TL;DR**: **OOP (Object Oriented Programming)** is about modelling well-defined classes that encapsulate stateful variables (characteristics) and methods (actions) that are common to the type of object you are attempting to model.
 
-### Task 1: Implement `GameCharacter.java`
-Before we can implement our API endpoints in `GameRestController.java`, we need to create our Data Model object for a generic fantasy game character.
+**Example**:
+```java
+class Car {
+    private String make;
+    private String model;
+    private int speed;
 
-In `GameCharacter.java`, implement the following:
-- `public GameCharacter()` (_CONSTRUCTOR_)
-- `public int getStat(Stat stat)` (_GETTER_)
-- `public Map<Potion, Integer> getInventory()` (_GETTER_)
-- `public void setHp(int hp)` (_SETTER_)
-- `public void setMp(int mp)` (_SETTER_)
-- `public int takeDamage(int damage)` (_STATE CHANGE_)
-- `public int consumePotion(Potion potion)` (_STATE CHANGE_)
-- `public Map<String, Object> getCharacterState()` (_GETTER_)
+    public Car(String make, String model) {
+        this.make = make;
+        this.model = model;
+        this.speed = 0;
+    }
 
-> [!TIP]
->
-> If you aren't familiar with creating POJOs (Plain Old Java Objects), I suggest you read up on various ways to create Java Object Oriented Programming (OOP) objects:<br>
-> - [_Java Constructor Pattern_ <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.w3schools.com/java/java_encapsulation.asp)<br>
-> - [_Java Builder Pattern_ <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/java-builder-pattern)<br>
-> - [_Java Record Pattern_ <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.oracle.com/en/java/javase/17/language/records.html)<br>
+    public String getMake() {
+        return make;
+    }
 
-> [!NOTE]
+    public String getModel() {
+        return model;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    // Increases car speed by 10 MPH w/ a maximum speed of 100 MPH
+    public void accelerate() {
+        speed = Math.min(100, speed + 10);
+    }
+
+    // Decreases car speed by 10 MPH w/ a minimum speed of 0 MPH
+    public void decelerate() {
+        speed = Math.max(0, speed - 10);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Car car1 = new Car("Toyota", "Prius");
+        Car car2 = new Car("Honda", "Civic");
+
+        car1.getMake(); // "Toyota"
+        car1.getModel(); // "Prius"
+        car1.getSpeed(); // 0
+        car2.getMake(); // "Honda"
+        car2.getModel(); // "Civic"
+        car2.getSpeed(); // 0
+
+        car1.accelerate(); // speed → 10
+        car1.accelerate(); // speed → 20
+        car1.accelerate(); // speed → 30
+        car1.getSpeed(); // 30
+
+        car2.accelerate(); // speed → 10
+        car2.getSpeed(); // 10
+        car2.decelerate(); // speed → 0
+        car2.getSpeed(); // 0
+    }
+}
+```
 >
-> The very basics of **OOP (Object Oriented Programming)** is that you have well-defined classes that encapsulates some stateful variables/methods that are common to the type of object you are attempting to model.
->
-> **Example**:
-> ```java
-> class Car {
->     private String make;
->     private String model;
->     private int speed;
->
->     public Car(String make, String model) {
->         this.make = make;
->         this.model = model;
->         this.speed = 0;
->     }
->
->     public String getMake() {
->         return make;
->     }
->
->     public String getModel() {
->         return model;
->     }
->
->     public int getSpeed() {
->         return speed;
->     }
->
->     // Increases car speed by 10 MPH w/ a maximum speed of 100 MPH
->     public void accelerate() {
->         speed = Math.min(100, speed + 10);
->     }
->
->     // Decreases car speed by 10 MPH w/ a minimum speed of 0 MPH
->     public void decelerate() {
->         speed = Math.max(0, speed - 10);
->     }
-> }
->
-> public class Main {
->     public static void main(String[] args) {
->         Car car1 = new Car("Toyota", "Prius");
->         Car car2 = new Car("Honda", "Civic");
->
->         car1.getMake(); // "Toyota"
->         car1.getModel(); // "Prius"
->         car1.getSpeed(); // 0
->         car2.getMake(); // "Honda"
->         car2.getModel(); // "Civic"
->         car2.getSpeed(); // 0
->
->         car1.accelerate(); // speed → 10
->         car1.accelerate(); // speed → 20
->         car1.accelerate(); // speed → 30
->         car1.getSpeed(); // 30
->
->         car2.accelerate(); // speed → 10
->         car2.getSpeed(); // 10
->         car2.decelerate(); // speed → 0
->         car2.getSpeed(); // 0
->     }
-> }
+> `car1` and `car2` are both `Car` class objects, but they each have their own separate memory space in a program and each object maintains its own independent state:
 > ```
->
-> `car1` and `car2` are both `Car` class objects, but they each have their own separate memory space in the program and each object maintains its own independent state:
-> ```json
 > car1 = {
 >   "make": "Toyota",
 >   "model": "Prius",
@@ -403,10 +373,48 @@ In `GameCharacter.java`, implement the following:
 >
 > This is the core idea of objects in OOP: 1 class → N objects (each with its own data).
 >
-> Think of the POJOs as an Object blueprint. You can use the same blueprint to build many Objects, but each Object is encapsulated with its own set of variables/state.
+> OOP is about creating Object blueprints. You can use the same blueprint to build many copies of an Object, but each Object is encapsulated with its own set of variables/state.
 > What happens to another `car2` does not affect `car1`, and vice versa.
 
-### Part 1: Constructor
+<br>
+
+
+## Exercise 2: Game API
+> [!NOTE]
+>
+> **Relevant Files**<br>
+> `Potion.java` ─ enum defining all potions.<br>
+> `Stat.java` ─ enum defining character stats.<br>
+> `GameCharacter.java` ─ Data Model for a generic game character in a game with state logic.<br>
+> `GameRestController.java` ─ REST controller to handle game related actions on our `GameCharacter`
+
+> [!TIP]
+>
+> If you aren't familiar with creating **POJOs** (Plain Old Java Objects), I suggest you read up on various ways to create Java Object Oriented Programming (OOP) objects:
+> - [_Java Encapsulation Pattern_ <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.w3schools.com/java/java_encapsulation.asp)<br>
+> - [_Java Builder Pattern_ <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/java-builder-pattern)<br>
+> - [_Java Record Pattern_ <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.oracle.com/en/java/javase/17/language/records.html)<br>
+
+<br>
+
+#
+
+### Exercise 2 Task 1: Implement `GameCharacter.java`
+Before we can implement our API endpoints in `GameRestController.java`, we need to create our Data Model object for a generic fantasy game character.
+
+In `GameCharacter.java`, implement the following:
+- `public GameCharacter()` (_CONSTRUCTOR_)
+- `public int getStat(Stat stat)` (_GETTER_)
+- `public Map<Potion, Integer> getInventory()` (_GETTER_)
+- `public void setHp(int hp)` (_SETTER_)
+- `public void setMp(int mp)` (_SETTER_)
+- `public int takeDamage(int damage)` (_STATE CHANGE_)
+- `public int consumePotion(Potion potion)` (_STATE CHANGE_)
+- `public Map<String, Object> getCharacterState()` (_GETTER_)
+
+#
+
+### Exercise 2 Task 1 Part I: Constructor
 In `GameCharacter.java`, implement `public GameCharacter()` constructor.
 
 **Requirements:**<br>
@@ -423,7 +431,7 @@ In `GameCharacter.java`, implement `public GameCharacter()` constructor.
 
 #
 
-### Part 2: Get Stat
+### Exercise 2 Task 1 Part II: Get Stat
 In `GameCharacter.java`, implement `public int getStat(Stat stat)`.
 
 Return the current value for the input `Stat` enum.
@@ -434,20 +442,20 @@ Return the current value for the input `Stat` enum.
 
 #
 
-### Part 3: Get Inventory
+### Exercise 2 Task 1 Part III: Get Inventory
 In `GameCharacter.java`, implement `public Map<Potion, Integer> getInventory()`.
 
 Return the character's current `inventory` map.
 
 #
 
-### Part 4: Setters
+### Exercise 2 Task 1 Part IV: Setters
 In `GameCharacter.java`, implement:
 - `public void setHp(int hp)`
 - `public void setMp(int mp)`
 
 **Requirements:**
-1. HP/MP should be bounded by [0, 100]
+1. **HP/MP** should be bounded by [0, 100]
 2. Attempts to set the **HP/MP** with values outside the valid range should be ignored.
 
 **Let's test what we have up to this point.**
@@ -506,7 +514,7 @@ In `GameCharacter.java`, implement:
 
 #
 
-### Part 5: takeDamage
+### Exercise 2 Task 1 Part V: takeDamage
 In `GameCharacter.java`, implement `public int takeDamage(int damage)`. You will reduce the `character` object's HP by the `damage` amount.
 
 Return the updated character `HP` int.
@@ -548,7 +556,7 @@ Return the updated character `HP` int.
 
 #
 
-### Part 6: consumePotion
+### Exercise 2 Task 1 Part VI: consumePotion
 In `GameCharacter.java`, implement `public int consumePotion(Potion potion)`. You will increment the `character` object's HP/MP depending on the potion.
 
 Return the updated character `HP`/`MP` int, or -1 for any errors.
@@ -665,7 +673,7 @@ Return the updated character `HP`/`MP` int, or -1 for any errors.
 
 #
 
-### Part 7: getCharacterState
+### Exercise 2 Task 1 Part VII: getCharacterState
 In `GameCharacter.java`, implement `public void getCharacterState()`.
 
 Return a `Map<String, Object>` representing the character's current state (**HP**, **MP**, and **INVENTORY**).
@@ -707,9 +715,9 @@ Return a `Map<String, Object>` representing the character's current state (**HP*
 
 #
 
-### Task 3: Hookup `GameRestController.java` to `GameCharacter.java`
+### Exercise 2 Task 2: Hookup `GameRestController.java` to `GameCharacter.java`
 ![](assets/module1/images/gameController.svg)<br>
-Now we should have all the application logic in `GameCharacter.java` to handle the Game API endpoints, we simply need to call them.
+You should have all the application logic in `GameCharacter.java` to handle the Game API endpoints, we simply need to call them.
 
 In `GameRestController.java`, implement `public GameRestController.java` constructor by initialize our Main `GameCharacter` object.<br>
 
@@ -749,49 +757,43 @@ public Map<String, Object> getCharacterState() {
 <br>
 
 ### Example 1:
-> ```java
-> WebClient webClient = WebClient.builder()
->         .baseUrl("http://localhost:8080/api")
->         .build();
+> ```bash
+> $ curl -X GET "http://localhost:8080/api/fantasyGame/characterState"
+> # Output1
+> {
+>   "HP": 100,
+>   "MP": 100,
+>   "INVENTORY": {
+>     "HP_POTION": 5,
+>     "MP_POTION": 5,
+>   }
+> }
 > 
-> // 1. Get main character state: {HP=100, MP=100, inventory={HP_POTION=5, MP_POTION=5}}
-> Map<String, Object> output1 = webClient.get()
->         .uri("/fantasyGame/characterState")
->         .retrieve()
->         .bodyToMono(Map.class)
->         .block();
+> $ curl -X PUT "http://localhost:8080/api/fantasyGame/takeDamage?damage=70"
+> # Output2
+> 30
+>
+> $ curl -X POST "http://localhost:8080/api/fantasyGame/consumePotion?potionName=HP_POTION"
+> # Output3
+> 80
 > 
-> // 2. Main character takes 70 damage: 100 (current HP) - 70 (damage) = 30 HP
-> int output2 = webClient.put()
->         .uri(uriBuilder -> uriBuilder
->                 .path("/fantasyGame/takeDamage")
->                 .queryParam("damage", 70)
->                 .build())
->         .retrieve()
->         .bodyToMono(Integer.class)
->         .block();
-> 
-> // 3. Main character drinks an HP potion: 30 (current HP) + 50 (HP potion) = 80 HP
-> int output3 = webClient.put()
->         .uri(uriBuilder -> uriBuilder
->                 .path("/fantasyGame/consumePotion")
->                 .queryParam("potionName", "HP_POTION)
->                 .build())
->         .retrieve()
->         .bodyToMono(Integer.class)
->         .block();
-> 
-> // 4. Get updated main character state: {HP=80, MP=100, inventory={HP_POTION=4, MP_POTION=5}}
-> int output4 = webClient.get()
->         .uri("/fantasyGame/characterState")
->         .retrieve()
->         .bodyToMono(Map.class)
->         .block();
+> $ curl -X GET "http://localhost:8080/api/fantasyGame/characterState"
+> # Output4
+> {
+>   "HP": 80,
+>   "MP": 100,
+>   "INVENTORY": {
+>     "HP_POTION": 4,
+>     "MP_POTION": 5,
+>   }
+> }
 > ```
-> **Output1**: {"HP": 100, "MP": 100, "INVENTORY": {"HP_POTION": 5, "MP_POTION": 5}<br>
-> **Output2**: 30<br>
-> **Output3**: 80<br>
-> **Output4**: {"HP": 80, "MP": 100, "INVENTORY": {"HP_POTION": 4, "MP_POTION": 5}
+> 
+> **Explanation:**<br>
+> **Output1:** Get the default character state where the init values should have HP/MP = 100 and HP/MP potions = 5.<br>
+> **Output2:** Character takes 70 damage. Their HP value should now be 100 - 70 = 30.<br>
+> **Output3:** Character drinks a HP_POTION. Their HP value should now be 30 (current HP) + 50 (potion bonus) = 80.<br>
+> **Output4:** Get the character state again. HP = 80 after `/takeDamage` + `/consumePotion`. MP = 100 (never changed). INVENTORY now has 4 HP_POTIONs after `/consumePotion` and 5 MP_POTIONs (never changed).
 
 #
 

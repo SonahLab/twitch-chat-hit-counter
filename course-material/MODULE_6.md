@@ -1,13 +1,18 @@
-# Practical Backend Engineer
+# The Practical Backend Engineer
 ## Twitch Chat Hit Counter
-## Module 5: Frontend Application
-
-### Lesson
-
-
+## Module 6: Frontend Application
 ### Additional Learning Materials
 
+## Overview
 
+<br>
+
+## Objective
+![](assets/module5/images/Overview.svg)<br>
+
+In **Module 5**, we have setup the entire E2E pipeline using hardcoded Twitch channels.<br>
+In **Module 6**, we are adding the remaining endpoints that the Frontend React application will require
+to from our Backend application.
 
 <br>
 
@@ -77,15 +82,6 @@ For `Module 6`, the below file structure are all the relevant files needed.
 <img src="assets/common/testClass_newui.svg" align="center"/> TwitchHelixServiceTest.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/testClass_newui.svg" align="center"/> PropertiesApplicationTest.java<br>
-
-<br>
-
-## Overview
-![](assets/module5/images/Overview.svg)<br>
-
-In **Module 5**, we have setup the entire E2E pipeline using hardcoded Twitch channels.<br>
-In **Module 6**, we are adding the remaining endpoints that the Frontend React application will require
-to from our Backend application.
 
 <br>
 
@@ -367,7 +363,3 @@ This should call the helper method in `TwitchChatBotManager`.
 In `TwitchRestController`, implement `@GetMapping("/getChannelsMetadata")`.
 
 This should call the helper method in `TwitchHelixService`.
-
-
-
-WE'RE DONE.

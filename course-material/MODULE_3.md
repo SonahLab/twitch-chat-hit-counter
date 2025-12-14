@@ -188,12 +188,6 @@ The main @Bean that this Spring library autoconfigures for us is the:
 >
 > Spend time learning about different SQL queries.
 > - [W3School's MySQL Playground <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.w3schools.com/mysql/mysql_editor.asp): play around with static, public, online datasets through an online editor.
-> - [MySQL Replace function <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://dev.mysql.com/doc/refman/8.0/en/replace.html): this will be the main function we want to use (MySQL 8.x) to write data to SQL tables and handle de-duplication for us.
->
-> ```
-> REPLACE INTO {TABLE_NAME} (field₁, ..., fieldₙ)
-> VALUES (?, ..., ?)
-> ```
 
 In **MySQLWorkbench**, create a playground `employees` SQL table.
 ```
@@ -209,10 +203,10 @@ CREATE TABLE dev_db.employees (
 
 #
 
-### Task 1: SQL Query Writes
-We've just hired **Alice** and **Bob** to our new startup so let's make sure they're stored in our SQL table.
+### Task 1: SQL Writes
+We've just hired **Alice** and **Bob** to our new startup, lets make sure they're employee information is stored in our SQL table, `dev_db.employees`.
 
-Write a SQL query that will upload these 2 employees' information into SQL:
+Write a SQL statement that will upload these 2 employees' information into SQL:
 - **Alice** employee record: `employee_id=1, first_name="Alice", last_name="Apple", birthday="1800-12-25", photo="EmpId1.pic", notes="Software Engineer"`
 - **Bob** employee record: `employee_id=2, first_name="Bob", last_name="Banana", birthday="2026-01-01", photo="EmpId2.pic", notes="Very young employee"`
 
@@ -227,10 +221,10 @@ Verify the data is actually being written into the table as intended:
 
 #
 
-### Task 2: SQL Query Overwrites
+### Task 2: SQL Overwrites
 We accidentally uploaded Alice's birthday incorrectly, instead of `1800-12-25` it should be set to `2000-12-25`.
 
-Write a SQL query that will overwrite Alice's entire employee record but fixing the birthday. If we use `INSERT INTO ...` and try to overwrite an already existing row with the same **PK (Primary Key)**, SQL will throw an exception.
+Write a SQL statement that will overwrite Alice's entire employee record with the fixed birthday. 
 
 [//]: # (Solution:)
 [//]: # (REPLACE INTO employees &#40;employee_id, first_name, last_name, birthday, photo, notes&#41;)
@@ -239,22 +233,14 @@ Write a SQL query that will overwrite Alice's entire employee record but fixing 
 
 > [!NOTE]
 >
-> **TL;DR**: we've used SQL queries to insert multiple records + overwrite/process duplicate records.
-> This is important in a real world situation where maybe an upstream team has passed our team bad data.
-> Assume the upstream team fixes the data in Prod. When we reprocess/backfill the data we have ways to:
-> 1. Deduplicate, but more accurately overwrite, previously written bad data with fresh data
-> 2. Handle backfills by re-processing bad data with new fresh data
+> If we use `INSERT INTO ...` and try to overwrite an already existing row with the same **PK (Primary Key)**, SQL will throw an exception. Find another way to overwrite an existing row.
 
+#
 
 ### Task 3: SQL Deduplication
-In the previous task when trying to overwrite data for an existing primary key (below) you should have gotten an exception and failed to insert this row.
-```
-INSERT INTO employees (employee_id, first_name, last_name, birthday, photo, notes)
-(VALUES)
-(1, "Alice", "Apple", "2000-12-25", "EmpId1.pic", "Software Engineer")
-```
+Imagine that Alice's employee hire event was sent to us again: `employee_id=1, first_name="Alice", last_name="Apple", birthday="2000-12-25", photo="EmpId1.pic", notes="Software Engineer"`
 
-Write a SQL command that doesn't hard fail and, instead, is able to succeed and ignore any duplicate rows with existing primary keys in the table.
+Write a SQL statement that ignores rows from being written into the `employees` SQL table with a duplicate key (any row with that same pre-existing PK in the table).
 
 [//]: # (Solution:)
 [//]: # (INSERT IGNORE INTO employees &#40;employee_id, first_name, last_name, birthday, photo, notes&#41;)
@@ -265,8 +251,9 @@ Write a SQL command that doesn't hard fail and, instead, is able to succeed and 
 
 ### Quiz:
 #### Question 1: Backfills
-Your upstream team has been sending your team corrupt data via S3 files between 2026-01-01 and 2026-01-31, but your team has already processed/stored all the events to a SQL table.
-The upstream team notifies your team that they've just fixed the data.
+Situation: Your upstream team has been sending your team **corrupt** data for some time, but your team has already processed and stored all the events to a SQL table.
+The upstream team notifies your team that they've just gone back and corrected the data. You go ahead and kick off a backfill to re-process all the days affected with the correct data.
+
 For this scenario, what is the **best** (most efficient) SQL logic to use?
 ```
 INSERT INTO table employees (...)
@@ -292,8 +279,9 @@ C. This is incorrect because it is ignoring the newly processed, correct data si
 ```
 
 #### Question 2: Duplicates
-Your upstream team has been sending your team valid data via S3 between 2026-01-01 and 2026-01-31, but your team has already processed all the data and written the events to a SQL table.
-They just deployed a bug in their code and, for every event, they are not just sending you that single event, but 2 of the same events (duplicates).
+Situation: Your upstream team has been sending your team **correct** data for some time, and your team has already processed all the data and written the events to a SQL table.
+But they just deployed a bug in their code and, for every event, they are not just sending you that single event but also a copy of the exact same event payload (duplicates).
+
 For this scenario, what is the **best** (most efficient) SQL logic to use?
 ```
 INSERT INTO table employees (...)
@@ -320,16 +308,17 @@ C. This is correct because it will write in the first event and ignore the secon
 
 > [!IMPORTANT]
 > 
-> Always think about how your systems handle the **"Unhappy Path"** when things go wrong. Large systems are made up of many microservices built by many engineers and teams all working together.
-> You build systems for the happy path when everything is going well, but what happens to your system under stress, duress, or unpredictable issues?
+> Always think about how your systems handle the **"Unhappy Path"** when things go wrong. Large systems are made up of many microservices built by many engineers/teams all working together.
+> You build systems for the happy path when everything is going well, but what happens to your system when unpredictable issues come up?
 > 
-> In Software Engineering, it is never a matter of **IF** things go wrong, but **WHEN**. And **WHEN** things go wrong, your systems better be able to handle it. Software is human-engineered and we all make mistakes. Networks and servers go down, those instances are unpredictable and uncontrollable.
+> In Software Engineering, it's never a matter of **IF** things go wrong, but **WHEN**. And **WHEN** things go wrong, you should have built systems to appropriately handle any failures. Software is human-engineered and we all make mistakes. As for networks and servers, those instances are unpredictable and uncontrollable when they become unavailable.
 > 
 > Most of my growth as a Software Engineer — technically speaking — from my New Grad days to a Senior SWE is the ability to think about all the possible ways (edge cases) my code can lead to unwanted outcomes in the future and to build in guardrails to prevent as many unexpected things happening within the system.
-> By front-loading a lot of this worry upfront in the Design phase, you quickly learn the importance of trying to understand how the system works E2E and how each component fits into the system diagram. You're able to catch pitfalls earlier by collaborating and collecting feedback on all failure scenarios.
+> By front-loading a lot of this worry upfront in the Design phase, you quickly learn the importance of trying to understand how the system works E2E and how each component fits into some system diagram. You're able to catch pitfalls earlier by collaborating and collecting feedback on all failure scenarios.
 > - What do we do when our upstream team introduces a bug and sends us bad data?
 > - Is there a way we can backfill data quickly?
-> - How will our system scale in a thundering herd situation where event loads spike outside the normal bounds of our usual day-to-day operations?
+> - How will our system scale in a thundering herd situation when event loads spike outside the normal bounds of our usual day-to-day operations?
+> - If there is a system outage, when our services get back "online", is our application optimally built to catch up with the backpressured data when we scale up?
 
 <br>
 
@@ -501,7 +490,6 @@ F. Incorrect answer. You could use `PreparedStatement` but the other choice is m
 
 #
 
-### Task 1.3: GreetingSqlService Part II: insert()
 ### Exercise 1 Task 3: GreetingEventSqlService (Child Class)
 In `AbstractSqlService.java`, you should have implemented the Constructor and the `insert()` method. But there are still many `abstract` tagged methods, which are left up to any children classes to implement.
 

@@ -12,10 +12,10 @@
 ### Table of Contents
 - [Overview](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#module-2-kafka)
 - [Objective](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#objective)
-- [File Structure](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#file-structure)
 - [Lab Setup](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#lab-setup)
     - [Setup Local Kafka Server](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#setup-local-kafka-server)
     - [Create Kafka Topic](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#create-kafka-topic-greeting-events)
+- [File Structure](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#file-structure)
 - [Exercise 1: Spring Kafka](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#excercise-1-configure-spring-kafka-within-our-application)
 - [Exercise 2: Kafka Producer](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#exercise-2-kafka-producer)
 - [Exercise 3: Kafka Consumer](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#exercise-3-single-message-kafka-consumer)
@@ -223,7 +223,7 @@ For `Module 2`, the below file structure are all the relevant files needed.
 
 <br>
 
-## Excercise 1: Integrate Spring Kafka
+## Excercise 1: Spring Kafka
 ![](assets/module2/images/connect.png)<br>
 
 > [!NOTE]
@@ -580,7 +580,7 @@ true
 
 #
 
-## Exercise 3: Single Message Kafka Consumer
+## Exercise 3: Kafka Consumer
 ![](assets/module2/images/exercise2.svg)<br>
 
 > [!NOTE]
@@ -703,7 +703,7 @@ This simple extreme example shows the benefit of introducing batch operations in
 
 #
 
-## Exercise 4: BATCH Message Kafka Consumer
+## Exercise 4: Kafka Batch Consumer
 ![](assets/module2/images/exercise3.svg)<br>
 
 Spring Kafka autoconfigures `KafkaTemplate` and `ConcurrentKafkaListenerContainerFactory` for us. If Spring sees that the developer doesn't set a field, it usually uses _some_ default value.

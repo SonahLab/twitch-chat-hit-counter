@@ -86,9 +86,11 @@ In a large scale organization where many teams and systems are interconnected, d
 
 ## Objective
 ![](assets/module2/images/Module2_Overview.svg)<br>
-**Module 1** gave you a brief overview of HTTP requests and is the backbone for the most basic communication protocol between server.
+**Module 1** was a brief overview of HTTP requests as the backbone of one of the most common communication protocol between applications.
 
-**Module 2** is mostly about:
+**Module 2** is all about Apache Kafka.
+
+**Goals:** <br>
 1. Setting up an HTTP request endpoint that will process a User submitted greeting
 2. Translating the User inputted greeting into a `GreetingEvent` DTO (Data Transfer Object)
 3. PubSub the event through a kafka topic
@@ -222,14 +224,6 @@ For `Module 2`, the below file structure are all the relevant files needed.
 <img src="assets/common/testClass_newui.svg" align="center"/> PropertiesApplicationTest.java<br>
 
 <br>
-
-## Excercise 1: Spring Kafka
-![](assets/module2/images/connect.png)<br>
-
-> [!NOTE]
->
-> **Relevant Files**<br>
-> `application.yml` ─ our service's property file
 
 ### Lesson: Autoconfiguration
 > [!IMPORTANT]
@@ -390,6 +384,14 @@ These properties control how the `key/value` of a Kafka message is serialized on
 
 #
 
+## Excercise 1: Spring Kafka
+![](assets/module2/images/connect.png)<br>
+
+> [!NOTE]
+>
+> **Relevant Files**<br>
+> `application.yml` ─ our service's property file
+
 ### Task 1: Spring Kafka Properties
 In `application.yml`, set the **Spring Kafka** properties according to the requirements below. Some properties are marked **OPTIONAL** because **Spring Kafka** has default settings on these fields, but I'm requiring them for this course.
 
@@ -408,7 +410,7 @@ In `application.yml`, set the **Spring Kafka** properties according to the requi
 
 #
 
-### Testing
+### Unit Tests
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented, testing each property against the expected values we want for this course.
 - [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method: `springKafkaConfigsTest()`
 - [ ] Open `KafkaConfigTest.java` ─ already implemented, testing the autoconfigured Beans that Spring Kafka injects for us.
@@ -438,7 +440,7 @@ twitch-chat-hit-counter:
 
 #
 
-### Testing
+### Unit Tests
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented, testing each property against the expected values we want for this course.
 - [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method: `kafkaGreetingTopicNameTest()`
 - [ ] Test with:
@@ -513,7 +515,7 @@ In `GreetingEventProducer.java`, implement:
 
 #
 
-### Testing
+### Integration Tests
 - [ ] Open `GreetingEventProducerTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `GreetingEventProducerTest.java`
 - [ ] Test with:
@@ -556,7 +558,7 @@ true
 
 #
 
-### Testing
+### Unit Tests
 - [ ] Open `KafkaRestControllerTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `KafkaRestControllerTest.java`
 - [ ] Test with:
@@ -566,7 +568,7 @@ true
 
 #
 
-### Integration Testing
+### E2E Tests
 - [ ] Run the application:
     ```shell
     ./gradlew bootRun
@@ -643,7 +645,7 @@ The main goal for now is to simply **log or print** the kafka message that was r
 
 #
 
-### Testing
+### Integration Tests
 - [ ] Open `GreetingEventConsumerTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `GreetingEventConsumerTest.java`
 - [ ] Test with:
@@ -653,7 +655,7 @@ The main goal for now is to simply **log or print** the kafka message that was r
 
 #
 
-### Integration Testing
+### E2E Tests
 - [ ] Run the application:
     ```shell
     ./gradlew bootRun
@@ -762,7 +764,7 @@ If we overwrite any of these fields, it'll affect the autconfigured single consu
 
 #
 
-### Testing
+### Unit Tests
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented, testing that the two requirements above are met.
 - [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method(s): `kafkaBatchConfigsTest()`
 - [ ] Test with:
@@ -794,7 +796,7 @@ with the two changes being that the batchKafkaListenerContainerFactory's `group-
 
 #
 
-### Testing
+### Unit Tests
 - [ ] Open `KafkaConfigTest.java` ─ already implemented, testing a new @Bean named `batchKafkaListenerContainerFactory` is properly configured with different `group-id` and `listener.type`
 - [ ] Remove `@Disabled` in `KafkaConfigTest.java` for the test method(s): `batchKafkaListenerContainerFactory_beanTest()`
 - [ ] Test with:
@@ -846,7 +848,7 @@ This task will be nearly identical with the previous `GreetingEventConsumer.java
 
 #
 
-### Testing
+### Integration Tests
 - [ ] Open `GreetingEventBatchConsumerTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `GreetingEventBatchConsumerTest.java`
 - [ ] Test with:
@@ -856,7 +858,7 @@ This task will be nearly identical with the previous `GreetingEventConsumer.java
 
 #
 
-### Integration Testing
+### E2E Tests
 - [ ] Try to have multiple kafka events already stored in your kafka topic
 - [ ] Run the application:
     ```shell

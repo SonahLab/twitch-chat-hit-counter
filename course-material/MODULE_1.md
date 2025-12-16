@@ -477,7 +477,7 @@ In `GameCharacter.java`, implement `public GameCharacter()` constructor.
 
 #
 
-### Exercise 2 Task 1 Part II: Get Stat
+### Exercise 2 Task 1 Part II: `getStat`
 In `GameCharacter.java`, implement `public int getStat(Stat stat)`.
 
 Return the current value for the input `Stat` enum.
@@ -488,7 +488,7 @@ Return the current value for the input `Stat` enum.
 
 #
 
-### Exercise 2 Task 1 Part III: Get Inventory
+### Exercise 2 Task 1 Part III: `getInventory`
 In `GameCharacter.java`, implement `public Map<Potion, Integer> getInventory()`.
 
 Return the character's current `inventory` map.
@@ -560,7 +560,7 @@ In `GameCharacter.java`, implement:
 
 #
 
-### Exercise 2 Task 1 Part V: takeDamage
+### Exercise 2 Task 1 Part V: `takeDamage`
 In `GameCharacter.java`, implement `public int takeDamage(int damage)`. You will reduce the `character` object's HP by the `damage` amount.
 
 Return the updated character `HP` int.
@@ -602,7 +602,7 @@ Return the updated character `HP` int.
 
 #
 
-### Exercise 2 Task 1 Part VI: consumePotion
+### Exercise 2 Task 1 Part VI: `consumePotion`
 In `GameCharacter.java`, implement `public int consumePotion(Potion potion)`. You will increment the `character` object's HP/MP depending on the potion.
 
 Return the updated character `HP`/`MP` int, or -1 for any errors.
@@ -729,7 +729,7 @@ Return the updated character `HP`/`MP` int, or -1 for any errors.
 
 #
 
-### Exercise 2 Task 1 Part VII: getCharacterState
+### Exercise 2 Task 1 Part VII: `getCharacterState`
 In `GameCharacter.java`, implement `public void getCharacterState()`.
 
 Return a `Map<String, Object>` representing the character's current state (**HP**, **MP**, and **INVENTORY**).

@@ -389,9 +389,6 @@ Notice in `AbstractSqlService.java` I've provided abstract methods (which will b
   - The **table_name** placeholder should be replaced by a String returned by calling `sqlTableName()`
   - The **columns** placeholder should be replaced by a comma-separated list of String returned by calling `columns()` (i.e.: `(column1, column2, ..., columnN)`)
   - The **values** placeholder should be replaced by a comma-separated list of `?` characters respecting the same length returned by calling `columns()` (i.e.: `(?₁, ?₂, ..., ?ₙ)`)
-3. Logic to handle different [`JdbcTemplate` <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/jdbc/core/JdbcTemplate.html) method calls depending on if the input list is a single event or a batch of events.
-  - The `JdbcTemplate` client library offers many ways to call the same method ([Java Overloading <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.w3schools.com/java/java_methods_overloading.asp)). I had a specific method signature in mind when thinking about how you should implement your `insert()` method. (Hint: think about how calling `Object[] values(T event)` would guide which method signature you would use)
-    ![](assets/module3/images/updateOverloaded.png)<br>
 
 > [!TIP]
 > 
@@ -401,88 +398,161 @@ Notice in `AbstractSqlService.java` I've provided abstract methods (which will b
 
 #
 
-### Quiz (Exercise 1 Task 2 Part II: insert())
-#### Question 1: Based on Requirement #1 for "Exercise 1 Task 2 Part II", what method will you use to gracefully handling duplicate writes?
-```
-A. `INSERT INTO table_name (columns...) VALUES (values...)
-B. `INSERT IGNORE INTO table_name (columns...) VALUES (values...)
-C. `REPLACE INTO table_name (columns...) VALUES (values...)
-```
+[//]: # (### Quiz &#40;Exercise 1 Task 2 Part II: insert&#40;&#41;&#41;)
 
-#### Question 2: What is the correct output of calling `String.format("My name is %s %s. My dogs' names are: %s.", "Jane", "Doe", String.join(",", List.of("Scooby-Doo", "Pluto", "Snoopy"")));`
-```
-A. "My name is Jane Doe. My dogs' names are: Scooby-Doo, Pluto, Snoopy.
-B. "My name is Jane Doe. My dogs' names are: [Scooby-Doo, Pluto, Snoopy]
-C. "My name is Jane Doe. My dogs' names are: Scooby-Doo, Pluto, Snoopy
-D. "My name is Jane Doe. My dogs' names are: [Scooby-Doo, Pluto, Snoopy].
-```
-```
-A. Correct answer. Correctly replaces the first and second `%s` placeholder with "Jane" and "Doe", respectively. Also correctly joins the List<String> by the `,` delimeter.
-B. Incorrect answer. Correctly replaces the first and second `%s` placeholder with "Jane" and "Doe", respectively. Correctly joins the List<String> by the `,` delimeter. Incorrectly adds the "[]" brackets. Incorrectly misses the period at the end that's in the original string being formatted.
-C. Incorrect answer. Correctly replaces the first and second `%s` placeholder with "Jane" and "Doe", respectively. Correctly joins the List<String> by the `,` delimeter. Incorrectly misses the period at the end that's in the original string being formatted.
-D. Incorrect answer. Correctly replaces the first and second `%s` placeholder with "Jane" and "Doe", respectively. Correctly joins the List<String> by the `,` delimeter. Incorrectly adds the "[]" brackets. Correctly has the period at the end of the original string being formatted.
-```
+[//]: # (#### Question 1: Based on Requirement #1 for "Exercise 1 Task 2 Part II", what method will you use to gracefully handling duplicate writes?)
 
-#### Question 3: Based on Requirement #3, what are the BEST combination of methods to call in this code block?
-```java
-public int insert(List<T> events) {
-    // ...
-    if (events.size() == 1) {
-        jdbcTemplate.{method1}
-    } else {
-        jdbcTemplate.{method2}
-    }
-    // ...
-}
-```
-```
-A. method1 = update(); method2 = update();
-B. method1 = batchUpdate(); method2 = update();
-C. method1 = batchUpdate(); method2 = batchUpdate();
-D. method1 = update(); method2 = batchUpdate();
-```
-```
-A. Incorrect answer. Method2 will fail because if we are trying to update 5 events, update() will throw an exception. update() -- Issue a single SQL update operation (such as an insert, update or delete statement).
-B. Incorrect answer. Method1 won't fail but it's not the most optimal method we should use for updating 1 event. Method2 will fail because if we are trying to update 5 events, update() will throw an exception. update() -- Issue a single SQL update operation (such as an insert, update or delete statement). batchUpdate() -- Execute multiple batches using the supplied SQL statement with the collect of supplied arguments.
-C. Incorrect answer. Method1 won't fail but it's not the most optimal method we should use for updating 1 event.
-D. Correct answer. Method1=update() will succeed and is the most optimal when updating a single insert statement. Method2=batchUpdate() will succeed and is the correct method to call for a batch of insert statements.
-```
+[//]: # (```)
 
-#### Question 4: Based on Requirement #4, what is the correct `update(...)` and `batchUpdate(...)` method signature to use GIVEN that you will implement the `Object[] values(T event)` method -- which will return an array of raw event values.
-![](assets/module3/images/updateOverloaded.png)<br>
-Example:
-```java
-public class ChildClass extends AbstractSqlService<GreetingEvent> {
-    // ...
+[//]: # (A. `INSERT INTO table_name &#40;columns...&#41; VALUES &#40;values...&#41;)
 
-    @Override
-    protected abstract Object[] values(GreetingEvent event) {
-        return Object[] {{event.eventId(), event.sender(), event.receiver(), event.message()}};
-    }
+[//]: # (B. `INSERT IGNORE INTO table_name &#40;columns...&#41; VALUES &#40;values...&#41;)
 
-    // ...
-}
-GreetingEvent event = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
-ChildClass child = new ChildClass();
-Object[] values = child.values(); // OUTPUT: ["id1", "Alice", "Bob", "Hi Bob, I'm Alice!"]
-```
-```
-A. int update(String sql)
-B. int update(String sql, @Nullable Object @Nullable ... args)
-C. int update(String sql, @Nullable Object @Nullable ... args, int[] argTypes)
-D. int update(String sql, @Nullable PreparedStatementSetter pss)
-E. int update(PreparedStatementCreator psc)
-F. protected int update(PreparedStatementCreator psc, @Nullable PreparedStatementSetter pss)
-H. int update(PreparedStatementCreator psc, KeyHolder generatedKeyHolder)
-```
-```
-A. Incorrect answer. This method expects a fully formed SQL update statement, but our Requirement #2 explicitly wants our SQL statement to template the (values) as (?₁, ?₂, ..., ?ₙ).
-B. Correct answer. This method expects a partially formed SQL update statement + explicit ...args which you will pass in using the abstract `Object[] values(T event)` method.
-C. Incorrect answer. This method is similar to the correct choice, but with the addition of an additional `int[] argTypes` argument. You *COULD* use this method by passing in each argument and it's type or just rely on the Java Object Types for each arg passed in, which is what we prefer.
-D. Incorrect answer. You could use `PreparedStatement` but the other choice is more simple and aligned with direct utilization of the abstract `Object[] values(T event)` method.
-E. Incorrect answer. You could use `PreparedStatement` but the other choice is more simple and aligned with direct utilization of the abstract `Object[] values(T event)` method.
-F. Incorrect answer. You could use `PreparedStatement` but the other choice is more simple and aligned with direct utilization of the abstract `Object[] values(T event)` method.
-```
+[//]: # (C. `REPLACE INTO table_name &#40;columns...&#41; VALUES &#40;values...&#41;)
+
+[//]: # (```)
+
+[//]: # (#### Question 2: What is the correct output of calling `String.format&#40;"My name is %s %s. My dogs' names are: %s.", "Jane", "Doe", String.join&#40;",", List.of&#40;"Scooby-Doo", "Pluto", "Snoopy""&#41;&#41;&#41;;`)
+
+[//]: # (```)
+
+[//]: # (A. "My name is Jane Doe. My dogs' names are: Scooby-Doo, Pluto, Snoopy.)
+
+[//]: # (B. "My name is Jane Doe. My dogs' names are: [Scooby-Doo, Pluto, Snoopy])
+
+[//]: # (C. "My name is Jane Doe. My dogs' names are: Scooby-Doo, Pluto, Snoopy)
+
+[//]: # (D. "My name is Jane Doe. My dogs' names are: [Scooby-Doo, Pluto, Snoopy].)
+
+[//]: # (```)
+
+[//]: # (```)
+
+[//]: # (A. Correct answer. Correctly replaces the first and second `%s` placeholder with "Jane" and "Doe", respectively. Also correctly joins the List<String> by the `,` delimeter.)
+
+[//]: # (B. Incorrect answer. Correctly replaces the first and second `%s` placeholder with "Jane" and "Doe", respectively. Correctly joins the List<String> by the `,` delimeter. Incorrectly adds the "[]" brackets. Incorrectly misses the period at the end that's in the original string being formatted.)
+
+[//]: # (C. Incorrect answer. Correctly replaces the first and second `%s` placeholder with "Jane" and "Doe", respectively. Correctly joins the List<String> by the `,` delimeter. Incorrectly misses the period at the end that's in the original string being formatted.)
+
+[//]: # (D. Incorrect answer. Correctly replaces the first and second `%s` placeholder with "Jane" and "Doe", respectively. Correctly joins the List<String> by the `,` delimeter. Incorrectly adds the "[]" brackets. Correctly has the period at the end of the original string being formatted.)
+
+[//]: # (```)
+
+[//]: # (#### Question 3: Based on Requirement #3, what are the BEST combination of methods to call in this code block?)
+
+[//]: # (```java)
+
+[//]: # (public int insert&#40;List<T> events&#41; {)
+
+[//]: # (    // ...)
+
+[//]: # (    if &#40;events.size&#40;&#41; == 1&#41; {)
+
+[//]: # (        jdbcTemplate.{method1})
+
+[//]: # (    } else {)
+
+[//]: # (        jdbcTemplate.{method2})
+
+[//]: # (    })
+
+[//]: # (    // ...)
+
+[//]: # (})
+
+[//]: # (```)
+
+[//]: # (```)
+
+[//]: # (A. method1 = update&#40;&#41;; method2 = update&#40;&#41;;)
+
+[//]: # (B. method1 = batchUpdate&#40;&#41;; method2 = update&#40;&#41;;)
+
+[//]: # (C. method1 = batchUpdate&#40;&#41;; method2 = batchUpdate&#40;&#41;;)
+
+[//]: # (D. method1 = update&#40;&#41;; method2 = batchUpdate&#40;&#41;;)
+
+[//]: # (```)
+
+[//]: # (```)
+
+[//]: # (A. Incorrect answer. Method2 will fail because if we are trying to update 5 events, update&#40;&#41; will throw an exception. update&#40;&#41; -- Issue a single SQL update operation &#40;such as an insert, update or delete statement&#41;.)
+
+[//]: # (B. Incorrect answer. Method1 won't fail but it's not the most optimal method we should use for updating 1 event. Method2 will fail because if we are trying to update 5 events, update&#40;&#41; will throw an exception. update&#40;&#41; -- Issue a single SQL update operation &#40;such as an insert, update or delete statement&#41;. batchUpdate&#40;&#41; -- Execute multiple batches using the supplied SQL statement with the collect of supplied arguments.)
+
+[//]: # (C. Incorrect answer. Method1 won't fail but it's not the most optimal method we should use for updating 1 event.)
+
+[//]: # (D. Correct answer. Method1=update&#40;&#41; will succeed and is the most optimal when updating a single insert statement. Method2=batchUpdate&#40;&#41; will succeed and is the correct method to call for a batch of insert statements.)
+
+[//]: # (```)
+
+[//]: # (#### Question 4: Based on Requirement #4, what is the correct `update&#40;...&#41;` and `batchUpdate&#40;...&#41;` method signature to use GIVEN that you will implement the `Object[] values&#40;T event&#41;` method -- which will return an array of raw event values.)
+
+[//]: # (![]&#40;assets/module3/images/updateOverloaded.png&#41;<br>)
+
+[//]: # (Example:)
+
+[//]: # (```java)
+
+[//]: # (public class ChildClass extends AbstractSqlService<GreetingEvent> {)
+
+[//]: # (    // ...)
+
+[//]: # ()
+[//]: # (    @Override)
+
+[//]: # (    protected abstract Object[] values&#40;GreetingEvent event&#41; {)
+
+[//]: # (        return Object[] {{event.eventId&#40;&#41;, event.sender&#40;&#41;, event.receiver&#40;&#41;, event.message&#40;&#41;}};)
+
+[//]: # (    })
+
+[//]: # ()
+[//]: # (    // ...)
+
+[//]: # (})
+
+[//]: # (GreetingEvent event = new GreetingEvent&#40;"id1", "Alice", "Bob", "Hi Bob, I'm Alice!"&#41;;)
+
+[//]: # (ChildClass child = new ChildClass&#40;&#41;;)
+
+[//]: # (Object[] values = child.values&#40;&#41;; // OUTPUT: ["id1", "Alice", "Bob", "Hi Bob, I'm Alice!"])
+
+[//]: # (```)
+
+[//]: # (```)
+
+[//]: # (A. int update&#40;String sql&#41;)
+
+[//]: # (B. int update&#40;String sql, @Nullable Object @Nullable ... args&#41;)
+
+[//]: # (C. int update&#40;String sql, @Nullable Object @Nullable ... args, int[] argTypes&#41;)
+
+[//]: # (D. int update&#40;String sql, @Nullable PreparedStatementSetter pss&#41;)
+
+[//]: # (E. int update&#40;PreparedStatementCreator psc&#41;)
+
+[//]: # (F. protected int update&#40;PreparedStatementCreator psc, @Nullable PreparedStatementSetter pss&#41;)
+
+[//]: # (H. int update&#40;PreparedStatementCreator psc, KeyHolder generatedKeyHolder&#41;)
+
+[//]: # (```)
+
+[//]: # (```)
+
+[//]: # (A. Incorrect answer. This method expects a fully formed SQL update statement, but our Requirement #2 explicitly wants our SQL statement to template the &#40;values&#41; as &#40;?₁, ?₂, ..., ?ₙ&#41;.)
+
+[//]: # (B. Correct answer. This method expects a partially formed SQL update statement + explicit ...args which you will pass in using the abstract `Object[] values&#40;T event&#41;` method.)
+
+[//]: # (C. Incorrect answer. This method is similar to the correct choice, but with the addition of an additional `int[] argTypes` argument. You *COULD* use this method by passing in each argument and it's type or just rely on the Java Object Types for each arg passed in, which is what we prefer.)
+
+[//]: # (D. Incorrect answer. You could use `PreparedStatement` but the other choice is more simple and aligned with direct utilization of the abstract `Object[] values&#40;T event&#41;` method.)
+
+[//]: # (E. Incorrect answer. You could use `PreparedStatement` but the other choice is more simple and aligned with direct utilization of the abstract `Object[] values&#40;T event&#41;` method.)
+
+[//]: # (F. Incorrect answer. You could use `PreparedStatement` but the other choice is more simple and aligned with direct utilization of the abstract `Object[] values&#40;T event&#41;` method.)
+
+[//]: # (```)
 
 [//]: # (Here is the video for the actual Walkthrough of Exercise 1 Task 2 Part II: insert&#40;&#41;)
 
@@ -964,29 +1034,50 @@ SELECT * table_name;
 > [!TIP]
 >
 > Read through [Store and Retrieve Data <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://spring.io/guides/gs/relational-data-access) as it will look very similar to what we want.<br>
->
-> Example:
-> ```
-> -- DDL
-> CREATE TABLE customers (
->     id SERIAL,
->     first_name VARCHAR(255),
->     last_name VARCHAR(255)
-> );
-> ```
-> ```java
-> log.info("Querying for customer records where first_name = 'Josh':");
-> jdbcTemplate.query(
->     "SELECT id, first_name, last_name FROM customers WHERE first_name = ?",
->     (rs, rowNum) ->
->         new Customer(rs.getLong("id"), rs.getString("first_name"), rs.getString("last_name")), "Josh")
-> .forEach(customer -> log.info(customer.toString()));
-> ```
-> 
-> The important piece here is that the lambda expression `(rs, rowNum) -> // TODO` should be calling the abstract method `parseEventFromResultSet(rs)`.<br>
-> The lambda expression `(rs, rowNum)` is just a fancy, succinct way of for-looping through the SQL-queried data rows one by one, processing a single `ResultSet rs` at a time.
-> 
-> To re-iterate, you don't need to solve it this way, there's many ways to accomplish the same thing but this is the way I will implement my logic.
+
+[//]: # (> Example:)
+
+[//]: # (> ```)
+
+[//]: # (> -- DDL)
+
+[//]: # (> CREATE TABLE customers &#40;)
+
+[//]: # (>     id SERIAL,)
+
+[//]: # (>     first_name VARCHAR&#40;255&#41;,)
+
+[//]: # (>     last_name VARCHAR&#40;255&#41;)
+
+[//]: # (> &#41;;)
+
+[//]: # (> ```)
+
+[//]: # (> ```java)
+
+[//]: # (> log.info&#40;"Querying for customer records where first_name = 'Josh':"&#41;;)
+
+[//]: # (> jdbcTemplate.query&#40;)
+
+[//]: # (>     "SELECT id, first_name, last_name FROM customers WHERE first_name = ?",)
+
+[//]: # (>     &#40;rs, rowNum&#41; ->)
+
+[//]: # (>         new Customer&#40;rs.getLong&#40;"id"&#41;, rs.getString&#40;"first_name"&#41;, rs.getString&#40;"last_name"&#41;&#41;, "Josh"&#41;)
+
+[//]: # (> .forEach&#40;customer -> log.info&#40;customer.toString&#40;&#41;&#41;&#41;;)
+
+[//]: # (> ```)
+
+[//]: # (> )
+
+[//]: # (> The important piece here is that the lambda expression `&#40;rs, rowNum&#41; -> // TODO` should be calling the abstract method `parseEventFromResultSet&#40;rs&#41;`.<br>)
+
+[//]: # (> The lambda expression `&#40;rs, rowNum&#41;` is just a fancy, succinct way of for-looping through the SQL-queried data rows one by one, processing a single `ResultSet rs` at a time.)
+
+[//]: # (> )
+
+[//]: # (> To re-iterate, you don't need to solve it this way, there's many ways to accomplish the same thing but this is the way I will implement my logic.)
 
 #
 

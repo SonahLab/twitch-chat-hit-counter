@@ -16,7 +16,7 @@
     - [Setup Local Kafka Server](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#setup-local-kafka-server)
     - [Create Kafka Topic](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#create-kafka-topic-greeting-events)
 - [File Structure](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#file-structure)
-- [Exercise 1: Spring Kafka](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#excercise-1-configure-spring-kafka-within-our-application)
+- [Exercise 1: Spring Kafka](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#exercise-1-configure-spring-kafka-within-our-application)
 - [Exercise 2: Kafka Producer](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#exercise-2-kafka-producer)
 - [Exercise 3: Kafka Consumer](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#exercise-3-single-message-kafka-consumer)
 - [Lesson: IO Operations](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_2.md#lesson-inputoutput-io-operations)
@@ -274,7 +274,6 @@ For `Module 2`, the below file structure are all the relevant files needed.
 [KafkaAutoConfiguration.java <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-boot/api/java/org/springframework/boot/autoconfigure/kafka/KafkaAutoConfiguration.html) is the class that autoconfigures Kafka behind the scenes.
 Spring Kafka library will build all the relevant Beans on our behalf
 
-### Spring Kafka Properties
 Here's a small list of **Spring Kafka** properties I'm **requiring** you to set for this course.
 
 | Property                                                                                                                                                                                                                                                             | Required?    | Role         | Supported/Example Values                                                                                     | Description                                                                                                                                    |
@@ -299,7 +298,7 @@ Here's a small list of **Spring Kafka** properties I'm **requiring** you to set 
 > - [Configuring Kafka Consumer Group Ids <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.confluent.io/blog/configuring-apache-kafka-consumer-group-ids/)
 
 ![](assets/module2/images/kafka-broker-beginner.png)<br>
-`spring.kafka.bootstrap-servers` a list of "addresses" of the Kafka cluster brokers the application attempts to connect to.
+`spring.kafka.bootstrap-servers` — a list of "addresses" of the Kafka cluster brokers the application will connect to.
 
 Example:
 ```yaml
@@ -313,96 +312,98 @@ These are sample bootstrap servers if I had used **Amazon's MSK** (Managed Strea
 As long as my application has an AWS IAM role with permissions to connect to my AWS MSK cluster, my application should be able to connect with the brokers at these addresses.
 
 
+### Consumer Properties
+- `spring.kafka.consumer.group-id` — is the unique group-id "checkpoint" for a Consumer.
+- `spring.kafka.consumer.auto-offset-reset` — is the behavior on **WHERE** consumers start reading from a Kafka log if no group-id commit exists.<br>
+  > ```
+    > partition0: [0, 1, 2, ..., 99] (Assume no prior commit exists for our group-id)
+    >              │              └─ latest
+    >              └─ earliest
+    > ```
+  > If there's 100 messages in a partition and our consumer has never read from the topic before, these are how reading events is behaved:
+  > - `latest` (default): consumer starts reading from latest kafka message (offset=99)
+  > - `earliest`: consumer starts reading from the earliest kafka message (offset=0)
+  > - `none`: throws exception because consumer has no previous offset
+- `spring.kafka.consumer.enable-auto-commit` — If `true`, the consumer’s offset will be periodically committed in the background. If `false`, developers have direct control over offset management.
+- `spring.kafka.listener.ack-mode` — offset commit behavior. `MANUAL` gives Consumers responsibility for ACK'ing and updating offsets
+
+
 ### Consumer Group Id
 ![](assets/module2/images/consumer_offset.png)<br>
 ![](assets/module2/images/mario_checkpoint.png)<br>
 
 
-The easiest way to think about **group-id**s are with **Super Mario World**.<br>
+An easy way to think about **group-id**s is with **Super Mario World**.<br>
 When a player plays **Super Mario World**, passes a checkpoint, and dies, they respawn at the latest checkpoint.
-- The Kafka Consumer (Mario) is the worker that requests data from the Kafka broker (the pull model) and executes some application logic.
-- The Offset (checkpoint gate) is the actual location marker (an integer) that confirms the last message Mario/the Consumer successfully processed.
-- The Consumer Group ID (e.g., teamA-group) is the name of the team Mario belongs to. Multiple Marios can share the same checkpoint if they have the same Group ID.
-- The Kafka Broker Group Coordinator (Game Console's Memory) - stores the Offset (checkpoint position) associated with that Consumer Group ID.
+- The Kafka Consumer (Mario) — the worker that pulls data from the Kafka broker and executes some application logic.
+- The Offset (checkpoint gate) — the integer location marker that confirms the last message the Consumer successfully processed.
+- The Consumer Group ID — unique name to help brokers track groups of consumers and their offsets.
+- The Kafka Broker Group Coordinator (Game Console's Memory) — manages the Offset (checkpoint position) associated with a Consumer Group ID.
 
-The consumers read events from a topic's partitions in order and must send an Offset Commit Request back to the Broker so the Group Coordinator knows, _"Consumer group (group-id) just finished processing up to point X, let's update their latest Offset checkpoint"_.
+The consumers read events from a topic's partitions in order and must send an **Offset Commit Request** back to the Broker so the Group Coordinator knows that a _"Consumer group just finished processing up to point X, let's update their latest Offset checkpoint"_.
 
 ### Example 1:
-Say we have a single Kafka broker with a single topic split into 2 partition. Let's say producers have stored 100 messages spread across our partitions.
+Say we have a single Kafka broker with a single topic split into 2 partitions. Producers have stored 100 messages spread across our partitions:
 ```
 Partition 0: [0, 1, 2, ..., 50]
 Partition 1: [0, 1, 2, ..., 50]
 ```
 
-Say downstream **Team A** has a **group-id=teamA-group-id**, and their application has 2 consumers (1 consumer per partition).<br>
-Say downstream **Team B** has a **group-id=teamB-group-id**, and their application has 2 consumers (1 consumer per partition).<br>
+**Team A's** group-id=`group-id-A` and have 2 consumers (1 consumer per partition).<br>
+**Team B's** group-id=`group-id-B` and have 2 consumers (1 consumer per partition).<br>
 
-Assume **Team A** is able to read all 100 messages from the kafka topic.<br>
+Assume **Team A** is able to read all 100 messages from the kafka topic, the offsets committed are:
 ```
 Partition 0: [0, 1, 2, ..., 50]
-                             └─ teamA-group-id
+                             └─ group-id-A
 Partition 1: [0, 1, 2, ..., 50]
-                             └─ teamA-group-id
+                             └─ group-id-A
 ```
 
-Assume **Team B** is able to read 30 events from **Partition 0**, and 20 events from **Partition 1**.
+Assume **Team B** is able to read 30 events from **Partition 0** and 20 events from **Partition 1**, the offsets committed are:
 ```
 Partition 0: [0, 1, 2, ................, 30, 31, ..., 50]
-                                          └─ teamB-group-id
+                                          └─ group-id-B
 Partition 1: [0, 1, 2, ..., 20, 21, ..., 30, 31, ..., 50]
-                             └─ teamB-group-id
+                             └─ group-id-B
 ```
 
 Assume **Team B's** consumers batch read up to 100 messages at a time:
-- Consumer 1 (P0): Requests data starting from offset 31. The broker responds with the 20 messages remaining (31 through 50).
-- Consumer 2 (P1): Requests data starting from offset 21. The broker responds with the 30 messages remaining (21 through 50).
-
-- Team B's consumers pick up the remaining messages that get sent from Kafka's brokers
-  1. Consumer 1 picks up 20 events from P0
-  2. Consumer 2 picks up 30 events from P1
+- **Consumer 1 (P0)**: Requests data starting from offset=31. The broker responds with the 20 messages remaining (31 through 50).
+- **Consumer 2 (P1)**: Requests data starting from offset=21. The broker responds with the 30 messages remaining (21 through 50).
 - Both consumers have done some application processes (i.e.: storing the events into some other DB)
-- Both consumers get ready to send the Offset Commit Request to the Kafka brokers to update their new checkpoint, but the servers crash.
-- Kafka Broker's Group Coordinator was waiting for the Offset Commit Request (**ACK**) to update the consumers' positions (from 30 and 20 to 50 and 50), but never received it.
-- Team B gets their servers back up and the consumers start consuming from the topic partitions again
-- Both consumers look up their last committed offset (30 and 20), send a FETCH Request starting from those positions, and the brokers respond by sending the same messages:
-    - The consumers never committed that they've finished processing the previously read events.
-    - The Kafka brokers simply fulfill the new FETCH Request starting from the last known good Offset.
+- Both consumers get ready to send the **Offset Commit Request** (**ACK**) to the Kafka brokers to update their new checkpoint, but the servers crash.
+- Kafka Broker's Group Coordinator was waiting for the **ACK** to update the consumers' positions (P0: `30 → 50`; P1: `20 → 50`), but never receive it.
+- **Team B** gets their servers back up and the consumers start consuming from the topic partitions again
+- Both consumers look up their last committed offset (P0: `30`; P1: `20`) and pull data starting from those positions, and the brokers respond by sending the same messages prior to the crash:
+    - The consumers never committed that they've finished processing the previous events.
+    - The Kafka brokers simply fulfill the new fetch Request sent by the consumers starting from the last known good Offset.
 
 The **Super Mario World** equivalent is:
-- Mario passes the checkpoint flag at the 50% mark of the map (Consumers send Offset Commit Request back to broker)
+- Mario passes the checkpoint flag at the 50% mark of the map (Consumers send **Offset Commit Request** back to broker)
 - Mario is at 99% complete but dies from a Goomba (Consumers pull new events and process events, but an outage occurs)
 - At this point, the game's memory only knows that:
   1. Mario hasn't beat the level (Offset was never committed)
-  2. Mario was last confirmed state was at the 50% mark (last committed offset is an older state)
+  2. Mario was last confirmed state was at the 50% mark (last committed offset of an older state)
 - Mario respawns at 50% mark of the map (consumers pull events from the latest committed offsets according to the broker)
 
 
 The final state for both consumer groups at the point in which (1) **Team A** is fully caught up and (2) **Team B** has just crashed before committing new offset would be:
 ```
 Partition 1: [0, 1, 2, ................, 30, 31, ..., 50]
-                                          │            └─ teamA-group-id
-                                          └─ teamB-group-id
+                                          │            └─ group-id-A
+                                          └─ group-id-B
 Partition 2: [0, 1, 2, ..., 20, 21, ..., 30, 31, ..., 50]
-                             │                         └─ teamA-group-id
-                             └─ teamB-group-id
+                             │                         └─ group-id-A
+                             └─ group-id-B
 ```
 
-Consumer group-ids are unique per consumer group. The fact that **Team A** is fully caught up has 0 impact on **Team B's** ability to catch up. The fact that **Team B's** service crashed has 0 impact on **Team A's** ability to read new incoming events that get queued onto the topic.<br>
+### Scalability through Decoupling
+Producers scale independently of consumers as they write data to Kafka with 0 care of who's reading the events.
 
-There are a lot of Spring Kafka properties to potentially configure consumers as needed, but Spring Kafka enables a lot of default settings.<br>
-- `spring.kafka.consumer.group-id` — is the unique group-id "checkpoint" for a Consumer.
-- `spring.kafka.consumer.auto-offset-reset` — is the behavior on **WHERE** consumers start reading from a Kafka log if no group-id commit exists.<br>
-    > ```
-    > partition0: [0, 1, 2, ..., 99] (Assume no prior commit exists for our group-id)
-    >              │              └─ latest
-    >              └─ earliest
-    > ```
-    > If there's 100 messages in a partition and our consumer has never read from the topic before, these are how reading events is behaved:
-    > - `latest` (default): consumer starts reading from latest kafka message (offset=99)
-    > - `earliest`: consumer starts reading from the earliest kafka message (offset=0)
-    > - `none`: throws exception because consumer has no previous offset
-- `spring.kafka.consumer.enable-auto-commit` — If `true`, the consumer’s offset will be periodically committed in the background. If `false`, developers have direct control over offset management.
-- `spring.kafka.listener.ack-mode` — offset commit behavior. `MANUAL` gives Consumers responsibility for ACK'ing and updating offsets
+Consumers scale independently of producers/other consumers as they read data from Kafka with 0 care of who else is reading from the same topic.
+
+Consumer `group-ids` are unique per consumer group. The fact that **Team A** is fully caught up has 0 impact on **Team B's** ability to catch up. The fact that **Team B's** service crashed has 0 impact on **Team A's** ability to read new incoming events that get queued onto the topic.<br>
 
 
 
@@ -419,7 +420,7 @@ These properties control how the `key/value` of a Kafka message is serialized on
 
 #
 
-## Excercise 1: Spring Kafka
+## Exercise 1: Spring Kafka
 ![](assets/module2/images/connect.png)<br>
 
 In `build.gradle`, I've already imported Spring Kafka library:
@@ -428,7 +429,7 @@ implementation 'org.springframework.kafka:spring-kafka'
 ```
 
 ### Task 1: Spring Kafka Properties
-In `application.yml`, set the **Spring Kafka** properties according to the requirements below. Some properties are marked **OPTIONAL** because **Spring Kafka** has default settings on these fields, but I'm requiring them for this course.
+In `application.yml`, set the **Spring Kafka** properties according to the requirements below. Some properties are marked **OPTIONAL** because the **Spring Kafka** library has default settings on these fields, but I'm requiring specific configurations for this course.
 
 #### Requirements:
 1. **bootstrap-server (REQUIRED)**: Set it to the default bootstrap-server [`localhost:9092` <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/spring-projects/spring-boot/blob/2e52c3c35e0bd44ec35dceaeaed1737905a00196/module/spring-boot-kafka/src/main/java/org/springframework/boot/kafka/autoconfigure/KafkaProperties.java#L71)
@@ -498,19 +499,20 @@ don't need to worry about the kafka topic write logic once it's defined in the p
 In `AbstractEventProducer.java`, implement:
 - the constructor: `public AbstractEventProducer()`
 - `public boolean publish(String key, T event)`. The method expects a `String key` and a generic `T event`, and writes a new message into the kafka topic.<br>
-Return the boolean status of the kafka topic write operation.
 
-> [!TIP]
->
-> Get familiar with the [KafkaTemplate <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-kafka/api/org/springframework/kafka/core/KafkaTemplate.html)
-> class' source code ─ this class handles all IO operations to/from kafka topics.<br>
-> In the source code, you will find this helpful method: `kafkaTemplate.send(String topic, @Nullable V data)`.
+Return the boolean status of the kafka topic write operation.
 
 **Requirements:**
 1. Inject the autoconfigured `KafkaTemplate` Bean into the constructor of `AbstractEventProducer.java`.
 2. Write the topic message to the `topicName()` Kafka topic. (Assume this method is already implemented)
 3. Write the topic message key as a String (should be a NO-OP since our `key` is already a String)
 4. Write the topic message value as a ByteArray (you're given a generic POJO event but need to convert it to ByteArray)
+
+> [!TIP]
+>
+> Get familiar with the [KafkaTemplate <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-kafka/api/org/springframework/kafka/core/KafkaTemplate.html)
+> class' source code ─ this class handles all IO operations to/from kafka topics.<br>
+> In the source code, you will find this helpful method: `kafkaTemplate.send(String topic, @Nullable V data)`.
 
 <br>
 

@@ -134,7 +134,8 @@ For `Module 4`, the below file structure are all the relevant files needed.
 ## Exercise 1: Implement Data Access Object (DAO)
 > [!TIP]
 >
-> [Data Access Object <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](DAO) Pattern(https://www.geeksforgeeks.org/system-design/data-access-object-pattern/)
+> [Data Access Object (DAO) Pattern <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.geeksforgeeks.org/system-design/data-access-object-pattern/)
+
 Redis is Key-Value DB with a lot of capabilities and can store lots of different [Data Types <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/develop/data-types/)<br>
 
 Peek at the [RedisTemplate.java <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/RedisTemplate.html) API source code.

@@ -422,10 +422,10 @@ These properties control how the `key/value` of a Kafka message is serialized on
 ## Excercise 1: Spring Kafka
 ![](assets/module2/images/connect.png)<br>
 
-> [!NOTE]
->
-> **Relevant Files**<br>
-> `application.yml` ─ our service's property file
+In `build.gradle`, I've already imported Spring Kafka library:
+```groovy
+implementation 'org.springframework.kafka:spring-kafka'
+```
 
 ### Task 1: Spring Kafka Properties
 In `application.yml`, set the **Spring Kafka** properties according to the requirements below. Some properties are marked **OPTIONAL** because **Spring Kafka** has default settings on these fields, but I'm requiring them for this course.
@@ -487,12 +487,6 @@ twitch-chat-hit-counter:
 
 ## Exercise 2: Kafka Producer
 ![](assets/module2/images/exercise1.svg)<br>
-
-> [!NOTE]
->
-> **Relevant Files**:<br>
-> `GreetingEvent.java` ─ data model to encapsulate a simple greeting.</br> 
-> `GreetingEventProducer.java` ─ the class that publishes `GreetingEvent` objects to our dedicated kafka topic `greeting_topic`
 
 <br>
 
@@ -567,12 +561,6 @@ In `GreetingEventProducer.java`, implement:
 ### Task 3: Kafka API
 ![](assets/module2/images/kafkaApi.svg)<br>
 
-> [!NOTE]
->
-> **Relevant Files**<br>
-> `GreetingEvent.java` ─ DTO for a simple greeting.<br>
-> `KafkaRestController.java` ─ REST controller to handle `POST /api/kafka/publishGreetingEvent`.
-
 In `KafkaRestController.java`, implement:
 - `public KafkaRestController()` (constructor)
 - `public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestParam String receiver, @RequestParam String message)` (endpoint)
@@ -622,14 +610,6 @@ true
 
 ## Exercise 3: Kafka Consumer
 ![](assets/module2/images/exercise2.svg)<br>
-
-> [!NOTE]
->
-> **Relevant Files**<br>
-> `application.yml` ─ our service's property file<br>
-> `GreetingEvent.java` ─ DTO for a simple greeting.<br>
-> `AbstractEventConsumer.java` ─ the abstract class that defines the way all event consumers should act.<br>
-> `GreetingEventConsumer.java` ─ the class that subscribes to our `greeting_event` kafka topics to read `GreetingEvent` objects
 
 #
 

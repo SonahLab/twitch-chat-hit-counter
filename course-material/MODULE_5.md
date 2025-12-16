@@ -429,12 +429,6 @@ In `TwitchChatBotManager.java`, implement the PostConstructor: `public void init
 ## Exercise 4: Kafka
 ![](assets/module5/images/KafkaOverview.svg)<br>
 
-> **Relevant Files:**
-> 
-> `application.yml`<br>
-> `KafkaConfigs.java`<br>
-> 
-
 Now that we have a simple working ChatBot, we need to build a Kafka producer/consumer to publish these `TwitchChatEvent` to a new separate kafka topic.
 
 This will look very similar to the end state we had in **Module 2** with the Producer/Consumer on the `greeting-events` kafka topic.<br>

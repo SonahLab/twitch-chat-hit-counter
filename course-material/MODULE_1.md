@@ -2,6 +2,7 @@
 ## Twitch Chat Hit Counter
 ## Module 1: HTTP/REST + Swagger
 
+
 ### Additional Learning Materials
 **Open Systems Interconnection (OSI):** [OSI Model <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.imperva.com/learn/application-security/osi-model/)
 > _"The Open Systems Interconnection (OSI) model describes seven layers that computer systems use to communicate over a network. The OSI model is divided into seven distinct layers, each with specific responsibilities, ranging from physical hardware connections to high-level application interactions"_
@@ -44,6 +45,16 @@
 >
 > So it just varies from company to company (and even team to team) between programming languages and tooling used,
 > but the core principles of developing large distributed systems are pretty similar from one company to the next.
+
+
+
+
+
+<br>
+<br>
+<br>
+<br>
+
 
 
 
@@ -149,8 +160,25 @@ They will usually have gRPC service contracts allowing for direct service calls,
 
 
 
+
+
+
+
+
+
+
 ## Objective
-In **Module 1**, you will be learning about setting up HTTP Rest Controllers to handle simple GET, PUT, and DELETE requests.
+In **Module 1**, you will be learn and implement HTTP Rest Controllers to handle various GET, PUT, and DELETE requests.
+
+Goals:
+- Implement a **Rest Controller** to handle a very simple static GET request (this will be the Hello World equivalent tutorial)
+- Implement a **Rest Controller** to handle multiple endpoints that will change the Game State of a hypothetical Game Character.
+
+
+
+
+
+
 
 
 
@@ -204,6 +232,18 @@ For `Module 1`, the below file structure are all the relevant files needed.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/testClass_newui.svg" align="center"/> GreetingRestControllerTest.java<br>
 
+- `GreetingRestController.java` ─ REST controller to handle our service's greeting endpoints:
+  - `/api/greeting/hello`: responds with a simple greeting
+- `Potion.java` ─ enum defining a Game's potions
+- `Stat.java` ─ enum defining a Game's character stats
+- `GameCharacter.java` ─ Data Model class representing a generic game character
+- `GameRestController.java` ─ REST controller to handle game related endpoints on our application's main `GameCharacter.java`
+  - `/api/fantasyGame/takeDamage`: updates a `GameCharacter` to decrement their HP
+  - `/api/fantasyGame/consumePotion`: updates a `GameCharacter` to increase either HP/MP and reduce a `Potion` from their bag
+  - `/api/fantasyGame/characterState`: gets the `GameCharacter` current game state snapshot
+- `GreetingRestControllerTest.java` ─ Test class to validate logic after implementing `GreetingRestController.java`
+- `GameCharacterTest.java` ─ Test class to validate logic after implementing `GameCharacter.java`
+- `GameRestControllerTest.java` ─ Test class to validate logic after implementing `GameRestController.java`
 
 
 
@@ -215,33 +255,28 @@ For `Module 1`, the below file structure are all the relevant files needed.
 >
 > I've already implemented the Swagger library required for this project.
 
-
 <br>
 
 ## Exercise 1: Greeting API
+![](assets/module1/images/greetings.png)<br>
 ![](assets/module1/images/greetingController.svg)<br>
 
-> [!NOTE]
->
-> **Relevant Files**<br>
-> `GreetingRestController.java` ─ REST controller to handle our service's simple greeting methods: `/api/greeting/hello`.
+In `GreetingRestController.java`, implement the `public String sayHello(@RequestParam(required = false) String name)` method.<br>
+This method is the entry point for all incoming HTTP requests routed to `GET /api/greeting/hello`.
 
-In `GreetingRestController.java`, implement the `public String sayHello(@RequestParam(required = false) String name)` method. This method is the entry point for all incoming HTTP requests routed to `GET /api/greeting/hello`.
-
-Return a simple greeting response String tailored to the input `name`.
+**Return**: String for a simple greeting response.
 
 **Requirements:**<br>
-1. String response should always return a greeting using this template: `"Hello, {name}!"`.
-2. When `name` parameter isn't provided, we should direct this greeting message to address a `Mysterious Individual`.
+1. Greeting response template: `"Hello, {name}!"`.
+2. When `name` parameter isn't provided, you should greet a `Mysterious Individual`.
 
 ### Example 1:
 > **Input**:<br>
-> ```java
-> GreetingRestController controller = new GreetingRestController();
-> String output = controller.sayHello("Alice");
+> ```bash
+> $ curl -X GET "http://localhost:8080/api/greeting/hello?name=Alice"
 > ```
 > **Output**:
-> ```java
+> ```
 > "Hello, Alice!"
 > ```
 
@@ -249,15 +284,14 @@ Return a simple greeting response String tailored to the input `name`.
 
 ### Example 2:
 > **Input**:<br>
-> ```java
-> GreetingRestController controller = new GreetingRestController();
-> String output = controller.sayHello("");
+> ```bash
+> $ curl -X GET "http://localhost:8080/api/greeting/hello?name="
 > ```
 > **Output**:
-> ```java
+> ```
 > "Hello, Mysterious Individual!"
 > ```
-> **Explanation**: no `name` parameter is provided (only whitespace), so the greeting response should address "Mysterious Individual"
+> **Explanation**: no `name` parameter is provided (only whitespace), so the greeting response should address `"Mysterious Individual"`
 
 #
 
@@ -297,17 +331,21 @@ Return a simple greeting response String tailored to the input `name`.
 
 **Example**:
 ```java
-class Car {
+public class Car {
+
+    // Object variables
     private String make;
     private String model;
     private int speed;
 
+    // Constructor
     public Car(String make, String model) {
         this.make = make;
         this.model = model;
         this.speed = 0;
     }
 
+    // ============================ GETTERS ============================
     public String getMake() {
         return make;
     }
@@ -319,7 +357,9 @@ class Car {
     public int getSpeed() {
         return speed;
     }
+    // =================================================================
 
+    // ===================== STATE CHANGE ACTIONS ======================
     // Increases car speed by 10 MPH w/ a maximum speed of 100 MPH
     public void accelerate() {
         speed = Math.min(100, speed + 10);
@@ -329,25 +369,32 @@ class Car {
     public void decelerate() {
         speed = Math.max(0, speed - 10);
     }
+    // =================================================================
 }
+
 
 public class Main {
     public static void main(String[] args) {
         Car car1 = new Car("Toyota", "Prius");
         Car car2 = new Car("Honda", "Civic");
 
+        // Get car1 variables
         car1.getMake(); // "Toyota"
         car1.getModel(); // "Prius"
         car1.getSpeed(); // 0
+
+        // Get car2 variables
         car2.getMake(); // "Honda"
         car2.getModel(); // "Civic"
         car2.getSpeed(); // 0
 
+        // Change car1's speed
         car1.accelerate(); // speed → 10
         car1.accelerate(); // speed → 20
         car1.accelerate(); // speed → 30
         car1.getSpeed(); // 30
 
+        // Change car2's speed
         car2.accelerate(); // speed → 10
         car2.getSpeed(); // 10
         car2.decelerate(); // speed → 0
@@ -356,7 +403,7 @@ public class Main {
 }
 ```
 >
-> `car1` and `car2` are both `Car` class objects, but they each have their own separate memory space in a program and each object maintains its own independent state:
+> `car1` and `car2` are both `Car` class objects with their own separate memory space in a program and each object maintains its own independent state:
 > ```
 > car1 = {
 >   "make": "Toyota",
@@ -376,30 +423,38 @@ public class Main {
 > OOP is about creating Object blueprints. You can use the same blueprint to build many copies of an Object, but each Object is encapsulated with its own set of variables/state.
 > What happens to another `car2` does not affect `car1`, and vice versa.
 
+
+
+
+
+
+
+
+
+
+
 <br>
 
 
-## Exercise 2: Game API
-> [!NOTE]
->
-> **Relevant Files**<br>
-> `Potion.java` ─ enum defining all potions.<br>
-> `Stat.java` ─ enum defining character stats.<br>
-> `GameCharacter.java` ─ Data Model for a generic game character in a game with state logic.<br>
-> `GameRestController.java` ─ REST controller to handle game related actions on our `GameCharacter`
 
-> [!TIP]
->
-> If you aren't familiar with creating **POJOs** (Plain Old Java Objects), I suggest you read up on various ways to create Java Object Oriented Programming (OOP) objects:
-> - [_Java Encapsulation Pattern_ <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.w3schools.com/java/java_encapsulation.asp)<br>
-> - [_Java Builder Pattern_ <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/java-builder-pattern)<br>
-> - [_Java Record Pattern_ <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.oracle.com/en/java/javase/17/language/records.html)<br>
+
+
+
+
+
+
+
+
+## Exercise 2: Game API
+![](assets/module1/images/gameAPI.svg)<br>
 
 <br>
 
 #
 
 ### Exercise 2 Task 1: Implement `GameCharacter.java`
+![](assets/module1/images/gameCharacter.png)<br>
+
 Before we can implement our API endpoints in `GameRestController.java`, we need to create our Data Model object for a generic fantasy game character.
 
 In `GameCharacter.java`, implement the following:
@@ -412,6 +467,14 @@ In `GameCharacter.java`, implement the following:
 - `public int consumePotion(Potion potion)` (_STATE CHANGE_)
 - `public Map<String, Object> getCharacterState()` (_GETTER_)
 
+> [!TIP]
+>
+> If you aren't familiar with creating **POJOs** (Plain Old Java Objects), I suggest you read up on various ways to create Java Object Oriented Programming (OOP) objects:
+> - [_Java Encapsulation Pattern_ <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.w3schools.com/java/java_encapsulation.asp)<br>
+> - [_Java Builder Pattern_ <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/java-builder-pattern)<br>
+> - [_Java Record Pattern_ <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.oracle.com/en/java/javase/17/language/records.html)<br>
+
+
 #
 
 ### Exercise 2 Task 1 Part I: Constructor
@@ -419,9 +482,9 @@ In `GameCharacter.java`, implement `public GameCharacter()` constructor.
 
 **Requirements:**<br>
 1. `GameCharacter` object should have 3 fields:
-    1. `Stat.HP` (int): Character's health points (between `0` and `100`)
-    2. `Stat.MP` (int): Character's mana points (between `0` and `100`)
-    3. `Inventory` (Map<Potion, Integer>): Character's bag of `Potion` enum to quantity count
+    1. `Stat.HP (int)`: Character's health points (between `[0, 100]`)
+    2. `Stat.MP (int)`: Character's mana points (between `[0, 100]`)
+    3. `Inventory (Map<Potion, Integer>)`: Character's bag of `Potion` enum to quantity count
 2. Default values for a new `GameCharacter` instance:
     1. Initial `Stat.HP` of 100
     2. Initial `Stat.MP` of 100
@@ -455,7 +518,7 @@ In `GameCharacter.java`, implement:
 - `public void setMp(int mp)`
 
 **Requirements:**
-1. **HP/MP** should be bounded by [0, 100]
+1. **HP/MP** should be bounded by `[0, 100]`
 2. Attempts to set the **HP/MP** with values outside the valid range should be ignored.
 
 **Let's test what we have up to this point.**
@@ -504,7 +567,7 @@ In `GameCharacter.java`, implement:
 
 #
 
-### Testing
+### Unit Tests
 - [ ] Open `GameCharacterTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `GameCharacterTest.java` for the test method: `initTest()`
 - [ ] Test with:
@@ -546,7 +609,7 @@ Return the updated character `HP` int.
 
 #
 
-### Testing
+### Unit Tests
 - [ ] Open `GameCharacterTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `GameCharacterTest.java` for the test method: `takeDamageTest()`
 - [ ] Test with:
@@ -657,13 +720,23 @@ Return the updated character `HP`/`MP` int, or -1 for any errors.
 
 ### Example 6:
 > ![](assets/module1/images/consumePotion_Error.jpg)<br>
-> **Input**: <span style="color:#0000008c">potion = Potion.HP_POTION // Assume HP = 50<br></span>
-> **Output**: <span style="color:#0000008c">-1<br></span>
-> **Explanation**: <span style="color:#0000008c">There are no HP_POTION in the inventory, so we can't consume this potion.</span>
+> ```java
+> GameCharacter character = new GameCharacter();
+> character.consumePotion(Potion.HP_POTION);
+> character.consumePotion(Potion.HP_POTION);
+> character.consumePotion(Potion.HP_POTION);
+> character.consumePotion(Potion.HP_POTION);
+> character.consumePotion(Potion.HP_POTION);
+> character.takeDamage(50);
+> 
+> int output = character.consumePotion(Potion.HP_POTION);
+> ```
+> **Output**: -1<br>
+> **Explanation**: There are no HP_POTION in the inventory, so we can't consume this potion.
 
 #
 
-### Testing
+### Unit Tests
 - [ ] Open `GameCharacterTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `GameCharacterTest.java` for the test method: `consumePotionTest()`
 - [ ] Test with:
@@ -705,7 +778,7 @@ Return a `Map<String, Object>` representing the character's current state (**HP*
 
 #
 
-### Testing
+### Unit Tests
 - [ ] Open `GameCharacterTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `GameCharacterTest.java` for the test method: `getCharacterStateTest()`
 - [ ] Test with:

@@ -59,9 +59,9 @@
 
 
 ## Overview
-All network communication — whether the "internet", or between microservices — boils down to this fundamental idea:<br>
+All network communication — between two machines — boils down to this fundamental idea:<br>
 
-> _**One server sends a request to another server that does something in response.**_
+> _**One server sends a request to some other server triggering a responsive action.**_
 > - **_Request → Response_**
 > - **_Cause → Effect_**
 > - **_Call → Action_**
@@ -77,18 +77,28 @@ Below is a simple example to illustrate this point.
 You visit **Google.com** and see this:
 ![](assets/module1/images/google.png)<br>
 
-**Question**: What's actually happening behind the scenes?
+#### Question: What's actually happening behind the scenes?
 
 **TL;DR:**<br>
-**→ DNS Resolution**<br>
-`Google.com` is a human-readable domain name that makes it easy for humans to remember when we want to visit a web hosted page/application/service.<br>
-Computers don't understand this domain, they require **IP addresses** (i.e.: `123.456.789.0`)<br>
-Your machine sends a **request** to a nearby DNS server to find out what `Google.com` means.<br>
-The DNS server searches for a valid mapping and **responds** with: `Google.com` → `XXX.XXX.XXX.X`.<br>
+**1. DNS Resolution**<br>
 
-IP Addresses are the actual server address that has information about this request.
+[//]: # (`Google.com` is a human-readable domain name that makes it easy for humans to remember when we want to visit a web hosted page/application/service.<br>)
 
-It's easier for mass adoption to remember domain names versus typing in ephemeral IP addresses.
+[//]: # (Computers don't understand this domain, they require **IP addresses** &#40;i.e.: `123.456.789.0`&#41;<br>)
+
+- **Request:** Client asks the DNS server, _"What is the IP address for `Google.com`"?_ <br>
+- **Response:** DNS server answers back, _"The IP address is `142.250.72.174`"_. <br>
+
+
+[//]: # (Your machine sends a **request** to a nearby DNS server to find out what `Google.com` means.<br>)
+
+[//]: # (The DNS server searches for a valid mapping and **responds** with: `Google.com` → `XXX.XXX.XXX.X`.<br>)
+
+[//]: # ()
+[//]: # (IP Addresses are the actual server address that has information about this request.)
+
+[//]: # ()
+[//]: # (It's easier for mass adoption to remember domain names versus typing in ephemeral IP addresses.)
 
 > [!TIP]
 > 
@@ -98,9 +108,9 @@ It's easier for mass adoption to remember domain names versus typing in ephemera
 >
 > Alice, Bob, Charlie can all act as DNS for each other's houses. If they recruit a new group member — David — he would most likely ask any of the friends where "Alice's House" is.
 
+
 > [!Note]
-> 
-> **Fun Exercise**:<br>
+>
 > Open up your terminal and run:
 > ```shell
 > ping www.google.com
@@ -116,44 +126,30 @@ It's easier for mass adoption to remember domain names versus typing in ephemera
 > 1. IP addresses change (If you `ping www.google.com` on another day you will notice that the original IP address I retrieved at the time I ran this command is different from the IP address you see)
 > 2. Remembering IP addresses are hard
 
-**Main Takeaway:**<br>
-The DNS resolution process is simply a **request → response**.<br>
-**Client → DNS server**: <ins>asks</ins> what's the IP address for Google.com?<br>
-**DNS server → Client**: <ins>answers</ins> with the IP address `142.250.72.174`<br>
+<br>
 
 
-**→ Google Server Request**<br>
-Now the client machine know the current IP address for `Google.com` and sends an **HTTP request** to Google's server at this address:<br>
-"GET the data at location Google.com`/` (the homepage)".
 
-This **request** travels through multiple **network routers** in the form of **bytes** until it reaches Google's servers.
-
-**→ Google Server Response**<br>
-Google's servers will be listening for incoming requests.
-They will accept it, fetch the data for Google.com's homepage, and send it back to the requester's location (passing back through the network routers).
-
-**→ Browser Renders the Webpage**<br>
-Our device receives the data response from Google's servers and renders the UI with the content.
+**2. Google Server Request**<br>
+**Request:** Client sends an HTTP request to the server at the IP address `142.250.72.174`, _"Hey Google, send me data at the endpoint `Google.com/` (the homepage)"_.<br>
+**Response:** Google's servers respond with the homepage data (HTML/CSS/JS), which is what you see rendered on the webpage.
 
 > [!TIP]
 > 
 > **ELI5:**<br>
-> Imagine it's pre-internet days:<br>
 > Alice lives at `123 Sesame Street, New York NY, 12345`<br>
 > Bob lives at `456 Hollywood Blvd, Los Angeles CA, 98765`<br>
 >
-> Alice sends a letter to `456 Hollywood Blvd` asking: `"Hey Bob, will you be able to attend my birthday party?"`<br>
-> Bob receives it and mails a letter back to `123 Sesame Street`, responding with: `"Yes."`
->
-> Alice and Bob might not have a deep understanding of how their letter travels across the country, but it'll be processed/driven between multiple factories and multiple deliverers across the country.
->
-> The underlying transport mechanism might be using HTTP/GRPC (Application Layer 7) with TCP/UDP (Network Layer 4).
-> This is very similar to how requests/responses are handled and how data is moved over the WWW.
+> Alice sends a letter to Bob's address. Bob receives it and mails a letter back to Alice.<br>
+> 
+> The letter (data) is delivered through processing factories (routers) and by delivery men (network).
 
-There are many communication protocols, but the two most common application protocols I’ve used ubiquitously in most backend systems in big tech are: **HTTP** and **gRPC**.
+<br>
 
-We will focus only on **HTTP** in this course. **gRPC** is mostly used within the microservice S2S (service-to-service) architecture. In a company with many teams, assume **TeamA** and **TeamB** work closely with each other.
-They will usually have gRPC service contracts allowing for direct service calls, instead of sending HTTP requests.
+### Application Protocols
+The two most common application protocols in backend systems that have been used for years are:
+- **HTTP (HyperText Transfer Protocol)**: The standard protocol for client-to-server (C2S) communication. We will focus on HTTP.
+- **gRPC (Google Remote Procedure Protocol)**: Used primarily for internal service-to-service (S2S) communication in microservice architecture.
 
 
 <br>
@@ -168,11 +164,13 @@ They will usually have gRPC service contracts allowing for direct service calls,
 
 
 ## Objective
-In **Module 1**, you will be learn and implement HTTP Rest Controllers to handle various GET, PUT, and DELETE requests.
+![](assets/module1/images/clientserver.svg)<br>
+
+In **Module 1**, you will be implementing HTTP Rest Controllers to handle various **CRUD** (**C**reate **R**ead **U**pdate **D**elete) operations.
 
 Goals:
-- Implement a **Rest Controller** to handle a very simple static GET request (this will be the Hello World equivalent tutorial)
-- Implement a **Rest Controller** to handle multiple endpoints that will change the Game State of a hypothetical Game Character.
+- Implement a **Rest Controller** to handle a very simple static `GET` request (this will be our _"Hello World"_-equivalent tutorial)
+- Implement a **Rest Controller** to handle multiple endpoints that will change the Game State of a generic **Game Character**.
 
 
 
@@ -232,18 +230,20 @@ For `Module 1`, the below file structure are all the relevant files needed.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/testClass_newui.svg" align="center"/> GreetingRestControllerTest.java<br>
 
-- `GreetingRestController.java` ─ REST controller to handle our service's greeting endpoints:
-  - `/api/greeting/hello`: responds with a simple greeting
-- `Potion.java` ─ enum defining a Game's potions
-- `Stat.java` ─ enum defining a Game's character stats
-- `GameCharacter.java` ─ Data Model class representing a generic game character
-- `GameRestController.java` ─ REST controller to handle game related endpoints on our application's main `GameCharacter.java`
-  - `/api/fantasyGame/takeDamage`: updates a `GameCharacter` to decrement their HP
-  - `/api/fantasyGame/consumePotion`: updates a `GameCharacter` to increase either HP/MP and reduce a `Potion` from their bag
-  - `/api/fantasyGame/characterState`: gets the `GameCharacter` current game state snapshot
-- `GreetingRestControllerTest.java` ─ Test class to validate logic after implementing `GreetingRestController.java`
-- `GameCharacterTest.java` ─ Test class to validate logic after implementing `GameCharacter.java`
-- `GameRestControllerTest.java` ─ Test class to validate logic after implementing `GameRestController.java`
+> - `GreetingRestController.java` ─ REST controller to handle our service's greeting endpoints:
+>   - `/api/greeting/hello`: responds with a simple greeting
+> - `Potion.java` ─ enum defining a Game's potions
+> - `Stat.java` ─ enum defining a Game's character stats
+> - `GameCharacter.java` ─ Data Model class representing a generic game character
+> - `GameRestController.java` ─ REST controller to handle game related endpoints on our application's main `GameCharacter.java`
+>   - `/api/fantasyGame/takeDamage`: updates a `GameCharacter` to decrement their HP
+>   - `/api/fantasyGame/consumePotion`: updates a `GameCharacter` to increase either HP/MP and reduce a `Potion` from their bag
+>   - `/api/fantasyGame/characterState`: gets the `GameCharacter` current game state snapshot
+> 
+> 
+> - `GreetingRestControllerTest.java` ─ Test class to validate logic after implementing `GreetingRestController.java`
+> - `GameCharacterTest.java` ─ Test class to validate logic after implementing `GameCharacter.java`
+> - `GameRestControllerTest.java` ─ Test class to validate logic after implementing `GameRestController.java`
 
 
 

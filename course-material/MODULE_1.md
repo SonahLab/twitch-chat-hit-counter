@@ -6,45 +6,28 @@
 ### Additional Learning Materials
 **Open Systems Interconnection (OSI):** [OSI Model <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.imperva.com/learn/application-security/osi-model/)
 > _"The Open Systems Interconnection (OSI) model describes seven layers that computer systems use to communicate over a network. The OSI model is divided into seven distinct layers, each with specific responsibilities, ranging from physical hardware connections to high-level application interactions"_
-- [System Design Primer <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/donnemartin/system-design-primer?tab=readme-ov-file#communication)
+> - [System Design Primer <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/donnemartin/system-design-primer?tab=readme-ov-file#communication)
 
 **Hypertext Transfer Protocol (HTTP):** [What is HTTP? <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.cloudflare.com/learning/ddos/glossary/hypertext-transfer-protocol-http/)
 > _"A typical flow over HTTP involves a client machine making a request to a server, which then sends a response message."_
-- Layer 7 (Application) protocol
+> - Layer 7 (Application) protocol
 
 **Representational State Transfer (REST):** [REST APIs <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.ibm.com/think/topics/rest-apis)
 > _"REST APIs communicate through HTTP requests to perform standard database functions like creating, reading, updating and deleting records (also known as CRUD) within a resource."_
-- Architectural style, NOT a transfer protocol, for designing applications
+> - Architectural style, NOT a transfer protocol, for designing applications
 
 **Swagger**: [What is Swagger? <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://swagger.io/docs/specification/v2_0/what-is-swagger/)
-- Swagger/OpenAPI transforms an application's API into a clear, interactive contract for everyone to build against
+> - Swagger/OpenAPI transforms an application's API into a clear, interactive contract for everyone to build against
 
 > [!NOTE]
 >
-> For this project we will use **Swagger** to surface our API, which is what we use at Netflix as it integrates seamlessly with the Spring Boot framework.<br>
-> At Snapchat, we spun up our application APIs via **Jetty** and used Postman to debug/test during development and interfacing with a friendly UI tool rather than curling requests
-> in a terminal.
+> Swagger integrates very easily with Spring Boot so that's why I chose it to build our API interface, but at Snapchat we used to use Postman to test APIs locally.
 >
-> There's no one silver-bullet way to solve a problem, every company differs from the tools they adopt. I'll just share my perspective based on my own experiences at the various companies I've been at.
+> **Netflix:** Java (Spring Boot), AWS, open source heavy (Kafka, Iceberg, etc)
+> **Snapchat:** Raw Java, GCP
+> **Yelp:** Python, AWS, open source heavy
 >
-> **Netflix**:
-> - Java (Backend)
-> - Spring Boot Framework for all java applications. Dedicated infra team for all microservices to be ready out the box.
-> - Amazon Web Services (AWS) dominant
-> - Huge proponent of open source (Apache Kafka, Apache Druid, Apache Iceberg, etc...)
->
-> **Snapchat**:
-> - Java (Backend)
-> - Raw Java projects w/ 0 framework, no great templatized infra team to set up microservice architecture.
-> - Google Cloud Platform (GCP) dominant
-> - Stuck mainly within tools in GCP (Google Pub/Sub, Google BigTable, Google BigQuery, Google Cloud Scheduler, etc...)
->
-> **Yelp**:
-> - Python (Backend)
-> - AWS dominant
->
-> So it just varies from company to company (and even team to team) between programming languages and tooling used,
-> but the core principles of developing large distributed systems are pretty similar from one company to the next.
+> Takeaway: Based on my experience in big tech companies (Netflix, Snapchat, Amazon, Yelp), tech stacks vary widely, but the underlying principles of building large distributed systems don't change.
 
 
 

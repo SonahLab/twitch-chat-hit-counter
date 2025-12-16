@@ -261,7 +261,7 @@ Return a simple greeting response String tailored to the input `name`.
 
 #
 
-### Testing
+### Unit Tests
 - [ ] Open `GreetingRestControllerTest.java` ─ already implemented test cases with the example(s) above.<br>
 - [ ] Remove `@Disabled` in `GreetingRestControllerTest.java`<br>
 - [ ] Test with:
@@ -271,7 +271,7 @@ Return a simple greeting response String tailored to the input `name`.
 
 #
 
-### Integration Testing
+### E2E Tests
 - [ ] Run the application:
     ```shell
     ./gradlew bootRun
@@ -797,7 +797,7 @@ public Map<String, Object> getCharacterState() {
 
 #
 
-### Testing
+### Unit Tests
 - [ ] Open `GameRestControllerTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `GameRestControllerTest.java`
 - [ ] Test with:
@@ -807,7 +807,7 @@ public Map<String, Object> getCharacterState() {
 
 #
 
-### Integration Testing
+### E2E Tests
 - [ ] Run the application:
     ```shell
     ./gradlew bootRun

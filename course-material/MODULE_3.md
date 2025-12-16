@@ -339,7 +339,7 @@ twitch-chat-hit-counter:
 
 #
 
-### Testing
+### Unit Tests
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented to test the property above.
 - [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method(s): `sqlGreetingTableNameTest()`
 - [ ] Test with:
@@ -527,7 +527,7 @@ Return the same `sqlTableName` variable that's passed into the constructor.
 
 #
 
-### Testing
+### Unit Tests
 - [ ] TODO
 
 ### Exercise 1 Task 3 Part II: `columns()`
@@ -580,7 +580,7 @@ Return a list of all the hard-coded fields of our `greeting_events` SQL table (s
 > > 
 > > There's a valid point in arguing for using DDL (Data Definition Language) to dynamically maintain/pull the schema for a table, but I want you to keep this simple and just hard code the schema as our `GreetingEvent` schema isn't going to be evoving.
 
-### Testing
+### Unit Tests
 - [ ] TODO. Tested with the actual GreetingEvent expecting it in the same schema order of the table creation DDL.
 
 #
@@ -614,7 +614,7 @@ Return an `Object[]` containing all the values in the `GreetingEvent`.
 > ["id2", "Charlie", "David", "Yo David!"]
 > ```
 
-### Testing
+### Unit Tests
 - [ ] TODO. Testing using examples above and expecting the same ordering that the `greeting_events` table was created with.
 
 
@@ -674,7 +674,7 @@ These methods should all being working together to achieve the expected outputs 
 > **Explanation**: event3.eventId() == "id1" already exists in the table<br>
 
 
-### Testing
+### Integration Tests
 - [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `GreetingSqlServiceTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method(s): `insertTest()`
@@ -693,7 +693,7 @@ In `SqlConfig.java`, implement `@Bean public GreetingSqlService singleGreetingSq
 **Requirements:**
 - Inject the Spring property in `application.yml` that holds your `greeting_events` SQL table name
 
-### Testing
+### Unit Tests
 - [ ] TODO (fix this this is the wrong description) Open `SqlConfigTest.java` ─ already implemented to test the `tableName()` and `columns()` return expected values
 - [ ] Remove `@Disabled` in `SqlConfigTest.java` for the test method(s): `singleGreetingSqlService_beanTest()`
 - [ ] Test with:
@@ -804,7 +804,7 @@ Everytime an event is read from Kafka, we will need to call `GreetingSqlService.
 
 #
 
-### Integration Testing
+### E2E Tests
 - [ ] Run the application:
     ```shell
     ./gradlew bootRun
@@ -851,7 +851,7 @@ twitch-chat-hit-counter:
     greeting-table-batch: batch_greeting_events
 ```
 
-### Testing
+### Unit Tests
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented to test the property above.
 - [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method(s): `sqlBatchGreetingTableNameTest()`
 - [ ] Test with:
@@ -887,7 +887,7 @@ This means we should be able to handle writing any number of events to SQL flexi
 
 #
 
-### Testing
+### Integration Tests
 - [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `GreetingSqlServiceTest.java` ─ already implemented with the example(s) above.
 - [ ] Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method: `insertBatchTest()`
@@ -904,7 +904,7 @@ In `SqlConfig.java`, implement `@Bean public GreetingSqlService batchGreetingSql
 **Requirements:**
 - Inject the Spring property in `application.yml` that holds your `batch_greeting_events` SQL table name
 
-### Testing
+### Unit Tests
 - [ ] TODO fix this entire block
 - [ ] Open `SqlConfigTest.java` ─ already implemented to test the `tableName()` and `columns()` return expected values
 - [ ] Remove `@Disabled` in `SqlConfigTest.java` for the test method(s): `batchGreetingSqlService_beanTest()`
@@ -926,7 +926,7 @@ Everytime event(s) are read from Kafka, we will need to call `GreetingSqlService
 
 #
 
-### Integration Testing
+### E2E Tests
 - [ ] Run the application:
     ```shell
     ./gradlew bootRun
@@ -1071,7 +1071,7 @@ Return a `GreetingEvent` by parsing the `ResultSet` record row that gets passed 
 
 #
 
-### Testing
+### Unit Tests
 - [ ] Open `GreetingSqlServiceTest.java` ─ already implemented with the example(s) above.
 - [ ] Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method(s): `queryTest()`
 - [ ] Test with:

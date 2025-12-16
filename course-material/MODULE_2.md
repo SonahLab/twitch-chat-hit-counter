@@ -24,28 +24,59 @@
 
 <br>
 
-## Overview
-I highly recommend reading through the various **Kafka Overviews** + **Spring Kafka Integration Guides** above to learn: what Kafka is, how it works, and how to set it up in our Spring Boot project. 
+## Overview [TODO: Pretty word vomitty right now and scattered. MAJOR CLEANUP needed. Turn this into a streamlined story about Tech today and scale, Case Study, and then how Kafka solves this]
+I highly recommend reading through and watching the various **Kafka** and **Spring Kafka** articles/videos above to learn:
+1. What Kafka is
+2. How Kafka works
+3. Why Kafka is used all throughout real-time, streaming Backend systems
+4. How to integrate Spring Kafka in a Spring Boot Java application
 
-Kafka, or some other sort of message/task queue, is used ubiquitously in large distributed systems in all tech companies dealing with large amounts of real-time/streaming/always-on data. Netflix, Youtube, TikTok, Uber, Facebook, or {INSERT_YOUR_FAVORITE_TECH_COMPANY_HERE} is expected to be **always on**, **always up**, **always working**, and **always available**, logging user impressions that powers all parts of a company's core business. Data is at the foundation of every company and as companies scale for 100s of millions of users, the goal is to collect/distribute the data to your consumers as fast as possible.<br>
+**Kafka**, or any message task queue, is used ubiquitously in large distributed systems in almost all tech companies dealing with large amounts of real-time streamed data.
 
-### Some anecdotal examples:
-#### Netflix
-We use Apache Kafka as the go to real-time streaming message queue.
+**Data is King, Speed is Law.**<br>
+Think about any big tech company and the sheer scale of users that use their platform on a daily basis. The expectation is that a service should be **ALWAYS ON**, **ALWAYS AVAILABLE**, and **ALWAYS WORKING**.
 
-We have client teams recording Playback events to Kafka for all downstream teams to use. This records different events for all Netflix Users' watching activity within the application.
-Many teams depend on this stream of data for core daily business functions.
+Take Youtube as an example. **2.5B monthly active users** (MAU). 1B+ hours of watch time a day.
 
+Just think about the cardinality of data this amounts to in terms of data collection.
+Let's attempt to approximate the number of [View](https://views4you.com/blog/how-does-youtube-count-views/#:~:text=A%20Detailed%20Guide,-Written%20by:&text=YouTube%20counts%20views%20when%20a,Read%20on%20to%20find%20out!) impressions as a function of:
+```
+total_view_impressions = num_hours_of_content_watched * 3600 (seconds/hr) / 30 (seconds/impression)
+= 1,000,000,000 (hours) * 3600 (sec/hr) * 1 (impression) / 30 (sec)
+= 3,600,000,000,000 seconds * 1 (impression) / 30 (sec)
+= 120,000,000,000 VIEW impressions/day for all DAUs
+```
+This is a back-of-the-envelope (BOTEC) estimate for the scale of viewing impressions in a single day. Think about the scale of data for impressions related to:
+- START
+- STOP
+- PAUSE
+- LIKE
+- SUBSCRIBE
+- COMMENT
 
-#### Snapchat
-At Snapchat, we had a partnership w/ Google Cloud Platform (GCP), so we used **Google PubSub**. It's not necessarily the same as Kafka but achieved roughly the same thing as a task queue.
+There's a metric ton of data that scales with the amount of users on a platform. This data powers all down-funnel teams who's main goal is to:
+1. Recommend better content for Users based on their watch history and engagement
+   1. Does the algo recommended videos/channels lead to higher subscriptions for Youtubers?
+2. Ad Placements right before an exciting moment in a video to build suspense
+   1. Does this cliff hanger effect boost engagement by shown by users sitting through the ad or does data show that Users get upset and click out of the video?
+3. Content creation optimizations via analysis on content viewing metrics
+   1. Do Users like Long-form content?
+   2. What's the optimal video length?
+   3. At what point do Users disengage?
+4. Channel growth metrics
+   1. Did a Youtuber do something that caught mass adoption?
+   2. What types of videos did the viewer base seem most attracted by?
+5. A/B Tests for all different new features
+   1. Planning a UI revamp, are users in the treatment group showing higher/lower engagement
+   2. Ad Creative formats, are users liking one type of Nike commercial with Michael Jordan over another Nike commercial with LeBron James?
+6. ... `Insert ton of other use cases here`
 
-On the **Ads Reporting Team** there, we did essentially the same thing that Netflix is doing to build our Realtime Reporting dashboards that powered the internal Ad Manager tool where managers can login to see how their ad campaigns were performing in real-time. 
+Data is energy to a company, it powers everything. From decision making, revenue growth, and where to invest funding and resources to.
+Speed is also very important. _____help me____
 
-I built the E2E Reach Insights Reporting Pipeline, streaming a daily 600+ billion events to aggregate unique reach stats up to different time-series (Minutely/Hourly/Daily/Lifetime) for all different dimensions (Age/Gender/DMA/region/etc). Some other pipelines have even more data, so your pipelines better scale and they better be fast/durable/fault-tolerant/stable/acurrate/all of the above.
-
-#### Yelp
-As an intern here, Apache Kafka was a core part of the company's real-time streaming pipelines. It's been years since I worked there, so I don't remember exactly the use cases but I know it was at the core of the data pipelines.
+### Anecdotal Examples:
+- Netflix is a huge advocate for open source. We use Kafka as the go to streaming tool.
+- Snapchat is very coupled with Google Cloud (GCP). We mostly used Google Pub/Sub, which is charactertiscally different from Kafka but similar in that it acted as a task queue the way my team used it.
 
 **TL;DR:** Read any Tech blogs from major tech companies and you'll see just how prevalent message log/queues are for streaming a large amount of events.
 
@@ -57,9 +88,13 @@ As an intern here, Apache Kafka was a core part of the company's real-time strea
 
 Kafka has the ability to let you go back in time and to replay/backfill data by allowing consumers to start reading earlier offsets.
 
-Kafka is not generally known to be used as a DB, think of it more as an **ephemeral holding area** where producers/consumers come and go as they please to write/read packages. Also, the higher the TTL, the more costly it becomes on your server maintenance costs to store events for 24 hours vs 365 days.
+Kafka is not generally known to be used as a DB, think of it more as an **ephemeral holding area** where producers/consumers come and go as they please to write/read packages.
 
-I normally see TTLs closer to 24 hours during normal operations, and extended up to 1-7 day(s) during operational issues to give teams a bit of buffer to deal with real production issues (time to **root cause**, **debug**, **deploy fixes**, and potentially **backfill** data).
+> [!NOTE]
+> 
+> Also, the higher the TTL, the more costly it becomes on your server maintenance costs to store events for 24 hours vs 365 days.
+>
+> I normally see TTLs closer to 24 hours during normal operations, and extended up to 1-7 day(s) during operational issues to give teams a bit of buffer to deal with real production issues (time to **root cause**, **debug**, **deploy fixes**, and potentially **backfill** data).
 
 
 #### Case Study
@@ -225,7 +260,7 @@ For `Module 2`, the below file structure are all the relevant files needed.
 
 <br>
 
-### Lesson: Autoconfiguration
+### Lesson: Autoconfiguration [TODO: pretty word vomitty right now]
 > [!IMPORTANT]
 >
 > Autoconfiguration is a core aspect of Spring Boot.<br>
@@ -380,7 +415,7 @@ These properties control how the `key/value` of a Kafka message is serialized on
 
 > [!NOTE]
 >
-> In cross team environments where shared events are flowing through multiple services (upstream team -> your team -> downstream team), usually you'd share a universal, version-locked schema in a shared library and align on the SerDeser contract for how events are being handed off and what data types are being used. The three teams would all align that kafka events would be stored using `String (keys)` and `ByteArrays (values)`, so nobody is surprised when getting failures when attempting to read the keys as `Long` values instead of `String` values.
+> In cross team environments where shared events are flowing through multiple services (upstream team → your team → downstream team), usually you'd share a universal, version-locked schema in a shared library and align on the SerDeser contract for how events are being handed off and what data types are being used. The three teams would all align that kafka events would be stored using `String (keys)` and `ByteArrays (values)`, so nobody is surprised when getting failures when attempting to read the keys as `Long` values instead of `String` values.
 
 #
 
@@ -501,7 +536,8 @@ In `GreetingEventProducer.java`, implement:
 ### Example 1:
 > **Input**:<br>
 > ```java
-> GreetingEventProducer producer = new GreetingEventProducer(...);
+> GreetingEventProducer producer; // Assume initialized
+> 
 > String eventId = "UUID1";
 > GreetingEvent event = new GreetingEvent(eventId, "Alice", "Bob", "Hi Bob, I'm Alice!");
 > boolean output1 = producer.publish(eventId, event);
@@ -510,8 +546,9 @@ In `GreetingEventProducer.java`, implement:
 > GreetingEvent event2 = new GreetingEvent(eventId2, "Charlie", "David", "Yo.");
 > boolean output2 = producer.publish(eventId2, event2);
 > ```
-> **Output1**: <span style="color:#0000008c">true<br></span>
-> **Output2**: <span style="color:#0000008c">true<br></span>
+> **Output1**: true
+> 
+> **Output2**: true
 
 #
 
@@ -533,11 +570,12 @@ In `GreetingEventProducer.java`, implement:
 > [!NOTE]
 >
 > **Relevant Files**<br>
+> `GreetingEvent.java` ─ DTO for a simple greeting.<br>
 > `KafkaRestController.java` ─ REST controller to handle `POST /api/kafka/publishGreetingEvent`.
 
 In `KafkaRestController.java`, implement:
-- the constructor: `public KafkaRestController()`
-- `public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestParam String receiver, @RequestParam String message)` endpoint to trigger `GreetingEventProducer.publish(...);`
+- `public KafkaRestController()` (constructor)
+- `public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestParam String receiver, @RequestParam String message)` (endpoint)
 
 **Requirements:**
 1. Inject the `GreetingEventProducer` into the constructor
@@ -589,7 +627,7 @@ true
 >
 > **Relevant Files**<br>
 > `application.yml` ─ our service's property file<br>
-> `GreetingEvent.java` ─ data model to encapsulate a simple greeting.<br>
+> `GreetingEvent.java` ─ DTO for a simple greeting.<br>
 > `AbstractEventConsumer.java` ─ the abstract class that defines the way all event consumers should act.<br>
 > `GreetingEventConsumer.java` ─ the class that subscribes to our `greeting_event` kafka topics to read `GreetingEvent` objects
 
@@ -618,29 +656,45 @@ In `GreetingEventConsumer.java`, implement `public void processMessage(ConsumerR
 
 The main goal for now is to simply **log or print** the kafka message that was read from the kafka topic to **stdout** (our application logs).
 
-> [!IMPORTANT]
->
-> You will need to add the [@KafkaListener <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-annotation.html) annotation above the `processMessage(...)` method.
-> 
-> Properties required: `topics`<br>
+**Requirements:**
+- Add the [@KafkaListener <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-annotation.html) annotation to `processMessage()` method signature
+  - `topics` is the only required parameter and should directly inject `twitch-chat-hit-counter.kafka.greeting-topic`
 
 ### Example 1:
 > **Input**:<br>
 > ```java
-> GreetingEventConsumer consumer = new GreetingEventConsumer(...);
-> // Assume kafka has these 3 events:
-> // 1. new GreetingEvent("id1", "Alice", "Bob", "Hello, Bob!")
-> // 2. new GreetingEvent("id2", "Bob", "Charlie", "Good morning, Charlie!")
-> // 3. new GreetingEvent("id3", "Eve", "Frank", "Hi Frank, how are you?")
-> consumer.processMessage(...); // processes 1st GreetingEvent
-> consumer.processMessage(...); // processes 2nd GreetingEvent
-> consumer.processMessage(...); // processes 3rd GreetingEvent
+> GreetingEventConsumer consumer; // Assume initialized.
+>
+> consumer.processMessage(
+>     // ConsumerRecord(String topic, int partition, long offset, K key, V value)
+>     new ConsumerRecord(
+>         "greeting-events",
+>         0,
+>         0,
+>         "id1",
+>         new GreetingEvent("id1", "Alice", "Bob", "Hello, Bob!").getBytes()));
+> 
+> consumer.processMessage(
+>     new ConsumerRecord(
+>         "greeting-events",
+>         0,
+>         1,
+>         "id2",
+>         new GreetingEvent("id2", "Bob", "Charlie", "Good morning, Charlie!").getBytes()));
+> 
+> consumer.processMessage(
+>     new ConsumerRecord(
+>         "greeting-events",
+>         0,
+>         2,
+>         "id3",
+>         new GreetingEvent("id3", "Eve", "Frank", "Hi Frank, how are you?").getBytes()));
 > ```
 > **stdout**:<br>
 > ```
-> INFO GreetingEventConsumer: Received event=GreetingEvent[eventId=UUID1, sender=Alice, receiver=Bob, message=Hello, Bob!]
-> INFO GreetingEventConsumer: Received event=GreetingEvent[eventId=UUID2, sender=Bob, receiver=Charlie, message=Good morning, Charlie!]
-> INFO GreetingEventConsumer: Received event=GreetingEvent[eventId=UUID3, sender=Eve, receiver=Frank, message=Hi Frank, how are you?]
+> INFO GreetingEventConsumer: Received event=GreetingEvent[eventId=id1, sender=Alice, receiver=Bob, message=Hello, Bob!]
+> INFO GreetingEventConsumer: Received event=GreetingEvent[eventId=id2, sender=Bob, receiver=Charlie, message=Good morning, Charlie!]
+> INFO GreetingEventConsumer: Received event=GreetingEvent[eventId=id3, sender=Eve, receiver=Frank, message=Hi Frank, how are you?]
 > ```
 
 #
@@ -669,29 +723,37 @@ The main goal for now is to simply **log or print** the kafka message that was r
 
 ## Lesson: Input/Output (IO) Operations
 ![](assets/module2/images/IO.svg)<br>
-_Quick overview on what happens when our application calls read/write IOs to a server.<br>_
+_Quick overview on what happens BTS when our application calls read/write IOs to a server.<br>_
 
-Write IO:
+### Write IOs:
 > → Microservice (**client**) tells Data Center (**server**) to store data to persistent storage.<br>
-> → Data Center stores data in server and responds to the client who made the request with a success/fail response.
+> → Data Center stores data in disk and responds to the client who made the request with a success/fail response.
 
-Read IO:
+### Read IOs:
 > → Microservice (**client**) asks Data Center (**server**) to fetch some data.<br>
-> → Data Center reads data from persistent storage and responds to the client with the data.
+> → Data Center reads data from disk and responds to the client with the data.
 
-#### Case Study
-Let's assume all client machines are running in California and all server machines are running in New York.<br>
-Meaning each request/response must travel round-trip across the US network for a single call. (CA→NY→CA).<br>
+### Case Study
+![](assets/module2/images/IOworld.svg)<br>
 
-**Team A** is in charge of streaming data for **Team B** to use downstream. So **Team A** writes data to the server running in NY.<br>
-**Team B** will read data from the server in NY.
+**Setting:**
+- **Team A's** microservice is hosted in **Los Angeles**.
+- **Team B's** microservice is hosted in **San Francisco**.
+- **Data Center** (Kafka) is hosted in **New York**.
 
-Now, say we need to support high QPS traffic and that **Team B** only has 1 available machine.<br>
-Instead of having the machine read 1 event at a time (travelling from CA→NY→CA per call), we should optimize the **# of IO calls** we dispatch from Client→Server.<br>
-Each call in this case study will incur a high latency because the requester is in CA and the server is in NY. The distance the data packets need to travel doesn't happen instantaneously.<br>
-Therefore, in general, we should always try to limit our IO calls when possible. 
+**Roles:**
+- **Team A** (producer) writes events to Kafka.
+- **Team B** (consumer) reads events from Kafka.
 
-_**Instead of Team B's machine reading 1 event at a time (Option 1), what would happen if Team B's machine read 500 events at a time (Option 2)?**_
+**Problem:**<br>
+Every request/response must travel round-trip across the US network for a single call **(CA→NY→CA)**.<br>
+
+**Constraint**<br>
+**Team B's** consumers needs to process 1 million events per day.
+
+**Optimization**<br>
+- Option 1: Consumers reads individual events
+- Option 2: Consumers reads batched events
 
 How many read IOs would need to be issued to read 1M kafka events?<br>
 - Option 1: 1,000,000 events / 1 event(s) per read IO = 1,000,000 read IOs
@@ -699,9 +761,63 @@ How many read IOs would need to be issued to read 1M kafka events?<br>
 
 In other words, instead of travelling between CA/NY **1,000,000x**, we only need to make the trip **2,000x**.
 
-This simple extreme example shows the benefit of introducing batch operations in your application on read/writes.<br>
+This simple example (pushed to the extreme) highlights the difference your application code can have on performance overall.<br>
 
-**This brings us to the next exercise, creating a Batch Consumer.**
+
+## Quiz: Large Scale Distributed Systems
+The previous **Case Study** is rarely ever how 
+
+### Question 1: Region Routing (Latency)
+Available Amazon Data Centers regions: 
+- `us-east-1` (N. Virginia)
+- `us-west-2` (Oregon)
+- `eu-west-1` (Ireland)
+- `ap-northeast-1` (Tokyo)
+
+A company just launched their services in Korea, which region should be used to handle all traffic?<br>
+A. `us-east-1`<br>
+B. `us-west-2`<br>
+C. `eu-west-1`<br>
+D. `ap-northeast-1`<br>
+
+[//]: # (Solution: D. Korea is closest to the Tokyo Data Center [locality], so ap-northeast-1 should handle the traffic. AWS does have a Seoul, Korea data center, but thats not in the list of available regions.)
+
+### Question 2: Data Partitioning (Sharding)
+Available Amazon Data Centers regions:
+- `us-east-1` (N. Virginia): handles all `userId % 4 = 0`
+- `us-west-2` (Oregon): handles all `userId % 4 = 1`
+- `eu-west-1` (Ireland): handles all `userId % 4 = 2`
+- `ap-northeast-1` (Tokyo): handles all `userId % 4 = 3`
+
+Alice lives in Los Angeles and we want all of her events to be directed to `us-west-2`.<br>
+What **userId** ensures that her data is partitioned to this region?
+A. 1234567890<br>
+B. 1234567891<br>
+C. 1234567892<br>
+D. 1234567893<br>
+
+[//]: # (Solution: D. 1234567893 % 4 == 1)
+
+### Question 3: Cluster Sizing (Capacity Planning)
+Available Amazon Data Centers regions:
+- `us-east-1` (N. Virginia)
+- `us-west-2` (Oregon)
+- `eu-west-1` (Ireland)
+- `ap-northeast-1` (Tokyo)
+
+A company's user base demographic looks as follows:
+- 100M DAUs in the U.S. (80M East coast, 20M West coast)
+- 40M DAUs in the U.K.
+- 10M DAUs in the Asia Pacific
+
+Which region order best represents the most appropriate cluster size priority (biggest → smallest) to support the user DAUs?<br>
+A. `us-east-1` > `us-west-2` > `eu-west-1` > `ap-northeast-1`<br>
+B. `us-west-2` > `us-east-1` > `eu-west-1` > `ap-northeast-1`<br>
+C. `us-east-1` > `eu-west-1` > `us-west-2` > `ap-northeast-1`<br>
+D. `us-east-1` > `eu-west-1` > `ap-northeast-1` > `us-west-2`<br>
+
+[//]: # (Solution: C. 80M [us-east-1] > 40M [eu-west-1] > 20M [us-west-2] > 10M [ap-northeast-1])
+
 
 #
 
@@ -718,9 +834,10 @@ Spring Kafka autconfiguration is helpful for setting up some default/quick setup
 it's up to developers to tailor Beans further than what autoconfigurations usually allow for. So we will need to setup our own `ConcurrentKafkaListenerContainerFactory` explicitly for the batch consumer.
 
 ### Task 1: Configure application.yml
-What properties differ between the autconfigured `ConcurrentKafkaListenerContainerFactory kafkaListenerContainerFactory` we have vs. a new `ConcurrentKafkaListenerContainerFactory batchKafkaListenerContainerFactory` we'd need to handle the batch consumer?
+Take a look at the configuration below for `kafkaListenerContainerFactory` and `batchKafkaListenerContainerFactory`.
+
 ```yaml
-# kafkaListenerContainerFactory
+# kafkaListenerContainerFactory (handles pulling Kafka events 1 event at a time)
 spring:
   kafka:
     bootstrap-servers: localhost:9092
@@ -737,7 +854,7 @@ spring:
       type: SINGLE # property is not set in our application.yml because it's the default setting used by Spring Kafka
       ack-mode: MANUAL
 
-# batchKafkaListenerContainerFactory
+# batchKafkaListenerContainerFactory (handles pulling Kafka events 1+ events at a time)
 spring:
   kafka:
     bootstrap-servers: localhost:9092
@@ -755,12 +872,22 @@ spring:
       ack-mode: MANUAL
 ```
 
-The fields that should differ between these Beans are the `spring.kafka.consumer.group-id` and `spring.kafka.listener.type`.
-If we overwrite any of these fields, it'll affect the autconfigured single consumer so we will define these differing properties in some other properties.
+The only fields that differ between the `kakfaListenerContainerFactory` and `batchKakfaListenerContainerFactory` Beans are:
+- `spring.kafka.consumer.group-id`
+- `spring.kafka.listener.type`
+
+The `spring.kafka.listener.type` fundamentally changes how the consumer pulls events from Kafka. It allows the consumer to request 1+ events from the Kafka broker instead of just 1 event.<br>
+The limitation of Spring Kafka autoconfiguration is that only one basic Bean `ConcurrentKafkaListenerContainerFactory kafkaListenerContainerFactory` is created on our behalf. In order to create multiple `ConcurrentKafkaListenerContainerFactory`, we need to manually configure them in our application ourselves.
+
+Your job is to create new Spring properties that will be used to create our `batchKakfaListenerContainerFactory` Bean.
 
 **Requirements:**
-1. `twitch-chat-hit-counter.kafka.batch-consumer.group-id`: {application_name}-group-id-batch-{num}
-2. `twitch-chat-hit-counter.kafka.batch-consumer.listener.type`: BATCH
+1. `twitch-chat-hit-counter.kafka.batch-consumer.group-id`: {application_name}-group-id-**batch**-{num}
+2. `twitch-chat-hit-counter.kafka.batch-consumer.listener.type`: `BATCH`
+
+> [!NOTE]
+> 
+> Notice that these custom properties aren't configured under the `spring.kafka.*` prefix. This is because these properties won't be picked up by Spring Kafka's Autoconfiguration logic, these properties will be used by you to manually configure a new type of `ConcurrentKafkaListenerContainerFactory`.
 
 #
 
@@ -781,11 +908,11 @@ Because of Spring Kafka's autoconfiguration we were able to (with no manual set 
 
 Now we need to create a new `@Bean ConcurrentKafkaListenerContainerFactory` named **batchKafkaListenerContainerFactory** for our Batch EventConsumer class.
 
-In `KafkaConfigs.java`, implement `public ConcurrentKafkaListenerContainerFactory<String, byte[]> batchKafkaListenerContainerFactory()` to be exactly the same as the autconfigured `kafkaListenerContainerFactory`,
+In `KafkaConfigs.java`, implement `public ConcurrentKafkaListenerContainerFactory<String, byte[]> batchKafkaListenerContainerFactory()` to be exactly the same as the autoconfigured `kafkaListenerContainerFactory`,
 with the two changes being that the batchKafkaListenerContainerFactory's `group-id` and `listener.type` are what's defined in the `application.yml`.
 
 **Requirements:**
-- Inject the autconfigured `ConsumerFactory consumerFactory` into the method signature
+- Inject the autoconfigured `ConsumerFactory consumerFactory` into the method signature
 - Inject the `group-id` property defined in the previous task into the method signature
 - Inject the `listener.type` property defined in the previous task into the method signature
 - Copy over the consumerFactory's properties to a new map and replace the `group-id` using the group-id defined for the Batch Consumer
@@ -812,8 +939,9 @@ which accepts a `List<ConsumerRecord<String, byte[]>> records` to process. This 
 
 **Requirements:**
 1. Process all the raw kafka records and convert them back to a generic `T event` using the already implemented `convertRecordToEvent()`
-2. Aggregate the `T event` into a list
+2. Aggregate all `T event` into a list
 3. Log the events to _stdout_
+4. **ACK** the `Acknowledgment ack` object
 
 <br>
 
@@ -830,12 +958,15 @@ This task will be nearly identical with the previous `GreetingEventConsumer.java
 ### Example 1:
 > **Input**:<br>
 > ```java
-> GreetingEventConsumer consumer = new GreetingEventConsumer(...);
-> // Assume kafka has these 3 events:
-> // 1. new GreetingEvent("id1", "Alice", "Bob", "Hello, Bob!")
-> // 2. new GreetingEvent("id2", "Bob", "Charlie", "Good morning, Charlie!")
-> // 3. new GreetingEvent("id3", "Eve", "Frank", "Hi Frank, how are you?")
-> consumer.processMessage(List.of(kafkaRecord1, kafkaRecord2, kafkaRecord3)); // processes the 3 kafka records at once
+> GreetingEventConsumer consumer; // Assume initialized.
+>
+> consumer.processMessages(
+>     List.of(
+>         // ConsumerRecord(String topic, int partition, long offset, K key, V value)
+>         new ConsumerRecord("greeting-events", 0, 0, "id1", new GreetingEvent("id1", "Alice", "Bob", "Hello, Bob!").getBytes()),
+>         new ConsumerRecord("greeting-events", 0, 1, "id2", new GreetingEvent("id2", "Bob", "Charlie", "Good morning, Charlie!").getBytes()),
+>         new ConsumerRecord("greeting-events", 0, 2, "id3", new GreetingEvent("id3", "Eve", "Frank", "Hi Frank, how are you?").getBytes())
+>     ));
 > ```
 > **std**:<br>
 > ```
@@ -859,7 +990,7 @@ This task will be nearly identical with the previous `GreetingEventConsumer.java
 #
 
 ### E2E Tests
-- [ ] Try to have multiple kafka events already stored in your kafka topic
+- [ ] Try to have multiple kafka events already stored in your kafka topic (~3 events per partition is good enough)
 - [ ] Run the application:
     ```shell
     ./gradlew bootRun

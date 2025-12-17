@@ -171,7 +171,7 @@ For `Module 4`, the below file structure are all the relevant files needed.
 
 <br>
 
-## Exercise 1: Implement Data Access Object (DAO)
+## Exercise 1: Redis Data Access Object (DAO)
 > [!TIP]
 >
 > [Data Access Object (DAO) Pattern <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.geeksforgeeks.org/system-design/data-access-object-pattern/)
@@ -610,7 +610,7 @@ twitch-chat-hit-counter:
 
 #
 
-### Task 2: RedisConfig::eventDedupeRedisDao
+### Task 2: `RedisConfig::eventDedupeRedisDao`
 ![](assets/module4/images/db0.png)<br>
 
 
@@ -636,7 +636,7 @@ Example:
 ```
 
 **Requirements:**
-1. Inject the properties from `application.yml`: `host/port` and `event-dedupe-database`
+1. DI the properties from `application.yml`: `host/port` and `event-dedupe-database`
 2. Create the factory map `Map<Integer, RedisTemplate<String, String>>` object
 3. For each index (should just be a manually created `List<Integer>` containing our only database index `0`):
    1. Create a new `RedisStandaloneConfigure` object using the `host/port` and don't forget to **set the database index**
@@ -661,8 +661,8 @@ public RedisDao eventDedupeRedisDao() {}
 This RedisDao will be _**dedicated**_ to handling operations on `DB0`.
 
 **Requirements:**
-1. Inject the `redisTemplateFactory` we just implemented in the previous task
-2. Inject the `event-dedupe-database` property index
+1. DI the `redisTemplateFactory`
+2. DI the `event-dedupe-database` property index from `application.yml`
 3. Create a new `RedisDao` with the correct `RedisTemplate` from the factory `Map<Integer, RedisTemplate<String, String>>`
 
 ### Unit Tests
@@ -807,7 +807,7 @@ At **time1**, Charlie greets Bob, "Hey Bob, it's been a while.".<br>
 Alice     Charlie
 ```
 
-**Bob's feed** will have this List\<GreetingEvent>:
+**Bob's feed** will have this `List<GreetingEvent>`:
 ```json
 {
   "receiver#Bob": [
@@ -830,7 +830,7 @@ Alice     Charlie
 
 #
 
-### Task 1: Configure `application.yml`
+### Task 1: Spring Redis Properties
 In `application.yml`, we will need to designate `db1` for purposes of aggregating the Greetings for each `receiver`.
 ```yaml
 twitch-chat-hit-counter:
@@ -852,7 +852,7 @@ twitch-chat-hit-counter:
 
 #
 
-### Task 2: RedisConfig::greetingFeedRedisDao
+### Task 2: `RedisConfig::greetingFeedRedisDao`
 ![](assets/module4/images/db1.png)<br>
 
 
@@ -860,8 +860,8 @@ twitch-chat-hit-counter:
 >
 > Read through [Multiple Redis Connections in Spring Boot <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://medium.com/@raphael3213/multiple-redis-connections-in-spring-boot-37f632e8e64f)
 
-This is very similar to our initial setup for `DB0` in `RedisConfig.java`. After implementing the support needed for `DB1`, you should the benefits of why I've set up the `redisTemplateFactory` the way I did.
-It becomes very easy to add and remove database indexes without requiring a lot of verbose, duplicate code as the original Medium article above shows. 
+This is very similar to our initial setup for `db0` in `RedisConfig.java`. After implementing the support needed for `db1`, you should the benefits of why I've set up the `redisTemplateFactory` the way I did.
+It becomes very easy to add and remove database indexes without requiring a lot of the duplicated code as the original Medium article above shows. 
 
 ### Part 1
 In `RedisConfig.java`, update `public Map<Integer, RedisTemplate<String, String>> redisTemplateFactory()`.
@@ -877,7 +877,7 @@ In `RedisConfig.java`, update `public Map<Integer, RedisTemplate<String, String>
 ```
 
 **Requirements:**
-1. Inject the properties from `application.yml`: `greeting-feed-database`
+1. DI the properties from `application.yml`: `greeting-feed-database`
 2. Update the list of indexes to include `1` (should be `List.of(0, 1)`)
 
 ### Part 2
@@ -891,8 +891,8 @@ public RedisDao greetingFeedRedisDao() {}
 This RedisDao will be **dedicated** to handling operations on `DB1`.
 
 **Requirements:**
-1. Inject the `redisTemplateFactory`
-2. Inject the `greeting-feed-database` property index
+1. DI the `redisTemplateFactory`
+2. DI the `greeting-feed-database` property index from `application.yml`
 3. Create a new `RedisDao` with the correct `RedisTemplate` from the factory `Map<Integer, RedisTemplate<String, String>>`
 
 ### Unit Tests
@@ -908,7 +908,7 @@ This RedisDao will be **dedicated** to handling operations on `DB1`.
 
 #
 
-### Task 3: GreetingRedisService
+### Task 3: `GreetingRedisService::addGreetingToFeed`
 In `GreetingRedisService`, implement `public Long addGreetingToFeed(GreetingEvent event)`.<br>
 Return a Long that represents the length of the List after the `GreetingEvent` is appended to the list stored at the key for the `GreetingEvent.receiver()`.
 
@@ -941,7 +941,7 @@ Return a Long that represents the length of the List after the `GreetingEvent` i
 
 #
 
-### Testing
+### Integration Tests
 - [ ] Open `GreetingRedisServiceTest.java` ─ already implemented with the example(s) above.
 - [ ] Remove `@Disabled` in `GreetingRedisServiceTest.java` for method(s): `addGreetingToFeedTest()`
 - [ ] Test with:
@@ -954,7 +954,35 @@ Return a Long that represents the length of the List after the `GreetingEvent` i
 #
 
 ### Task 4: Update Consumer
-In `GreetingEventConsumer.java`, update dat.
+In `GreetingEventConsumer.java` (**Module 2**), DI the `GreetingRedisService.java`.
+
+In `GreetingEventConsumer.processMessage(..)`, after the deduper logic, we want to update the greeting feed (List) for the `GreetingEvent.receiver()`
+
+**Requirements:**
+- DI the correct `GreetingSqlService` bean into the `GreetingEventConsumer` constructor.<br>
+
+**Consumer Process Flow:**
+1. Check Redis to see if the kafka message key is a duplicate
+2. If **isDupeEvent == True**:
+    1. Do nothing (skip processing the event)
+3. If **isDupeEvent == False**:
+    1. Write the event to SQL
+    2. **(NEW) Write the greeting event to the `event.receiver()` feed in Redis in `db1`**
+    3. Update `db0` to add the event's key, so that we can skip this event from being processed if we ever see an event with the same key again.
+
+<br>
+
+#
+
+### E2E Tests
+- [ ] Run the application:
+    ```shell
+    ./gradlew bootRun
+    ```
+- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
+- [ ] Play around with **Kafka API**: `/api/kafka/publishGreetingEvent`
+- [ ] In **Redis UI**, go to `db1` and verify that the Greeting News Feed is the being appended correctly
+
 
 <br>
 
@@ -967,11 +995,12 @@ In `GreetingEventConsumer.java`, update dat.
 
 ### Task 1: Query News Feed from Redis
 In `GreetingRedisService`, implement `public List<GreetingEvent> getGreetingFeed(String name)`.<br>
-Return the List\<GreetingEvent> stored in `db1` using the input `name`.
+
+Return the `List<GreetingEvent>` stored in `db1` using the input `name`.
 
 **Requirements:**
-1. The Redis key should be generated using this template: `"receiver#{name}"`
-2. Redis value is stored as a List\<String>, but we want to output a List\<GreetingEvent> so you will need to deserialize each JSON String back to a `GreetingEvent` object
+1. `db1` Redis key template: `"receiver#{name}"`
+2. `db1` Redis value: `List<String>`, but we want to output a `List<GreetingEvent>` so you will need to deserialize each JSON String back to a `GreetingEvent` object
 
 ### Example 1:
 > **Input**:<br>

@@ -369,6 +369,9 @@ twitch-chat-hit-counter:
 #
 
 ### Exercise 1 Task 2: AbstractSqlService
+![](assets/module3/images/abstract.svg)<br>
+
+
 `AbstractSqlService.java` is the generic parent class to handle:
 1. Writing any type of Event into SQL tables
 2. Reading any type of Event from SQL tables
@@ -378,7 +381,7 @@ Core principle of good programming: **D.R.Y (Don't Repeat Yourself)**. When we g
 
 **Implement:**
 - constructor `public AbstractSqlService()`
-  - Inject the `JdbcTemplate` autoconfigured bean
+  - DI the `JdbcTemplate` autoconfigured bean
 - `public int insert(List<T> events)`: flexible method to handle writing a single event or multiple events into SQL. Return the number of successful event(s) written in the table (should be 0 or 1).
 
 #### Exercise 1 Task 2 Part I: Constructor
@@ -595,7 +598,7 @@ In `GreetingSqlService.java`, implement:
 In `GreetingSqlService.java`, implement `public GreetingSqlService()` constructor.
 
 **Requirements:**
-1. Inject the autoconfigured `JdbcTemplate` Spring bean that gets created at runtime and instantiate the super class constructor
+1. DI the autoconfigured `JdbcTemplate` bean and instantiate the super class constructor
 2. Add a new class variable `sqlTableName` that's expected to be input when calling the `GreetingSqlService` constructor
 
 #
@@ -780,7 +783,7 @@ These methods should all being working together to achieve the expected outputs 
 In `SqlConfig.java`, implement `@Bean public GreetingSqlService singleGreetingSqlService()`. This bean is dedicated to handling read/writes to your `dev_db.greeting_events` SQL table.
 
 **Requirements:**
-- Inject the Spring property in `application.yml` that holds your `greeting_events` SQL table name
+- DI the `greeting_event` property from `application.yml`
 
 ### Unit Tests
 - [ ] TODO (fix this this is the wrong description) Open `SqlConfigTest.java` ─ already implemented to test the `tableName()` and `columns()` return expected values
@@ -799,7 +802,7 @@ In `GreetingEventConsumer.java` (**Module 2**), integrate with the `singleGreeti
 Everytime an event is read from Kafka, we will need to call `GreetingSqlService.insert()` method to persist that event into the SQL table.
 
 **Requirements:**
-- Inject the correct `GreetingSqlService` bean into the `GreetingEventConsumer` constructor.<br>
+- DI the correct `GreetingSqlService` bean into the `GreetingEventConsumer` constructor.<br>
 
 ### Quiz: Spring Bean Dependency Resolution
 >
@@ -991,7 +994,7 @@ This means we should be able to handle writing any number of events to SQL flexi
 In `SqlConfig.java`, implement `@Bean public GreetingSqlService batchGreetingSqlService()`. This bean is dedicated to handling read/writes to your `dev_db.batch_greeting_events` SQL table.
 
 **Requirements:**
-- Inject the Spring property in `application.yml` that holds your `batch_greeting_events` SQL table name
+- DI the `batch_greeting_events` property from `application.yml`
 
 ### Unit Tests
 - [ ] TODO fix this entire block
@@ -1011,7 +1014,7 @@ In `GreetingEventBatchConsumer.java` (**Module 2**), integrate with the `batchGr
 Everytime event(s) are read from Kafka, we will need to call `GreetingSqlService.insert()` method to persist that event into the SQL table (`batch_greeting_events`).
 
 **Requirements:**
-- Inject the correct `GreetingSqlService` bean into the `GreetingEventConsumer` constructor.<br>
+- DI the correct `GreetingSqlService` bean into the `GreetingEventConsumer` constructor.<br>
 
 #
 
@@ -1198,7 +1201,7 @@ In `SqlRestController.java`, implement `public List<GreetingEvent> getSqlGreetin
 Return the `List<GreetingEvent>` return by calling the `GreetingSqlService.queryAllEvents()` method.
 
 **Requirements:**
-- Inject both `GreetingSqlService` Beans defined in `SqlConfig.java` into the constructor of the `SqlRestController.java`.
+- DI both `GreetingSqlService` beans in `SqlConfig.java` into the constructor of the `SqlRestController.java`.
 - Depending on the `tableName` input parameter, call `queryAllEvents()` on the correct Bean. (Hint: match it against the `sqlTableName()` method you implemented)
 - If there is no `tableName` match, throw a `IllegalArgumentException`
 

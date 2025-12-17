@@ -492,6 +492,8 @@ twitch-chat-hit-counter:
 <br>
 
 ### Task 1: AbstractEventProducer
+![](assets/module2/images/abstractproducer.svg)<br>
+
 Our `AbstractEventProducer.java` is the parent class for writing any type of Event object into a kafka topic.
 Core principle of good programming: D.R.Y (Don't Repeat Yourself). All child classes that `extend AbstractEventProducer`,
 don't need to worry about the kafka topic write logic once it's defined in the parent.
@@ -524,8 +526,8 @@ In `GreetingEventProducer.java`, implement:
 - `protected String topicName()`
 
 **Requirements**:
-1. Inject the same `KafkaTemplate` Bean into the constructors of all subclass of `AbstractEventProducer.java`. (`GreetingEventProducer.java`, `TwitchChatEventProducer.java`)
-2. Inject the `greeting-events` topic name property defined in `application.yml` into the constructor of `GreetingEventProducer.java`, and overwrite the `protected String topicName()` to return that injected topic name.
+1. DI the `KafkaTemplate` into the constructors of all subclass of `AbstractEventProducer.java`. (`GreetingEventProducer.java`, `TwitchChatEventProducer.java`)
+2. DI the `greeting-events` from `application.yml` into the constructor of `GreetingEventProducer.java`, and that value should be returned in `protected String topicName()`
 
 <br>
 
@@ -568,7 +570,7 @@ In `KafkaRestController.java`, implement:
 - `public Boolean produceKafkaGreetingEvent(@RequestParam String sender, @RequestParam String receiver, @RequestParam String message)` (endpoint)
 
 **Requirements:**
-1. Inject the `GreetingEventProducer` into the constructor
+1. DI the `GreetingEventProducer` into the constructor
 2. Generate a unique `eventId` ([UUID <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/java-uuid)) per greeting request
 3. Create a `GreetingEvent` using the: generated `eventId` and the user input parameters
 4. Call `GreetingEventProducer.publish()` to handle actual publishing of the kafka message
@@ -616,6 +618,9 @@ true
 #
 
 ### Task 1: AbstractEventConsumer
+![](assets/module2/images/abstractconsumer.svg)<br>
+
+
 Our `AbstractEventConsumer.java` is the parent class for reading any type of Event object from a kafka topic.
 Core principle of good programming: D.R.Y (Don't Repeat Yourself). All child classes that `extend AbstractEventConsumer`,
 don't need to worry about the kafka topic read logic once it's defined in the parent. They will only focus on the core logic that may differ between different consumers.
@@ -894,14 +899,14 @@ In `KafkaConfigs.java`, implement `public ConcurrentKafkaListenerContainerFactor
 with the two changes being that the batchKafkaListenerContainerFactory's `group-id` and `listener.type` are what's defined in the `application.yml`.
 
 **Requirements:**
-- Inject the autoconfigured `ConsumerFactory consumerFactory` into the method signature
-- Inject the `group-id` property defined in the previous task into the method signature
-- Inject the `listener.type` property defined in the previous task into the method signature
-- Copy over the consumerFactory's properties to a new map and replace the `group-id` using the group-id defined for the Batch Consumer
+- DI the autoconfigured `ConsumerFactory consumerFactory` into the method signature
+- DI the batch `group-id` property from `application.yml` into the method signature
+- DI the `listener.type` property from `application.yml` into the method signature
+- Copy over the consumerFactory's properties to a new map and replace the `group-id` field with the batch `group-id`
 - Create a new instance of a `ConsumerFactory` and use the new property map as the base
-- Create a new instance of a `ConcurrentKafkaListenerContainerFactory` and .setConsumerFactory() using the newly created ConsumerFactory
+- Create a new instance of a `ConcurrentKafkaListenerContainerFactory` and `.setConsumerFactory()` with the new `ConsumerFactory`
 - Set the `factory.setListener(true/false)` depending on the value of the listenerType
-- Set the `factory.getContainerProperties().setAckMode()` to MANUAL (as this property is not copied over in the ConsumerFactory properties)
+- Set the `factory.getContainerProperties().setAckMode()` to `MANUAL` (as this property is not copied over in the ConsumerFactory properties)
 
 #
 

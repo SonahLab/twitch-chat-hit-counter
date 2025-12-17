@@ -8,20 +8,24 @@
 - https://dev.mysql.com/downloads/workbench/
 
 ## Overview
-[//]: # (TODO)
-Now we’re foraying into the land of databases.
+SQL Databases are Relational DataBase Management System (RDBMS), a.k.a. the OG database.<br>
+SQL DBs will always be used no matter where you go, even with the rise of popularity in NoSQL databases. The foundation of SQL is so well established, many query engines are heavily incentivized to support SQL (Structured Query Language) to query data.
 
-SQL Databases, a.k.a. Relational DataBase Management System (RDBMS), a.k.a. the OG database.
-SQL DBs will always be used no matter where you go, even with the rise of popularity in NoSQL databases. The foundation of SQL is so well established, many query engines are heavily incentivized to support SQL to query data.
+Python, Spark, and SQL skew towards _"Data Engineers"_, but as a "Backend Software Engineer" I still use SQL daily. My responsibilities range from building real-time eventing services to, lately, more offline big data processing using SparkSQL to aggregate data to Apache Iceberg + exporting impressions to different 3P Measurement vendors.
 
-The amount of SQL queries I run on a daily basis is very, very high.
-At Snapchat, I would run SQL queries via:
-- MySQLWorkbench on top of our Google Cloud SQL tables
-- Google BigQuery on top of our Google Bigtables (NoSQL)
+Takeaway: I use SQL (_A LOT_) on a daily basis, and it's safe to say SQL isn't going anywhere.
 
-At Netflix, I run SQL queries via:
-- SparkSQL on top of our Apache Iceberg tables
-- CQL (looks pretty much like SQL) on top of our Apache Cassandra tables
+**Netflix**:
+- SparkSQL for most of our data pipelines
+- SQL to query our Apache Iceberg tables (usually when investigating issues with data)
+
+**Snapchat:**
+- **Google Cloud SQL** tables for monthly financial data to send to **Payments Team**
+- **Google BigQuery** on top of our **Google Bigtables** (NoSQL)
+
+> [!WARNING]
+> 
+> I'm assuming you know the basics of SQL and there are tons of resources online that I won't regurgitate for this course.
 
 <br>
 
@@ -152,6 +156,21 @@ For `Module 3`, the below file structure are all the relevant files needed.
 <img src="assets/common/testClass_newui.svg" align="center"/> GreetingSqlServiceTest.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/testClass_newui.svg" align="center"/> PropertiesApplicationTest.java<br>
+
+> - `application.yml` — Spring Boot application properties<br>
+> - `SqlConfig.java` — Configuration class to define all of our SQL related configs<br>
+> - `GreetingEventBatchConsumer.java` — Kafka consumer on `greeting-events` topic reading events in batches<br>
+> - `GreetingEventConsumer.java` — Kafka consumer on `greeting-events` topic reading 1 event at a time<br>
+> - `GreetingEvent.java` — DTO to model a greeting event<br>
+> - `SqlRestController.java` — REST controller to handle our service's SQL query endpoints:<br>
+>   - `/api/sql/queryGreetingEvents`: queries all events from a SQL table<br>
+> - `AbstractSqlService.java` — Abstract parent class to handle reading/writing generic `T event` from and to SQL tables<br>
+> - `GreetingSqlService.java` — Class to handle reading/writing `GreetingEvent event` from and to SQL tables<br><br>
+> 
+> - `SqlConfigTest.java` — Test class to validate logic after implementing `SqlConfig.java`<br>
+> - `SqlRestControllerTest.java` — Test class to validate logic after implementing `SqlRestController.java`<br>
+> - `GreetingSqlServiceTest.java` — Test class to validate logic after implementing `GreetingSqlService.java`<br>
+> - `PropertiesApplicationTest.java` — Test class to validate logic after implementing `application.yml`<br>
 
 <br>
 

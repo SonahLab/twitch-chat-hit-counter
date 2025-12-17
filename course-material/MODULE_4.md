@@ -4,23 +4,44 @@
 ### Additional Learning Materials
 
 ## Overview
+Redis is an in-memory Datastore that can be used as a database or cache. I just think of it as a distributed HashMap (in Java) or Dictionary (Python).
+
+It stores data primarily in RAM (cache) and also persists data in disk (database), depending on your application's use case.
+
+Key-Value stores is just a subset of a NoSQL DB, Redis being one such example. Redis can support all types of Data Structure from primitive and basic `String`, `Long`, and `List` to more complex data structures like HLL++ sketches (for reach calculations). It even has support for Redis Streams which can be used almost like Kafka. 
+
+I've used at least some flavor of a KV store at every company I've worked at either as a cache/database.
+
+**Netflix:**
+- Netflix has our internal KV store called [KVDal <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://netflixtechblog.medium.com/how-and-why-netflix-built-a-real-time-distributed-graph-part-2-building-a-scalable-storage-layer-ff4a8dbd3d1f) (Backed by Apache Cassandra)
+
+**Snapchat:**
+- Some teams used **Redis**
+- My team used **Memcached**
+- My team also used Google Guava library as our L1 Local Cache (hot cache), and on cache misses, pulled directly from "disk" by pulling documents from Google Datastore (NoSQL Document DB).
 
 <br>
 
 ## Objective
 ![](assets/module4/images/Overview4.svg)<br>
 
-**Recap:**
-In **Module 3**, we have a couple things:
-- an API endpoint to trigger `GreetingEvent` objects to be published to a Kafka topic
-- A single/batch event consumer to consume events from a Kafka topic
-- persistent storage to store the `GreetingEvent` in SQL DB
+In **Module 3**, you should have:
+- an API endpoint to trigger a simple greeting event (**Module 2**)
+- Producer to create a `GreetingEvent` DTO to be published to a Kafka topic (**Module 2**)
+- Consumers (single/batch) to read `GreetingEvent` DTOs from a Kafka topic (**Module 2**)
+- an API endpoint to trigger read on SQL tables (**Module 3**)
+- SQL service to read/write `GreetingEvent` DTOs from/to SQL tables (**Module 3**)
 
-Moving forward, we will be dropping the **Batch Event Pipeline** and just continue to work with the **Single Event Pipeline**.
+**_NOTE_**: Moving forward, we will be dropping the **"Batch" Event Pipeline** and just continue to work with the **"Single" Event Pipeline**. By batch event pipeline I mean we won't be maintaining `GreetingEventBatchConsumer.java`,
+as it was mainly a tool and lesson in helping you think about how to optimize network calls in everything you build when dealing with external databases.
 
-In **Module 4**, we will be adding two Redis DBs.<br>
-Redis **db0** will be reserved for **Event Deduplication**.<br>
-Redis **db1** will be reserved for our **Greetings News Feed**.<br>
+In **Module 4**, we will be adding two Redis DBs:<br>
+- Redis **db0** will be reserved for **Event Deduplication**.<br>
+- Redis **db1** will be reserved for our **Greetings News Feed**.<br>
+
+**Goals:**<br>
+- Implement an **Event Deduper** backed by `db0` to deduplicate events so we ensure **always-once** processing and never process any event more than once, ever.
+- Implement a **Greeting News Feed** backed by `db1` to build a Twitter or Facebook-like feed based on greeting events from some `sender` → `receiver`
 
 > [!NOTE]
 >
@@ -129,6 +150,25 @@ For `Module 4`, the below file structure are all the relevant files needed.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/testClass_newui.svg" align="center"/> PropertiesApplicationTest.java<br>
 
+> - `application.yml` — Spring Boot application properties<br>
+> - `RedisConfig.java` — Configuration class to define all of our Redis related configs<br>
+> - `GreetingEventConsumer.java` — Kafka consumer on `greeting-events` topic reading 1 event at a time<br>
+> - `EventType.java` — Enum to define all event types in our application<br>
+> - `GreetingEvent.java` — DTO to model a greeting event<br>
+> - `RedisDao.java` — DAO class to act as an interface layer between our application logic and network calls to Redis<br>
+> - `EventDeduperRedisService.java` — Class to interact with `db0` to deduplicate events if previously processed<br>
+> - `GreetingRedisService.java` — Class to interact with `db1` to aggregate **Greeting News Feed** similar to Facebook's News Feed<br>
+> - `RedisRestController.java` — REST controller to handle our service's Redis query endpoints:<br>
+>   - `/api/redis/queryGreetingFeed`: queries a User in `db1` to retrieve that user's **Greeting News Feed**<br><br>
+>
+> - `RedisConfigTest.java` — Test class to validate logic after implementing `RedisConfig.java`<br>
+> - `RedisDaoTest.java` — Test class to validate logic after implementing `RedisDao.java`<br>
+> - `EventDeduperRedisServiceTest.java` — Test class to validate logic after implementing `EventDeduperRedisService.java`<br>
+> - `GreetingRedisServiceTest.java` — Test class to validate logic after implementing `GreetingRedisService.java`<br>
+> - `RedisRestControllerTest.java` — Test class to validate logic after implementing `RedisRestController.java`<br>
+> - `PropertiesApplicationTest.java` — Test class to validate logic after implementing `application.yml`<br>
+
+
 <br>
 
 ## Exercise 1: Implement Data Access Object (DAO)
@@ -143,6 +183,9 @@ We will be creating a [DAO <img src="assets/common/export.svg" width="16" height
 [ValueOperations <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/ValueOperations.html),
 [ListOperations <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/ListOperations.html),
 and [SetOperations <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/SetOperations.html) needed for our application.
+
+![](assets/module4/images/datatypes.png)<br>
+
 
 <br>
 
@@ -171,7 +214,7 @@ Return a Long of the updated value after the key is incremented.
 
 #
 
-### Testing
+### Integration Tests
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `incrementTest()`
 - [ ] Test with:
@@ -205,7 +248,7 @@ Return a Long of the updated value after the key is incremented.
 
 #
 
-### Testing
+### Integration Tests
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `incrementByTest()`
 - [ ] Test with:
@@ -276,7 +319,7 @@ Return the String representation of the stored value. The value stored in Redis 
 
 #
 
-### Testing
+### Integration Tests
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `setAndGetTest()`
 - [ ] Test with:
@@ -319,7 +362,7 @@ Return a Long of the length of the list **after** the value is appended.
 
 #
 
-### Testing
+### Integration Tests
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `listAddTest()`
 - [ ] Test with:
@@ -364,7 +407,7 @@ These offsets can also be negative numbers indicating offsets starting at the en
 
 #
 
-### Testing
+### Integration Tests
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `listGetTest()`
 - [ ] Test with:
@@ -402,7 +445,7 @@ An error is returned when the value stored at key is not a set.<br>
 
 #
 
-### Testing
+### Integration Tests
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `setAddTest()`
 - [ ] Test with:
@@ -450,7 +493,7 @@ An error is returned when the value stored at key is not a set.<br>
 
 #
 
-### Testing
+### Integration Tests
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `setRemoveTest()`
 - [ ] Test with:
@@ -493,7 +536,7 @@ Return the Set\<String> stored at the key.
 
 #
 
-### Testing
+### Integration Tests
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `getSetMembersTest()`
 - [ ] Test with:
@@ -503,28 +546,12 @@ Return the Set\<String> stored at the key.
 
 <br>
 
-## Lesson: Redis Autoconfiguration
-![](assets/module4/images/connect.png)<br>
-
-https://github.com/spring-projects/spring-boot/blob/main/module/spring-boot-data-redis/src/main/java/org/springframework/boot/data/redis/autoconfigure/DataRedisAutoConfiguration.java
-
-Spring Data Redis autoconfigures the RedisTemplate for us, but if you follow the trail of how RedisProperties is created it'll use some default values:
-- `spring.data.redis.database`: 0
-- `spring.data.redis.host`: localhost
-- `spring.data.redis.port`: 6379
-
-We will set the host/port, but since we're creating more than 1+ RedisTemplates we will need to manually create some @Beans so that any operations on these separate templates will interact with the correct DB.
-
-Set the properties in application.yml.
-
-Create the Map<Integer, RedisTemplate> bean.
-
 ## Exercise 2: Event Deduper
 ![](assets/module4/images/EventDeduper.svg)<br>
 Zooming in on the diagram from the **[Objective <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_3.md#objective)** section, we want our `GreetingEventConsumer` to be "smart" by adding some deduplication logic.
-Anytime we see an event from the Kafka topic, we should only process the event if we've never processed it before.
+When reading events from the Kafka topic, we should only process the event if we've never processed it before to achieve **always-once** event processing.
 
-This is where KV Stores like Redis/Memcache come into play. Being able to quickly read/write from an in-memory cache acting as a Deduper is common across all systems in Big Tech (and just one of many many of KV datastore usecases).
+This is where KV Stores like Redis/Memcached come into play. Being able to quickly read/write from an in-memory cache acting as a Deduper is common across all systems in Big Tech.
 
 Think of Redis as a distributed **HashMap (Java) or Dictionary (Python)** that can handle large amounts reads/writes.
 
@@ -534,13 +561,26 @@ Let's dive in.
 
 #
 
-### Task 1: Setup Spring Data Redis properties
+### Task 1: Spring Data Redis Properties
 > [!IMPORTANT]
 >
 > Read through [Spring Data Redis <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/learn/develop/java/redis-and-spring-course/lesson_2).
 > We will be following this integration guide.
 
-In `application.yml` we will need to set 2 properties to auto-configure our application to connect to our Redis server.
+> ## Lesson: Redis Autoconfiguration
+> ![](assets/module4/images/connect.png)<br>
+>
+> Useful source code on important aspects from **Spring Data Redis** library:
+> - [DataRedisProperties.java <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/spring-projects/spring-boot/blob/main/module/spring-boot-data-redis/src/main/java/org/springframework/boot/data/redis/autoconfigure/DataRedisProperties.java#L40-L71)
+> - [DataRedisAutoConfiguration.java <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/spring-projects/spring-boot/blob/91ca270281e59c215e64e697fa1d1c71eeefcffd/module/spring-boot-data-redis/src/main/java/org/springframework/boot/data/redis/autoconfigure/DataRedisAutoConfiguration.java#L61-L68)
+> - [LettuceConnectionConfiguration.java <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/spring-projects/spring-boot/blob/main/module/spring-boot-data-redis/src/main/java/org/springframework/boot/data/redis/autoconfigure/LettuceConnectionConfiguration.java#L72)
+>
+> **Spring Data Redis** autoconfigures the RedisTemplate for us, but if you follow the trail of how [DataRedisProperties.java <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/spring-projects/spring-boot/blob/main/module/spring-boot-data-redis/src/main/java/org/springframework/boot/data/redis/autoconfigure/DataRedisProperties.java#L40-L71) is created the library uses these default values:
+> - `spring.data.redis.database`: 0
+> - `spring.data.redis.host`: localhost
+> - `spring.data.redis.port`: 6379
+
+In `application.yml`, set the `host/port` properties to autoconfigure our application to connect to our Redis server.
 ```yaml
 spring:
   redis:
@@ -548,7 +588,8 @@ spring:
     port: 6379
 ```
 
-We will also designate `db0` for purposes of deduping all events in our application.
+Set an application property for `db0` which is our dedicated Redis DB for deduping events. Because we plan on using multiple Redis databases (not just the default `db0` that is autoconfigured by the **Spring Redis** library), later, you will need to manually create your own @Beans in `RedisConfig.java`.
+Our use case of interacting with multiple Redis DBs is outside the scope of what Spring Boot Autoconfigurations handle for us, similar to what you experienced in **Module 2** when creating the `batchKafkaListenerContainerFactory` bean in `KafkaConfig.java`.
 ```yaml
 twitch-chat-hit-counter:
   redis:
@@ -557,7 +598,7 @@ twitch-chat-hit-counter:
 
 #
 
-### Testing
+### Unit Tests
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented
 - [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for method(s): `springRedisConfigsTest()` and `redisDeduperDatabaseTest()`
 - [ ] Test with:
@@ -569,7 +610,10 @@ twitch-chat-hit-counter:
 
 #
 
-### Task 2: Setup db0 Redis @Beans
+### Task 2: RedisConfig::eventDedupeRedisDao
+![](assets/module4/images/db0.png)<br>
+
+
 > [!TIP]
 >
 > Read through [Multiple Redis Connections in Spring Boot <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://medium.com/@raphael3213/multiple-redis-connections-in-spring-boot-37f632e8e64f)
@@ -577,33 +621,34 @@ twitch-chat-hit-counter:
 Because Spring Boot Redis only configures one `RedisTemplate` (limiting aspect of autoconfiguration), you will need to manually configure most of the beans yourself.
 
 ### Part 1
-In `RedisConfig.java`, implement `public Map<Integer, RedisTemplate<String, String>> redisTemplateFactory()`. This factory @Bean will setup a mapping between our intended:<br>
-```{
-  dbIndex: RedisTemplate<String, String>
-}
-```
+In `RedisConfig.java`, implement `public Map<Integer, RedisTemplate<String, String>> redisTemplateFactory()`.
+
+This factory @Bean will set up a mapping between our intended `database index → RedisTemplate` configured to handle network calls on a specific Redis DB.
 
 Example:
 ```
-    0: RedisTemplate (object that will operate on DB0),
-    1: RedisTemplate (object that will operate on DB1),
+{
+    0: RedisTemplate (IOs ONLY on DB₀),
+    1: RedisTemplate (IOs ONLY on DB₁),
     ...,
-    N: RedisTemplate (object that will operate on DBN),
+    N: RedisTemplate (IOs ONLY on DBₙ)
+}
 ```
 
 **Requirements:**
-1. Inject the properties from `application.yml`: host/port and `event-dedupe-database`
-2. For each index (should just be a List<Integer> containing our only database index `0`):
-   1. Create a new `RedisStandaloneConfigure` and set the unique database index on it.
-   2. Create a new `LettuceConnectionFactory` using the `RedisStandaloneConfigure`
-      1. Manually configure `.afterPropertiesSet()`
-      2. Manually configure `.start()`
+1. Inject the properties from `application.yml`: `host/port` and `event-dedupe-database`
+2. Create the factory map `Map<Integer, RedisTemplate<String, String>>` object
+3. For each index (should just be a manually created `List<Integer>` containing our only database index `0`):
+   1. Create a new `RedisStandaloneConfigure` object using the `host/port` and don't forget to **set the database index**
+   2. Create a new `LettuceConnectionFactory` object using the `RedisStandaloneConfigure`
+      1. Call `lettuceConnectionFactory.afterPropertiesSet()`
+      2. Call `lettuceConnectionFactory.start()`
    3. Create a new `RedisTemplate<String, String>`:
       1. Set `.setConnectionFactory(lettuceConnectionFactory)`
       2. Set `.setKeySerializer(new StringRedisSerializer())`
       3. Set `.setValueSerializer(new StringRedisSerializer())`
       4. Manually configure `.afterPropertiesSet()`
-   4. Add the mapping for the {databaseIndex: RedisTemplate} in the factory `Map<Integer, RedisTemplate<String, String>>`
+   4. Add the mapping for the `{databaseIndex: RedisTemplate}` to factory map from **Step 2**
 
 ### Part 2
 In `RedisConfig.java`, implement
@@ -613,14 +658,14 @@ In `RedisConfig.java`, implement
 public RedisDao eventDedupeRedisDao() {}
 ```
 
-This RedisDao will be **dedicated** to handling operations on `DB0`.
+This RedisDao will be _**dedicated**_ to handling operations on `DB0`.
 
 **Requirements:**
 1. Inject the `redisTemplateFactory` we just implemented in the previous task
-2. Inject the `event-dedupe-database` index
-3. Create a new `RedisDao` with the correct `RedisTemplate` from the factory
+2. Inject the `event-dedupe-database` property index
+3. Create a new `RedisDao` with the correct `RedisTemplate` from the factory `Map<Integer, RedisTemplate<String, String>>`
 
-### Testing
+### Unit Tests
 - [ ] Open `RedisConfigTest.java` ─ already implemented
 - [ ] Remove `@Disabled` in `RedisConfigTest.java` for method(s): `eventDedupeRedisDaoTest()`
 - [ ] Test with:
@@ -632,7 +677,7 @@ This RedisDao will be **dedicated** to handling operations on `DB0`.
 
 #
 
-### Task 3: Implement processEvent()
+### Task 3: `EventDeduperRedisService::processEvent`
 In `EventDeduperRedisService.java`, implement `public void processEvent(EventType eventType, String eventId)`.<br>
 
 You will generate a Redis Key entry based on the input **EventType** and **eventId**, and increment the value.
@@ -640,6 +685,8 @@ You will generate a Redis Key entry based on the input **EventType** and **event
 **Requirements:**
 1. The Redis key should be generated using this template: `"{EventType}#{eventId}"`
 2. The Redis value should be incremented by `1`.
+3. Log a `warning` log if the event is a duplicate and drop the event.
+4. Log an `info` log if the event is not a duplicate and continue normal consumer processing logic.
 
 ### Example 1:
 > **Input**:<br>
@@ -660,7 +707,7 @@ You will generate a Redis Key entry based on the input **EventType** and **event
 
 #
 
-### Testing
+### Integration Tests
 - [ ] Open `EventDeduperRedisServiceTest.java` ─ already implemented with the example(s) above
 - [ ] Remove `@Disabled` in `EventDeduperRedisServiceTest.java` for method(s): `processEventTest()`
 - [ ] Test with:
@@ -672,7 +719,7 @@ You will generate a Redis Key entry based on the input **EventType** and **event
 
 #
 
-### Task 4: Implement isDupeEvent()
+### Task 4: `EventDeduperRedisService::isDupeEvent`
 In `EventDeduperRedisService.java`, implement `public boolean isDupeEvent(EventType eventType, String eventId)`.<br>
 
 Return a boolean whether the key (generated by **EventType** and **eventId**) already exists in our Redis DB.<br>
@@ -703,7 +750,7 @@ Return a boolean whether the key (generated by **EventType** and **eventId**) al
 
 #
 
-### Testing
+### Integration Tests
 - [ ] Open `EventDeduperRedisServiceTest.java` ─ already implemented with the example(s) above
 - [ ] Remove `@Disabled` in `EventDeduperRedisServiceTest.java` for method(s): `isDupeEventTest()`
 - [ ] Test with:
@@ -730,12 +777,7 @@ In `GreetingEventConsumer.processMessage(..)`, before we store a `GreetingEvent`
 
 #
 
-### Testing
-- [ ] TODO
-
-#
-
-### Integration Testing
+### E2E Tests
 - [ ] TODO (how to test this since UUID is generated uniquely for each publishing of kafka event)
 - [ ] Run the application:
     ```shell
@@ -798,7 +840,7 @@ twitch-chat-hit-counter:
 
 #
 
-### Testing
+### Unit Tests
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented with the property test above.
 - [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for method(s): `redisGreetingFeedDatabaseTest()`
 - [ ] Test with:
@@ -810,7 +852,10 @@ twitch-chat-hit-counter:
 
 #
 
-### Task 2: Setup db1 Redis @Beans
+### Task 2: RedisConfig::greetingFeedRedisDao
+![](assets/module4/images/db1.png)<br>
+
+
 > [!TIP]
 >
 > Read through [Multiple Redis Connections in Spring Boot <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://medium.com/@raphael3213/multiple-redis-connections-in-spring-boot-37f632e8e64f)
@@ -823,10 +868,12 @@ In `RedisConfig.java`, update `public Map<Integer, RedisTemplate<String, String>
 
 **Example:**
 ```
-    0: RedisTemplate (object that will operate on DB0),
-    1: RedisTemplate (object that will operate on DB1),
+{
+    0: RedisTemplate (IOs ONLY on DB₀),
+    1: RedisTemplate (IOs ONLY on DB₁),
     ...,
-    N: RedisTemplate (object that will operate on DBN),
+    N: RedisTemplate (IOs ONLY on DBₙ)
+}
 ```
 
 **Requirements:**
@@ -844,11 +891,11 @@ public RedisDao greetingFeedRedisDao() {}
 This RedisDao will be **dedicated** to handling operations on `DB1`.
 
 **Requirements:**
-1. Inject the `redisTemplateFactory` we just implemented in the previous task
-2. Inject the `greeting-feed-database` index
-3. Create a new `RedisDao` with the correct `RedisTemplate` from the factory
+1. Inject the `redisTemplateFactory`
+2. Inject the `greeting-feed-database` property index
+3. Create a new `RedisDao` with the correct `RedisTemplate` from the factory `Map<Integer, RedisTemplate<String, String>>`
 
-### Testing
+### Unit Tests
 - [ ] Open `RedisConfigTest.java` ─ already implemented
 - [ ] Remove `@Disabled` in `RedisConfigTest.java` for method(s): `greetingFeedRedisDaoTest()`
 - [ ] Test with:
@@ -861,13 +908,13 @@ This RedisDao will be **dedicated** to handling operations on `DB1`.
 
 #
 
-### Task 3: Implement GreetingRedisService
+### Task 3: GreetingRedisService
 In `GreetingRedisService`, implement `public Long addGreetingToFeed(GreetingEvent event)`.<br>
 Return a Long that represents the length of the List after the `GreetingEvent` is appended to the list stored at the key for the `GreetingEvent.receiver()`.
 
 **Requirements:**
-1. The Redis key should be generated using this template: `"receiver#{receiver}"`
-2. The Redis value should be a List\<String> adding the `GreetingEvent` represented as a JSON String
+1. `db1` Redis key template: `"receiver#{receiver}"`
+2. `db1` Redis value: `List<String>` adding the `GreetingEvent` represented as a JSON String
 
 ### Example 1:
 > **Input**:<br>
@@ -944,6 +991,9 @@ Return the List\<GreetingEvent> stored in `db1` using the input `name`.
 > List<GreetingEvent> output2 = greetingRedisService.getGreetingFeed("David");
 > List<GreetingEvent> output3 = greetingRedisService.getGreetingFeed("Alice");
 > ```
+> 
+> #
+> 
 > **Output1**:<br>
 > ```json
 > [
@@ -963,6 +1013,8 @@ Return the List\<GreetingEvent> stored in `db1` using the input `name`.
 > ```
 > **Explanation**: **receiver#Bob** has a feed of length 2, holding greeting(s) from "Alice" and "Charlie"
 >
+> #
+> 
 > **Output2**:<br>
 > ```json
 > [
@@ -976,12 +1028,14 @@ Return the List\<GreetingEvent> stored in `db1` using the input `name`.
 > ```
 > **Explanation**: **receiver#David** has a feed of length 1, holding greeting(s) from "Charlie"
 >
+> #
+> 
 > **Output3**: `[]`<br>
 > **Explanation**: **receiver#Alice** has a feed of length 0, no one has greeted her
 
 #
 
-### Testing
+### Integration Tests
 - [ ] Open `GreetingRedisServiceTest.java` ─ already implemented with the example(s) above.
 - [ ] Remove `@Disabled` in `GreetingRedisServiceTest.java` for method(s): `getGreetingFeedTest()`
 - [ ] Test with:
@@ -1052,14 +1106,11 @@ Return the List\<GreetingEvent> from the `getGreetingFeed(name)` you implemented
 > ]
 > ```
 > 
-> **Output2**:<br>
-> ```json
-> []
-> ```
+> **Output2**: `[]`<br>
 
 #
 
-### Testing
+### Integration Tests
 - [ ] Open `RedisRestControllerTest.java` ─ already implemented with the example(s) above.
 - [ ] Remove `@Disabled` in `RedisRestControllerTest.java`
 - [ ] Test with:
@@ -1069,7 +1120,7 @@ Return the List\<GreetingEvent> from the `getGreetingFeed(name)` you implemented
 
 #
 
-### Integration Testing
+### E2E Tests
 - [ ] Run the application:
     ```shell
     ./gradlew bootRun

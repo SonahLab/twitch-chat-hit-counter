@@ -254,26 +254,23 @@ Return a `String` to greet the `name` passed in.
 <br>
 
 ### Example 1:
-> **Input**:<br>
+> **Input**:
 > ```bash
 > $ curl -X GET "http://localhost:8080/api/greeting/hello?name=World"
 > ```
-> **Output**:
-> ```
-> "Hello, World!"
-> ```
+> 
+> **Output**: `Hello, World!`
 
 #
 
 ### Example 2:
-> **Input**:<br>
+> **Input**:
 > ```bash
 > $ curl -X GET "http://localhost:8080/api/greeting/hello?name="
 > ```
-> **Output**:
-> ```
-> "Hello, Stranger!"
-> ```
+> 
+> **Output**: `Hello, Stranger!`
+> 
 > **Explanation**: no `name` parameter is provided (only whitespace), so the greeting should address `"stranger"`
 
 <br>
@@ -746,9 +743,7 @@ Return an `int` of the updated character `HP`/`MP` int after consuming a potion,
 > int output = character.consumePotion(Potion.HP_POTION);
 > Map<Potion, Integer> output2 = character.getInventory();
 > ```
-> 
-> **Output1**: `100`
-> 
+> **Output1**: `100`<br>
 > **Explanation**: HP=25 before we consume the last `HP_Potion`, after consuming it we have 25 (current HP) + 50 (potion bonus) = 75.
 >
 > **Output2**:
@@ -757,7 +752,6 @@ Return an `int` of the updated character `HP`/`MP` int after consuming a potion,
 >   Potion.MP_POTION: 5
 > }
 > ```
-> 
 > **Explanation**: The Inventory should no longer contain the HP_POTION now that the quantity of this Potion reaches 0.
 
 <br>
@@ -766,7 +760,8 @@ Return an `int` of the updated character `HP`/`MP` int after consuming a potion,
 
 ### Example 6:
 > ![](assets/module1/images/consumePotion_Error.jpg)
-> 
+>
+> **Input**:
 > ```java
 > GameCharacter character = new GameCharacter();
 > for (int index = 0; index < 5; index++) {
@@ -814,7 +809,7 @@ Return a `Map<String, Object>` representing the entire character's current state
 ### Example 1:
 > ![](assets/module1/images/characterState.jpg)
 > 
-> **Input**
+> **Input**:
 > ```java
 > // Assume the character starts with 100 HP and MP, and 5 of each HP/MP potions
 > GameCharacter character = new GameCharacter();
@@ -871,6 +866,10 @@ In `GameRestController.java`, implement the constructor: `GameRestController()`.
 > → Quit the application: `Control + C` (JVM is killed)<br>
 > → Run the application again: `./gradlew bootRun`<br>
 > → Call `GET /characterState`, the character's HP=100
+
+<br>
+
+#
 
 ### Task 2 Part II: `/takeDamage`, `/consumePotion`, `/characterState`
 In `GameRestController.java`, implement the Game API endpoints by simply calling the respective methods you implemented in `GameCharacter.java`.
@@ -932,12 +931,9 @@ public Map<String, Object> getCharacterState() {
 > 
 > **Explanation:**
 > 
-> **Output1:** Get the default character state where the init values should have HP/MP = 100 and HP/MP potions = 5.
-> 
-> **Output2:** Character takes 70 damage. Their HP value should now be 100 - 70 = 30.
-> 
-> **Output3:** Character drinks a HP_POTION. Their HP value should now be 30 (current HP) + 50 (potion bonus) = 80.
-> 
+> **Output1:** Get the default character state where the init values should have HP/MP = 100 and HP/MP potions = 5.<br>
+> **Output2:** Character takes 70 damage. Their HP value should now be 100 - 70 = 30.<br>
+> **Output3:** Character drinks a HP_POTION. Their HP value should now be 30 (current HP) + 50 (potion bonus) = 80.<br>
 > **Output4:** Get the character state again. HP = 80 after `/takeDamage` + `/consumePotion`. MP = 100 (never changed). INVENTORY now has 4 HP_POTIONs after `/consumePotion` and 5 MP_POTIONs (never changed).
 
 #

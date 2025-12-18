@@ -137,7 +137,7 @@ Return a Long of the updated value after the key is incremented.
 ### Example 1:
 > **Input**:<br>
 > ```java
-> RedisDao redisDao = new RedisDao(...);
+> RedisDao redisDao; // Assume initialized
 > redisDao.set("key1", 5L);
 >
 > long output1 = redisDao.increment("key1");
@@ -961,36 +961,20 @@ Return the List\<GreetingEvent> from the `getGreetingFeed(name)` you implemented
 > 
 > GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice");
 > GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "Bob", "Hey Bob, it's been a while.");
-> GreetingEvent event3 = new GreetingEvent("id3", "Charlie", "David", "Yo.");
 > 
 > greetingRedisService.addGreetingToFeed(event1);
 > greetingRedisService.addGreetingToFeed(event2);
 > greetingRedisService.addGreetingToFeed(event3);
->
-> WebClient webClient = WebClient.builder()
->         .baseUrl("http://localhost:8080/api/")
->         .build();
->
-> boolean output1 = webClient.post()
->         .uri(uriBuilder -> uriBuilder
->                 .path("/redis/queryGreetingFeed")
->                 .queryParam("name", "Bob")
->                 .build())
->         .retrieve()
->         .bodyToMono(List.class)
->         .block();
-> 
-> boolean output2 = webClient.post()
->         .uri(uriBuilder -> uriBuilder
->                 .path("/redis/queryGreetingFeed")
->                 .queryParam("name", "Alice")
->                 .build())
->         .retrieve()
->         .bodyToMono(List.class)
->         .block();
 > ```
-> **Output1**:<br>
-> ```json
+>
+> ```bash
+> $ curl -X GET "http://localhost:8080/api/redis/queryGreetingFeed?name=Alice"
+> []
+> ```
+> 
+> ### Example 2:
+> ```bash
+> $ curl -X GET "http://localhost:8080/api/redis/queryGreetingFeed?name=Bob"
 > [
 >   {
 >     "eventId": "id1",
@@ -1005,11 +989,6 @@ Return the List\<GreetingEvent> from the `getGreetingFeed(name)` you implemented
 >     "message": "Hey Bob, it's been a while."
 >   }
 > ]
-> ```
-> 
-> **Output2**:<br>
-> ```json
-> []
 > ```
 
 #

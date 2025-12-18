@@ -250,10 +250,12 @@ Return a simple greeting response String tailored to the input `name`.
 
 ### Example 1:
 > **Input**:<br>
-> ```java
-> GreetingRestController controller = new GreetingRestController();
-> String output = controller.sayHello("Alice");
+> ```bash
+> $ curl -X GET "http://localhost:8080/api/greeting/hello?name=Alice"
 > ```
+> 
+> <br>
+> 
 > **Output**:
 > ```java
 > "Hello, Alice!"
@@ -648,8 +650,13 @@ Return the updated character `HP`/`MP` int, or -1 for any errors.
 > int output = character.consumePotion(Potion.HP_POTION);
 > Map<Potion, Integer> output2 = character.getInventory();
 > ```
+> 
+> #
+> 
 > **Output1**: `100`<br>
 > **Explanation**: HP=25 before we consume the last `HP_Potion`, after consuming it we have 25 (current HP) + 50 (potion bonus) = 75.
+>
+> #
 >
 > **Output2**:<br>
 > ```json
@@ -663,9 +670,9 @@ Return the updated character `HP`/`MP` int, or -1 for any errors.
 
 ### Example 6:
 > ![](assets/module1/images/consumePotion_Error.jpg)<br>
-> **Input**: <span style="color:#0000008c">potion = Potion.HP_POTION // Assume HP = 50<br></span>
-> **Output**: <span style="color:#0000008c">-1<br></span>
-> **Explanation**: <span style="color:#0000008c">There are no HP_POTION in the inventory, so we can't consume this potion.</span>
+> **Input**: potion = `Potion.HP_POTION` (Assumption: HP = 50)<br>
+> **Output**: `-1`<br>
+> **Explanation**: There are no HP_POTION in the inventory, so we can't consume this potion.
 
 #
 
@@ -693,7 +700,12 @@ Return a `Map<String, Object>` representing the character's current state (**HP*
 > ![](assets/module1/images/characterState.jpg)<br>
 > **Input**
 > ```java
-> // Assume the character starts with 100 HP and MP, and 5 of each HP/MP potions
+> /**
+> * Assumptions:
+> *   - character HP = 100;
+> *   - character MP = 100;
+> *   - character Inventory = 5 of each HP/MP potions
+> */
 > GameCharacter character = new GameCharacter();
 > Map<String, Object> output = character.getCharacterState();
 >```

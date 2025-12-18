@@ -21,7 +21,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/fantasyGame")
-@Tag(name = "Character API", description = "Backend API endpoints for managing character state")
+@Tag(name = "Game API", description = "Backend API endpoints for managing a fantasy game character")
 public class GameRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GameRestController.class);

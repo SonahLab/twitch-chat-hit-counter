@@ -54,8 +54,6 @@ Below is a simple example to illustrate this point.
 
 <br>
 
-#
-
 ### Case Study: Web Browsing
 You visit **Google.com** and see this:
 ![](assets/module1/images/google.png)<br>
@@ -244,23 +242,25 @@ For `Module 1`, the below file structure are all the relevant files needed.
 ![](assets/module1/images/greetings.png)<br>
 ![](assets/module1/images/greetingController.svg)<br>
 
-In `GreetingRestController.java`, implement the `public String sayHello(@RequestParam(required = false) String name)` method.<br>
+In `GreetingRestController.java`, implement `public String sayHello(@RequestParam(required = false) String name)`.<br>
 This method is the entry point for all incoming HTTP requests routed to `GET /api/greeting/hello`.
 
-**Return**: String for a simple greeting response.
+Return a `String` to greet the `name` passed in.
 
 **Requirements:**<br>
 1. Greeting response template: `"Hello, {name}!"`.
-2. When `name` parameter isn't provided, you should greet a `Mysterious Individual`.
+2. If `name` parameter isn't provided, greet a `stranger`.
+
+<br>
 
 ### Example 1:
 > **Input**:<br>
 > ```bash
-> $ curl -X GET "http://localhost:8080/api/greeting/hello?name=Alice"
+> $ curl -X GET "http://localhost:8080/api/greeting/hello?name=World"
 > ```
 > **Output**:
 > ```
-> "Hello, Alice!"
+> "Hello, World!"
 > ```
 
 #
@@ -272,9 +272,11 @@ This method is the entry point for all incoming HTTP requests routed to `GET /ap
 > ```
 > **Output**:
 > ```
-> "Hello, Mysterious Individual!"
+> "Hello, Stranger!"
 > ```
-> **Explanation**: no `name` parameter is provided (only whitespace), so the greeting response should address `"Mysterious Individual"`
+> **Explanation**: no `name` parameter is provided (only whitespace), so the greeting should address `"stranger"`
+
+<br>
 
 #
 
@@ -285,6 +287,8 @@ This method is the entry point for all incoming HTTP requests routed to `GET /ap
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
     ```
+
+<br>
 
 #
 
@@ -303,9 +307,9 @@ This method is the entry point for all incoming HTTP requests routed to `GET /ap
 
 
 
+<br>
 
-
-
+<br>
 
 <br>
 
@@ -418,7 +422,9 @@ public class Main {
 
 <br>
 
+<br>
 
+<br>
 
 
 
@@ -435,20 +441,20 @@ public class Main {
 
 #
 
-### Exercise 2 Task 1: Implement `GameCharacter.java`
+### Task 1: `GameCharacter`
 ![](assets/module1/images/gameCharacter.png)<br>
 
 Before we can implement our API endpoints in `GameRestController.java`, we need to create our Data Model object for a generic fantasy game character.
 
 In `GameCharacter.java`, implement the following:
-- `public GameCharacter()` (_CONSTRUCTOR_)
-- `public int getStat(Stat stat)` (_GETTER_)
-- `public Map<Potion, Integer> getInventory()` (_GETTER_)
-- `public void setHp(int hp)` (_SETTER_)
-- `public void setMp(int mp)` (_SETTER_)
-- `public int takeDamage(int damage)` (_STATE CHANGE_)
-- `public int consumePotion(Potion potion)` (_STATE CHANGE_)
-- `public Map<String, Object> getCharacterState()` (_GETTER_)
+- `GameCharacter()` (_CONSTRUCTOR_)
+- `getStat(Stat stat)` (_GETTER_)
+- `getInventory()` (_GETTER_)
+- `setHp(int hp)` (_SETTER_)
+- `setMp(int mp)` (_SETTER_)
+- `takeDamage(int damage)` (_STATE CHANGE_)
+- `consumePotion(Potion potion)` (_STATE CHANGE_)
+- `getCharacterState()` (_GETTER_)
 
 > [!TIP]
 >
@@ -457,17 +463,22 @@ In `GameCharacter.java`, implement the following:
 > - [_Java Builder Pattern_ <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.baeldung.com/java-builder-pattern)<br>
 > - [_Java Record Pattern_ <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.oracle.com/en/java/javase/17/language/records.html)<br>
 
+<br>
 
 #
 
-### Exercise 2 Task 1 Part I: Constructor
-In `GameCharacter.java`, implement `public GameCharacter()` constructor.
+### Task 1 Part I: Constructor
+In `GameCharacter.java`, implement the constructor: `GameCharacter()`.
+
+> [!TIP]
+> 
+> `Potion.java` and `Stat.java` should help with this task.
 
 **Requirements:**<br>
 1. `GameCharacter` object should have 3 fields:
-    1. `Stat.HP (int)`: Character's health points (between `[0, 100]`)
-    2. `Stat.MP (int)`: Character's mana points (between `[0, 100]`)
-    3. `Inventory (Map<Potion, Integer>)`: Character's bag of `Potion` enum to quantity count
+    1. `Stat.HP (int)`: Character's health points between `[0, 100]`
+    2. `Stat.MP (int)`: Character's mana points between `[0, 100]`
+    3. `Inventory (Map<Potion, Integer>)`: Character's bag of `Potion → countOfPotion`
 2. Default values for a new `GameCharacter` instance:
     1. Initial `Stat.HP` of 100
     2. Initial `Stat.MP` of 100
@@ -475,41 +486,45 @@ In `GameCharacter.java`, implement `public GameCharacter()` constructor.
         1. 5 `Potion.HP_POTION`
         2. 5 `Potion.MP_POTION`
 
+<br>
+
 #
 
-### Exercise 2 Task 1 Part II: `getStat`
-In `GameCharacter.java`, implement `public int getStat(Stat stat)`.
+### Task 1 Part II: `GameCharacter::getStat`
+In `GameCharacter.java`, implement `getStat(Stat stat)`.
 
-Return the current value for the input `Stat` enum.
+Return an `int` of the character's current value for the input `Stat` enum.
 
 **Requirements:**
 1. If `stat == Stat.HP`: return the `GameCharacter` current **HP** int value
 2. If `stat == Stat.MP`: return the `GameCharacter` current **MP** int value
 
-#
-
-### Exercise 2 Task 1 Part III: `getInventory`
-In `GameCharacter.java`, implement `public Map<Potion, Integer> getInventory()`.
-
-Return the character's current `inventory` map.
+<br>
 
 #
 
-### Exercise 2 Task 1 Part IV: Setters
-In `GameCharacter.java`, implement:
-- `public void setHp(int hp)`
-- `public void setMp(int mp)`
+### Task 1 Part III: `GameCharacter::getInventory`
+In `GameCharacter.java`, implement `getInventory()`.
+
+Return the `Map<Potion, Integer>` of the character's current potion map.
+
+<br>
+
+#
+
+### Task 1 Part IV: `setHp`, `setMp`
+In `GameCharacter.java`, implement `setHp(int hp)` and `setMp(int mp)`.
 
 **Requirements:**
 1. **HP/MP** should be bounded by `[0, 100]`
 2. Attempts to set the **HP/MP** with values outside the valid range should be ignored.
 
-**Let's test what we have up to this point.**
+<br>
 
 #
 
 ### Example 1:
-> **Input**:<br>
+> **Input**:
 > ```java
 > // Constructor should initialize: hp=100, mp=100, inventory={"HP_POTION": 5, "MP_POTION": 5}
 > GameCharacter character = new GameCharacter();
@@ -537,7 +552,7 @@ In `GameCharacter.java`, implement:
 > **Output1**: `100`<br>
 > **Output2**: `100`<br>
 > **Output3**:<br>
-> ```json
+> ```
 > {
 >   Potion.HP_POTION: 5,
 >   Potion.MP_POTION: 5
@@ -548,64 +563,79 @@ In `GameCharacter.java`, implement:
 > **Output6**: `100`<br>
 > **Output7**: `0`<br>
 
+<br>
+
 #
 
 ### Unit Tests
 - [ ] Open `GameCharacterTest.java` ─ already implemented test cases with the example(s) above.
-- [ ] Remove `@Disabled` in `GameCharacterTest.java` for the test method: `initTest()`
+- [ ] Remove `@Disabled` in `GameCharacterTest::initTest()`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
     ```
 
+<br>
+
 #
 
-### Exercise 2 Task 1 Part V: `takeDamage`
-In `GameCharacter.java`, implement `public int takeDamage(int damage)`. You will reduce the `character` object's HP by the `damage` amount.
+### Task 1 Part V: `GameCharacter::takeDamage`
+In `GameCharacter.java`, implement `takeDamage(int damage)`. You will reduce the `character` object's HP by the `damage` amount.
 
-Return the updated character `HP` int.
+Return an `int` of the updated character `HP` value after taking damage.
 
 > [!TIP]
 >
 > A `GameCharacter` HP/MP has a minimum value of `0`
 
 ### Example 1:
-> ![](assets/module1/images/takeDamage_50.png)<br>
+> ![](assets/module1/images/takeDamage_50.png)
+> 
 > **Input**:
 > ```java
 > GameCharacter character = new GameCharacter();
 > int output = character.takeDamage(50);
 > ```
+> 
 > **Output**: `50`
+
+<br>
 
 #
 
 ### Example 2:
-> ![](assets/module1/images/takeDamage_110.png)<br>
+> ![](assets/module1/images/takeDamage_110.png)
+> 
 > **Input**:
 > ```java
 > GameCharacter character = new GameCharacter();
 > int output = character.takeDamage(110);
 > ```
+> 
 > **Output**: `0`<br>
+> 
 > **Explanation**: A character's HP should never be negative (min capped at 0).
+
+<br>
 
 #
 
 ### Unit Tests
 - [ ] Open `GameCharacterTest.java` ─ already implemented test cases with the example(s) above.
-- [ ] Remove `@Disabled` in `GameCharacterTest.java` for the test method: `takeDamageTest()`
+- [ ] Remove `@Disabled` in `GameCharacterTest::takeDamageTest()`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
     ```
 
+<br>
+
 #
 
-### Exercise 2 Task 1 Part VI: `consumePotion`
-In `GameCharacter.java`, implement `public int consumePotion(Potion potion)`. You will increment the `character` object's HP/MP depending on the potion.
+### Task 1 Part VI: `GameCharacter::consumePotion`
+In `GameCharacter.java`, implement `consumePotion(Potion potion)`. You will increment the `character` object's HP/MP depending on the `Potion` stat bonus.
 
-Return the updated character `HP`/`MP` int, or -1 for any errors.
+Return an `int` of the updated character `HP`/`MP` int after consuming a potion, or `-1` for any errors.
 
 > [!TIP]
 >
@@ -613,140 +643,184 @@ Return the updated character `HP`/`MP` int, or -1 for any errors.
 
 > [!IMPORTANT]
 > 
-> Look at how I defined the `Potion.java` enum. Each potion has some helpful methods to tell you what `Stat` enum should be affected and the nominal amount.
+> Look at how I defined the `Potion.java` enum. Each `Potion` enum has helper methods on (1) the `Stat` affected and (2) the nominal amount.
 
-**Rules:**</br>
-1. A `GameCharacter` object must have the `Potion` currently in their inventory.
-2. `Potion.HP_POTION` should increment the `character` HP by `50`.<br>
-   `Potion.MP_POTION` should increment the `character` MP by `50`.
-3. Decrement the quantity of the consumed `Potion` by 1 in the `GameCharacter.inventory`
-4. Remove the `Potion` from the character's `inventory` if the quantity hits `0`.
+**Requirements:**
+1. A `GameCharacter` must have the `Potion` currently in their inventory that they are attempting to consume.
+2. `Potion.HP_POTION` increments HP by `+50`.<br>
+   `Potion.MP_POTION` increments MP by `+50`.
+3. `Potion` count decrements by `-1` from the `inventory` after consumption
+4. `Potion` should be removed from the `inventory` if the count reaches `0`.
+
+<br>
+
+#
 
 ### Example 1:
-> ![](assets/module1/images/consumePotion_HP_25.jpg)<br>
-> **Input**:<br>
+> ![](assets/module1/images/consumePotion_HP_25.jpg)
+> 
+> **Input**:
 > ```java
 > GameCharacter character = new GameCharacter();
 > character.setHp(25);
 > int output = character.consumePotion(Potion.HP_POTION);
 > ```
-> **Output**: `75`<br>
-> **Explanation**: HP=25 before we consume the `HP_Potion`, after consuming it we have 25 (current HP) + 50 (potion bonus) = 70HP.
+> 
+> **Output**: `75`
+> 
+> **Explanation**: HP=25 before consuming an `HP_Potion`. After consuming, they have:<br>
+> `25 (current HP) + 50 (potion bonus) = 70HP`.
+
+<br>
 
 #
 
 ### Example 2:
-> ![](assets/module1/images/consumePotion_HP_99.jpg)<br>
-> **Input**:<br>
+> ![](assets/module1/images/consumePotion_HP_99.jpg)
+> 
+> **Input**:
 > ```java
 > GameCharacter character = new GameCharacter();
 > character.setHp(75);
 > int output = character.consumePotion(Potion.HP_POTION);
 > ```
-> **Output**: `100`<br>
-> **Explanation**: HP=75 before we consume the `HP_Potion`, after consuming it we have 75 (current HP) + 50 (potion bonus) = 125HP, but we cap it at 100 (max).
+> 
+> **Output**: `100`
+> 
+> **Explanation**: HP=75 before consuming an `HP_Potion`. After consuming, they have:<br>
+> `75 (current HP) + 50 (potion bonus) = 125HP (capped at 100)`.
+
+<br>
 
 #
 
 ### Example 3:
-> ![](assets/module1/images/consumePotion_MP_25.jpg)<br>
-> **Input**:<br>
+> ![](assets/module1/images/consumePotion_MP_25.jpg)
+> 
+> **Input**:
 > ```java
 > GameCharacter character = new GameCharacter();
 > character.setMp(25);
 > int output = character.consumePotion(Potion.MP_POTION);
 > ```
-> **Output**: `75`<br>
-> **Explanation**: MP=75 before we consume the `MP_Potion`, after consuming it we have 25 (current MP) + 50 (potion bonus) = 75MP.
+> 
+> **Output**: `75`
+> 
+> **Explanation**: MP=75 before consuming an `MP_Potion`. After consuming, they have:<br>
+> `25 (current MP) + 50 (potion bonus) = 75MP`.
+
+<br>
 
 #
 
 ### Example 4:
-> ![](assets/module1/images/consumePotion_MP_99.jpg)<br>
-> **Input**:<br>
+> ![](assets/module1/images/consumePotion_MP_99.jpg)
+> 
+> **Input**:
 > ```java
 > GameCharacter character = new GameCharacter();
 > character.setMp(99);
 > int output = character.consumePotion(Potion.MP_POTION);
 > ```
-> **Output**: `100`<br>
-> **Explanation**: MP=99 before we consume the `MP_Potion`, after consuming it we have 99 (current MP) + 50 (potion bonus) = 149MP, but we cap it at 100 (max).
+> 
+> **Output**: `100`
+> 
+> **Explanation**: MP=99 before consuming an `MP_Potion`. After consuming, they have:<br>
+> `99 (current MP) + 50 (potion bonus) = 149MP (capped at 100)`.
+
+<br>
 
 #
 
 ### Example 5:
-> ![](assets/module1/images/consumePotion_Remove.jpg)<br>
-> **Input**:<br>
+> ![](assets/module1/images/consumePotion_Remove.jpg)
+> 
+> **Input**:
 > ```java
 > GameCharacter character = new GameCharacter();
-> character.consumePotion(Potion.HP_POTION);
-> character.consumePotion(Potion.HP_POTION);
-> character.consumePotion(Potion.HP_POTION);
-> character.consumePotion(Potion.HP_POTION);
+> for (int index = 0; index < 4; index++) {
+>     character.consumePotion(Potion.HP_POTION);
+> }
 > character.setHp(25);
 > 
 > int output = character.consumePotion(Potion.HP_POTION);
 > Map<Potion, Integer> output2 = character.getInventory();
 > ```
-> **Output1**: `100`<br>
+> 
+> **Output1**: `100`
+> 
 > **Explanation**: HP=25 before we consume the last `HP_Potion`, after consuming it we have 25 (current HP) + 50 (potion bonus) = 75.
 >
-> **Output2**:<br>
-> ```json
+> **Output2**:
+> ```
 > {
 >   Potion.MP_POTION: 5
 > }
 > ```
+> 
 > **Explanation**: The Inventory should no longer contain the HP_POTION now that the quantity of this Potion reaches 0.
+
+<br>
 
 #
 
 ### Example 6:
-> ![](assets/module1/images/consumePotion_Error.jpg)<br>
+> ![](assets/module1/images/consumePotion_Error.jpg)
+> 
 > ```java
 > GameCharacter character = new GameCharacter();
-> character.consumePotion(Potion.HP_POTION);
-> character.consumePotion(Potion.HP_POTION);
-> character.consumePotion(Potion.HP_POTION);
-> character.consumePotion(Potion.HP_POTION);
-> character.consumePotion(Potion.HP_POTION);
+> for (int index = 0; index < 5; index++) {
+>     character.consumePotion(Potion.HP_POTION);
+> }
 > character.takeDamage(50);
 > 
 > int output = character.consumePotion(Potion.HP_POTION);
 > ```
-> **Output**: -1<br>
-> **Explanation**: There are no HP_POTION in the inventory, so we can't consume this potion.
+> 
+> **Output**: `-1`
+> 
+> **Explanation**: There are no `HP_POTION` left in the inventory to consume, so we return `-1` to signal that there was an error.
+
+<br>
 
 #
 
 ### Unit Tests
 - [ ] Open `GameCharacterTest.java` ─ already implemented test cases with the example(s) above.
-- [ ] Remove `@Disabled` in `GameCharacterTest.java` for the test method: `consumePotionTest()`
+- [ ] Remove `@Disabled` in `GameCharacterTest.java::consumePotionTest()`
 - [ ] Test with:
-```shell
-./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
-```
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
+    ```
+
+<br>
 
 #
 
-### Exercise 2 Task 1 Part VII: `getCharacterState`
-In `GameCharacter.java`, implement `public void getCharacterState()`.
+### Task 1 Part VII: `GameCharacter::getCharacterState`
+In `GameCharacter.java`, implement `getCharacterState()`.
 
-Return a `Map<String, Object>` representing the character's current state (**HP**, **MP**, and **INVENTORY**).
+Return a `Map<String, Object>` representing the entire character's current state of `Stat` and `inventory`.
 
 **Requirements:**
-- `Stat.HP` should be stored as **"HP"** (key) and **HP** int (value).
-- `Stat.MP` should be stored as **"MP"** (key) and **MP** int (value).
-- `inventory` should be stored as **"INVENTORY"** (key) and **Map<Potion, Integer>** (value).
+- All the keys should be stored as `String` values: [`"HP"`, `"MP"`, `"INVENTORY"`]
+- `Stat` values should be stored as the current `int` values for each stat.
+- `inventory` value should be stored as a `Map<Potion, Integer>`.
+
+<br>
+
+#
 
 ### Example 1:
-> ![](assets/module1/images/characterState.jpg)<br>
+> ![](assets/module1/images/characterState.jpg)
+> 
 > **Input**
 > ```java
 > // Assume the character starts with 100 HP and MP, and 5 of each HP/MP potions
 > GameCharacter character = new GameCharacter();
 > Map<String, Object> output = character.getCharacterState();
 >```
+> 
 > **Output**:
 > ```json
 > {
@@ -759,37 +833,47 @@ Return a `Map<String, Object>` representing the character's current state (**HP*
 > }
 > ```
 
+<br>
+
 #
 
 ### Unit Tests
 - [ ] Open `GameCharacterTest.java` ─ already implemented test cases with the example(s) above.
-- [ ] Remove `@Disabled` in `GameCharacterTest.java` for the test method: `getCharacterStateTest()`
+- [ ] Remove `@Disabled` in `GameCharacterTest::getCharacterStateTest()`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
     ```
 
+<br>
+
 #
 
-### Exercise 2 Task 2: Hookup `GameRestController.java` to `GameCharacter.java`
-![](assets/module1/images/gameController.svg)<br>
-You should have all the application logic in `GameCharacter.java` to handle the Game API endpoints, we simply need to call them.
+### Task 2: `GameRestController`
+![](assets/module1/images/gameController.svg)
 
-In `GameRestController.java`, implement `public GameRestController.java` constructor by initialize our Main `GameCharacter` object.<br>
+You should have implemented `GameCharacter.java`, which will be the handler for all the Game API endpoints.
+
+### Task 2 Part I: Constructor
+In `GameRestController.java`, implement the constructor: `GameRestController()`.
+
+**Requirements:**
+- Initialize the Main `GameCharacter` for our application
 
 > [!IMPORTANT]
 > 
-> When our application runs, the character state changes in that specific run will not be persisted on subsequent application runs. The `GameRestController.java` will always create a "new" GameCharacter object.
+> When your application runs, the `GameCharacter` object you initialize is **in-memory**, so any state changes aren't persisted once the JVM stops.
 > 
-> Example:<br>
+> **Example:**<br>
 > → Run the application: `./gradlew bootRun`<br>
-> → `GameRestController.java` should init a new `GameCharacter` object<br>
-> → Call the `PUT /takeDamage?damage=50` endpoint (the character object's HP should be 50)<br>
-> → Quit the application run (Control+C)<br>
-> → Run the application (again): `./gradlew bootRun`<br>
-> → Call the `GET /characterState` endpoint (the character object's HP will be 100 because `GameRestController` will init a new `GameCharacter` object)
+> → `GameRestController.java` will init a new `GameCharacter`<br>
+> → Call `PUT /takeDamage?damage=50`, the character's HP=50<br>
+> → Quit the application: `Control + C` (JVM is killed)<br>
+> → Run the application again: `./gradlew bootRun`<br>
+> → Call `GET /characterState`, the character's HP=100
 
-For each of these API endpoints below, simply call the respective methods we previously implemented in `GameCharacter.java`.
+### Task 2 Part II: `/takeDamage`, `/consumePotion`, `/characterState`
+In `GameRestController.java`, implement the Game API endpoints by simply calling the respective methods you implemented in `GameCharacter.java`.
 
 Return the result from the `GameCharacter.java` function calls back through the HTTP Response.
 
@@ -801,6 +885,7 @@ public int takeDamage(@RequestParam int damage) {
 
 @PutMapping("/consumePotion")
 public int consumePotion(@RequestParam String potionName) {
+    // CAVEAT: 'String potionName' needs to be converted to a `Potion` enum
     // Hook up to GameCharacter.consumePotion(...)
 }
 
@@ -845,10 +930,14 @@ public Map<String, Object> getCharacterState() {
 > }
 > ```
 > 
-> **Explanation:**<br>
-> **Output1:** Get the default character state where the init values should have HP/MP = 100 and HP/MP potions = 5.<br>
-> **Output2:** Character takes 70 damage. Their HP value should now be 100 - 70 = 30.<br>
-> **Output3:** Character drinks a HP_POTION. Their HP value should now be 30 (current HP) + 50 (potion bonus) = 80.<br>
+> **Explanation:**
+> 
+> **Output1:** Get the default character state where the init values should have HP/MP = 100 and HP/MP potions = 5.
+> 
+> **Output2:** Character takes 70 damage. Their HP value should now be 100 - 70 = 30.
+> 
+> **Output3:** Character drinks a HP_POTION. Their HP value should now be 30 (current HP) + 50 (potion bonus) = 80.
+> 
 > **Output4:** Get the character state again. HP = 80 after `/takeDamage` + `/consumePotion`. MP = 100 (never changed). INVENTORY now has 4 HP_POTIONs after `/consumePotion` and 5 MP_POTIONs (never changed).
 
 #
@@ -869,5 +958,5 @@ public Map<String, Object> getCharacterState() {
     ./gradlew bootRun
     ```
 - [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
-- [ ] Play around with the **Character API** endpoint(s)
-![](assets/module1/images/gameSwagger.png)<br>
+- [ ] Play around with the **Game API** endpoint(s)
+  ![](assets/module1/images/gameSwagger.png)<br>

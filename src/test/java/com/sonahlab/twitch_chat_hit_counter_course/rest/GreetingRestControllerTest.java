@@ -23,9 +23,9 @@ public class GreetingRestControllerTest {
     @Test
     void testSayHello() throws Exception {
         mockMvc.perform(get("/api/greeting/hello")
-                        .param("name", "Alice"))
+                        .param("name", "World"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Hello, Alice!"));
+                .andExpect(content().string("Hello, World!"));
     }
 
     @Test
@@ -33,6 +33,6 @@ public class GreetingRestControllerTest {
         mockMvc.perform(get("/api/greeting/hello")
                         .param("name", ""))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Hello, Mysterious Individual!"));
+                .andExpect(content().string("Hello, stranger!"));
     }
 }

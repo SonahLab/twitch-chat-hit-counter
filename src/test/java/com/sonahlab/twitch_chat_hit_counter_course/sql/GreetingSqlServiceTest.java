@@ -27,9 +27,14 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @JdbcTest
 @Import({SqlConfig.class})
@@ -65,7 +70,6 @@ public class GreetingSqlServiceTest {
     @Qualifier("batchGreetingSqlService")
     private GreetingSqlService batchGreetingSqlService;
 
-    @BeforeEach
     void setup() {
         jdbcTemplate.execute("DROP TABLE IF EXISTS test_greeting_table1;");
         jdbcTemplate.execute("""
@@ -88,7 +92,56 @@ public class GreetingSqlServiceTest {
     }
 
     @Test
+    void sqlTableNameTest() {
+        assertEquals("test_greeting_table1", greetingSqlService.sqlTableName());
+        assertEquals("test_greeting_table_batch1", batchGreetingSqlService.sqlTableName());
+    }
+
+    @Test
+    void columnsTest() {
+        assertThat(greetingSqlService.columns()).containsExactlyInAnyOrder(
+                "event_id", "sender", "receiver", "message"
+        );
+        assertThat(batchGreetingSqlService.columns()).containsExactlyInAnyOrder(
+                "event_id", "sender", "receiver", "message"
+        );
+    }
+
+    @Test
+    void valuesTest() {
+        GreetingEvent event = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
+        assertThat(greetingSqlService.values(event)).containsExactly(
+                "id1", "Alice", "Bob", "Hi Bob, I'm Alice!"
+        );
+        assertThat(batchGreetingSqlService.values(event)).containsExactly(
+                "id1", "Alice", "Bob", "Hi Bob, I'm Alice!"
+        );
+    }
+
+    @Test
+    void parseEventFromResultSetTest() throws SQLException {
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.getString("event_id")).thenReturn("id1");
+        when(rs.getString("sender")).thenReturn("Alice");
+        when(rs.getString("receiver")).thenReturn("Bob");
+        when(rs.getString("message")).thenReturn("Hi Bob, I'm Alice!");
+
+        GreetingEvent result = greetingSqlService.parseEventFromResultSet(rs);
+        GreetingEvent batchResult = batchGreetingSqlService.parseEventFromResultSet(rs);
+        assertEquals("id1", result.eventId());
+        assertEquals("id1", batchResult.eventId());
+        assertEquals("Alice", result.sender());
+        assertEquals("Alice", batchResult.sender());
+        assertEquals("Bob", result.receiver());
+        assertEquals("Bob", batchResult.receiver());
+        assertEquals("Hi Bob, I'm Alice!", result.message());
+        assertEquals("Hi Bob, I'm Alice!", batchResult.message());
+    }
+
+    @Test
     void insertTest() {
+        setup();
+
         GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
         GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");
         // This event is a duplicate, will be ignored by SQL
@@ -119,6 +172,8 @@ public class GreetingSqlServiceTest {
 
     @Test
     void insertBatchTest() {
+        setup();
+
         GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hello");
         GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Hi!");
         // This event is a duplicate, will be ignored by SQL
@@ -145,6 +200,8 @@ public class GreetingSqlServiceTest {
 
     @Test
     void queryTest() {
+        setup();
+
         GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
         GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");
         // This event is a duplicate, will be ignored by SQL

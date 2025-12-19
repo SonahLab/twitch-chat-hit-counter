@@ -38,7 +38,7 @@ In **Module 2**, you should have now set up:
 
 In **Module 3**, you will go one step further and **persist/store** these `GreetingEvent` in a SQL DB.
 
-Goals:
+**Goals:**
 - Implement the ability to write a single `GreetingEvent` to a SQL table
 - Implement the ability to write a batch of `GreetingEvent` to a SQL table
 - Implement the ability to read all events from a SQL table + add a new Rest Controller to trigger the query
@@ -175,7 +175,7 @@ For `Module 3`, the below file structure are all the relevant files needed.
 <br>
 
 ## Spring JDBC Autoconfiguration
-![](assets/module3/images/connection.png)<br>
+![](assets/module3/images/connection.svg)<br>
 
 In `build.gradle`, I've already imported Spring Boot JDBC:
 ```groovy
@@ -348,7 +348,7 @@ C. This is correct because it will write in the first event and ignore the secon
 
 <br>
 
-### Exercise 1 Task 1: Spring Application Property
+### Task 1: Spring Application Property
 Add our SQL table name to our `application.yml` properties.
 ```yaml
 twitch-chat-hit-counter:
@@ -360,7 +360,7 @@ twitch-chat-hit-counter:
 
 ### Unit Tests
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented to test the property above.
-- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method(s): `sqlGreetingTableNameTest()`
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest::sqlGreetingTableNameTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
@@ -368,7 +368,7 @@ twitch-chat-hit-counter:
 
 #
 
-### Exercise 1 Task 2: AbstractSqlService
+### Task 2: `AbstractSqlService`
 ![](assets/module3/images/abstract.svg)<br>
 
 
@@ -376,22 +376,26 @@ twitch-chat-hit-counter:
 1. Writing any type of Event into SQL tables
 2. Reading any type of Event from SQL tables
 
-All child classes that `... extend AbstractSqlService` through [**Inheritance** <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.geeksforgeeks.org/java/inheritance-in-java/) can re-use the logic defined in their parent class.<br>
+All subclasses that `... extends AbstractSqlService` through [**Inheritance** <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.geeksforgeeks.org/java/inheritance-in-java/) can re-use the logic defined in their parent class.<br>
 Core principle of good programming: **D.R.Y (Don't Repeat Yourself)**. When we get to later parts of this course you'll see the benefits of creating this `AbstractSqlService`.
 
 **Implement:**
-- constructor `public AbstractSqlService()`
+- `AbstractSqlService()` (constructor)
   - DI the `JdbcTemplate` autoconfigured bean
-- `public int insert(List<T> events)`: flexible method to handle writing a single event or multiple events into SQL. Return the number of successful event(s) written in the table (should be 0 or 1).
+- `insert(List<T> events)`: flexible method to handle writing a single event or multiple events into SQL. Return the number of successful event(s) written in the table (should be 0 or 1).
 
-#### Exercise 1 Task 2 Part I: Constructor
-In `AbstractSqlService.java`, implement `public AbstractSqlService()` constructor.
+#### Task 2 Part I: Constructor
+In `AbstractSqlService.java`, implement the constructor: `AbstractSqlService()`.
 
 **Requirements:**
 - Add `JdbcTemplate` object to the method signature that is expected anytime a child class implementation creates this class
 
-#### Exercise 1 Task 2 Part II: insert()
-In `AbstractSqlService.java`, implement `public int insert(List<T> events)`. This method takes in a generic `List<T>` of events and attempts to write them into a SQL table.
+<br>
+
+#
+
+#### Task 2 Part II: `AbstractSqlService::insert`
+In `AbstractSqlService.java`, implement `insert(List<T> events)`. This method takes in a generic `List<T>` of events and attempts to write them into a SQL table.
 
 Return an int for the count of successfully written records into SQL.
 
@@ -420,182 +424,18 @@ Notice in `AbstractSqlService.java` I've provided abstract methods (which will b
 
 #
 
-[//]: # (### Quiz &#40;Exercise 1 Task 2 Part II: insert&#40;&#41;&#41;)
-
-[//]: # (#### Question 1: Based on Requirement #1 for "Exercise 1 Task 2 Part II", what method will you use to gracefully handling duplicate writes?)
-
-[//]: # (```)
-
-[//]: # (A. `INSERT INTO table_name &#40;columns...&#41; VALUES &#40;values...&#41;)
-
-[//]: # (B. `INSERT IGNORE INTO table_name &#40;columns...&#41; VALUES &#40;values...&#41;)
-
-[//]: # (C. `REPLACE INTO table_name &#40;columns...&#41; VALUES &#40;values...&#41;)
-
-[//]: # (```)
-
-[//]: # (#### Question 2: What is the correct output of calling `String.format&#40;"My name is %s %s. My dogs' names are: %s.", "Jane", "Doe", String.join&#40;",", List.of&#40;"Scooby-Doo", "Pluto", "Snoopy""&#41;&#41;&#41;;`)
-
-[//]: # (```)
-
-[//]: # (A. "My name is Jane Doe. My dogs' names are: Scooby-Doo, Pluto, Snoopy.)
-
-[//]: # (B. "My name is Jane Doe. My dogs' names are: [Scooby-Doo, Pluto, Snoopy])
-
-[//]: # (C. "My name is Jane Doe. My dogs' names are: Scooby-Doo, Pluto, Snoopy)
-
-[//]: # (D. "My name is Jane Doe. My dogs' names are: [Scooby-Doo, Pluto, Snoopy].)
-
-[//]: # (```)
-
-[//]: # (```)
-
-[//]: # (A. Correct answer. Correctly replaces the first and second `%s` placeholder with "Jane" and "Doe", respectively. Also correctly joins the List<String> by the `,` delimeter.)
-
-[//]: # (B. Incorrect answer. Correctly replaces the first and second `%s` placeholder with "Jane" and "Doe", respectively. Correctly joins the List<String> by the `,` delimeter. Incorrectly adds the "[]" brackets. Incorrectly misses the period at the end that's in the original string being formatted.)
-
-[//]: # (C. Incorrect answer. Correctly replaces the first and second `%s` placeholder with "Jane" and "Doe", respectively. Correctly joins the List<String> by the `,` delimeter. Incorrectly misses the period at the end that's in the original string being formatted.)
-
-[//]: # (D. Incorrect answer. Correctly replaces the first and second `%s` placeholder with "Jane" and "Doe", respectively. Correctly joins the List<String> by the `,` delimeter. Incorrectly adds the "[]" brackets. Correctly has the period at the end of the original string being formatted.)
-
-[//]: # (```)
-
-[//]: # (#### Question 3: Based on Requirement #3, what are the BEST combination of methods to call in this code block?)
-
-[//]: # (```java)
-
-[//]: # (public int insert&#40;List<T> events&#41; {)
-
-[//]: # (    // ...)
-
-[//]: # (    if &#40;events.size&#40;&#41; == 1&#41; {)
-
-[//]: # (        jdbcTemplate.{method1})
-
-[//]: # (    } else {)
-
-[//]: # (        jdbcTemplate.{method2})
-
-[//]: # (    })
-
-[//]: # (    // ...)
-
-[//]: # (})
-
-[//]: # (```)
-
-[//]: # (```)
-
-[//]: # (A. method1 = update&#40;&#41;; method2 = update&#40;&#41;;)
-
-[//]: # (B. method1 = batchUpdate&#40;&#41;; method2 = update&#40;&#41;;)
-
-[//]: # (C. method1 = batchUpdate&#40;&#41;; method2 = batchUpdate&#40;&#41;;)
-
-[//]: # (D. method1 = update&#40;&#41;; method2 = batchUpdate&#40;&#41;;)
-
-[//]: # (```)
-
-[//]: # (```)
-
-[//]: # (A. Incorrect answer. Method2 will fail because if we are trying to update 5 events, update&#40;&#41; will throw an exception. update&#40;&#41; -- Issue a single SQL update operation &#40;such as an insert, update or delete statement&#41;.)
-
-[//]: # (B. Incorrect answer. Method1 won't fail but it's not the most optimal method we should use for updating 1 event. Method2 will fail because if we are trying to update 5 events, update&#40;&#41; will throw an exception. update&#40;&#41; -- Issue a single SQL update operation &#40;such as an insert, update or delete statement&#41;. batchUpdate&#40;&#41; -- Execute multiple batches using the supplied SQL statement with the collect of supplied arguments.)
-
-[//]: # (C. Incorrect answer. Method1 won't fail but it's not the most optimal method we should use for updating 1 event.)
-
-[//]: # (D. Correct answer. Method1=update&#40;&#41; will succeed and is the most optimal when updating a single insert statement. Method2=batchUpdate&#40;&#41; will succeed and is the correct method to call for a batch of insert statements.)
-
-[//]: # (```)
-
-[//]: # (#### Question 4: Based on Requirement #4, what is the correct `update&#40;...&#41;` and `batchUpdate&#40;...&#41;` method signature to use GIVEN that you will implement the `Object[] values&#40;T event&#41;` method -- which will return an array of raw event values.)
-
-[//]: # (![]&#40;assets/module3/images/updateOverloaded.png&#41;<br>)
-
-[//]: # (Example:)
-
-[//]: # (```java)
-
-[//]: # (public class ChildClass extends AbstractSqlService<GreetingEvent> {)
-
-[//]: # (    // ...)
-
-[//]: # ()
-[//]: # (    @Override)
-
-[//]: # (    protected abstract Object[] values&#40;GreetingEvent event&#41; {)
-
-[//]: # (        return Object[] {{event.eventId&#40;&#41;, event.sender&#40;&#41;, event.receiver&#40;&#41;, event.message&#40;&#41;}};)
-
-[//]: # (    })
-
-[//]: # ()
-[//]: # (    // ...)
-
-[//]: # (})
-
-[//]: # (GreetingEvent event = new GreetingEvent&#40;"id1", "Alice", "Bob", "Hi Bob, I'm Alice!"&#41;;)
-
-[//]: # (ChildClass child = new ChildClass&#40;&#41;;)
-
-[//]: # (Object[] values = child.values&#40;&#41;; // OUTPUT: ["id1", "Alice", "Bob", "Hi Bob, I'm Alice!"])
-
-[//]: # (```)
-
-[//]: # (```)
-
-[//]: # (A. int update&#40;String sql&#41;)
-
-[//]: # (B. int update&#40;String sql, @Nullable Object @Nullable ... args&#41;)
-
-[//]: # (C. int update&#40;String sql, @Nullable Object @Nullable ... args, int[] argTypes&#41;)
-
-[//]: # (D. int update&#40;String sql, @Nullable PreparedStatementSetter pss&#41;)
-
-[//]: # (E. int update&#40;PreparedStatementCreator psc&#41;)
-
-[//]: # (F. protected int update&#40;PreparedStatementCreator psc, @Nullable PreparedStatementSetter pss&#41;)
-
-[//]: # (H. int update&#40;PreparedStatementCreator psc, KeyHolder generatedKeyHolder&#41;)
-
-[//]: # (```)
-
-[//]: # (```)
-
-[//]: # (A. Incorrect answer. This method expects a fully formed SQL update statement, but our Requirement #2 explicitly wants our SQL statement to template the &#40;values&#41; as &#40;?₁, ?₂, ..., ?ₙ&#41;.)
-
-[//]: # (B. Correct answer. This method expects a partially formed SQL update statement + explicit ...args which you will pass in using the abstract `Object[] values&#40;T event&#41;` method.)
-
-[//]: # (C. Incorrect answer. This method is similar to the correct choice, but with the addition of an additional `int[] argTypes` argument. You *COULD* use this method by passing in each argument and it's type or just rely on the Java Object Types for each arg passed in, which is what we prefer.)
-
-[//]: # (D. Incorrect answer. You could use `PreparedStatement` but the other choice is more simple and aligned with direct utilization of the abstract `Object[] values&#40;T event&#41;` method.)
-
-[//]: # (E. Incorrect answer. You could use `PreparedStatement` but the other choice is more simple and aligned with direct utilization of the abstract `Object[] values&#40;T event&#41;` method.)
-
-[//]: # (F. Incorrect answer. You could use `PreparedStatement` but the other choice is more simple and aligned with direct utilization of the abstract `Object[] values&#40;T event&#41;` method.)
-
-[//]: # (```)
-
-[//]: # (Here is the video for the actual Walkthrough of Exercise 1 Task 2 Part II: insert&#40;&#41;)
-
-<br>
-
-#
-
-### Exercise 1 Task 3: GreetingEventSqlService (Child Class)
-In `AbstractSqlService.java`, you should have implemented the Constructor and the `insert()` method. But there are still many `abstract` tagged methods, which are left up to any children classes to implement.
-
+### Exercise 1 Task 3: `GreetingEventSqlService`
 In `GreetingSqlService.java`, implement:
-- `public GreetingSqlService()`
-- `protected String sqlTableName()`
-- `protected List<String> columns()`
-- `protected Object[] values(GreetingEvent event)`
-- ~~`protected GreetingEvent parseEventFromResultSet(ResultSet rs)`~~ (Ignore for now)
+- `GreetingSqlService()`
+- `sqlTableName()`
+- `columns()`
+- `values(GreetingEvent event)`
+- ~~`parseEventFromResultSet(ResultSet rs)`~~ (Ignore for now)
 
 #
 
-### Exercise 1 Task 3 Part I: Constructor
-In `GreetingSqlService.java`, implement `public GreetingSqlService()` constructor.
+### Task 3 Part I: Constructor
+In `GreetingSqlService.java`, implement the constructor: `GreetingSqlService()`.
 
 **Requirements:**
 1. DI the autoconfigured `JdbcTemplate` bean and instantiate the super class constructor
@@ -603,10 +443,10 @@ In `GreetingSqlService.java`, implement `public GreetingSqlService()` constructo
 
 #
 
-### Exercise 1 Task 3 Part II: `sqlTableName()`
-In `GreetingSqlService.java`, implement `protected String sqlTableName()`.
+### Task 3 Part II: `GreetingSqlService::sqlTableName`
+In `GreetingSqlService.java`, implement `sqlTableName()`.
 
-Return the same `sqlTableName` variable that's passed into the constructor.
+Return the `String` passed into the constructor.
 
 ### Example 1:
 > **Input**:<br>
@@ -615,15 +455,15 @@ Return the same `sqlTableName` variable that's passed into the constructor.
 > String output = service.sqlTableName();
 > ```
 >
-> **Output**: "testTableName"
+> **Output**: `"testTableName"`
 
 #
 
 ### Unit Tests
 - [ ] TODO
 
-### Exercise 1 Task 3 Part II: `columns()`
-In `GreetingSqlService.java`, implement `protected List<String> columns()`.
+### Task 3 Part II: `GreetingSqlService::columns`
+In `GreetingSqlService.java`, implement `columns()`.
 
 Return a list of all the hard-coded fields of our `greeting_events` SQL table (schema).
 
@@ -677,8 +517,8 @@ Return a list of all the hard-coded fields of our `greeting_events` SQL table (s
 
 #
 
-### Exercise 1 Task 3 Part III: `values()`
-In `GreetingSqlService.java`, implement `protected Object[] values(GreetingEvent event)`. This method will be called with a `GreetingEvent` event.
+### Task 3 Part III: `GreetingSqlService::values`
+In `GreetingSqlService.java`, implement `values(GreetingEvent event)`. This method will be called with a `GreetingEvent` event.
 
 Return an `Object[]` containing all the values in the `GreetingEvent`.
 
@@ -732,7 +572,7 @@ Return an `Object[]` containing all the values in the `GreetingEvent`.
 
 #
 
-### Exercise 1 Task 3 Part IV: Testing `GreetingSqlService`
+### Task 3 Part IV: Testing `GreetingSqlService`
 By this point, you should have implemented:
 - `AbstractSqlService.java` (parent class):
   - `public AbstractSqlService(JdbcTemplate jdbcTemplate)`
@@ -769,7 +609,7 @@ These methods should all being working together to achieve the expected outputs 
 ### Integration Tests
 - [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `GreetingSqlServiceTest.java` ─ already implemented to test the example(s) above.
-- [ ] Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method(s): `insertTest()`
+- [ ] Remove `@Disabled` in `GreetingSqlServiceTest::insertTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
@@ -779,15 +619,15 @@ These methods should all being working together to achieve the expected outputs 
 
 #
 
-### Exercise 1 Task 4: GreetingSqlService @Bean
-In `SqlConfig.java`, implement `@Bean public GreetingSqlService singleGreetingSqlService()`. This bean is dedicated to handling read/writes to your `dev_db.greeting_events` SQL table.
+### Task 4: SQL Config
+In `SqlConfig.java`, implement `singleGreetingSqlService()`. This bean is dedicated to handling read/writes to your `dev_db.greeting_events` SQL table.
 
 **Requirements:**
 - DI the `greeting_event` property from `application.yml`
 
 ### Unit Tests
 - [ ] TODO (fix this this is the wrong description) Open `SqlConfigTest.java` ─ already implemented to test the `tableName()` and `columns()` return expected values
-- [ ] Remove `@Disabled` in `SqlConfigTest.java` for the test method(s): `singleGreetingSqlService_beanTest()`
+- [ ] Remove `@Disabled` in `SqlConfigTest::singleGreetingSqlService_beanTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
@@ -921,7 +761,7 @@ Ultimately, the end result will be **idempotent**, meaning same 1M events will b
 
 #
 
-### Exercise 2 Task 1: Create new SQL table (DDL)
+### Task 1: Create new SQL table (DDL)
 In **MySQLWorkbench**, create a new SQL table `batch_greeting_events` with the same schema as the first sql table:
 ```
 CREATE TABLE dev_db.batch_greeting_events (
@@ -934,7 +774,7 @@ CREATE TABLE dev_db.batch_greeting_events (
 
 #
 
-### Exercise 2 Task 2: Spring Application Property
+### Task 2: Spring Application Property
 Similar to **"Exercise 1 Task 1"**, you need to add the newly create SQL table name to your `application.yml` properties.
 
 ```yaml
@@ -945,7 +785,7 @@ twitch-chat-hit-counter:
 
 ### Unit Tests
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented to test the property above.
-- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method(s): `sqlBatchGreetingTableNameTest()`
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest::sqlBatchGreetingTableNameTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
@@ -954,7 +794,7 @@ twitch-chat-hit-counter:
 #
 
 ### Exercise 2 Task 3: SQL GreetingEvent Writer
-In `AbstractSqlService.java`, take a look at `public int insert(List<T> events)`. Notice how in "Exercise 1 Task TODO" I made you implement a flexible method that supports writing a `List<T> events` to SQL depending on the input array's `size()`. 
+In `AbstractSqlService.java`, take a look at `insert(List<T> events)`. Notice how in "Exercise 1 Task TODO" I made you implement a flexible method that supports writing a `List<T> events` to SQL depending on the input array's `size()`. 
 
 This means we should be able to handle writing any number of events to SQL flexibly.
 
@@ -982,7 +822,7 @@ This means we should be able to handle writing any number of events to SQL flexi
 ### Integration Tests
 - [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `GreetingSqlServiceTest.java` ─ already implemented with the example(s) above.
-- [ ] Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method: `insertBatchTest()`
+- [ ] Remove `@Disabled` in `GreetingSqlServiceTest::insertBatchTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
@@ -990,8 +830,8 @@ This means we should be able to handle writing any number of events to SQL flexi
 
 #
 
-### Exercise 2 Task 3: GreetingSqlService @Bean
-In `SqlConfig.java`, implement `@Bean public GreetingSqlService batchGreetingSqlService()`. This bean is dedicated to handling read/writes to your `dev_db.batch_greeting_events` SQL table.
+### Task 3: SQL Config
+In `SqlConfig.java`, implement `GreetingSqlService batchGreetingSqlService()`. This bean is dedicated to handling read/writes to your `dev_db.batch_greeting_events` SQL table.
 
 **Requirements:**
 - DI the `batch_greeting_events` property from `application.yml`
@@ -999,7 +839,7 @@ In `SqlConfig.java`, implement `@Bean public GreetingSqlService batchGreetingSql
 ### Unit Tests
 - [ ] TODO fix this entire block
 - [ ] Open `SqlConfigTest.java` ─ already implemented to test the `tableName()` and `columns()` return expected values
-- [ ] Remove `@Disabled` in `SqlConfigTest.java` for the test method(s): `batchGreetingSqlService_beanTest()`
+- [ ] Remove `@Disabled` in `SqlConfigTest::batchGreetingSqlService_beanTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
@@ -1037,8 +877,8 @@ Everytime event(s) are read from Kafka, we will need to call `GreetingSqlService
 ## Exercise 3: SQL API
 ![](assets/module3/images/exercise2.svg)<br>
 
-### Exercise 3 Task 1: Implement AbstractSqlService.queryAllEvents()
-In `AbstractSqlService.java`, implement `public List<T> queryAllEvents()`. This method should scan **ALL** the records in a SQL table.
+### Exercise 3 Task 1: `AbstractSqlService::queryAllEvents`
+In `AbstractSqlService.java`, implement `queryAllEvents()`. This method should scan **ALL** the records in a SQL table.
 
 Return a `List<T>` of all the events in a SQL table.
 
@@ -1103,8 +943,8 @@ SELECT * table_name;
 
 #
 
-### Exercise 3 Task 2: Implement GreetingSqlService.queryAllEvents()
-In `GreetingSqlService.java`, implement `protected GreetingEvent parseEventFromResultSet(ResultSet rs)`. This method expects the `ResultSet` -- A table of data representing a database result set, which is usually generated by executing a statement that queries the database.
+### Exercise 3 Task 2: `GreetingSqlService::queryAllEvents`
+In `GreetingSqlService.java`, implement `parseEventFromResultSet(ResultSet rs)`. This method expects the `ResultSet` -- A table of data representing a database result set, which is usually generated by executing a statement that queries the database.
 
 Return a `GreetingEvent` by parsing the `ResultSet` record row that gets passed back from the `JdbcTemplate` query call.
 
@@ -1186,7 +1026,7 @@ Return a `GreetingEvent` by parsing the `ResultSet` record row that gets passed 
 
 ### Unit Tests
 - [ ] Open `GreetingSqlServiceTest.java` ─ already implemented with the example(s) above.
-- [ ] Remove `@Disabled` in `GreetingSqlServiceTest.java` for the test method(s): `queryTest()`
+- [ ] Remove `@Disabled` in `GreetingSqlServiceTest::queryTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
@@ -1195,8 +1035,8 @@ Return a `GreetingEvent` by parsing the `ResultSet` record row that gets passed 
 
 #
 
-### Exercise 3 Task 3: Hook up the `SqlRestController` to the `GreetingSqlService`
-In `SqlRestController.java`, implement `public List<GreetingEvent> getSqlGreetingEvents(String tableName)`.
+### Exercise 3 Task 3: `SqlRestController`
+In `SqlRestController.java`, implement `getSqlGreetingEvents(String tableName)`.
 
 Return the `List<GreetingEvent>` return by calling the `GreetingSqlService.queryAllEvents()` method.
 

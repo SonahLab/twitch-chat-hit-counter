@@ -566,7 +566,7 @@ In `GameCharacter.java`, implement `setHp(int hp)` and `setMp(int mp)`.
 
 ### Unit Tests
 - [ ] Open `GameCharacterTest.java` ─ already implemented test cases with the example(s) above.
-- [ ] Remove `@Disabled` in `GameCharacterTest::initTest()`
+- [ ] Remove `@Disabled` in `GameCharacterTest::initTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
@@ -619,7 +619,7 @@ Return an `int` of the updated character `HP` value after taking damage.
 
 ### Unit Tests
 - [ ] Open `GameCharacterTest.java` ─ already implemented test cases with the example(s) above.
-- [ ] Remove `@Disabled` in `GameCharacterTest::takeDamageTest()`
+- [ ] Remove `@Disabled` in `GameCharacterTest::takeDamageTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module1
@@ -834,7 +834,7 @@ Return a `Map<String, Object>` representing the entire character's current state
 
 ### Unit Tests
 - [ ] Open `GameCharacterTest.java` ─ already implemented test cases with the example(s) above.
-- [ ] Remove `@Disabled` in `GameCharacterTest::getCharacterStateTest()`
+- [ ] Remove `@Disabled` in `GameCharacterTest::getCharacterStateTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module1

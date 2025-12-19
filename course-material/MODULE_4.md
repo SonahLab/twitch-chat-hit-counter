@@ -191,8 +191,9 @@ and [SetOperations <img src="assets/common/export.svg" width="16" height="16" st
 
 ### Task 1: Value Operations
 ### Implement [INCR <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/incr/) (Increment)
-In `RedisDao.java`, implement `public Long increment(String key)`.<br>
-Return a Long of the updated value after the key is incremented.
+In `RedisDao.java`, implement `increment(String key)`.<br>
+
+Return a `Long` of the updated value after the key is incremented.
 
 **Description**: Increments the number stored at key by one.<br>
 **Library API Call**: RedisTemplate.opsForValues().[increment(key) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/ValueOperations.html#increment(K))
@@ -200,23 +201,23 @@ Return a Long of the updated value after the key is incremented.
 ### Example 1:
 > **Input**:<br>
 > ```java
-> RedisDao redisDao = new RedisDao(...);
+> RedisDao redisDao; // Assume initialized
 > redisDao.set("key1", 5L);
 >
 > long output1 = redisDao.increment("key1");
 > long output2 = redisDao.increment("key2");
 > ```
-> **Output1**: 6L<br>
+> **Output1**: `6`<br>
 > **Explanation**: "key1" is incremented by +1, but the "key1" already exists in redis with a value of 5. So the +1 increment gets added to the already existing value.
 >
-> **Output2**: 1L<br>
+> **Output2**: `1`<br>
 > **Explanation**: "key2" doesn't exist in redis so the initial value is treated as 0. The increment method only adds +1 value and essentially acts equivalent to calling .set("key2", 1L).
 
 #
 
 ### Integration Tests
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
-- [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `incrementTest()`
+- [ ] Remove `@Disabled` in `RedisDaoTest::incrementTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -225,8 +226,9 @@ Return a Long of the updated value after the key is incremented.
 <br>
 
 ### Implement [INCRBY <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/incrby/) (Increment By)
-In `RedisDao.java`, implement `public Long incrementBy(String key, long delta)`.<br>
-Return a Long of the updated value after the key is incremented.
+In `RedisDao.java`, implement `incrementBy(String key, long delta)`.<br>
+
+Return a `Long` of the updated value after the key is incremented.
 
 **Description**: Increments the number stored at key by `increment`.<br>
 **Library API Call**: RedisTemplate.opsForValues().[increment(key, delta) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/ValueOperations.html#increment(K,long))
@@ -234,23 +236,23 @@ Return a Long of the updated value after the key is incremented.
 ### Example 1:
 > **Input**:<br>
 > ```java
-> RedisDao redisDao = new RedisDao(...);
+> RedisDao redisDao; // Assume initialized
 > redisDao.set("key1", 5);
 >
 > long output1 = redisDao.incrementBy("key1", 10);
 > long output2 = redisDao.incrementBy("key2", 60);
 > ```
-> **Output1**: 15<br>
+> **Output1**: `15`<br>
 > **Explanation**: "key1" is incremented by +10, but the "key1" already exists in redis with a value of 5. So the +10 increment gets added to the already existing value.
 >
-> **Output2**: 60L<br>
+> **Output2**: `60`<br>
 > **Explanation**: "key2" doesn't exist in redis so the initial value is treated as 0. The increment value of 60 essentially acts equivalent to calling .set("key2", 60L).
 
 #
 
 ### Integration Tests
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
-- [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `incrementByTest()`
+- [ ] Remove `@Disabled` in `RedisDaoTest::incrementByTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -261,7 +263,7 @@ Return a Long of the updated value after the key is incremented.
 #
 
 ### Implement [SET <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/set/)
-In `RedisDao.java`, implement `public void set(String key, V value)`.<br>
+In `RedisDao.java`, implement `set(String key, V value)`.<br>
 Sets the KV pair by adding (if key is new) or overriding any previously set value.<br>
 
 **Description**: Set key to hold the string value. If key already holds a value, it is overwritten, regardless of its type. Any previous time to live associated with the key is discarded on successful SET operation.<br>
@@ -270,13 +272,13 @@ Sets the KV pair by adding (if key is new) or overriding any previously set valu
 ### Example 1:
 > **Input**:<br>
 > ```java
-> RedisDao redisDao = new RedisDao(...);
+> RedisDao redisDao; // Assume initialized
 > redisDao.set("key1", 10L);
 > redisDao.set("key2", "Hello World!");
 > redisDao.set("key3", 3.14);
 > redisDao.set("key4", Map.of("firstName", "Jane", "lastName", "Doe"));
 > ```
-> **Output**: None<br>
+> **Output**: `null`<br>
 > **Explanation**: The underlying redis library api method for `.set()` has no return value, so after calling the underlying Redis API set method, as long as no exception is thrown we can assume the operation succeeded.
 
 <br>
@@ -284,8 +286,9 @@ Sets the KV pair by adding (if key is new) or overriding any previously set valu
 #
 
 ### Implement [GET <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/get/)
-In `RedisDao.java`, implement `public String get(String key)`.<br>
-Return the String representation of the stored value. The value stored in Redis doesn't strictly need to be a String, but Redis will store the data type represented as a String.
+In `RedisDao.java`, implement `get(String key)`.<br>
+
+Return the `String` representation of the stored value. The value stored in Redis doesn't strictly need to be a String, but Redis will store the data type represented as a String.
 
 **Description**: Get the value of key. If the key does not exist the special value nil is returned. An error is returned if the value stored at key is not a string, because GET only handles string values.<br>
 **Library API Call**: RedisTemplate.opsForValues().[get(key) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/ValueOperations.html#get(java.lang.Object))
@@ -293,7 +296,7 @@ Return the String representation of the stored value. The value stored in Redis 
 ### Example 1:
 > **Input**:<br>
 > ```java
-> RedisDao redisDao = new RedisDao(...);
+> RedisDao redisDao; // Assume initialized
 > 
 > redisDao.set("key1", 10L);
 > redisDao.set("key2", "Hello World!");
@@ -306,11 +309,11 @@ Return the String representation of the stored value. The value stored in Redis 
 > long output4 = redisDao.get("key4");
 > long output5 = redisDao.get("nonexistentKey");
 > ```
-> **Output1**: "10"<br>
-> **Output2**: "Hello World!"<br>
-> **Output3**: "3.14"<br>
-> **Output4**: "{\"firstName\": \"Jane\", \"lastName\": \"Doe\"}"<br>
-> **Output5**: null<br>
+> **Output1**: `"10"`<br>
+> **Output2**: `"Hello World!"`<br>
+> **Output3**: `"3.14"`<br>
+> **Output4**: `"{\"firstName\": \"Jane\", \"lastName\": \"Doe\"}"`<br>
+> **Output5**: `null`<br>
 
 > [!NOTE]
 >
@@ -321,7 +324,7 @@ Return the String representation of the stored value. The value stored in Redis 
 
 ### Integration Tests
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
-- [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `setAndGetTest()`
+- [ ] Remove `@Disabled` in `RedisDaoTest::setAndGetTest()`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -333,8 +336,9 @@ Return the String representation of the stored value. The value stored in Redis 
 
 ### Task 2: List Operations
 ### Implement [RPUSH <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/rpush/) (Right Push)
-In `RedisDao.java`, implement `public Long listAdd(String key, String value)`.<br>
-Return a Long of the length of the list **after** the value is appended.
+In `RedisDao.java`, implement `listAdd(String key, String value)`.<br>
+
+Return a `Long` of the length of the list **after** the value is appended.
 
 **Description**: Insert all the specified values at the head of the list stored at key. If key does not exist, it is created as empty list before performing the push operations. When key holds a value that is not a list, an error is returned.<br>
 **Library API Call**: RedisTemplate.opsForList().[rightPush(key, value) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/ListOperations.html#rightPush(K,V))
@@ -342,7 +346,7 @@ Return a Long of the length of the list **after** the value is appended.
 ### Example 1:
 > **Input**:<br>
 > ```java
-> RedisDao redisDao = new RedisDao(...);
+> RedisDao redisDao; // Assume initialized
 > 
 > long output1 = redisDao.listAdd("key1", "Hello");
 > long output2 = redisDao.listAdd("key1", "World");
@@ -350,21 +354,21 @@ Return a Long of the length of the list **after** the value is appended.
 > redisDao.incr("nonListKey");
 > long output3 = redisDao.listAdd("nonListKey", "item1");
 > ```
-> **Output1**: 1<br>
+> **Output1**: `1`<br>
 > **Explanation**: {"key1": ["Hello"]}
 > 
-> **Output2**: 2<br>
+> **Output2**: `2`<br>
 > **Explanation**: {"key1": ["Hello", "World"]}
 > 
-> **Output3**: Exception is thrown<br>
+> **Output3**: `Exception is thrown`<br>
 > **Explanation**:<br>
-> The Redis mapping is: {"nonListKey": "1"}. Adding "item1" to a Long is invalid, so an error is thrown.
+> The Redis mapping is `{"nonListKey": "1"}`. Adding "item1" to a Long is invalid, so an error is thrown.
 
 #
 
 ### Integration Tests
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
-- [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `listAddTest()`
+- [ ] Remove `@Disabled` in `RedisDaoTest::listAddTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -375,8 +379,9 @@ Return a Long of the length of the list **after** the value is appended.
 #
 
 ### Implement [LRANGE <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/lrange/) (Range)
-In `RedisDao.java`, implement `public Long listGet(String key)`.<br>
-Return the List\<String> stored at the key.
+In `RedisDao.java`, implement `listGet(String key)`.<br>
+
+Return the `List<String>` stored at the key.
 
 **Description**: Returns the specified elements of the list stored at key. The offsets start and stop are zero-based indexes, with 0 being the first element of the list (the head of the list), 1 being the next element and so on.<br>
 These offsets can also be negative numbers indicating offsets starting at the end of the list. For example, -1 is the last element of the list, -2 the penultimate, and so on.<br>
@@ -385,7 +390,7 @@ These offsets can also be negative numbers indicating offsets starting at the en
 ### Example 1:
 > **Input**:<br>
 > ```java
-> RedisDao redisDao = new RedisDao(...);
+> RedisDao redisDao; // Assume initialized
 > 
 > redisDao.listAdd("key1", "Hello");
 > redisDao.listAdd("key1", "World");
@@ -395,21 +400,21 @@ These offsets can also be negative numbers indicating offsets starting at the en
 > List<String> output2 = redisDao.listGet("nonexistentKey");
 > List<String> output3 = redisDao.listGet("nonListKey");
 > ```
-> **Output1**: ["Hello", "World"]<br>
-> **Explanation**: {"key1": ["Hello", "World"]} (valid case)
+> **Output1**: `["Hello", "World"]`<br>
+> **Explanation**: `{"key1": ["Hello", "World"]}`
 > 
-> **Output2**: []<br>
-> **Explanation**: "nonexistentKey" doesn't exist in Redis DB so it return an empty list
+> **Output2**: `[]`<br>
+> **Explanation**: `"nonexistentKey"` doesn't exist in Redis DB so Redis returns an empty list
 > 
-> **Output3**: Exception is thrown<br>
+> **Output3**: `Exception is thrown`<br>
 > **Explanation**:<br>
-> The Redis mapping is: {"nonListKey": "1"}. Getting a List from a Long value is invalid, so an error is thrown.
+> The Redis mapping is `{"nonListKey": "1"}`. Getting a List from a Long value is invalid, so an error is thrown.
 
 #
 
 ### Integration Tests
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
-- [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `listGetTest()`
+- [ ] Remove `@Disabled` in `RedisDaoTest::listGetTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -422,8 +427,9 @@ These offsets can also be negative numbers indicating offsets starting at the en
 ### Task 3: Set Operations
 
 ### Implement [SADD <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/sadd/) (Set Add)
-In `RedisDao.java`, implement `public Long setAdd(String key, String... values)`.<br>
-Return a Long for the length of the set **after** the value(s) are added.
+In `RedisDao.java`, implement `setAdd(String key, String... values)`.<br>
+
+Return a `Long` for the length of the set **after** the value(s) are added.
 
 **Description**: Add the specified members to the set stored at key. Specified members that are already a member of this set are ignored. If key does not exist, a new set is created before adding the specified members.<br>
 An error is returned when the value stored at key is not a set.<br>
@@ -432,22 +438,22 @@ An error is returned when the value stored at key is not a set.<br>
 ### Example 1:
 > **Input**:<br>
 > ```java
-> RedisDao redisDao = new RedisDao(...);
+> RedisDao redisDao; // Assume initialized
 > 
 > long output1 = redisDao.setAdd("key1", "Alice", "Bob");
 > long output2 = redisDao.setAdd("key1", "Alice");
 > ```
-> **Output1**: 2<br>
-> **Explanation**: [] → ["Alice", "Bob"]. "Alice" and "Bob" were successfully added to the initially empty "key1"
+> **Output1**: `2`<br>
+> **Explanation**: `{"key1": []}` → `{"key1": ["Alice", "Bob"]}`. "Alice" and "Bob" were successfully added to the initially empty "key1"
 > 
-> **Output2**: 0<br>
+> **Output2**: `0`<br>
 > **Explanation**: "Alice" was already added to the set previously so attempting to add this value to the set again has no effect, and the set size remains 2.
 
 #
 
 ### Integration Tests
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
-- [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `setAddTest()`
+- [ ] Remove `@Disabled` in `RedisDaoTest::setAddTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -458,8 +464,9 @@ An error is returned when the value stored at key is not a set.<br>
 #
 
 ### Implement [SREM <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/srem/) (Set Remove)
-In `RedisDao.java`, implement `public Long setRemove(String key, String... value)`.<br>
-Return a Long for the number of removed elements.
+In `RedisDao.java`, implement `setRemove(String key, String... value)`.<br>
+
+Return a `Long` for the number of removed elements from a set stored at `key`.
 
 **Description**: Remove the specified members from the set stored at key. Specified members that are not a member of this set are ignored. If key does not exist, it is treated as an empty set and this command returns 0.<br>
 An error is returned when the value stored at key is not a set.<br>
@@ -468,7 +475,7 @@ An error is returned when the value stored at key is not a set.<br>
 ### Example 1:
 > **Input**:<br>
 > ```java
-> RedisDao redisDao = new RedisDao(...);
+> RedisDao redisDao; // Assume initialized
 > 
 > redisDao.setAdd("key1", "Alice");
 > redisDao.setAdd("key1", "Bob");
@@ -478,16 +485,16 @@ An error is returned when the value stored at key is not a set.<br>
 > long output2 = redisDao.setRemove("nonexistentKey", "Charlie");
 > long output3 = redisDao.setRemove("key2", "Charlie");
 > ```
-> **Output1**: 1<br>
+> **Output1**: `1`<br>
 > **Explanation**:<br>
-> ["Alice", "Bob"] → ["Alice"] w/ 1 value(s) removed.<br>
+> `["Alice", "Bob"] → ["Alice"]` w/ 1 value(s) removed.<br>
 > "Bob" is successfully removed from the Set.<br>
 > "Charlie" was never in the Set so there is nothing to remove.
 > 
-> **Output2**: 0<br>
+> **Output2**: `0`<br>
 > **Explanation**: "nonexistentKey" doesn't exist in Redis DB so the Redis library treats the key as am empty set, nothing is removed.
 > 
-> **Output4**: Exception is thrown<br>
+> **Output4**: `Exception is thrown`<br>
 > **Explanation**:<br>
 > {"key2": "1"}, the value at "key2" is a Long type so attempting to remove a value from a Long type is invalid. Redis library will throw an error.
 
@@ -495,7 +502,7 @@ An error is returned when the value stored at key is not a set.<br>
 
 ### Integration Tests
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
-- [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `setRemoveTest()`
+- [ ] Remove `@Disabled` in `RedisDaoTest::setRemoveTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -506,8 +513,9 @@ An error is returned when the value stored at key is not a set.<br>
 #
 
 ### Implement [SMEM <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/smem/) (Set Members)
-In `RedisDao.java`, implement `public Set<String> getSetMembers(String key)`.<br>
-Return the Set\<String> stored at the key.
+In `RedisDao.java`, implement `getSetMembers(String key)`.<br>
+
+Return the `Set<String>` stored at the `key`.
 
 **Description**: Returns all the members of the set value stored at key.<br>
 **Library API Call**: RedisTemplate.opsForSet().[members(key) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/SetOperations.html#members(K))
@@ -515,7 +523,7 @@ Return the Set\<String> stored at the key.
 ### Example 1:
 > **Input**:<br>
 > ```java
-> RedisDao redisDao = new RedisDao(...);
+> RedisDao redisDao; // Assume initialized
 > redisDao.setAdd("key1", "Alice");
 > redisDao.setAdd("key1", "Bob");
 > 
@@ -525,20 +533,20 @@ Return the Set\<String> stored at the key.
 > redisDao.incr("key2");
 > Set<String> output3 = redisDao.getSetMembers("key2");
 > ```
-> **Output1**: ["Alice", "Bob"]<br>
+> **Output1**: `["Alice", "Bob"]`<br>
 > **Explanation**: key="key1" has a set of ["Alice", "Bob"].
 > 
-> **Output2**: []<br>
+> **Output2**: `[]`<br>
 > **Explanation**: key="nonexistentKey" is not in the DB, Redis will treat this as an empty Set,
 > 
-> **Output3**: Exception is thrown<br>
+> **Output3**: `Exception is thrown`<br>
 > **Explanation**: key="key2" has a value of 1, so attempting to get the Set from a value that isn't a set will throw an exception.
 
 #
 
 ### Integration Tests
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
-- [ ] Remove `@Disabled` in `RedisDaoTest.java` for the test method(s): `getSetMembersTest()`
+- [ ] Remove `@Disabled` in `RedisDaoTest::getSetMembersTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -548,7 +556,8 @@ Return the Set\<String> stored at the key.
 
 ## Exercise 2: Event Deduper
 ![](assets/module4/images/EventDeduper.svg)<br>
-Zooming in on the diagram from the **[Objective <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_3.md#objective)** section, we want our `GreetingEventConsumer` to be "smart" by adding some deduplication logic.
+
+Zooming in on the diagram from the **[Objective <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://github.com/SonahLab/twitch-chat-hit-counter/blob/main/course-material/MODULE_3.md#objective)** section, we want to optimize our `GreetingEventConsumer` by adding some deduplication logic.
 When reading events from the Kafka topic, we should only process the event if we've never processed it before to achieve **always-once** event processing.
 
 This is where KV Stores like Redis/Memcached come into play. Being able to quickly read/write from an in-memory cache acting as a Deduper is common across all systems in Big Tech.
@@ -600,7 +609,7 @@ twitch-chat-hit-counter:
 
 ### Unit Tests
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented
-- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for method(s): `springRedisConfigsTest()` and `redisDeduperDatabaseTest()`
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest::springRedisConfigsTest` and `PropertiesApplicationTest::redisDeduperDatabaseTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -621,9 +630,11 @@ twitch-chat-hit-counter:
 Because Spring Boot Redis only configures one `RedisTemplate` (limiting aspect of autoconfiguration), you will need to manually configure most of the beans yourself.
 
 ### Part 1
-In `RedisConfig.java`, implement `public Map<Integer, RedisTemplate<String, String>> redisTemplateFactory()`.
+In `RedisConfig.java`, implement `redisTemplateFactory()`.
 
 This factory @Bean will set up a mapping between our intended `database index → RedisTemplate` configured to handle network calls on a specific Redis DB.
+
+Return a `Map<Integer, RedisTemplate<String, String>>` containing all the database indexes tracked in `application.yml` to a manually configured `RedisTemplate` object.
 
 Example:
 ```
@@ -667,7 +678,7 @@ This RedisDao will be _**dedicated**_ to handling operations on `DB0`.
 
 ### Unit Tests
 - [ ] Open `RedisConfigTest.java` ─ already implemented
-- [ ] Remove `@Disabled` in `RedisConfigTest.java` for method(s): `eventDedupeRedisDaoTest()`
+- [ ] Remove `@Disabled` in `RedisConfigTest::eventDedupeRedisDaoTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -678,26 +689,26 @@ This RedisDao will be _**dedicated**_ to handling operations on `DB0`.
 #
 
 ### Task 3: `EventDeduperRedisService::processEvent`
-In `EventDeduperRedisService.java`, implement `public void processEvent(EventType eventType, String eventId)`.<br>
+In `EventDeduperRedisService.java`, implement `processEvent(EventType eventType, String eventId)`.
 
-You will generate a Redis Key entry based on the input **EventType** and **eventId**, and increment the value.
+Generate a Redis Key from the input `EventType eventType` and `String eventId` parameters, and increment the key's value.
 
 **Requirements:**
-1. The Redis key should be generated using this template: `"{EventType}#{eventId}"`
-2. The Redis value should be incremented by `1`.
-3. Log a `warning` log if the event is a duplicate and drop the event.
+1. `db0` Redis key template: `"{EventType}#{eventId}"`
+2. `db0` Redis value: `Long` value incremented by `1`.
+3. Log a `warning` log if the event is a duplicate and drop/skip the event.
 4. Log an `info` log if the event is not a duplicate and continue normal consumer processing logic.
 
 ### Example 1:
 > **Input**:<br>
 > ```java
-> RedisDao redisDao = new RedisDao(...);
+> RedisDao redisDao; // Assume initialized
 > EventDeduperRedisService eventDeduper = new EventDeduperRedisService(redisDao);
 > 
 > eventDeduper.processEvent(EventType.GREETING_EVENT, "id1");
 > String output = redisDao.get("GREETING_EVENT#id1");
 > ```
-> **Output**: "1"<br>
+> **Output**: `"1"`<br>
 > **Explanation**: After .processEvent(...) is called, our Redis DB should now be
 > ```json
 > {
@@ -709,7 +720,7 @@ You will generate a Redis Key entry based on the input **EventType** and **event
 
 ### Integration Tests
 - [ ] Open `EventDeduperRedisServiceTest.java` ─ already implemented with the example(s) above
-- [ ] Remove `@Disabled` in `EventDeduperRedisServiceTest.java` for method(s): `processEventTest()`
+- [ ] Remove `@Disabled` in `EventDeduperRedisServiceTest::processEventTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -720,20 +731,20 @@ You will generate a Redis Key entry based on the input **EventType** and **event
 #
 
 ### Task 4: `EventDeduperRedisService::isDupeEvent`
-In `EventDeduperRedisService.java`, implement `public boolean isDupeEvent(EventType eventType, String eventId)`.<br>
+In `EventDeduperRedisService.java`, implement `isDupeEvent(EventType eventType, String eventId)`.<br>
 
-Return a boolean whether the key (generated by **EventType** and **eventId**) already exists in our Redis DB.<br>
-**True:** if the Redis Key already exists, then the event we're processing **IS** a duplicate.<br>
-**False:** if the Redis Key does not exist, then the event we're processing **IS NOT** a duplicate.<br>
+Return a `boolean` on if the Redis key already exists in `db0`.<br>
+- **True:** if the Redis Key **does** exists, then the event we're processing **IS** a duplicate.<br>
+- **False:** if the Redis Key **does not** exist, then the event we're processing **IS NOT** a duplicate.<br>
 
 **Requirements:**
-1. The Redis key is generated using this template: `"{EventType}#{eventId}"`
-2. The Redis value at the key should be `1`
+1. `db0` Redis key template: `"{EventType}#{eventId}"`
+2. `db0` Redis value should always be `1` if the key is a dupe (**always-once** processing)
 
 ### Example 1:
 > **Input**:<br>
 > ```java
-> RedisDao redisDao = new RedisDao(...);
+> RedisDao redisDao; // Assume initialized
 > EventDeduperRedisService eventDeduper = new EventDeduperRedisService(redisDao);
 > 
 > // Set some initial keys
@@ -742,17 +753,17 @@ Return a boolean whether the key (generated by **EventType** and **eventId**) al
 > boolean output1 = eventDeduper.isDupeEvent(EventType.GREETING_EVENT, "id1");
 > boolean output2 = eventDeduper.isDupeEvent(EventType.GREETING_EVENT, "id2");
 > ```
-> **Output1**: false<br>
+> **Output1**: `false`<br>
 > **Explanation**: no key="GREETING_EVENT#id1" exists, so the incoming eventId **IS NOT** a duplicate.<br>
 >
-> **Output2**: true<br>
+> **Output2**: `true`<br>
 > **Explanation**: key="GREETING_EVENT#id2" exists, so the incoming eventId **IS** a duplicate.<br>
 
 #
 
 ### Integration Tests
 - [ ] Open `EventDeduperRedisServiceTest.java` ─ already implemented with the example(s) above
-- [ ] Remove `@Disabled` in `EventDeduperRedisServiceTest.java` for method(s): `isDupeEventTest()`
+- [ ] Remove `@Disabled` in `EventDeduperRedisServiceTest::isDupeEventTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -762,31 +773,33 @@ Return a boolean whether the key (generated by **EventType** and **eventId**) al
 
 #
 
-### Task 5: Hook up `GreetingEventConsumer` to the `EventDeduperRedisService`
-In `GreetingEventConsumer.java`, pass in the `EventDeduperRedisService.java` class into the constructor.
+### Task 5: `GreetingEventConsumer`
+In `GreetingEventConsumer.java`, DI `EventDeduperRedisService.java` class into the constructor.
 
 In `GreetingEventConsumer.processMessage(..)`, before we store a `GreetingEvent` into our SQL table, we will only process events that are not in our deduper Redis database (`db0`).
 
 **Consumer Process Flow:**
 1. Check Redis to see if the kafka message key is a duplicate
-2. If **isDupeEvent == True**:
+2. `if (isDupeEvent == true)`:
     1. Do nothing (skip processing the event)
-3. If **isDupeEvent == False**:
+3. `if (isDupeEvent == false)`:
     1. Write the event to SQL
     2. Update the Redis DB to add the event's key, so that we can skip this event from being processed if we ever see an event with the same key again.
 
 #
 
 ### E2E Tests
-- [ ] TODO (how to test this since UUID is generated uniquely for each publishing of kafka event)
 - [ ] Run the application:
     ```shell
     ./gradlew bootRun
     ```
 - [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
 - [ ] Play around with **Kafka API**: `/api/kafka/publishGreetingEvent`
-- [ ] Play around with **Kafka API**: `/api/kafka/publishGreetingEvent` for a duplicate event
-- [ ] In **Redis UI**, verify that the `GreetingEvent` key is written into the Redis DB.
+- [ ] In **Redis UI**, verify that the `GreetingEvent` key is written into the Redis DB
+- [ ] Kill the application
+- [ ] Set a new `spring.kafka.bootstrap-servers.consumer.group-id` to re-process all the Kafka events.
+- [ ] Run the application
+- [ ] Validate from the logs that the old events are now being dropped
 
 <br>
 
@@ -842,7 +855,7 @@ twitch-chat-hit-counter:
 
 ### Unit Tests
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented with the property test above.
-- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for method(s): `redisGreetingFeedDatabaseTest()`
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest::redisGreetingFeedDatabaseTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -864,7 +877,7 @@ This is very similar to our initial setup for `db0` in `RedisConfig.java`. After
 It becomes very easy to add and remove database indexes without requiring a lot of the duplicated code as the original Medium article above shows. 
 
 ### Part 1
-In `RedisConfig.java`, update `public Map<Integer, RedisTemplate<String, String>> redisTemplateFactory()`.
+In `RedisConfig.java`, update `redisTemplateFactory()` with a mapping for `db1`.
 
 **Example:**
 ```
@@ -897,7 +910,7 @@ This RedisDao will be **dedicated** to handling operations on `DB1`.
 
 ### Unit Tests
 - [ ] Open `RedisConfigTest.java` ─ already implemented
-- [ ] Remove `@Disabled` in `RedisConfigTest.java` for method(s): `greetingFeedRedisDaoTest()`
+- [ ] Remove `@Disabled` in `RedisConfigTest::greetingFeedRedisDaoTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -909,8 +922,9 @@ This RedisDao will be **dedicated** to handling operations on `DB1`.
 #
 
 ### Task 3: `GreetingRedisService::addGreetingToFeed`
-In `GreetingRedisService`, implement `public Long addGreetingToFeed(GreetingEvent event)`.<br>
-Return a Long that represents the length of the List after the `GreetingEvent` is appended to the list stored at the key for the `GreetingEvent.receiver()`.
+In `GreetingRedisService`, implement `addGreetingToFeed(GreetingEvent event)`.<br>
+
+Return a `Long` that represents the length of the List after the `GreetingEvent` is appended to the list stored at the key for the `GreetingEvent.receiver()`.
 
 **Requirements:**
 1. `db1` Redis key template: `"receiver#{receiver}"`
@@ -919,7 +933,7 @@ Return a Long that represents the length of the List after the `GreetingEvent` i
 ### Example 1:
 > **Input**:<br>
 > ```java
-> RedisDao redisDao = new RedisDao(...);
+> RedisDao redisDao; // Assume initialized
 > GreetingRedisService greetingRedisService = new GreetingRedisService(redisDao);
 > 
 > GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice");
@@ -930,20 +944,20 @@ Return a Long that represents the length of the List after the `GreetingEvent` i
 > Long output2 = greetingRedisService.addGreetingToFeed(event2);
 > Long output3 = greetingRedisService.addGreetingToFeed(event3);
 > ```
-> **Output1**: 1<br>
+> **Output1**: `1`<br>
 > **Explanation**: **receiver#Bob** has a feed of length 1, greeting(s) from "Alice"
 >
-> **Output2**: 2<br>
+> **Output2**: `2`<br>
 > **Explanation**: **receiver#Bob** has a feed of length 2, greeting(s) from "Alice" and "Charlie"
 >
-> **Output3**: 1<br>
+> **Output3**: `1`<br>
 > **Explanation**: **receiver#David** has a feed of length 1, greeting(s) from "Charlie"
 
 #
 
 ### Integration Tests
 - [ ] Open `GreetingRedisServiceTest.java` ─ already implemented with the example(s) above.
-- [ ] Remove `@Disabled` in `GreetingRedisServiceTest.java` for method(s): `addGreetingToFeedTest()`
+- [ ] Remove `@Disabled` in `GreetingRedisServiceTest::addGreetingToFeedTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -953,7 +967,7 @@ Return a Long that represents the length of the List after the `GreetingEvent` i
 
 #
 
-### Task 4: Update Consumer
+### Task 4: `GreetingEventConsumer`
 In `GreetingEventConsumer.java` (**Module 2**), DI the `GreetingRedisService.java`.
 
 In `GreetingEventConsumer.processMessage(..)`, after the deduper logic, we want to update the greeting feed (List) for the `GreetingEvent.receiver()`
@@ -963,11 +977,11 @@ In `GreetingEventConsumer.processMessage(..)`, after the deduper logic, we want 
 
 **Consumer Process Flow:**
 1. Check Redis to see if the kafka message key is a duplicate
-2. If **isDupeEvent == True**:
+2. `if (isDupeEvent == true)`:
     1. Do nothing (skip processing the event)
-3. If **isDupeEvent == False**:
+3. `if (isDupeEvent == false)`:
     1. Write the event to SQL
-    2. **(NEW) Write the greeting event to the `event.receiver()` feed in Redis in `db1`**
+    2. **(NEW)** Write the greeting event to the `event.receiver()` feed in Redis in `db1`
     3. Update `db0` to add the event's key, so that we can skip this event from being processed if we ever see an event with the same key again.
 
 <br>
@@ -994,9 +1008,9 @@ In `GreetingEventConsumer.processMessage(..)`, after the deduper logic, we want 
 <br>
 
 ### Task 1: Query News Feed from Redis
-In `GreetingRedisService`, implement `public List<GreetingEvent> getGreetingFeed(String name)`.<br>
+In `GreetingRedisService`, implement `getGreetingFeed(String name)`.<br>
 
-Return the `List<GreetingEvent>` stored in `db1` using the input `name`.
+Return the `List<GreetingEvent>` from `db1` stored at the key generated from the input `name`.
 
 **Requirements:**
 1. `db1` Redis key template: `"receiver#{name}"`
@@ -1005,7 +1019,7 @@ Return the `List<GreetingEvent>` stored in `db1` using the input `name`.
 ### Example 1:
 > **Input**:<br>
 > ```java
-> RedisDao redisDao = new RedisDao(...);
+> RedisDao redisDao; // Assume initialized
 > GreetingRedisService greetingRedisService = new GreetingRedisService(redisDao);
 > 
 > GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice");
@@ -1066,7 +1080,7 @@ Return the `List<GreetingEvent>` stored in `db1` using the input `name`.
 
 ### Integration Tests
 - [ ] Open `GreetingRedisServiceTest.java` ─ already implemented with the example(s) above.
-- [ ] Remove `@Disabled` in `GreetingRedisServiceTest.java` for method(s): `getGreetingFeedTest()`
+- [ ] Remove `@Disabled` in `GreetingRedisServiceTest::getGreetingFeedTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module4
@@ -1076,15 +1090,15 @@ Return the `List<GreetingEvent>` stored in `db1` using the input `name`.
 
 #
 
-### Task 2: Hook up `RedisRestController` to `GreetingRedisService`
+### Task 2: `RedisRestController`
 In `RedisRestController.java`, implement `public List<GreetingEvent> getRedisGreetingFeed(String name)`.<br>
 
-Return the List\<GreetingEvent> from the `getGreetingFeed(name)` you implemented in the previous task.
+Return the `List<GreetingEvent>` from calling `GreetingRedisService.getGreetingFeed(name)` you implemented in the previous task.
 
 ### Example 1:
 > ```java
 > 
-> RedisDao redisDao = new RedisDao(...);
+> RedisDao redisDao; // Assume initialized
 > GreetingRedisService greetingRedisService = new GreetingRedisService(redisDao);
 > 
 > GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice");
@@ -1094,31 +1108,9 @@ Return the List\<GreetingEvent> from the `getGreetingFeed(name)` you implemented
 > greetingRedisService.addGreetingToFeed(event1);
 > greetingRedisService.addGreetingToFeed(event2);
 > greetingRedisService.addGreetingToFeed(event3);
->
-> WebClient webClient = WebClient.builder()
->         .baseUrl("http://localhost:8080/api/")
->         .build();
->
-> boolean output1 = webClient.post()
->         .uri(uriBuilder -> uriBuilder
->                 .path("/redis/queryGreetingFeed")
->                 .queryParam("name", "Bob")
->                 .build())
->         .retrieve()
->         .bodyToMono(List.class)
->         .block();
-> 
-> boolean output2 = webClient.post()
->         .uri(uriBuilder -> uriBuilder
->                 .path("/redis/queryGreetingFeed")
->                 .queryParam("name", "Alice")
->                 .build())
->         .retrieve()
->         .bodyToMono(List.class)
->         .block();
 > ```
-> **Output1**:<br>
-> ```json
+> ```bash
+> curl -X GET "http://localhost:8080/api/redis/queryGreetingFeed?name=Bob"
 > [
 >   {
 >     "eventId": "id1",
@@ -1133,9 +1125,10 @@ Return the List\<GreetingEvent> from the `getGreetingFeed(name)` you implemented
 >     "message": "Hey Bob, it's been a while."
 >   }
 > ]
-> ```
 > 
-> **Output2**: `[]`<br>
+> curl -X GET "http://localhost:8080/api/redis/queryGreetingFeed?name=Alice"
+> []
+> ```
 
 #
 
@@ -1156,4 +1149,4 @@ Return the List\<GreetingEvent> from the `getGreetingFeed(name)` you implemented
     ```
 - [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
 - [ ] **Redis API**: `GET /api/kafka/queryGreetingFeed`
-- [ ] In **Redis UI**, verify that the HTTP Response output greeding feed is the same as the feed saved in Redis `db1`
+- [ ] In **Redis UI**, verify that the HTTP Response output greeting feed is the same as the feed saved in Redis `db1`

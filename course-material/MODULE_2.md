@@ -450,9 +450,9 @@ In `application.yml`, set the **Spring Kafka** properties according to the requi
 
 ### Unit Tests
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented, testing each property against the expected values we want for this course.
-- [ ] Remove `@Disabled` in `PropertiesApplicationTest::springKafkaConfigsTest()`
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest::springKafkaConfigsTest`
 - [ ] Open `KafkaConfigTest.java` ─ already implemented, testing the autoconfigured Beans that Spring Kafka injects for us.
-- [ ] Remove `@Disabled` in `KafkaConfigTest::testKafkaTemplateConfig()` and `KafkaConfigTest::kafkaListenerContainerFactory_beanTest()`
+- [ ] Remove `@Disabled` in `KafkaConfigTest::testKafkaTemplateConfig` and `KafkaConfigTest::kafkaListenerContainerFactory_beanTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
@@ -480,7 +480,7 @@ twitch-chat-hit-counter:
 
 ### Unit Tests
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented, testing each property against the expected values we want for this course.
-- [ ] Remove `@Disabled` in `PropertiesApplicationTest::kafkaGreetingTopicNameTest()`
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest::kafkaGreetingTopicNameTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
@@ -882,7 +882,7 @@ Your job is to create new Spring properties that will be used to create our `bat
 
 ### Unit Tests
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented, testing that the two requirements above are met.
-- [ ] Remove `@Disabled` in `PropertiesApplicationTest::kafkaBatchConfigsTest()`
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest::kafkaBatchConfigsTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
@@ -914,7 +914,7 @@ with the two changes being that the batchKafkaListenerContainerFactory's `group-
 
 ### Unit Tests
 - [ ] Open `KafkaConfigTest.java` ─ already implemented, testing a new @Bean named `batchKafkaListenerContainerFactory` is properly configured with different `group-id` and `listener.type`
-- [ ] Remove `@Disabled` in `KafkaConfigTest::batchKafkaListenerContainerFactory_beanTest()`
+- [ ] Remove `@Disabled` in `KafkaConfigTest::batchKafkaListenerContainerFactory_beanTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2

@@ -424,7 +424,7 @@ Notice in `AbstractSqlService.java` I've provided abstract methods (which will b
 
 #
 
-### Exercise 1 Task 3: `GreetingEventSqlService`
+### Task 3: `GreetingEventSqlService`
 In `GreetingSqlService.java`, implement:
 - `GreetingSqlService()`
 - `sqlTableName()`
@@ -460,7 +460,12 @@ Return the `String` passed into the constructor.
 #
 
 ### Unit Tests
-- [ ] TODO
+- [ ] Open `GreetingSqlServiceTest.java` ─ already implemented to test the example(s) above.
+- [ ] Remove `@Disabled` in `GreetingSqlServiceTest::sqlTableNameTest`
+- [ ] Test with:
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
+    ```
 
 ### Task 3 Part II: `GreetingSqlService::columns`
 In `GreetingSqlService.java`, implement `columns()`.
@@ -513,7 +518,12 @@ Return a list of all the hard-coded fields of our `greeting_events` SQL table (s
 > > There's a valid point in arguing for using DDL (Data Definition Language) to dynamically maintain/pull the schema for a table, but I want you to keep this simple and just hard code the schema as our `GreetingEvent` schema isn't going to be evoving.
 
 ### Unit Tests
-- [ ] TODO. Tested with the actual GreetingEvent expecting it in the same schema order of the table creation DDL.
+- [ ] Open `GreetingSqlServiceTest.java` ─ already implemented to test the example(s) above.
+- [ ] Remove `@Disabled` in `GreetingSqlServiceTest::columnsTest`
+- [ ] Test with:
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
+    ```
 
 #
 
@@ -547,28 +557,12 @@ Return an `Object[]` containing all the values in the `GreetingEvent`.
 > ```
 
 ### Unit Tests
-- [ ] TODO. Testing using examples above and expecting the same ordering that the `greeting_events` table was created with.
-
-
-### Example 1:
-> **Input:**<br>
-> ```java
-> GreetingSqlService greetingSqlService = new GreetingSqlService(...);
-> 
-> GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
-> GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");
-> GreetingEvent event3 = new GreetingEvent("id1", "Echo", "Frank", "Hello there.");
->
-> int output1 = greetingSqlService.insert(List.of(event1));
-> int output2 = greetingSqlService.insert(List.of(event2));
-> int output3 = greetingSqlService.insert(List.of(event3));
-> ```
-> **Output1**: 1<br>
->
-> **Output2**: 1<br>
->
-> **Output3**: 0<br>
-> **Explanation**: event3.eventId() == "id1" already exists in the table<br>
+- [ ] Open `GreetingSqlServiceTest.java` ─ already implemented to test the example(s) above.
+- [ ] Remove `@Disabled` in `GreetingSqlServiceTest::valuesTest`
+- [ ] Test with:
+    ```shell
+    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
+    ```
 
 #
 
@@ -588,7 +582,7 @@ These methods should all being working together to achieve the expected outputs 
 ### Example 1:
 > **Input:**<br>
 > ```java
-> GreetingSqlService greetingSqlService = new GreetingSqlService(...);
+> GreetingSqlService greetingSqlService = new GreetingSqlService(jdbcTemplate, "mockTableName");
 > 
 > GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
 > GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");
@@ -625,19 +619,11 @@ In `SqlConfig.java`, implement `singleGreetingSqlService()`. This bean is dedica
 **Requirements:**
 - DI the `greeting_event` property from `application.yml`
 
-### Unit Tests
-- [ ] TODO (fix this this is the wrong description) Open `SqlConfigTest.java` ─ already implemented to test the `tableName()` and `columns()` return expected values
-- [ ] Remove `@Disabled` in `SqlConfigTest::singleGreetingSqlService_beanTest`
-- [ ] Test with:
-    ```shell
-    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
-    ```
-
 <br>
 
 #
 
-### Exercise 1 Task 5: Hook up the Kafka Consumer to use the SQL writer
+### Task 5: `GreetingEventConsumer`
 In `GreetingEventConsumer.java` (**Module 2**), integrate with the `singleGreetingSqlService` bean.<br>
 Everytime an event is read from Kafka, we will need to call `GreetingSqlService.insert()` method to persist that event into the SQL table.
 
@@ -751,13 +737,13 @@ Everytime an event is read from Kafka, we will need to call `GreetingSqlService.
 
 <br>
 
-### Exercise 2: Implement Batch Writes
+### Exercise 2: Batch Record SQL Writer
 ![](assets/module3/images/exercise3.svg)<br>
 
 Similar to the **'Lesson: Input/Output (IO) Operations'** section in **Module 2**, we will optimize the # of IO calls to our SQL server by reducing write IOs.<br>
 If we needed to write 1M events into our SQL table, instead of separately issuing 1,000,000 calls to SQL we will group a batch of events to make less round trip calls to the SQL server.
 
-Ultimately, the end result will be **idempotent**, meaning same 1M events will be stored regardless of if we called the writes to SQL individually as single events vs. or grouped in batches of events (assuming the order of events are always the same).
+Ultimately, the end result will be **idempotent**, meaning same 1M events will be stored regardless of if we called the writes to SQL individually as single events vs. or grouped in batches of events (assuming the order of events is the same).
 
 #
 
@@ -793,15 +779,15 @@ twitch-chat-hit-counter:
 
 #
 
-### Exercise 2 Task 3: SQL GreetingEvent Writer
-In `AbstractSqlService.java`, take a look at `insert(List<T> events)`. Notice how in "Exercise 1 Task TODO" I made you implement a flexible method that supports writing a `List<T> events` to SQL depending on the input array's `size()`. 
+### Task 3: SQL GreetingEvent Writer
+In `AbstractSqlService.java`, take a look at `insert(List<T> events)`. In **"Exercise 1 Task 2"**, you implemented a flexible method that supports writing a `List<T> events` to SQL depending on the input array's `size()`. 
 
 This means we should be able to handle writing any number of events to SQL flexibly.
 
 ### Example 1:
 > **Input**:<br>
 > ```java
-> GreetingSqlService greetingSqlService = new GreetingSqlService(...);
+> GreetingSqlService greetingSqlService = new GreetingSqlService(jdbcTemplate, "mockTableName");
 > 
 > GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
 > GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");
@@ -810,9 +796,9 @@ This means we should be able to handle writing any number of events to SQL flexi
 > int output = greetingSqlService.insert(List.of(event1, event2, event3));
 > ```
 >
-> **Output**: 2<br>
+> **Output**: `2`<br>
 > **Explanation**:
-> This example looks very similar to the example in "Exercise 1 Task TODO". The order in which we insert the events are the same, the only difference here is that instead of 3 separate server calls, you should be issuing 1 server call.<br>
+> This example looks very similar to the example in **"Exercise 1 Task 2"**. The order in which we insert the events are the same, the only difference here is that instead of 3 separate server calls, you should be issuing 1 server call.<br>
 > Your SQL statement should first write event1 (success) and then event2 (success), but event3 has the same primary key as event1 ("id1") which was just written in the same batch, so SQL will drop event3 (assuming your SQL command is written correctly using `INSERT IGNORE INTO ...`.<br>
 >
 > Therefore, in this batch of 3 events total, 2 events were successfully stored in SQL (the 3rd being dropped).
@@ -830,7 +816,7 @@ This means we should be able to handle writing any number of events to SQL flexi
 
 #
 
-### Task 3: SQL Config
+### Task 3: `SqlConfig::batchGreetingSqlService`
 In `SqlConfig.java`, implement `GreetingSqlService batchGreetingSqlService()`. This bean is dedicated to handling read/writes to your `dev_db.batch_greeting_events` SQL table.
 
 **Requirements:**
@@ -849,7 +835,7 @@ In `SqlConfig.java`, implement `GreetingSqlService batchGreetingSqlService()`. T
 
 #
 
-### Exercise 2 Task 4: Hook up the Batch Kafka Consumer to use the Batch SQL writer
+### Task 4: `GreetingEventBatchConsumer`
 In `GreetingEventBatchConsumer.java` (**Module 2**), integrate with the `batchGreetingSqlService` bean.<br>
 Everytime event(s) are read from Kafka, we will need to call `GreetingSqlService.insert()` method to persist that event into the SQL table (`batch_greeting_events`).
 
@@ -859,25 +845,23 @@ Everytime event(s) are read from Kafka, we will need to call `GreetingSqlService
 #
 
 ### E2E Tests
+- [ ] Set a new `twitch-chat-hit-counter.kafka.batch-consumer.group-id` to re-process all the Kafka events.
 - [ ] Run the application:
     ```shell
     ./gradlew bootRun
     ```
-- [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
-- [ ] Play around with **Kafka API**: `/api/kafka/publishGreetingEvent`
 - [ ] In **MySQLWorkbench**, verify that the `GreetingEvent` triggered via **Swagger** is written into SQL by querying:
     ```
     SELECT *
     FROM batch_greeting_events
     ```
-- [ ] TODO Reset the batch group-id to re-process all the Kafka events from the very beginning to test that the bulk writes are happening?
 
 #
 
 ## Exercise 3: SQL API
 ![](assets/module3/images/exercise2.svg)<br>
 
-### Exercise 3 Task 1: `AbstractSqlService::queryAllEvents`
+### Task 1: `AbstractSqlService::queryAllEvents`
 In `AbstractSqlService.java`, implement `queryAllEvents()`. This method should scan **ALL** the records in a SQL table.
 
 Return a `List<T>` of all the events in a SQL table.
@@ -897,54 +881,10 @@ SELECT * table_name;
 >
 > Read through [Store and Retrieve Data <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://spring.io/guides/gs/relational-data-access) as it will look very similar to what we want.<br>
 
-[//]: # (> Example:)
-
-[//]: # (> ```)
-
-[//]: # (> -- DDL)
-
-[//]: # (> CREATE TABLE customers &#40;)
-
-[//]: # (>     id SERIAL,)
-
-[//]: # (>     first_name VARCHAR&#40;255&#41;,)
-
-[//]: # (>     last_name VARCHAR&#40;255&#41;)
-
-[//]: # (> &#41;;)
-
-[//]: # (> ```)
-
-[//]: # (> ```java)
-
-[//]: # (> log.info&#40;"Querying for customer records where first_name = 'Josh':"&#41;;)
-
-[//]: # (> jdbcTemplate.query&#40;)
-
-[//]: # (>     "SELECT id, first_name, last_name FROM customers WHERE first_name = ?",)
-
-[//]: # (>     &#40;rs, rowNum&#41; ->)
-
-[//]: # (>         new Customer&#40;rs.getLong&#40;"id"&#41;, rs.getString&#40;"first_name"&#41;, rs.getString&#40;"last_name"&#41;&#41;, "Josh"&#41;)
-
-[//]: # (> .forEach&#40;customer -> log.info&#40;customer.toString&#40;&#41;&#41;&#41;;)
-
-[//]: # (> ```)
-
-[//]: # (> )
-
-[//]: # (> The important piece here is that the lambda expression `&#40;rs, rowNum&#41; -> // TODO` should be calling the abstract method `parseEventFromResultSet&#40;rs&#41;`.<br>)
-
-[//]: # (> The lambda expression `&#40;rs, rowNum&#41;` is just a fancy, succinct way of for-looping through the SQL-queried data rows one by one, processing a single `ResultSet rs` at a time.)
-
-[//]: # (> )
-
-[//]: # (> To re-iterate, you don't need to solve it this way, there's many ways to accomplish the same thing but this is the way I will implement my logic.)
-
 #
 
-### Exercise 3 Task 2: `GreetingSqlService::queryAllEvents`
-In `GreetingSqlService.java`, implement `parseEventFromResultSet(ResultSet rs)`. This method expects the `ResultSet` -- A table of data representing a database result set, which is usually generated by executing a statement that queries the database.
+### Task 2: `GreetingSqlService::queryAllEvents`
+In `GreetingSqlService.java`, implement `parseEventFromResultSet(ResultSet rs)`. This method expects the `ResultSet` — A table of data representing a database result set, which is usually generated by executing a statement that queries the database.
 
 Return a `GreetingEvent` by parsing the `ResultSet` record row that gets passed back from the `JdbcTemplate` query call.
 
@@ -955,7 +895,7 @@ Return a `GreetingEvent` by parsing the `ResultSet` record row that gets passed 
 ### Example 1:
 > **Input**:<br>
 > ```java
-> GreetingSqlService greetingSqlService = new GreetingSqlService(...);
+> GreetingSqlService greetingSqlService = new GreetingSqlService(jdbcTemplate, "mockTableName");
 >
 > GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
 > GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");
@@ -1035,10 +975,10 @@ Return a `GreetingEvent` by parsing the `ResultSet` record row that gets passed 
 
 #
 
-### Exercise 3 Task 3: `SqlRestController`
-In `SqlRestController.java`, implement `getSqlGreetingEvents(String tableName)`.
+### Task 3: `SqlRestController`
+In `SqlRestController.java`, implement `getAllEvents(String tableName)`.
 
-Return the `List<GreetingEvent>` return by calling the `GreetingSqlService.queryAllEvents()` method.
+Return the `List<String>` return by calling the `GreetingSqlService.queryAllEvents()` method.
 
 **Requirements:**
 - DI both `GreetingSqlService` beans in `SqlConfig.java` into the constructor of the `SqlRestController.java`.
@@ -1048,47 +988,52 @@ Return the `List<GreetingEvent>` return by calling the `GreetingSqlService.query
 ### Example 1:
 > **Input:**
 > ```java
-> SqlRestController controller = new SqlRestController(...);
+> SqlRestController controller; // Assume initialized
+> 
 > List<GreetingEvent> output1 = controller.getSqlGreetingEvents("greeting_events");
 > List<GreetingEvent> output2 = controller.getSqlGreetingEvents("batch_greeting_events");
 > List<GreetingEvent> output3 = controller.getSqlGreetingEvents("non_existent_table");
 > ```
 > 
 > Output1:
-> ```
-> [GreetingEvent(), GreetingEvent()]
+> ```json
+> [
+>   {
+>     "eventId": "id1",
+>     "sender": "Alice",
+>     "receiver": "Bob",
+>     "message": "Hi Bob, I'm Alice!"
+>     },
+>   {
+>     "eventId": "id2",
+>     "sender": "Charlie",
+>     "receiver": "David",
+>     "message": "Yo."
+>   }
+> ]
 > ```
 > 
 > Output2:
-> ```
-> [GreetingEvent(), GreetingEvent()]
+> ```json
+> [
+>   {
+>     "eventId": "id1",
+>     "sender": "Alice",
+>     "receiver": "Bob",
+>     "message": "Hi Bob, I'm Alice!"
+>     },
+>   {
+>     "eventId": "id2",
+>     "sender": "Charlie",
+>     "receiver": "David",
+>     "message": "Yo."
+>   }
+> ]
 > ```
 > 
 > Output3: exception should be thrown
 
-
-### Example 2:
-> **Input:**
-> ```java
-> SqlRestController controller = new SqlRestController(...);
-> List<GreetingEvent> output1 = controller.getSqlGreetingEvents("greeting_events");
-> List<GreetingEvent> output2 = controller.getSqlGreetingEvents("batch_greeting_events");
-> List<GreetingEvent> output3 = controller.getSqlGreetingEvents("non_existent_table");
-> ```
->
-> Output1:
-> ```
-> [GreetingEvent(), GreetingEvent()]
-> ```
->
-> Output2:
-> ```
-> [GreetingEvent(), GreetingEvent()]
-> ```
->
-> Output3: exception should be thrown
-
-#### Testing
+#### Unit Tests
 - [ ] Open `SqlRestControllerTest.java` ─ already implemented with the example(s) above.
 - [ ] Remove `@Disabled` in `SqlRestControllerTest.java`
 - [ ] Test with:
@@ -1096,7 +1041,7 @@ Return the `List<GreetingEvent>` return by calling the `GreetingSqlService.query
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module3
     ```
 
-### Integration Testing
+### E2E Tests
 - [ ] Run the application:
     ```shell
     ./gradlew bootRun

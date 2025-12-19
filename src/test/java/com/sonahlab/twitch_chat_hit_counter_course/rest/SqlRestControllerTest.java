@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,11 +54,19 @@ public class SqlRestControllerTest {
         GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");
 
         when(greetingSqlService.queryAllEvents()).thenReturn(List.of(event1));
-        List<GreetingEvent> result1 = callQueryAllEventsEndpoint(SINGLE_GREETING_EVENT_TABLE_NAME);
+        List<String> response = callQueryAllEventsEndpoint(SINGLE_GREETING_EVENT_TABLE_NAME);
+        List<GreetingEvent> result1 = new ArrayList<>();
+        for (String eventStr : response) {
+            result1.add(MAPPER.readValue(eventStr, GreetingEvent.class));
+        }
         assertThat(result1).hasSize(1).containsExactly(event1);
 
         when(greetingSqlService.queryAllEvents()).thenReturn(List.of(event1, event2));
-        List<GreetingEvent> result2 = callQueryAllEventsEndpoint(SINGLE_GREETING_EVENT_TABLE_NAME);
+        List<String> response2 = callQueryAllEventsEndpoint(SINGLE_GREETING_EVENT_TABLE_NAME);
+        List<GreetingEvent> result2 = new ArrayList<>();
+        for (String eventStr : response2) {
+            result2.add(MAPPER.readValue(eventStr, GreetingEvent.class));
+        }
         assertThat(result2).hasSize(2).containsExactly(event1, event2);
     }
 
@@ -70,11 +79,15 @@ public class SqlRestControllerTest {
         GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");
 
         when(greetingSqlService.queryAllEvents()).thenReturn(List.of(event1, event2));
-        List<GreetingEvent> result = callQueryAllEventsEndpoint(BATCH_GREETING_EVENT_TABLE_NAME);
+        List<String> response = callQueryAllEventsEndpoint(BATCH_GREETING_EVENT_TABLE_NAME);
+        List<GreetingEvent> result = new ArrayList<>();
+        for (String eventStr : response) {
+            result.add(MAPPER.readValue(eventStr, GreetingEvent.class));
+        }
         assertThat(result).hasSize(2).containsExactly(event1, event2);
     }
 
-    private List<GreetingEvent> callQueryAllEventsEndpoint(String tableName) throws Exception {
+    private List<String> callQueryAllEventsEndpoint(String tableName) throws Exception {
         String jsonResponse = mockMvc.perform(get("/api/sql/queryGreetingEvents")
                 .param("tableName", tableName))
                 .andExpect(status().isOk())

@@ -2,7 +2,6 @@ package com.sonahlab.twitch_chat_hit_counter_course.sql;
 
 import com.sonahlab.twitch_chat_hit_counter_course.config.SqlConfig;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -17,9 +16,14 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @JdbcTest
 @Import({SqlConfig.class})
@@ -56,7 +60,6 @@ public class GreetingSqlServiceTest {
     @Qualifier("batchGreetingSqlService")
     private GreetingSqlService batchGreetingSqlService;
 
-    @BeforeEach
     void setup() {
         jdbcTemplate.execute("DROP TABLE IF EXISTS test_greeting_table;");
         jdbcTemplate.execute("""
@@ -72,7 +75,64 @@ public class GreetingSqlServiceTest {
     @Test
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
     @Disabled
+    void sqlTableNameTest() {
+        assertEquals("test_greeting_table1", greetingSqlService.sqlTableName());
+        assertEquals("test_greeting_table_batch1", batchGreetingSqlService.sqlTableName());
+    }
+
+    @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
+    @Disabled
+    void columnsTest() {
+        assertThat(greetingSqlService.columns()).containsExactlyInAnyOrder(
+                "event_id", "sender", "receiver", "message"
+        );
+        assertThat(batchGreetingSqlService.columns()).containsExactlyInAnyOrder(
+                "event_id", "sender", "receiver", "message"
+        );
+    }
+
+    @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
+    @Disabled
+    void valuesTest() {
+        GreetingEvent event = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
+        assertThat(greetingSqlService.values(event)).containsExactly(
+                "id1", "Alice", "Bob", "Hi Bob, I'm Alice!"
+        );
+        assertThat(batchGreetingSqlService.values(event)).containsExactly(
+                "id1", "Alice", "Bob", "Hi Bob, I'm Alice!"
+        );
+    }
+
+    @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
+    @Disabled
+    void parseEventFromResultSetTest() throws SQLException {
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.getString("event_id")).thenReturn("id1");
+        when(rs.getString("sender")).thenReturn("Alice");
+        when(rs.getString("receiver")).thenReturn("Bob");
+        when(rs.getString("message")).thenReturn("Hi Bob, I'm Alice!");
+
+        GreetingEvent result = greetingSqlService.parseEventFromResultSet(rs);
+        GreetingEvent batchResult = batchGreetingSqlService.parseEventFromResultSet(rs);
+        assertEquals("id1", result.eventId());
+        assertEquals("id1", batchResult.eventId());
+        assertEquals("Alice", result.sender());
+        assertEquals("Alice", batchResult.sender());
+        assertEquals("Bob", result.receiver());
+        assertEquals("Bob", batchResult.receiver());
+        assertEquals("Hi Bob, I'm Alice!", result.message());
+        assertEquals("Hi Bob, I'm Alice!", batchResult.message());
+    }
+
+    @Test
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
+    @Disabled
     void insertTest() {
+        setup();
+
         GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
         GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");
         // This event is a duplicate, will be ignored by SQL
@@ -105,6 +165,8 @@ public class GreetingSqlServiceTest {
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
     @Disabled
     void insertBatchTest() {
+        setup();
+
         GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hello");
         GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Hi!");
         // This event is a duplicate, will be ignored by SQL
@@ -133,6 +195,8 @@ public class GreetingSqlServiceTest {
     // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 3.
     @Disabled
     void queryTest() {
+        setup();
+
         GreetingEvent event1 = new GreetingEvent("id1", "Alice", "Bob", "Hi Bob, I'm Alice!");
         GreetingEvent event2 = new GreetingEvent("id2", "Charlie", "David", "Yo.");
         // This event is a duplicate, will be ignored by SQL

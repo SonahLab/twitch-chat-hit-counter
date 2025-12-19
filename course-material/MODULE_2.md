@@ -418,6 +418,8 @@ These properties control how the `key/value` of a Kafka message is serialized on
 >
 > In cross team environments where shared events are flowing through multiple services (upstream team → your team → downstream team), usually you'd share a universal, version-locked schema in a shared library and align on the SerDeser contract for how events are being handed off and what data types are being used. The three teams would all align that kafka events would be stored using `String (keys)` and `ByteArrays (values)`, so nobody is surprised when getting failures when attempting to read the keys as `Long` values instead of `String` values.
 
+<br>
+
 #
 
 ## Exercise 1: Spring Kafka
@@ -448,9 +450,9 @@ In `application.yml`, set the **Spring Kafka** properties according to the requi
 
 ### Unit Tests
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented, testing each property against the expected values we want for this course.
-- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method: `springKafkaConfigsTest()`
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest::springKafkaConfigsTest()`
 - [ ] Open `KafkaConfigTest.java` ─ already implemented, testing the autoconfigured Beans that Spring Kafka injects for us.
-- [ ] Remove `@Disabled` in `KafkaConfigTest.java` for the test method: `testKafkaTemplateConfig()` and `kafkaListenerContainerFactory_beanTest()`
+- [ ] Remove `@Disabled` in `KafkaConfigTest::testKafkaTemplateConfig()` and `KafkaConfigTest::kafkaListenerContainerFactory_beanTest()`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
@@ -460,8 +462,8 @@ In `application.yml`, set the **Spring Kafka** properties according to the requi
 
 #
 
-### Task 2: Set topic name property: `greeting-events`
-In `application.yml`, set the property for the `greeting-events` topic we just created in **Offset Explorer 3**.
+### Task 2: Application Kafka Properties
+In `application.yml`, set the property for the `greeting-events` topic name you just created in **Offset Explorer 3**.
 
 The updated `application.yml` should look like this:
 ```yaml
@@ -478,7 +480,7 @@ twitch-chat-hit-counter:
 
 ### Unit Tests
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented, testing each property against the expected values we want for this course.
-- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method: `kafkaGreetingTopicNameTest()`
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest::kafkaGreetingTopicNameTest()`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
@@ -880,7 +882,7 @@ Your job is to create new Spring properties that will be used to create our `bat
 
 ### Unit Tests
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented, testing that the two requirements above are met.
-- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method(s): `kafkaBatchConfigsTest()`
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest::kafkaBatchConfigsTest()`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2
@@ -912,7 +914,7 @@ with the two changes being that the batchKafkaListenerContainerFactory's `group-
 
 ### Unit Tests
 - [ ] Open `KafkaConfigTest.java` ─ already implemented, testing a new @Bean named `batchKafkaListenerContainerFactory` is properly configured with different `group-id` and `listener.type`
-- [ ] Remove `@Disabled` in `KafkaConfigTest.java` for the test method(s): `batchKafkaListenerContainerFactory_beanTest()`
+- [ ] Remove `@Disabled` in `KafkaConfigTest::batchKafkaListenerContainerFactory_beanTest()`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module2

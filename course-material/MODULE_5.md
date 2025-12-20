@@ -922,9 +922,9 @@ In modern computing, values are stored with higher granularity, such as _millise
 ### Task 3: TwitchChatAggregationRedisService
 ![](assets/module5/images/RedisAggOverview.svg)<br>
 
-![](assets/module5/images/eventing.png)<br>
+![](assets/module5/images/eventing.svg)<br>
 
-![](assets/module5/images/aggregation.png)<br>
+![](assets/module5/images/aggregation.svg)<br>
 
 #### Part 3.1:
 In `TwitchChatAggregationRedisService.java`, implement `public Long incrementHitCounter(String channelName, long eventTimestampMs)`.
@@ -1048,7 +1048,7 @@ Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified
 > service.incrementHitCounter("s0mcs", eventTs2);
 > service.incrementHitCounter("s0mcs", eventTs3);
 > ```
-> ![](assets/module5/images/fetch_aggregation.png)<br>
+> ![](assets/module5/images/fetch_aggregation.svg)<br>
 > 
 > ```java
 > Map<String, Long> output = service.getHitCounts(
@@ -1066,7 +1066,7 @@ Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified
 > }
 > ```
 > **Explanation**:<br>
-> ![](assets/module5/images/minutefetch.png)<br>
+> ![](assets/module5/images/minutefetch.svg)<br>
 > Between `1767225600000` and `1767311940000` (inclusive), you need to figure out all MINUTE buckets you need to query for (should be 1440 key(s)).<br>
 >
 > `3/1440` read(s) will return a successful hit, the rest of the Redis GET requests should return null. 
@@ -1091,7 +1091,7 @@ Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified
 > ```
 > 
 > **Explanation:**<br>
-> ![](assets/module5/images/hourlyfetch.png)<br>
+> ![](assets/module5/images/hourlyfetch.svg)<br>
 > Between `1767225600000` and `1767311940000` (inclusive), you need to figure out all HOUR buckets you need to query for (should be 24 key(s)).<br>
 >
 > `2/24` read(s) will return a successful hit, the rest of the Redis GET requests should return null.
@@ -1115,7 +1115,7 @@ Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified
 > ```
 > 
 > **Explanation:**<br>
-> ![](assets/module5/images/dailyfetch.png)<br>
+> ![](assets/module5/images/dailyfetch.svg)<br>
 > Between `1767225600000` and `1767311940000` (inclusive), you need to figure out all DAY buckets you need to query for (should be 1 key(s)).<br>
 >
 > `1/1` read(s) will return a successful hit.

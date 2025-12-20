@@ -182,14 +182,14 @@ For `Module 5`, the below file structure are all the relevant files needed.
    1. **twitch-api.client-id**
    2. **twitch-api.client-secret**
 2. In `TwitchConfig.java`, implement:
-   1. `public String getTwitchApiClientId()`
-   2. `public String getTwitchApiClientSecret()`
+   1. `getTwitchApiClientId()`
+   2. `getTwitchApiClientSecret()`
 
 This yaml file is already added in **.gitignore**, so your keys _**will not and should not**_ be published to Github.
 
 ### Testing
 - [ ] Open `TwitchConfigTest.java` ─ already implemented and tests that the loaded TwitchConfig matches the values in `twitch-key.properties`.
-- [ ] Remove `@Disabled` in `TwitchConfigTest.java` for method(s): `testTwitchClientKeys()`
+- [ ] Remove `@Disabled` in `TwitchConfigTest::testTwitchClientKeys`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
@@ -203,14 +203,15 @@ This yaml file is already added in **.gitignore**, so your keys _**will not and 
 
 
 
-## Exercise 2: Configure `TwitchClient`
-In `TwitchConfig.java`, implement `public TwitchClient twitchClient()`.
-This should create our instance of Twitch4J's `TwitchClient`, which will be our client proxy to call into Twitch's API.
+## Exercise 2: `TwitchConfig::twitchClient`
+In `TwitchConfig.java`, implement `twitchClient()`.
 
-Twitch4J is an open source Java library that abstracts away a lot of the details when integrating with Twitch's API.
+Return Twitch4J's [Twitch4J <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://twitch4j.github.io/), which will be our client proxy to call into Twitch's API.
+
+Twitch4J is an open source Java library that abstracts away a lot of the details when integrating with the Twitch API.
 
 **Requirements:**
-1. Initialize the `TwitchClient` object with our Twitch API ClientId, Client Secret.
+1. Initialize the `TwitchClient` object with your Twitch API ClientId, Client Secret.
 2. Helix should be enabled
 3. Chat should be enabled
 
@@ -239,24 +240,18 @@ TwitchClient twitchClient = TwitchClientBuilder.builder()
 
 ## Exercise 3: Twitch Chat Connection
 ![](assets/module5/images/ChatOverview.svg)<br>
-Now that we have a working OAuth Token cache, we will be mostly focusing on the various Twitch API endpoints we want to integrate with.<br>
-It's important to see what products data is even supported publicly and reverse engineer what products you can build out of free data.<br>
-In small projects using public API data, you first look at the data available, see what product you can build from it.
 
-Since we want to build a hit counter on different streamers, we will need to learn how to integrate with the Twitch Chat as a [ChatBot <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://dev.twitch.tv/docs/chat/send-receive-messages/).<br>
+Since we're building a hit counter on different streamers' Twitch chats, we will need to learn how to integrate our application with the Twitch Chat as a [ChatBot <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://dev.twitch.tv/docs/chat/send-receive-messages/).<br>
 
-We will focus mainly on receiving Twitch Chat message. The API docs details on different way of connecting to Chats using Webhooks and Websockets,
-but that is outside the scope of this project and, tbh, outside of Networking/OS classes I've never once used these in my daily life as a SWE.
-To simplify the ease of integration we will leverage a great Java client library that abstracts away much of the lower level details for us. The library is [Twitch4J <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://twitch4j.github.io/).<br>
-
+We will focus mainly on receiving Twitch Chat message. The API docs details on different way of connecting to Chats using Webhooks and Websockets, but that is outside the scope of this project.
 Spend time reading through the Twitch Chat section.
 
 
-### Task 2: TwitchChatBotManager
-Our `TwitchChatBotManager.java` will be a very simple ChatBot in charge of:
+### Task 1: `TwitchChatBotManager`
+Our `TwitchChatBotManager.java` will be a very simple Chat Bot in charge of:
 - joining/leaving twitch channels
 - retrieving all the channels it's connected to
-- ingesting in real-time the incoming twitch chat event message
+- ingesting in real-time the incoming twitch chat event message for the channels our application is connected to
 
 > [!TIP]
 > 
@@ -268,11 +263,11 @@ Our `TwitchChatBotManager.java` will be a very simple ChatBot in charge of:
 #
 
 
-#### Part 1
-In `TwitchChatBotManager.java`, implement the constructor: `public TwitchChatBotManager()`.
+### Task 1 Part I: Constructor
+In `TwitchChatBotManager.java`, implement the constructor: `TwitchChatBotManager()`.
 
 **Requirements**:
-- Inject the `TwitchClient`
+- DI the `TwitchClient` from `TwitchConfig`
 
 ### Testing
 - [ ] Open `TwitchChatBotManagerTest.java` ─ already implemented.
@@ -283,8 +278,8 @@ In `TwitchChatBotManager.java`, implement the constructor: `public TwitchChatBot
 
 
 
-#### Part 2
-In `TwitchChatBotManager.java`, implement `public void joinChannel(String channelName)`. This method will allow your ChatBot to join a Twitch stream by the `channelName`.
+### Task 1 Part II: `TwitchChatBotManager::joinChannel`
+In `TwitchChatBotManager.java`, implement `joinChannel(String channelName)`. This method will connect your Chat Bot to the Twitch streamer's channel by `channelName`.
 
 `TwitchClient` has an API for [TwitchChat <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://twitch4j.github.io/javadoc/com/github/twitch4j/chat/TwitchChat.html)
 you should use.
@@ -292,7 +287,7 @@ you should use.
 ### Testing
 - [ ] Open `TwitchChatBotManagerTest.java` ─ already implemented and tests that the correct `TwitchClient` method is called.
 - [ ] Uncomment this line: `//twitchChatBotManager = new TwitchChatBotManager(mockTwitchClient);`
-- [ ] Remove `@Disabled` in `TwitchChatBotManagerTest.java` for method(s): `joinChannelTest()`
+- [ ] Remove `@Disabled` in `TwitchChatBotManagerTest::joinChannelTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
@@ -300,17 +295,17 @@ you should use.
 
 #
 
-#### Part 3
-In `TwitchChatBotManager.java`, implement `public boolean leaveChannel(String channelName)`. This method will allow our User account to leave a Twitch stream by the `channelName`.
+### Task 1 Part III: `TwitchChatBotManager::leaveChannel`
+In `TwitchChatBotManager.java`, implement `leaveChannel(String channelName)`. This method will disconnect your Chat Bot from the Twitch streamer's channel by `channelName`.
 
-Returns boolean on whether you successfully left the twitch channel.
+Return a `boolean` on whether your Chat Bot successfully disconnected from the Twitch streamer's channel.
 
 `TwitchClient` has an API for [TwitchChat <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://twitch4j.github.io/javadoc/com/github/twitch4j/chat/TwitchChat.html)
 you should use.
 
 ### Testing
 - [ ] Open `TwitchChatBotManagerTest.java` ─ already implemented and tests that the correct `TwitchClient` method is called.
-- [ ] Remove `@Disabled` in `TwitchChatBotManagerTest.java` for method(s): `leaveChannelTest()`
+- [ ] Remove `@Disabled` in `TwitchChatBotManagerTest::leaveChannelTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
@@ -319,22 +314,22 @@ you should use.
 #
 
 
-#### Part 4
-In `TwitchChatEvent.java`, implement the data model record.
+### Task 1 Part IV: `TwitchChatEvent`
+In `TwitchChatEvent.java`, implement the DTO definition.
 
-Twitch4J library has its own event [`ChannelMessageEvent` <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://twitch4j.github.io/javadoc/com/github/twitch4j/chat/events/channel/ChannelMessageEvent.html), but this class has a lot of additional metadata fields that we won't need for our project.<br>
-We will define our own POJO `TwitchChatEvent.java`, which is a simplified/flattened version of Twitch4J's `ChannelMessageEvent` object.
+Twitch4J library has its own event — [`ChannelMessageEvent` <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://twitch4j.github.io/javadoc/com/github/twitch4j/chat/events/channel/ChannelMessageEvent.html) — but this class has a lot of additional metadata fields that we won't need for our project.<br>
+We will define our own DTO — `TwitchChatEvent.java` — which will be a simplified version of Twitch4J's `ChannelMessageEvent` object.
 
 **Requirements:**
-1. `eventId`: (String) eventId for the ChannelMessageEvent
-2. `eventTs`: (long) timestamp millis of when the chat message was sent
-3. `channelId`: (String) channel id on Twitch
-4. `channelName`: (String) channel name on Twitch
-5. `userId`: (String) user id on Twitch of the sender of the message
-6. `username`: (String) channel name on Twitch
-7. `subscriptionMonths`: (int) months the user who is chatting has been subscribed to the channel for
-8. `subscriptionTier`: (int) tier level of the user who is chatting has subscribed to (tier1, 2, 3)
-9. `message`: (String) message content that the user sent to the chat
+1. `eventId (String)`: eventId for the ChannelMessageEvent
+2. `eventTs (long)`: timestamp millis of when the chat message was sent
+3. `channelId (String)`: channel id on Twitch
+4. `channelName (String)`: channel name on Twitch
+5. `userId (String)`: user id on Twitch of the sender of the message
+6. `username (String)`: channel name on Twitch
+7. `subscriptionMonths (int)`: months the user who is chatting has been subscribed to the channel for
+8. `subscriptionTier (int)`: tier level of the user who is chatting has subscribed to (1, 2, 3)
+9. `message (String)`: message content that the user sent to the chat
 
 #
 

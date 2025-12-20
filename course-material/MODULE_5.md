@@ -331,10 +331,95 @@ We will define our own DTO — `TwitchChatEvent.java` — which will be a simpli
 8. `subscriptionTier (int)`: tier level of the user who is chatting has subscribed to (1, 2, 3)
 9. `message (String)`: message content that the user sent to the chat
 
+### Example 1:
+> **Input**:
+> ```
+> ChannelMessageEvent(
+>   super=AbstractChannelMessageEvent(
+>     messageEvent=IRCMessageEvent(
+>       escapedTags={
+>         client-nonce=2cd308dd-0203-4523-92a2-94b29efe742a,
+>         user-type=,
+>         tmi-sent-ts=1766215158535,
+>         reply-thread-parent-msg-id=bd270b9a-ccc0-469b-8b37-a077bbd045f8,
+>         mod=0,
+>         color=#1E90FF,
+>         reply-parent-display-name=red_tomato,
+>         turbo=0,
+>         flags=,
+>         reply-parent-user-id=1372621742,
+>         reply-thread-parent-display-name=alice1338,
+>         reply-thread-parent-user-login=alice1338,
+>         reply-parent-user-login=red_tomato,
+>         id=0068ae70-0263-4d49-84c2-c87fe824aa1a, // eventId
+>         reply-parent-msg-id=5e28c374-a135-4933-b4a9-865a01e3f8d6,
+>         returning-chatter=0,
+>         subscriber=0,
+>         reply-thread-parent-user-id=1105331229,
+>         user-id=1105331229,
+>         badges=,
+>         reply-parent-msg-body=@alice1338\ssame\slol,
+>         room-id=267160288,
+>         display-name=alice1338,
+>         emotes=,
+>         first-msg=0,
+>         badge-info=
+>       },
+>       badges={},
+>       badgeInfo={},
+>       clientName=Optional[alice1338],
+>       commandType=PRIVMSG,
+>       channelId=267160288,
+>       channelName=Optional[s0mcs],
+>       message=Optional[@red_tomato No I almost beat it though],
+>       payload=Optional[:@red_tomato No I almost beat it though],
+>       clientPermissions=[EVERYONE],
+>       flags=[],
+>       rawMessage=@badge-info=;badges=;client-nonce=2cd308dd-0203-4523-92a2-94b29efe742a;color=#1E90FF;display-name=alice1338;emotes=;first-msg=0;flags=;id=0068ae70-0263-4d49-84c2-c87fe824aa1a;mod=0;reply-parent-display-name=red_tomato;reply-parent-msg-body=@alice1338\ssame\slol;reply-parent-msg-id=5e28c374-a135-4933-b4a9-865a01e3f8d6;reply-parent-user-id=1372621742;reply-parent-user-login=red_tomato;reply-thread-parent-display-name=alice1338;reply-thread-parent-msg-id=bd270b9a-ccc0-469b-8b37-a077bbd045f8;reply-thread-parent-user-id=1105331229;reply-thread-parent-user-login=alice1338;returning-chatter=0;room-id=267160288;subscriber=0;tmi-sent-ts=1766215158535;turbo=0;user-id=1105331229;user-type= :alice1338!alice1338@alice1338.tmi.twitch.tv PRIVMSG #s0mcs :@red_tomato No I almost beat it though,
+>       botOwnerIds=[]
+>     ),
+>     user=EventUser(
+>       id=1105331229,
+>       name=alice1338
+>     ),
+>     message=@red_tomato No I almost beat it though,
+>     subscriberMonths=0,
+>     subscriptionTier=0,
+>     nonce=2cd308dd-0203-4523-92a2-94b29efe742a
+>   ),
+>   replyInfo=ChatReply(
+>     messageId=5e28c374-a135-4933-b4a9-865a01e3f8d6,
+>     messageBody=@alice1338 same lol,
+>     userId=1372621742,
+>     userLogin=red_tomato,
+>     displayName=red_tomato,
+>     threadMessageId=bd270b9a-ccc0-469b-8b37-a077bbd045f8,
+>     threadUserLogin=alice1338,
+>     threadUserName=alice1338
+>   ),
+>   chantInfo=null
+> )
+> ```
+> 
+> **Output:**
+> ```
+> TwitchChatEvent[
+>   eventId=0068ae70-0263-4d49-84c2-c87fe824aa1a,
+>   message=@red_tomato No I almost beat it though,
+>   eventTs=1766215158119,
+>   userId=1105331229,
+>   username=alice1338,
+>   channelId=267160288,
+>   channelName=s0mcs,
+>   subscriptionMonths=0,
+>   subscriptionTier=0
+> ]
+> ```
+
 #
 
-#### Part 5
-In `TwitchChatBotManager.java`, implement `private void handleChatMessage(ChannelMessageEvent event)`. This method will be the main handler for each incoming, real-time Twitch chat message for all the channels that our ChatBot is connected to.
+### Task 1 Part V: `TwitchChatBotManager::handleChatMessage`
+In `TwitchChatBotManager.java`, implement `handleChatMessage(ChannelMessageEvent event)`. This method will be the main event handler for each incoming, real-time chat message for all the channels that our ChatBot is connected to.
 
 **Requirements**:
 1. Convert the incoming `ChannelMessageEvent` → `TwitchChatEvent`
@@ -343,7 +428,7 @@ In `TwitchChatBotManager.java`, implement `private void handleChatMessage(Channe
 ### Example 1:
 > **Input**:<br>
 > ```java
-> TwitchChatBotManager service = new TwitchChatBotManager(...);
+> TwitchChatBotManager service; // Assume initialized
 > ChannelMessageEvent event = new ChannelMessageEvent(
 >     new EventChannel("channelId123", "s0mcs"),
 >     new IRCMessageEvent(...), // other metadata fields
@@ -370,52 +455,43 @@ In `TwitchChatBotManager.java`, implement `private void handleChatMessage(Channe
 
 
 
-#### Part 6
-In `TwitchChatBotManager.java`, implement `public Set<String> getJoinedChannels(String username)`.
+### Task 1 Part VI: `TwitchChatBotManager::getJoinedChannels`
+In `TwitchChatBotManager.java`, implement `getJoinedChannels(String username)`. This method takes in a `username`, which should just be **your** Twitch Account's Username when being called in a later task.
 
-Return a Set<String> for all your ChatBot's previously joined channels.
+Return a `Set<String>` for your Chat Bot's currently joined channels.
 
 > [!IMPORTANT]
 >
 > For Module 5 we will keep it very simple and hardcode some channels.<br>
-> Module 6 will build on this and you will implement the actual intended logic.
+> Module 6 will build on this, and you will implement the actual intended logic.
 
 **Requirements**:
-- Return a hardcoded Set<String> of real Twitch channel names you'd like your ChatBot to read from.
-    i.e.: Set.of("s0mcs")
-
-### Testing
-- [ ] None for this part
+- Pick a couple of currently Live Twitch Streamers, with active chats, and hardcode their channel names into a `Set<String>`
 
 
-
-#### Part 7
-In `TwitchChatBotManager.java`, implement `private void initChannelsToJoin()`. This method is intended to be called on application start up during the class initialization process.
+### Task 1 Part VII: `TwitchChatBotManager::initChannelsToJoin`
+In `TwitchChatBotManager.java`, implement `initChannelsToJoin()`. This method is intended to be called on application start up during the initialization process for `TwitchChatBotManager`.
 
 **Requirements**:
-- Get the joined channels (Hint: you implemented this earlier)
-- For each channel, join the channel (Hint: you implemented this earlier)
-
-### Testing
-- [ ] None for this part
+- Get the joined channels (should be hardcoded at this point)
+- Connect your `TwitchClient` to join channels on startup
 
 
-#### Part 8
-In `TwitchChatBotManager.java`, implement the PostConstructor: `public void init()`. This PostConstructor will run after the constructor.
+### Task 1 Part VIII: `TwitchChatBotManager::init`
+In `TwitchChatBotManager.java`, implement the PostConstructor: `init()`. This PostConstructor will run after the constructor.
 
 **Requirements**:
-- Connect our `TwitchClient` to handle the incoming messages (Hint: you implemented `handleChatMessage()`)
-    - https://twitch4j.github.io/events/channel-message-event
-- Connect our `TwitchClient` to join channels on startup (Hint: you implemented `initChannelsToJoin()`)
-    - You will fill this helper function out soon so a simple call will suffice
+- Connect your `TwitchClient` to handle the incoming messages
+    - Hint: https://twitch4j.github.io/events/channel-message-event
+- Invoke `initChannelsToJoin()`
 
-### Integration Testing
+### E2E Tests
 - [ ] Run the application:
     ```shell
     ./gradlew bootRun
     ```
-- [ ] Open up the Twitch Stream for any of the hardcoded Set<String> channel names defined in `getChannelsJoined()`
-- [ ] Your ChatBot should connect/listen to the hardcoded Set<String> defined in `getChannelsJoined()`
+- [ ] Open up the Twitch Stream for any of the hardcoded channel names defined in `getChannelsJoined()`
+- [ ] Your ChatBot should connect/listen to all the hardcoded channel names defined in `getChannelsJoined()`
 - [ ] Verify that incoming Twitch stream chat messages matches the logged output in stdout from `handleChatMessage()`
 - [ ] TODO: INPUT screenshots
 
@@ -424,18 +500,20 @@ In `TwitchChatBotManager.java`, implement the PostConstructor: `public void init
 ## Exercise 4: Kafka
 ![](assets/module5/images/KafkaOverview.svg)<br>
 
-Now that we have a simple working ChatBot, we need to build a Kafka producer/consumer to publish these `TwitchChatEvent` to a new separate kafka topic.
+Now that we have a simple working ChatBot, you need to build a Kafka producer/consumer to publish these `TwitchChatEvent` to a new separate kafka topic.
 
-This will look very similar to the end state we had in **Module 2** with the Producer/Consumer on the `greeting-events` kafka topic.<br>
+This will be very similar to **Module 2** with the Producer/Consumer on the `greeting-events` kafka topic.<br>
 This exercise will be kept short, and it's up to you to make your application achieve the end state in the diagram above.
 
 **Goals:**
 1. Publish `TwitchChatEvent` to `twitch-chat-events` topic
 2. Consume `TwitchChatEvent` from `twitch-chat-events` topic and log them to **stdout**
 
-The main differences from **Module 2** is the producer trigger logic. In **Module 2**, we needed to manually trigger an HTTP request (`POST /api/kafka/publishGreetingEvent`) via Swagger to invoke our Producer to publish event(s).
-In this exercise, our `TwitchChatBotManager.handleMessage()` event handler method should be the automated trigger for the `TwitchChatEventProducer.java`. Once we join a channel and attach the event listener,
-the TwitchClient will stream, in real-time, the incoming chat messages that we need to publish to `twitch-chat-events` topics. No more manual trigger, fully automated.
+> [!NOTE]
+> 
+> The main differences from **Module 2** is the producer trigger logic. In **Module 2**, we needed to manually trigger an HTTP request (`POST /api/kafka/publishGreetingEvent`) via Swagger to invoke our Producer to publish event(s). 
+> The event handler — `TwitchChatBotManager.handleMessage()` — is now the automated trigger for the `TwitchChatEventProducer.java`. Once we join a channel and attach the event listener,
+> the TwitchClient will stream, in real-time, the incoming chat messages that we need to publish to `twitch-chat-events` topics. No more manual trigger, fully automated.
 
 ### Task 1: add new kafka topic name to `application.yml`
 ```yaml
@@ -447,26 +525,30 @@ twitch-chat-hit-counter:
 
 ### Testing
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented to test the properties above.
-- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method(s): `kafkaTwitchChatTopicNameTest()`
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest::kafkaTwitchChatTopicNameTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
     ```
 
-### Task 2: Producer
-#### Part 1
-In `TwitchChatEventProducer.java`, fix the constructor and inject the topic name from `application.yml`.
+### Task 2: Kafka Producer
+
+### Task 2 Part I: `TwitchChatEventProducer`
+In `TwitchChatEventProducer.java`, implement:
+- the constructor: `TwitchChatEventProducer()`
+- `topicName()`
+
 You'll notice that our initial implementation of `AbstractEventProducer.publish()` from **Module 2** takes care of writing events to a generic topic.
-This is where our abstract class (`AbstractEventProducer.java`) pays dividends. We don't need to repeat code and can leverage implementing the main logic in one parent class, and all it's children will benefit.
+This is where our abstract class, `AbstractEventProducer.java`, pays dividends. We don't need to repeat code and can leverage implementing the main logic in one parent class, and all it's children will benefit.
 
 **Requirements:**
-1. Inject the new `twitch-chat-topic` property into the constructor
-2. Implement `protected String topicName()`
+1. DI the `twitch-chat-topic` name from `application.yml`
+2. `topicName()` should return the same DI'ed `twitch-chat-topic`
 
 ### Example 1:
 > **Input**:<br>
 > ```java
-> TwitchChatEventProducer producer = new TwitchChatEventProducer(...);
+> TwitchChatEventProducer producer; // Assume initialized
 > String eventId = "UUID1";
 > TwitchChatEvent event = new TwitchChatEvent(eventId, 1767254400000L, "channelId123", "s0mcs", "userId123", "Alice", 12, 1, "Hi s0m, it's alice");
 > boolean output1 = producer.publish(eventId, event);
@@ -475,12 +557,13 @@ This is where our abstract class (`AbstractEventProducer.java`) pays dividends. 
 > TwitchChatEvent event2 = new TwitchChatEvent(eventId2, 1767254400000L, "channelId123", "s0mcs", "userId456", "Bob", null, null, "chat gift me a sub");
 > boolean output2 = producer.publish(eventId2, event2);
 > ```
-> **Output1**: <span style="color:#0000008c">true<br></span>
-> **Output2**: <span style="color:#0000008c">true<br></span>
+> 
+> **Output1**: `true`<br>
+> **Output2**: `true`
 
 #
 
-### Testing
+### Integration Tests
 - [ ] Open `TwitchChatEventProducerTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Uncomment the entire file (Did this to avoid compile time errors)
 - [ ] Test with:
@@ -492,20 +575,20 @@ This is where our abstract class (`AbstractEventProducer.java`) pays dividends. 
 
 #
 
-#### Part 2
-In `TwitchChatBotManager.java`, connect our ChatBot to produce to the new `twitch-chat-events` kafka topic.
+### Task 2 Part II: `TwitchChatBotManager`
+In `TwitchChatBotManager.java`, update `handleChatMessage(ChannelMessageEvent event)`. Your ChatBot should write to the new `twitch-chat-events` kafka topic.
 
 **Requirements:**
-1. Inject the `TwitchChatEventProducer` into the `TwitchChatBotManager` constructor
-2. Whenever we're handling an incoming message, publish it to the topic.
+1. DI the `TwitchChatEventProducer` into the constructor
+2. In the event handler, publish the `TwitchChatEvent` to the topic.
 
-### Integration Testing
+### E2E Tests
 - [ ] Run the application:
     ```shell
     ./gradlew bootRun
     ```
-- [ ] Your ChatBot should connect/listen to the hardcoded Set<String> defined in `getChannelsJoined()`
-- [ ] Your ChatBot should be publishing kafka messages to the topic
+- [ ] Your ChatBot should connect/listen to all the hardcoded channel names defined in `getChannelsJoined()`
+- [ ] Your ChatBot should be publishing messages to `twitch-chat-events` topic
 - [ ] Check **Offset Explorer 3** to see that your `TwitchChatEvent` is actually published to your kafka topic
 
 
@@ -513,22 +596,49 @@ In `TwitchChatBotManager.java`, connect our ChatBot to produce to the new `twitc
 
 #
 
-### Task 3: Consumer
-In `TwitchChatEventConsumer.java`, implement the entire class.
+### Task 3: Kafka Consumer
+In `TwitchChatEventConsumer.java`, implement the entire class:
+- `TwitchChatEventConsumer()`
+- `eventType()`
+- `eventClass()`
+- `eventKey(TwitchChatEvent event)`
+- `coreLogic(List<TwitchChatEvent> events)`
+- `processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack)`
 
 This class will look very similar to `GreetingEventConsumer.java`, so look there if you get stuck. The only sparse method for now will be `coreLogic()`, we will build on this logic in future parts.
 
 ### Example 1:
 > **Input**:<br>
 > ```java
-> TwitchChatEventConsumer consumer = new TwitchChatEventConsumer(...);
-> // Assume kafka has these 3 events:
-> // 1. new TwitchChatEvent("id1", 0L, "channelId1", "s0mcs", "userId1", "Alice", 12, 1, "Hi s0m!");
-> // 2. new TwitchChatEvent("id2", 1L, "channelId2", "shroud", "userId2", "Bob", null, null, "Hey shroud");
-> // 3. new TwitchChatEvent("id3", 2L, "channelId3", "k3soju", "userId3", "Charlie", null, null, "Hey KEJUICY");
-> consumer.processMessage(...); // processes 1st TwitchChatEvent
-> consumer.processMessage(...); // processes 2nd TwitchChatEvent
-> consumer.processMessage(...); // processes 3rd TwitchChatEvent
+> TwitchChatEventConsumer consumer; // Assume initialized
+> 
+> consumer.processMessage(
+>     // ConsumerRecord(String topic, int partition, long offset, K key, V value)
+>     new ConsumerRecord(
+>         "twitch-chat-events",
+>         0,
+>         0,
+>         "id1",
+>         new TwitchChatEvent("id1", 0L, "channelId1", "s0mcs", "userId1", "Alice", 12, 1, "Hi s0m!").getBytes()));
+> 
+> consumer.processMessage(
+>     // ConsumerRecord(String topic, int partition, long offset, K key, V value)
+>     new ConsumerRecord(
+>         "twitch-chat-events",
+>         0,
+>         0,
+>         "id2",
+>         new TwitchChatEvent("id2", 1L, "channelId2", "shroud", "userId2", "Bob", null, null, "Hey shroud").getBytes()));
+>
+> consumer.processMessage(
+>     // ConsumerRecord(String topic, int partition, long offset, K key, V value)
+>     new ConsumerRecord(
+>         "twitch-chat-events",
+>         0,
+>         0,
+>         "id3",
+>         new TwitchChatEvent("id3", 2L, "channelId3", "k3soju", "userId3", "Charlie", null, null, "Hey KEJUICY").getBytes()));
+
 > ```
 > **stdout**:<br>
 > ```
@@ -539,28 +649,30 @@ This class will look very similar to `GreetingEventConsumer.java`, so look there
 
 <br>
 
-#### Part 1
-In `TwitchChatEventConsumer.java`, implement `public TwitchChatEventConsumer()`.
+### Task 3 Part I: Constructor
+In `TwitchChatEventConsumer.java`, implement the constructor: `TwitchChatEventConsumer()`.
 
 Currently the parent, `AbstractEventConsumer.java`, requires that all children subclasses pass in the `EventDeduperRedisService`.
 
 **Requirements:**
-1. Inject the `EventDeduperRedisService` and instantiate the parent by calling `super(...)`
+1. DI the `EventDeduperRedisService` and instantiate the parent by calling `super(...)` (Should already be done)
 
 <br>
 
 #
 
-#### Part 2
-In `TwitchChatEventConsumer.java`, implement `protected EventType eventType()`.
+### Task 3 Part II: `TwitchChatEventConsumer::eventType`
+In `TwitchChatEventConsumer.java`, implement `eventType()`.
+
+Return the `EventType` for this new type of event we're working with.
 
 **Requirements:**
-1. Define a new `EventType` enum named `TWITCH_CHAT_EVENT` [1]
+1. Define a new `EventType` enum named `TWITCH_CHAT_EVENT` in `EventType.java` [1]
 2. Return that new enum for this method
 
 > [!NOTE]
 > 
-> [1] Remember that in Module 4, we implemented the `EventDeduperRedisService` into the `AbstractEventConsumer`, so now all child subclasses (`... extends AbstractEventConsumer`) gets this deduper already baked in.<br>
+> [1] Remember that in Module 4, we implemented the `EventDeduperRedisService` into the `AbstractEventConsumer`, so now all child subclasses that `... extends AbstractEventConsumer` gets this deduper already baked in.<br>
 >
 > By separating out EventType enums, our Redis DB0 will be cleanly separated by event type:<br>
 > 
@@ -579,30 +691,33 @@ In `TwitchChatEventConsumer.java`, implement `protected EventType eventType()`.
 
 #
 
-#### Part 3
-In `TwitchChatEventConsumer.java`, implement `protected Class<TwitchChatEvent> eventClass()`.
+### Task 3 Part III: `TwitchChatEventConsumer::eventClass`
+In `TwitchChatEventConsumer.java`, implement `eventClass()`.
+
+Return the `Class<TwitchChatEvent>` for this `TwitchChatEvent`.
 
 **Requirements**:
 1. Return the `TwitchChatEvent` class type itself
 
-
 <br>
 
 #
 
-#### Part 4
-In `TwitchChatEventConsumer.java`, implement `protected String eventKey(TwitchChatEvent event)`.
+### Task 3 Part IV: `TwitchChatEventConsumer::eventKey`
+In `TwitchChatEventConsumer.java`, implement `eventKey(TwitchChatEvent event)`.
+
+Return the `String` eventId field from the `TwitchChatEvent` input.
 
 **Requirements**:
-1. Use the `TwitchChatEvent.eventId()` as the primary key for this type of event
+1. The `TwitchChatEvent.eventId()` will be the unique primary key for this type of event
 
 
 <br>
 
 #
 
-#### Part 5
-In `TwitchChatEventConsumer.java`, implement `protected void coreLogic(List<TwitchChatEvent> events)`.
+### Task 3 Part V: `TwitchChatEventConsumer::coreLogic`
+In `TwitchChatEventConsumer.java`, implement `coreLogic(List<TwitchChatEvent> events)`.
 
 **Requirements**:
 1. Log the `TwitchChatEvent` to **stdout**
@@ -612,19 +727,19 @@ In `TwitchChatEventConsumer.java`, implement `protected void coreLogic(List<Twit
 
 #
 
-#### Part 6
-In `TwitchChatEventConsumer.java`, implement `public void processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack)`.
+### Task 3 Part VI: `TwitchChatEventConsumer::processMessage`
+In `TwitchChatEventConsumer.java`, implement `processMessage(ConsumerRecord<String, byte[]> record, Acknowledgment ack)`.
 
 **Requirements**:
 1. Add the `@KafkaListener` annotation and set the `topics="..."` field to make sure this class method will consume the new topic (`twitch-chat-events`) you created
-2. Call the parent class's method via `super`
+2. Invoke the parent class's `processMessage()` method via `super`
 
 
 <br>
 
 #
 
-### Testing
+### Unit Tests
 - [ ] Open `TwitchChatEventConsumerTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Uncomment the entire file (Did this to avoid compile time errors)
 - [ ] Test with:
@@ -633,19 +748,13 @@ In `TwitchChatEventConsumer.java`, implement `public void processMessage(Consume
     ```
 
 
-### Integration Testing
+### E2E Tests
 - [ ] Run the application:
     ```shell
     ./gradlew bootRun
     ```
-- [ ] Your ChatBot should be streaming incoming events, producer should be writing them to kafka
+- [ ] Your ChatBot should be streaming incoming events and the producer should be writing them to kafka
 - [ ] Verify application **stdout** logs and that your `TwitchChatEventConsumer` is actually receiving the newly written kafka records
-
-
-
-
-
-
 
 
 
@@ -655,17 +764,19 @@ In `TwitchChatEventConsumer.java`, implement `public void processMessage(Consume
 
 ## Exercise 5: SQL
 ![](assets/module5/images/SqlOverview.svg)<br>
+
 Now that we are able to stream Twitch chat events and pub/sub events through our new kafka topic, we need to write the `TwitchChatEvent` to a new separate SQL table.
 
-This will look very similar to the end state we had in **Module 3**. This exercise description will be kept short and it's up to you to make your application achieve the end state in the diagram above.
+This will be very similar to **Module 3**.<br>
+This exercise will be kept short, and it's up to you to make your application achieve the end state in the diagram above.
 
 **Goals:**
-1. Implement `TwitchChatSqlService.java` - should look very similar in terms of layout to `GreetingSqlService.java`
-2. Have `TwitchChatEventConsumer.java` write the `TwitchChatEvent` to the new SQL table
+1. Implement `TwitchChatSqlService.java` — look at `GreetingSqlService.java` if you get stuck
+2. Update `TwitchChatEventConsumer.java` to write the `TwitchChatEvent` to the new SQL table
 
 ### Example 1:
 > ```java
-> TwitchChatSqlService service = new TwitchChatSqlService(...);
+> TwitchChatSqlService service; // Assume initialized
 > 
 > TwitchChat event1 = new TwitchChatEvent("id1", 0L, "channelId1", "s0mcs", "userId1", "Alice", 12, 1, "Hi s0m!");
 > TwitchChat event2 = new TwitchChatEvent("id2", 1L, "channelId2", "shroud", "userId2", "Bob", null, null, "Hey shroud");
@@ -676,13 +787,11 @@ This will look very similar to the end state we had in **Module 3**. This exerci
 > int output3 = service.insert(List.of(event3));
 > ```
 > **Output1**: 1<br>
->
 > **Output2**: 1<br>
->
 > **Output3**: 0<br>
 > **Explanation**: event3.eventId() == "id1" already exists in the table<br>
 
-#### Part 1
+### Task 1: Spring Application Property
 In `application.yml`, add the new sql table name property:
 
 ```yaml
@@ -694,45 +803,65 @@ twitch-chat-hit-counter:
 
 ### Testing
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented to test the properties above.
-- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for the test method(s): `sqlTwitchChatTableNameTest()`
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest::sqlTwitchChatTableNameTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
     ```
 
-#### Part 2
+### Task 2: `TwitchChatSqlService`
 In `TwitchChatSqlService.java`, implement the entire class.
 
 This class will look very similar to `GreetingSqlService.java`, so look there if you get stuck.
 
-#### 2.1
-In `TwitchChatSqlService.java`, implement `public TwitchChatSqlService()`.
+<br>
+
+#
+
+### Task 2 Part I: Constructor
+In `TwitchChatSqlService.java`, implement the constructor: `TwitchChatSqlService()`.
 
 **Requirements:**
-1. Inject the autoconfigured `JdbcTemplate`.
-   1. If you remember Module 3, `AbstractSqlService.java` expects the autoconfigured `JdbcTemplate` needed to connect/communicate with our MySQL instance.
-2. Inject the newly configured `twitch-chat-table` SQL table name from your `application.yml`
+1. DI the autoconfigured `JdbcTemplate`. (Should already have been done)
+   1. If you remember **Module 3**, `AbstractSqlService.java` expects the autoconfigured `JdbcTemplate` needed to connect/communicate with our MySQL instance.
+2. DI the newly configured `twitch-chat-table` SQL table name from your `application.yml`
 
-#### 2.2
-In `TwitchChatSqlService.java`, implement `public String sqlTableName()`.
+<br>
+
+#
+
+### Task 2 Part II: `TwitchChatSqlService::sqlTableName`
+In `TwitchChatSqlService.java`, implement `sqlTableName()`.
 
 **Requirements:**
 1. Simply return the same injected property passed into the constructor
 
-#### 2.3
-In `TwitchChatSqlService.java`, implement `public List<String> columns()`.
+<br>
+
+#
+
+### Task 2 Part III: `TwitchChatSqlService::columns`
+In `TwitchChatSqlService.java`, implement `columns()`.
 
 **Requirements:**
 1. Return a list of the fields for the `twitch_chat_events` SQL table schema (ORDER MATTERS)
 
-#### 2.4
-In `TwitchChatSqlService.java`, implement `protected Object[] values(TwitchChatEvent event)`.
+<br>
+
+#
+
+### Task 2 Part IV: `TwitchChatSqlService::values`
+In `TwitchChatSqlService.java`, implement `values(TwitchChatEvent event)`.
 
 **Requirements:**
 1. Return an Object[] of all the `TwitchChatEvent` in the same order of the schema
 
-#### 2.5
-In `TwitchChatSqlService.java`, implement `protected TwitchChatEvent parseEventFromResultSet(ResultSet rs)`.
+<br>
+
+#
+
+### Task 2 Part V: `TwitchChatSqlService::parseEventFromResultSet`
+In `TwitchChatSqlService.java`, implement `parseEventFromResultSet(ResultSet rs)`.
 
 **Requirements:**
 1. From the raw `ResultSet rs` object, translate that back into a `TwitchChatEvent` object
@@ -749,23 +878,23 @@ In `TwitchChatSqlService.java`, implement `protected TwitchChatEvent parseEventF
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
     ```
 
-#### Part 3
-In `TwitchChatEventConsumer.java`, connect our consumer to write to the new `twitch_chat_events` SQL table.
+### Task 3 Part V: `TwitchChatEventConsumer`
+In `TwitchChatEventConsumer.java`, update `coreLogic()` to write to the new `twitch_chat_events` SQL table.
 
 **Requirements:**
-1. Inject the `TwitchChatSqlService` into the `TwitchChatEventConsumer` constructor
+1. DI the `TwitchChatSqlService` into the constructor
 2. Update `coreLogic()` to write the consumed `TwitchChatEvent` to SQL
 
-### Integration Testing
+### E2E Tests
 - [ ] Run the application:
     ```shell
     ./gradlew bootRun
     ```
 - [ ] The application flow should now be:<br>
-  → `TwitchChatBotManager` (ChatBot streamer)<br>
-  → `TwitchChatEventProducer` (Kafka Producer)<br>
-  → `TwitchChatEventConsumer`(Kafka Consumer)<br>
-  → `TwitchChatSqlService`(SQL Writer)
+  → `TwitchChatBotManager` (ChatBot connects and streams events to Producer)<br>
+  → `TwitchChatEventProducer` (Kafka Producer writes to topic)<br>
+  → `TwitchChatEventConsumer`(Kafka Consumer read from topic)<br>
+  → `TwitchChatSqlService`(SQL Writes to SQL table)
 - [ ] In **MySQLWorkbench**, verify that the `TwitchChatEvent` are written into SQL by querying:
     ```
     SELECT *
@@ -787,22 +916,22 @@ In `TwitchChatEventConsumer.java`, connect our consumer to write to the new `twi
 ## Exercise 6: Redis Hit Counter
 ![](assets/module5/images/RedisOverview.svg)<br>
 
-**Goals:**
-
-[//]: # (1. Deduplicate `TwitchChatEvent` so we don't process duplicates using the same `db0` we already have)
-1. Minutely Aggregation: chat message should increment the channel's hit count at the minutely bucket in a new Redis `db2`
+**Goals:**<br>
+1. Minutely Aggregation: chat message should increment the channel's hit count at the minutely bucket in `db2`
+2. Hourly Aggregation: chat message should increment the channel's hit count at the hourly bucket in `db2`
+3. Daily Aggregation: chat message should increment the channel's hit count at the daily (UTC) bucket in `db2`
 
 > [!TIP]
 >
-> In Module 4, we built Redis `db1` to be the Greetings New Feed Database, meaning the Redis value of `db1` was a List object.<br>
-> We're building a Hit Counter so our `db2` will look a little different, meaning the Redis value of `db2` will be a Long object.
+> In Module 4, we built Redis `db1` to be the Greetings New Feed Database.<br>
+> `db2` will hold our aggregated Hit Counters, so the Redis value of will be a `Long` object.
 >
 > In `db2`, this will be our schema:
-> Key (String): `"{channelName}#{minuteBoundaryInMillis}"`
-> Value (Long): # of chat messages that fall into the minute bucket (rounded down the nearest minute bucket)
+> `Key (String)`: `"{channelName}#{minuteBoundaryInMillis}"`
+> `Value (Long)`: # of chat messages that fall into the minute bucket (rounded down the nearest minute bucket)
 
 
-### Task 1
+### Task 1: Spring Application Property
 In `application.yml`, create a new property for our hit counter db.
 
 ```yaml
@@ -813,22 +942,22 @@ twitch-chat-hit-counter:
 
 ### Testing
 - [ ] Open `PropertiesApplicationTest.java` ─ already implemented
-- [ ] Remove `@Disabled` in `PropertiesApplicationTest.java` for method(s): `redisTwitchChatHitCounterDatabaseTest()`
+- [ ] Remove `@Disabled` in `PropertiesApplicationTest::redisTwitchChatHitCounterDatabaseTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
     ```
 
 
-### Task 2: Setup db2 Redis @Beans
+### Task 2: `RedisConfig`
 > [!TIP]
 >
 > Read through [Multiple Redis Connections in Spring Boot <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://medium.com/@raphael3213/multiple-redis-connections-in-spring-boot-37f632e8e64f)
 
 This is very similar to our initial setup for `DB0` and `DB1` in `RedisConfig.java`.
 
-### Part 1
-In `RedisConfig.java`, update `public Map<Integer, RedisTemplate<String, String>> redisTemplateFactory()`.
+### Task 2 Part I: `RedisConfig::redisTemplateFactory`
+In `RedisConfig.java`, update `redisTemplateFactory()`.
 
 **Example:**
 ```
@@ -842,7 +971,7 @@ In `RedisConfig.java`, update `public Map<Integer, RedisTemplate<String, String>
 1. Inject the properties from `application.yml`: `twitch-chat-hit-counter-database`
 2. Update the list of indexes to include `2` (should be `List.of(0, 1, 2)`)
 
-### Part 2
+### Task 2 Part II: `RedisConfig::twitchChatHitCounterRedisDao`
 In `RedisConfig.java`, implement
 ```java
 @Bean
@@ -853,54 +982,34 @@ public RedisDao twitchChatHitCounterRedisDao() {}
 This RedisDao will be **dedicated** to handling operations on `DB2`.
 
 **Requirements:**
-1. Inject the `redisTemplateFactory` we just implemented in the previous task
-2. Inject the `twitch-chat-hit-counter-database` index
+1. DI the `redisTemplateFactory`
+2. DI the `twitch-chat-hit-counter-database` index from `application.yml`
 3. Create a new `RedisDao` with the correct `RedisTemplate` from the factory
 
 ### Testing
 - [ ] Open `RedisConfigTest.java` ─ already implemented
-- [ ] Remove `@Disabled` in `RedisConfigTest.java` for method(s): `twitchChatHitCounterRedisDaoTest()`
+- [ ] Remove `@Disabled` in `RedisConfigTest::twitchChatHitCounterRedisDaoTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
     ```
 
-
-<br>
-
-#
-
-### Task 2
-In `RedisConfig.java`, implement `public RedisDao twitchChatHitCounterRedisDao()`.
-
-**Requirements:**
-1. Update `public Map<Integer, RedisTemplate<String, String>> redisTemplateFactory()` to hold a new mapping from
-    `{2: RedisTemplate}` dedicated for operations onto our new db2.
-2. Update `twitchChatHitCounterRedisDao()` to return the correct `RedisTemplate` from the factory map
-
-### Testing
-- [ ] Open `RedisConfigTest.java` ─ already implemented
-- [ ] Remove `@Disabled` in `RedisConfigTest.java` for method(s): `twitchChatHitCounterRedisDaoTest`
-- [ ] Test with:
-    ```shell
-    ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
-    ```
 
 <br>
 
 #
 
 ### Lesson: Unix Timestamps
-<ins>[Unix time <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://en.wikipedia.org/wiki/Unix_time)</ins> - a date and time presentation widely used in computing.
+[Unix time <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://en.wikipedia.org/wiki/Unix_time) - a date and time presentation widely used in computing.
 It measures time elapsed in seconds since **January 1st 1970 00:00:00 UTC** (epoch). It is represented by a signed 32-bit value, meaning that at _2038-01-19T03:14:07Z_ unix timestamps will overflow ([Year 2038 Problem <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://en.wikipedia.org/wiki/Year_2038_problem)).
 
 In modern computing, values are stored with higher granularity, such as _milliseconds_, _microseconds_ or _nanoseconds_. Most times I work with unix timestamps are usually always in _milliseconds_.
 
-<ins>[UTC <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://en.wikipedia.org/wiki/Coordinated_Universal_Time)</ins> - Coordinated Universal Time is the primary time standard globally used to regulate clocks and time. Successor of Greenwich Mean Time (GMT).
+[UTC <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) - **Coordinated Universal Time** is the primary time standard globally used to regulate clocks and time. Successor of Greenwich Mean Time (GMT).
 
 [Unix Timestamp Tool <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://www.unixtimestamp.com/)
 
-#### What does '1767225600000' represent in different timezones?
+### What does '1767225600000' represent in different timezones?
 ```
 1767225600 seconds since 1970-01-01 00:00:00 UTC == Thu Jan 01 2026 00:00:00 GMT+0000
 1767225600 seconds == 1767225600000 milliseconds
@@ -914,36 +1023,35 @@ In modern computing, values are stored with higher granularity, such as _millise
 
 #
 
-### Task 3: TwitchChatAggregationRedisService
+### Task 3: `TwitchChatAggregationRedisService`
 ![](assets/module5/images/RedisAggOverview.svg)<br>
 
 ![](assets/module5/images/eventing.svg)<br>
 
 ![](assets/module5/images/aggregation.svg)<br>
 
-#### Part 3.1:
-In `TwitchChatAggregationRedisService.java`, implement `public Long incrementHitCounter(String channelName, long eventTimestampMs)`.
+### Task 3 Part I: `TwitchChatAggregationRedisService::incrementHitCounter`
+In `TwitchChatAggregationRedisService.java`, implement `incrementHitCounter(String channelName, long eventTimestampMs)`.
 
-Return a boolean for whether the aggregation happened successfully.
+Return a `boolean` for whether the Redis aggregation happened successfully.
 
 **Requirements:**
-1. Inject the correct `RedisDao` Bean loaded by `RedisConfig.java`.
-2. Key Template: `"{Granularity}#{channelName}#{boundaryTimestampMs}"`<br>
-3. Field: `{boundaryTimestampMs}`
-    This is the only math involved in this project.<br>
-    For each of the granularities (`MINUTE`, `HOUR`, `DAY`):
-    MINUTELY aggregation:
-    Round the raw timestamp ms to the nearest minutely bucket
-    HOURLY aggregation:
-    Round the raw timestamp ms to the nearest hourly bucket
-    DAILY aggregation:
-    Round the raw timestamp ms to the nearest daily bucket (UTC)
-4. Value should be a `Long` object
+1. DI the correct `RedisDao` Bean loaded by `RedisConfig.java`.
+2. `db2` Redis Key Template: `"{Granularity}#{channelName}#{boundaryTimestampMs}"`<br>
+3. `db2` Redis value: `Long` object for the hit count
+4. `{boundaryTimestampMs}`: a flexible placeholder that you will need to calculate. This is the only math involved in this project.<br>
+    For each of the granularities in `Granularity.java`: [`MINUTE`, `HOUR`, `DAY`]
+    - **MINUTELY** aggregation:
+      - Round the raw event timestamp ms to the nearest minutely bucket
+    - **HOURLY** aggregation:
+      - Round the raw event timestamp ms to the nearest hourly bucket
+    - **DAILY** aggregation:
+      - Round the raw event timestamp ms to the nearest daily bucket (UTC)
 
 ### Example 1:
 > **Input**:<br>
 > ```java
-> RedisDao redisDao = new RedisDao(...);
+> RedisDao redisDao; // Assume initialized
 > TwitchChatAggregationRedisService service = new TwitchChatAggregationRedisService(redisDao);
 >
 > long eventTs1 = 1767231055000; // Thu Jan 01 2026 01:30:55 GMT+0000
@@ -955,11 +1063,11 @@ Return a boolean for whether the aggregation happened successfully.
 > boolean output3 = service.incrementHitCounter("s0mcs", eventTs3);
 > ```
 > 
-> **Output1**: true<br>
+> **Output1**: `true`<br>
 > **Explanation**:<br>
-> - Minutely Aggregation: The input timestamp should be rounded to the nearest, earliest minute (by subtracting the seconds)
-> - Hourly Aggregation: The input timestamp should be rounded to the nearest, earliest hour (by subtracting the minutes + seconds)
-> - Daily Aggregation: The input timestamp should be rounded to the nearest, earliest UTC day (by subtracting the hours + minutes + seconds)
+> - **Minutely Aggregation:** The input timestamp should be rounded to the nearest, earliest minute (by subtracting the `seconds` in milliseconds)
+> - **Hourly Aggregation:** The input timestamp should be rounded to the nearest, earliest hour (by subtracting the `minutes + seconds` in milliseconds)
+> - **Daily Aggregation:** The input timestamp should be rounded to the nearest, earliest UTC day (by subtracting the `hours + minutes + seconds` in milliseconds)
 > 
 > ![](assets/module5/images/event1agg.svg)<br>
 > ```
@@ -971,12 +1079,8 @@ Return a boolean for whether the aggregation happened successfully.
 > ```
 > <br>
 >
-> **Output2**: true<br>
+> **Output2**: `true`<br>
 > **Explanation**:<br>
-> - Minutely Aggregation: The input timestamp should be rounded to the nearest, earliest minute (by subtracting the seconds)
-> - Hourly Aggregation: The input timestamp should be rounded to the nearest, earliest hour (by subtracting the minutes + seconds)
-> - Daily Aggregation: The input timestamp should be rounded to the nearest, earliest UTC day (by subtracting the hours + minutes + seconds)
->
 > > ![](assets/module5/images/event2agg.svg)<br>
 > ```
 > {
@@ -991,10 +1095,6 @@ Return a boolean for whether the aggregation happened successfully.
 >
 > **Output3**: true<br>
 > **Explanation**:<br>
-> - Minutely Aggregation: The input timestamp should be rounded to the nearest, earliest minute (by subtracting the seconds)
-> - Hourly Aggregation: The input timestamp should be rounded to the nearest, earliest hour (by subtracting the minutes + seconds)
-> - Daily Aggregation: The input timestamp should be rounded to the nearest, earliest UTC day (by subtracting the hours + minutes + seconds)
->
 > > ![](assets/module5/images/event3agg.svg)<br>
 > ```
 > {
@@ -1007,9 +1107,9 @@ Return a boolean for whether the aggregation happened successfully.
 > }
 > ```
 
-### Testing
+### Integration Tests
 - [ ] Open `TwitchChatAggregationRedisServiceTest.java` ─ already implemented with the example(s) above
-- [ ] Remove `@Disabled` in `TwitchChatAggregationRedisServiceTest.java` for method(s): `incrementHitCounterTest()`
+- [ ] Remove `@Disabled` in `TwitchChatAggregationRedisServiceTest::incrementHitCounterTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
@@ -1017,22 +1117,29 @@ Return a boolean for whether the aggregation happened successfully.
 
 #
 
-#### Part 3.2:
-In `TwitchChatAggregationRedisService.java`, implement `public Map<String, Long> getHitCounts(Granularity granularity, String channelName, long startTimestampMillis, long endTimestampMillis)`.
+### Task 3 Part II: `TwitchChatAggregationRedisService::getHitCounts`
+In `TwitchChatAggregationRedisService.java`, implement:
+```java
+getHitCounts(Granularity granularity,
+             String channelName,
+             long startTimestampMillis,
+             long endTimestampMillis)
+```
 
-Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified channelName between two timestamps at a given Granularity.
+Return a `Map<String, Long>` of **ALL** bucketed hit counts for the key in `db2` using the `Granularity#channelName#*` between the [`startTimestampMillis`, `endTimestampMillis`] (inclusive).
 
 **Requirements:**
-1. Key Template(s): `"{Granularity}#{channelName}#{YYYYMMDD}"`<br>
-   1. If we wanted to fetch a range of hit counts between a start and end date, i.e.: `2026-01-01T00:00:000Z` to `2026-01-03T12:00:000Z`,
-   we would want to make sure to search for 3 keys: `[MINUTE#s0mcs#20260101, MINUTE#s0mcs#20260102, MINUTE#s0mcs#20260103]`
-2. Get the Hashed maps located at the keys, and flatten the hit counts to a single map spanning the entire time range.
+1. `db2` Redis Key Template: `"{Granularity}#{channelName}#{timestampMillis}"`<br>
+2. `db2` Redis value: `Long` but don't forget Redis stores the value as a String represented value
+3. Between the time series: [`startTimestampMillis`, `endTimestampMillis`], make sure to issue the fetches for the correct keys based on the granularity.
+
+### Quiz: TODO test their understanding of what keys they need to generate and query for.
 
 ### Example 1:
 > **Input**:<br>
 > ```java
 > // EXACT SAME STATE AS THE PREVIOUS TASK
-> RedisDao redisDao = new RedisDao(...);
+> RedisDao redisDao; // Assume initialized
 > TwitchChatAggregationRedisService service = new TwitchChatAggregationRedisService(redisDao);
 > 
 > long eventTs1 = 1767231055000; // Thu Jan 01 2026 01:30:55 GMT+0000
@@ -1062,7 +1169,7 @@ Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified
 > ```
 > **Explanation**:<br>
 > ![](assets/module5/images/minutefetch.svg)<br>
-> Between `1767225600000` and `1767311940000` (inclusive), you need to figure out all MINUTE buckets you need to query for (should be 1440 key(s)).<br>
+> Between [`1767225600000`, `1767311940000`] (inclusive), you need to figure out all MINUTE buckets you need to query for (should be 1440 key(s)).<br>
 >
 > `3/1440` read(s) will return a successful hit, the rest of the Redis GET requests should return null. 
 
@@ -1087,7 +1194,7 @@ Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified
 > 
 > **Explanation:**<br>
 > ![](assets/module5/images/hourlyfetch.svg)<br>
-> Between `1767225600000` and `1767311940000` (inclusive), you need to figure out all HOUR buckets you need to query for (should be 24 key(s)).<br>
+> Between [`1767225600000`, `1767311940000`] (inclusive), you need to figure out all HOUR buckets you need to query for (should be 24 key(s)).<br>
 >
 > `2/24` read(s) will return a successful hit, the rest of the Redis GET requests should return null.
 
@@ -1111,14 +1218,14 @@ Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified
 > 
 > **Explanation:**<br>
 > ![](assets/module5/images/dailyfetch.svg)<br>
-> Between `1767225600000` and `1767311940000` (inclusive), you need to figure out all DAY buckets you need to query for (should be 1 key(s)).<br>
+> Between [`1767225600000`, `1767311940000`] (inclusive), you need to figure out all DAY buckets you need to query for (should be 1 key(s)).<br>
 >
 > `1/1` read(s) will return a successful hit.
 
 
-### Testing
+### Integration Tests
 - [ ] Open `TwitchChatAggregationRedisServiceTest.java` ─ already implemented with the example(s) above
-- [ ] Remove `@Disabled` in `TwitchChatAggregationRedisServiceTest.java` for method(s): `getHitCountsTest()`
+- [ ] Remove `@Disabled` in `TwitchChatAggregationRedisServiceTest::getHitCountsTest`
 - [ ] Test with:
     ```shell
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module5
@@ -1128,37 +1235,37 @@ Return a Map<String, Long> of **ALL** minutely bucket hit counts for a specified
 
 #
 
-### Task 4: Hook up `TwitchChatEventConsumer` to the `TwitchChatAggregationRedisService`
+### Task 4: `TwitchChatEventConsumer`
 In `TwitchChatEventConsumer.java`, update `coreLogic()` to now increment the hit count for the channel.
 
 **Requirements:**
-1. Inject the `TwitchChatAggregationRedisService` into the constructor of the `TwitchChatEventConsumer`
-2. Increment the hit count in redis by calling the method we defined earlier
+1. DI the `TwitchChatAggregationRedisService` into the constructor
+2. Invoke `TwitchChatAggregationRedisService.incrementHitCounter()`
 
 **Consumer process flow should now be:**
 1. Check Redis to see if the kafka message key is a duplicate
-2. If **isDupeEvent == True**:
+2. `if (isDupeEvent == true)`:
     1. Do nothing (skip processing the event)
-3. If **isDupeEvent == False**:
+3. `if (isDupeEvent == false)`:
     1. Write the event to SQL
     2. **(NEW)** Increment the channel's hit count by 1
     3. Update the Redis DB to add the event's key, so that we can skip this event from being processed if we ever see an event with the same key again.
 
-### Integration Testing
+### E2E Tests
 - [ ] Run the application:
     ```shell
     ./gradlew bootRun
     ```
 - [ ] The application flow should now be:<br>
-  → `TwitchChatBotManager` (ChatBot streamer)<br>
-  → `TwitchChatEventProducer` (Kafka Producer)<br>
-  → `TwitchChatEventConsumer`(Kafka Consumer)<br>
-  → `TwitchChatSqlService`(SQL Writer)
-  → `TwitchChatAggregationRedisService`(Redis Hit Counter Writer)
-- [ ] In [**Redis UI**](TODO), go to `db2`
+  → `TwitchChatBotManager` (ChatBot connects and streams events to Producer)<br>
+  → `TwitchChatEventProducer` (Kafka Producer writes to topic)<br>
+  → `TwitchChatEventConsumer`(Kafka Consumer read from topic)<br>
+  → `TwitchChatSqlService`(SQL Writes to SQL table)
+  → **(NEW)** `TwitchChatAggregationRedisService`(Redis Hit Counter Writer)
+- [ ] In [Redis UI  <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8001/), go to `db2`
 - [ ] Verify that the hit counters for the twitch channels you're connected to are updating
 - [ ] Periodically refresh to see the real-time hit counts increase with the twitch chat messages
-- [ ] Verify that the minute timestamp in the Redis Keys are correctly bounded by the nearest minute at [UnixTimestamp](https://www.unixtimestamp.com/)
+- [ ] Verify that the timestamps in the Redis Keys are correctly bounded by the nearest minute/hour/day at [UnixTimestamp](https://www.unixtimestamp.com/)
 
 <br>
 

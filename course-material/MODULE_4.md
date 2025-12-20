@@ -795,7 +795,7 @@ In `GreetingEventConsumer.processMessage(..)`, before we store a `GreetingEvent`
     ```
 - [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
 - [ ] Play around with **Kafka API**: `/api/kafka/publishGreetingEvent`
-- [ ] In **Redis UI**, verify that the `GreetingEvent` key is written into the Redis DB
+- [ ] In [Redis UI  <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8001/), verify that the `GreetingEvent` key is written into the Redis DB
 - [ ] Kill the application
 - [ ] Set a new `spring.kafka.bootstrap-servers.consumer.group-id` to re-process all the Kafka events.
 - [ ] Run the application
@@ -995,7 +995,7 @@ In `GreetingEventConsumer.processMessage(..)`, after the deduper logic, we want 
     ```
 - [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
 - [ ] Play around with **Kafka API**: `/api/kafka/publishGreetingEvent`
-- [ ] In **Redis UI**, go to `db1` and verify that the Greeting News Feed is the being appended correctly
+- [ ] In [Redis UI  <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8001/), go to `db1` and verify that the Greeting News Feed is the being appended correctly
 
 
 <br>
@@ -1149,4 +1149,4 @@ Return the `List<GreetingEvent>` from calling `GreetingRedisService.getGreetingF
     ```
 - [ ] Go to: [Swagger UI <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8080/swagger-ui/index.html)<br>
 - [ ] **Redis API**: `GET /api/kafka/queryGreetingFeed`
-- [ ] In **Redis UI**, verify that the HTTP Response output greeting feed is the same as the feed saved in Redis `db1`
+- [ ] In [Redis UI  <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](http://localhost:8001/), verify that the HTTP Response output greeting feed is the same as the feed saved in Redis `db1`

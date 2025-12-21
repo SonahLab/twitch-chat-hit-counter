@@ -1,6 +1,7 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 
 
+import com.sonahlab.twitch_chat_hit_counter_course.metrics.MetricsCollector;
 import com.sonahlab.twitch_chat_hit_counter_course.model.TwitchChatEvent;
 import com.sonahlab.twitch_chat_hit_counter_course.redis.EventDeduperRedisService;
 import com.sonahlab.twitch_chat_hit_counter_course.redis.TwitchChatRedisService;
@@ -29,15 +30,17 @@ public class TwitchChatEventConsumer extends AbstractEventConsumer<TwitchChatEve
 
     private TwitchChatSqlService twitchChatSqlService;
     private TwitchChatRedisService twitchChatRedisService;
+    private MetricsCollector metricsCollector;
 
     // Constructor
     public TwitchChatEventConsumer(TwitchChatSqlService twitchChatSqlService,
                                    EventDeduperRedisService eventDeduperRedisService,
-                                   TwitchChatRedisService twitchChatRedisService) {
+                                   TwitchChatRedisService twitchChatRedisService,
+                                   MetricsCollector metricsCollector) {
         /**
          * TODO: Implement as part of Module 5
          * */
-        super(eventDeduperRedisService);
+        super(eventDeduperRedisService, metricsCollector);
         this.twitchChatSqlService = twitchChatSqlService;
         this.twitchChatRedisService = twitchChatRedisService;
     }

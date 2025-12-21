@@ -1,5 +1,6 @@
 package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 
+import com.sonahlab.twitch_chat_hit_counter_course.metrics.MetricsCollector;
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import com.sonahlab.twitch_chat_hit_counter_course.redis.EventDeduperRedisService;
 import com.sonahlab.twitch_chat_hit_counter_course.redis.GreetingRedisService;
@@ -29,16 +30,18 @@ public class GreetingEventConsumer extends AbstractEventConsumer<GreetingEvent> 
 
     private GreetingSqlService greetingSqlService;
     private GreetingRedisService greetingRedisService;
+    private MetricsCollector metricsCollector;
 
     // Constructor
     public GreetingEventConsumer(
             @Qualifier("singleGreetingSqlService") GreetingSqlService greetingSqlService,
             EventDeduperRedisService eventDeduperRedisService,
-            GreetingRedisService greetingRedisService) {
+            GreetingRedisService greetingRedisService,
+            MetricsCollector metricsCollector) {
         /**
          * TODO: Implement as part of Module 3+
          * */
-        super(eventDeduperRedisService);
+        super(eventDeduperRedisService, metricsCollector);
         this.greetingSqlService = greetingSqlService;
         this.greetingRedisService = greetingRedisService;
     }

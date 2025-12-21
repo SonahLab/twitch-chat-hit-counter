@@ -50,7 +50,7 @@ public class EventDeduperRedisService {
         return true;
     }
 
-    private String getKey(EventType eventType, String eventId) {
+    public String getKey(EventType eventType, String eventId) {
         return String.format(KEY_TEMPLATE, eventType, eventId);
     }
 }

@@ -150,23 +150,23 @@ For `Module 4`, the below file structure are all the relevant files needed.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/testClass_newui.svg" align="center"/> PropertiesApplicationTest.java<br>
 
-> - `application.yml` — Spring Boot application properties<br>
-> - `RedisConfig.java` — Configuration class to define all of our Redis related configs<br>
-> - `GreetingEventConsumer.java` — Kafka consumer on `greeting-events` topic reading 1 event at a time<br>
-> - `EventType.java` — Enum to define all event types in our application<br>
-> - `GreetingEvent.java` — DTO to model a greeting event<br>
-> - `RedisDao.java` — DAO class to act as an interface layer between our application logic and network calls to Redis<br>
-> - `EventDeduperRedisService.java` — Class to interact with `db0` to deduplicate events if previously processed<br>
-> - `GreetingRedisService.java` — Class to interact with `db1` to aggregate **Greeting News Feed** similar to Facebook's News Feed<br>
-> - `RedisRestController.java` — REST controller to handle our service's Redis query endpoints:<br>
->   - `/api/redis/queryGreetingFeed`: queries a User in `db1` to retrieve that user's **Greeting News Feed**<br><br>
+> - `application.yml` — Spring Boot application properties
+> - `RedisConfig.java` — Configuration class to define all of our Redis related configs
+> - `GreetingEventConsumer.java` — Kafka consumer on `greeting-events` topic reading 1 event at a time
+> - `EventType.java` — Enum to define all event types in our application
+> - `GreetingEvent.java` — DTO to model a greeting event
+> - `RedisDao.java` — DAO class to act as an interface layer between our application logic and network calls to Redis
+> - `EventDeduperRedisService.java` — Class to interact with `db0` to deduplicate events if previously processed
+> - `GreetingRedisService.java` — Class to interact with `db1` to aggregate **Greeting News Feed** similar to Facebook's News Feed
+> - `RedisRestController.java` — REST controller to handle our service's Redis query endpoints:
+>   - `/api/redis/queryGreetingFeed`: queries a User in `db1` to retrieve that user's **Greeting News Feed**
 >
-> - `RedisConfigTest.java` — Test class to validate logic after implementing `RedisConfig.java`<br>
-> - `RedisDaoTest.java` — Test class to validate logic after implementing `RedisDao.java`<br>
-> - `EventDeduperRedisServiceTest.java` — Test class to validate logic after implementing `EventDeduperRedisService.java`<br>
-> - `GreetingRedisServiceTest.java` — Test class to validate logic after implementing `GreetingRedisService.java`<br>
-> - `RedisRestControllerTest.java` — Test class to validate logic after implementing `RedisRestController.java`<br>
-> - `PropertiesApplicationTest.java` — Test class to validate logic after implementing `application.yml`<br>
+> - `RedisConfigTest.java` — Test class to validate logic after implementing `RedisConfig.java`
+> - `RedisDaoTest.java` — Test class to validate logic after implementing `RedisDao.java`
+> - `EventDeduperRedisServiceTest.java` — Test class to validate logic after implementing `EventDeduperRedisService.java`
+> - `GreetingRedisServiceTest.java` — Test class to validate logic after implementing `GreetingRedisService.java`
+> - `RedisRestControllerTest.java` — Test class to validate logic after implementing `RedisRestController.java`
+> - `PropertiesApplicationTest.java` — Test class to validate logic after implementing `application.yml`
 
 
 <br>
@@ -191,27 +191,84 @@ and [SetOperations <img src="assets/common/export.svg" width="16" height="16" st
 
 ### Task 1: Value Operations
 ### Implement [INCR <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/incr/) (Increment)
+**Description**: Increments the number stored at key by `one`. If the key does not exist, it is set to 0 before performing the operation. An error is returned if the key contains a value of the wrong type or contains a string that can not be represented as integer.<br>
+**Library API Call**: `RedisTemplate.opsForValues().`[increment(key) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/ValueOperations.html#increment(K))
+
 In `RedisDao.java`, implement `increment(String key)`.<br>
 
-Return a `Long` of the updated value after the key is incremented.
-
-**Description**: Increments the number stored at key by one.<br>
-**Library API Call**: RedisTemplate.opsForValues().[increment(key) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/ValueOperations.html#increment(K))
+Return a `Long` of the updated value after the key is incremented. If there is an error, return `null`.
 
 ### Example 1:
 > **Input**:<br>
+> ```
+> redis> SET key1 5
+> redis> SET key2 "Hello World!"
+> ```
+> 
 > ```java
 > RedisDao redisDao; // Assume initialized
-> redisDao.set("key1", 5L);
 >
 > long output1 = redisDao.increment("key1");
 > long output2 = redisDao.increment("key2");
+> long output3 = redisDao.increment("key3");
 > ```
+> 
 > **Output1**: `6`<br>
-> **Explanation**: "key1" is incremented by +1, but the "key1" already exists in redis with a value of 5. So the +1 increment gets added to the already existing value.
+> **Explanation**:<br>
+> > Before:
+> > ```json
+> > {"key1": "5"}
+> > ```
+> > 
+> > After:
+> > ```json
+> > {"key1": "6"}
+> > ```
+> > The key=`"key1"` already exists and the value is a number so this operation successfully just increments the value by +1.<br>
 >
-> **Output2**: `1`<br>
-> **Explanation**: "key2" doesn't exist in redis so the initial value is treated as 0. The increment method only adds +1 value and essentially acts equivalent to calling .set("key2", 1L).
+> **Output2**: `null`<br>
+> **Explanation**:<br>
+> > Before:
+> > ```json
+> > {
+> >   "key1": "6",
+> >   "key2": "Hello World!"
+> > }
+> > ```
+> > 
+> > After:
+> > ```json
+> > {
+> >   "key1": "6",
+> >   "key2": "Hello World!"
+> > }
+> > ```
+> > The key=`"key2"` exists but is a `String` that can't be represented as an `int`. Redis will throw an exception during the attempt to evaluate: `"Hello World" + 1`.<br>
+> 
+> **Output3**: `1`<br>
+> **Explanation**:<br>
+> > Before:
+> > ```json
+> > {
+> >   "key1": "6",
+> >   "key2": "Hello World!"
+> > }
+> > ```
+> > 
+> > After:
+> > ```json
+> > {
+> >   "key1": "6",
+> >   "key2": "Hello World!",
+> >   "key3": "1"
+> > }
+> > ```
+> > The key=`"key3"` **doesn't** exist yet. Redis, behind the scenes will perform:
+> > ```
+> > SET key2 "0"
+> > INCR key2
+> > ```
+
 
 #
 
@@ -226,27 +283,36 @@ Return a `Long` of the updated value after the key is incremented.
 <br>
 
 ### Implement [INCRBY <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/incrby/) (Increment By)
+**Description**: Increments the number stored at key by `increment`. If the key does not exist, it is set to 0 before performing the operation. An error is returned if the key contains a value of the wrong type or contains a string that can not be represented as integer.<br>
+**Library API Call**: RedisTemplate.opsForValues().[increment(key, delta) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/ValueOperations.html#increment(K,long))
+
 In `RedisDao.java`, implement `incrementBy(String key, long delta)`.<br>
 
-Return a `Long` of the updated value after the key is incremented.
-
-**Description**: Increments the number stored at key by `increment`.<br>
-**Library API Call**: RedisTemplate.opsForValues().[increment(key, delta) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/ValueOperations.html#increment(K,long))
+Return a `Long` of the updated value after the key is incremented. If there is an error, return `null`.
 
 ### Example 1:
 > **Input**:<br>
+> ```
+> redis> SET key1 5
+> redis> SET key2 "Hello World!"
+> ```
+> 
 > ```java
 > RedisDao redisDao; // Assume initialized
-> redisDao.set("key1", 5);
 >
 > long output1 = redisDao.incrementBy("key1", 10);
-> long output2 = redisDao.incrementBy("key2", 60);
+> long output2 = redisDao.incrementBy("key2", 30);
+> long output3 = redisDao.incrementBy("key3", 60);
 > ```
+> 
 > **Output1**: `15`<br>
 > **Explanation**: "key1" is incremented by +10, but the "key1" already exists in redis with a value of 5. So the +10 increment gets added to the already existing value.
 >
-> **Output2**: `60`<br>
-> **Explanation**: "key2" doesn't exist in redis so the initial value is treated as 0. The increment value of 60 essentially acts equivalent to calling .set("key2", 60L).
+> **Output2**: `null`<br>
+> **Explanation**: "key2" exists but the value isn't a String representation of a valid int. Redis fails to evaluate: `"Hello World" + 30`
+> 
+> **Output3**: `60`<br>
+> **Explanation**: "key3" doesn't exist in redis so the initial value is treated as 0. The increment value of 60 essentially acts equivalent to calling .set("key3", 60L).
 
 #
 
@@ -263,61 +329,102 @@ Return a `Long` of the updated value after the key is incremented.
 #
 
 ### Implement [SET <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/set/)
-In `RedisDao.java`, implement `set(String key, V value)`.<br>
-Sets the KV pair by adding (if key is new) or overriding any previously set value.<br>
-
 **Description**: Set key to hold the string value. If key already holds a value, it is overwritten, regardless of its type. Any previous time to live associated with the key is discarded on successful SET operation.<br>
 **Library API Call**: RedisTemplate.opsForValues().[set(key, value) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/ValueOperations.html#set(K,V))
+
+In `RedisDao.java`, implement `set(String key, V value)`.<br>
+Sets the KV pair by adding (if key is new) or overriding any previously set value.<br>
 
 ### Example 1:
 > **Input**:<br>
 > ```java
 > RedisDao redisDao; // Assume initialized
+>
+> // Operation 1
 > redisDao.set("key1", 10L);
+>
+> // Operation 2
 > redisDao.set("key2", "Hello World!");
+>
+> // Operation 3
 > redisDao.set("key3", 3.14);
+>
+> // Operation 4
 > redisDao.set("key4", Map.of("firstName", "Jane", "lastName", "Doe"));
+>
+> // Operation 5
+> redisDao.set("key1", "Overriden value");
 > ```
-> **Output**: `null`<br>
-> **Explanation**: The underlying redis library api method for `.set()` has no return value, so after calling the underlying Redis API set method, as long as no exception is thrown we can assume the operation succeeded.
+> 
+> **Operation(s) 1 — 4**:<br>
+> ```json
+> {
+>   "key1": "10",
+>   "key2": "Hello World!",
+>   "key3": "3.14",
+>   "key4": "{\"firstName\": \"Jane\", \"lastName\": \"Doe\"}"
+> }
+> ```
+>
+> **Operation(s) 5**:<br>
+> ```json
+> {
+>   "key1": "Overriden value",
+>   "key2": "Hello World!",
+>   "key3": "3.14",
+>   "key4": "{\"firstName\": \"Jane\", \"lastName\": \"Doe\"}"
+> }
+> ```
+> **Explanation:** _"If key already holds a value, it is overwritten, regardless of its type"_.
+
+
 
 <br>
 
 #
 
 ### Implement [GET <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/get/)
-In `RedisDao.java`, implement `get(String key)`.<br>
-
-Return the `String` representation of the stored value. The value stored in Redis doesn't strictly need to be a String, but Redis will store the data type represented as a String.
-
 **Description**: Get the value of key. If the key does not exist the special value nil is returned. An error is returned if the value stored at key is not a string, because GET only handles string values.<br>
 **Library API Call**: RedisTemplate.opsForValues().[get(key) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/ValueOperations.html#get(java.lang.Object))
 
+In `RedisDao.java`, implement `get(String key)`.<br>
+
+Return the `String` representation of the stored value. If there is an error throw an Exception.
+
 ### Example 1:
 > **Input**:<br>
+> ```
+> redis> SET key1 10
+> redis> SET key2 "Hello World!"
+> redis> SET key3 3.14
+> redis> RIGHT key4 "Apple"
+> redis> RIGHT key4 "Banana" 
+> ```
+> 
 > ```java
 > RedisDao redisDao; // Assume initialized
 > 
-> redisDao.set("key1", 10L);
-> redisDao.set("key2", "Hello World!");
-> redisDao.set("key3", 3.14);
-> redisDao.set("key4", Map.of("firstName", "Jane", "lastName", "Doe"));
-> 
-> long output1 = redisDao.get("key1");
-> long output2 = redisDao.get("key2");
-> long output3 = redisDao.get("key3");
-> long output4 = redisDao.get("key4");
-> long output5 = redisDao.get("nonexistentKey");
+> String output1 = redisDao.get("key1");
+> String output2 = redisDao.get("key2");
+> String output3 = redisDao.get("key3");
+> String output4 = redisDao.get("key4");
+> String output5 = redisDao.get("nonexistentKey");
 > ```
 > **Output1**: `"10"`<br>
+> 
 > **Output2**: `"Hello World!"`<br>
+>
 > **Output3**: `"3.14"`<br>
-> **Output4**: `"{\"firstName\": \"Jane\", \"lastName\": \"Doe\"}"`<br>
+>
+> **Output4**: `Exception is thrown`<br>
+> **Explanation**: `key=key4` is a key to a `List` object which isn't a valid `String` value that this command supports.
+>
 > **Output5**: `null`<br>
+> **Explanation**: `key=nonexistentKey` is doesn't exist so Redis will just return `nil`.
 
 > [!NOTE]
 >
-> Notice that all outputs from our `redisDao.get(key)` method are all Strings.<br>
+> Notice that all valid outputs (**output 1 — 3**) from our `redisDao.get(key)` method are all Strings.<br>
 > If you look at the Redis API method: `RedisTemplate.opsForValue().get(key)`, this library will always return a String representation of the value that is stored in that key.
 
 #
@@ -336,33 +443,45 @@ Return the `String` representation of the stored value. The value stored in Redi
 
 ### Task 2: List Operations
 ### Implement [RPUSH <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/rpush/) (Right Push)
-In `RedisDao.java`, implement `listAdd(String key, String value)`.<br>
+**Description**: Insert all the specified values at the tail of the list stored at key. If key does not exist, it is created as empty list before performing the push operation. When key holds a value that is not a list, an error is returned.<br>
+**Library API Call**: RedisTemplate.opsForList().[rightPush(key, value) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/ListOperations.html#rightPush(K,V))
+
+In `RedisDao.java`, implement `listAdd(String key, String... values)`.<br>
 
 Return a `Long` of the length of the list **after** the value is appended.
 
-**Description**: Insert all the specified values at the head of the list stored at key. If key does not exist, it is created as empty list before performing the push operations. When key holds a value that is not a list, an error is returned.<br>
-**Library API Call**: RedisTemplate.opsForList().[rightPush(key, value) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/ListOperations.html#rightPush(K,V))
-
 ### Example 1:
 > **Input**:<br>
+> ```
+> redis> SET nonListKey 1
+> ```
+> 
 > ```java
 > RedisDao redisDao; // Assume initialized
 > 
 > long output1 = redisDao.listAdd("key1", "Hello");
 > long output2 = redisDao.listAdd("key1", "World");
-> 
-> redisDao.incr("nonListKey");
 > long output3 = redisDao.listAdd("nonListKey", "item1");
 > ```
 > **Output1**: `1`<br>
-> **Explanation**: {"key1": ["Hello"]}
+> **Explanation**:
+> ```json
+> {
+>   "key1": ["Hello"]
+> }
+> ```
 > 
 > **Output2**: `2`<br>
-> **Explanation**: {"key1": ["Hello", "World"]}
+> **Explanation**:
+> ```json
+> {
+>   "key1": ["Hello", "World"]
+> }
+> ```
 > 
 > **Output3**: `Exception is thrown`<br>
 > **Explanation**:<br>
-> The Redis mapping is `{"nonListKey": "1"}`. Adding "item1" to a Long is invalid, so an error is thrown.
+> The Redis mapping is `{"nonListKey": "1"}`. `"nonListKey"` maps to a number, so treating it as a `List` and attempting to append `"item1"` is invalid, so an error is thrown.
 
 #
 
@@ -379,36 +498,37 @@ Return a `Long` of the length of the list **after** the value is appended.
 #
 
 ### Implement [LRANGE <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/lrange/) (Range)
-In `RedisDao.java`, implement `listGet(String key)`.<br>
-
-Return the `List<String>` stored at the key.
-
 **Description**: Returns the specified elements of the list stored at key. The offsets start and stop are zero-based indexes, with 0 being the first element of the list (the head of the list), 1 being the next element and so on.<br>
 These offsets can also be negative numbers indicating offsets starting at the end of the list. For example, -1 is the last element of the list, -2 the penultimate, and so on.<br>
 **Library API Call**: RedisTemplate.opsForList().[range(key, start, end) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/ListOperations.html#range(K,long,long))
 
+In `RedisDao.java`, implement `listGet(String key)`.<br>
+
+Return the `List<String>` stored at the key.
+
 ### Example 1:
 > **Input**:<br>
+> ```
+> redis> RPUSH key1 "Hello" "World"
+> redis> SET nonListKey 1
+> ```
+> 
 > ```java
 > RedisDao redisDao; // Assume initialized
-> 
-> redisDao.listAdd("key1", "Hello");
-> redisDao.listAdd("key1", "World");
-> redisDao.incr("nonListKey");
 > 
 > List<String> output1 = redisDao.listGet("key1");
 > List<String> output2 = redisDao.listGet("nonexistentKey");
 > List<String> output3 = redisDao.listGet("nonListKey");
 > ```
 > **Output1**: `["Hello", "World"]`<br>
-> **Explanation**: `{"key1": ["Hello", "World"]}`
+> **Explanation**: `{"key1": ["Hello", "World"]}`, `key1` maps to a valid `List` object so we can safely retrieve it using Redis's `LRANGE` command.
 > 
 > **Output2**: `[]`<br>
-> **Explanation**: `"nonexistentKey"` doesn't exist in Redis DB so Redis returns an empty list
+> **Explanation**: `"nonexistentKey"` doesn't exist so Redis treats the value as an empty list
 > 
 > **Output3**: `Exception is thrown`<br>
 > **Explanation**:<br>
-> The Redis mapping is `{"nonListKey": "1"}`. Getting a List from a Long value is invalid, so an error is thrown.
+> The Redis mapping is `{"nonListKey": "1"}`. `nonListKey` maps to a number, and attempting to read from a `List` value, which is actually a `Long` value is invalid, so an error is thrown.
 
 #
 
@@ -427,27 +547,36 @@ These offsets can also be negative numbers indicating offsets starting at the en
 ### Task 3: Set Operations
 
 ### Implement [SADD <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/sadd/) (Set Add)
-In `RedisDao.java`, implement `setAdd(String key, String... values)`.<br>
-
-Return a `Long` for the length of the set **after** the value(s) are added.
-
 **Description**: Add the specified members to the set stored at key. Specified members that are already a member of this set are ignored. If key does not exist, a new set is created before adding the specified members.<br>
 An error is returned when the value stored at key is not a set.<br>
 **Library API Call**: RedisTemplate.opsForSet().[add(key, values) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/SetOperations.html#add(K,V...))
 
+In `RedisDao.java`, implement `setAdd(String key, String... values)`.<br>
+
+Return a `Long` for the count of value(s) successfully added to the set.
+
 ### Example 1:
 > **Input**:<br>
+> ```
+> redis> SET key2 1
+> ```
+> 
 > ```java
 > RedisDao redisDao; // Assume initialized
 > 
 > long output1 = redisDao.setAdd("key1", "Alice", "Bob");
 > long output2 = redisDao.setAdd("key1", "Alice");
+> long output3 = redisDao.setAdd("key2", "Alice");
 > ```
 > **Output1**: `2`<br>
-> **Explanation**: `{"key1": []}` → `{"key1": ["Alice", "Bob"]}`. "Alice" and "Bob" were successfully added to the initially empty "key1"
+> **Explanation**: `{"key1": []}` → `{"key1": ["Alice", "Bob"]}`.<br>
+> `"Alice"` and `"Bob"` were successfully added to the initially empty "key1"
 > 
 > **Output2**: `0`<br>
-> **Explanation**: "Alice" was already added to the set previously so attempting to add this value to the set again has no effect, and the set size remains 2.
+> **Explanation**: `"Alice"` is already in the set, so attempting to add this value to the set again has no effect, and the set size remains 2.
+>
+> **Output3**: `Exception is thrown`<br>
+> **Explanation**: `{"key2": 1}`. The value at key2 is a number, attempting to add a new Set value to a non `Set` object is illegal, exception is thrown.
 
 #
 
@@ -464,7 +593,7 @@ An error is returned when the value stored at key is not a set.<br>
 #
 
 ### Implement [SREM <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/srem/) (Set Remove)
-In `RedisDao.java`, implement `setRemove(String key, String... value)`.<br>
+In `RedisDao.java`, implement `setRemove(String key, String... values)`.<br>
 
 Return a `Long` for the number of removed elements from a set stored at `key`.
 
@@ -474,12 +603,13 @@ An error is returned when the value stored at key is not a set.<br>
 
 ### Example 1:
 > **Input**:<br>
+> ```
+> redis> SADD key1 "Alice" "Bob"
+> redis> SET key2 1
+> ```
+> 
 > ```java
 > RedisDao redisDao; // Assume initialized
-> 
-> redisDao.setAdd("key1", "Alice");
-> redisDao.setAdd("key1", "Bob");
-> redisDao.increment("key2");
 > 
 > long output1 = redisDao.setRemove("key1", "Bob", "Charlie");
 > long output2 = redisDao.setRemove("nonexistentKey", "Charlie");
@@ -513,19 +643,21 @@ An error is returned when the value stored at key is not a set.<br>
 #
 
 ### Implement [SMEM <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://redis.io/docs/latest/commands/smem/) (Set Members)
+**Description**: Returns all the members of the set value stored at key.<br>
+**Library API Call**: RedisTemplate.opsForSet().[members(key) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/SetOperations.html#members(K))
+
 In `RedisDao.java`, implement `getSetMembers(String key)`.<br>
 
 Return the `Set<String>` stored at the `key`.
 
-**Description**: Returns all the members of the set value stored at key.<br>
-**Library API Call**: RedisTemplate.opsForSet().[members(key) <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/SetOperations.html#members(K))
-
 ### Example 1:
 > **Input**:<br>
+> ```
+> redis> SADD key1 "Alice" "Bob"
+> ```
+> 
 > ```java
 > RedisDao redisDao; // Assume initialized
-> redisDao.setAdd("key1", "Alice");
-> redisDao.setAdd("key1", "Bob");
 > 
 > Set<String> output1 = redisDao.getSetMembers("key1");
 > Set<String> output2 = redisDao.getSetMembers("nonexistentKey");

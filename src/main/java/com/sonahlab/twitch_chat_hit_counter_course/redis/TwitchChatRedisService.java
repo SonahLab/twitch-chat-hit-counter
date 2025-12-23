@@ -36,7 +36,7 @@ public class TwitchChatRedisService {
         this.redisDao = redisDao;
     }
 
-    public boolean incrementMinuteHitCounter(String channelName, long eventTimestampMs) {
+    public boolean incrementHitCounter(String channelName, long eventTimestampMs) {
         /**
          * TODO: Implement as part of Module 5
          * */

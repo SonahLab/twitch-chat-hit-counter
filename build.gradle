@@ -25,7 +25,7 @@ dependencyLocking {
 }
 
 ext {
-    testContainerVersion = '1.20.2'
+    testContainerVersion = '1.21.4'
 }
 
 dependencies {
@@ -63,11 +63,12 @@ dependencies {
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1'
 
     // Testcontainers
-    implementation "commons-codec:commons-codec:1.17.1" // Needed to work with mysql testcontainer
-    testImplementation "org.testcontainers:junit-jupiter:$testContainerVersion"
-    testImplementation "org.testcontainers:kafka:$testContainerVersion"
-    testImplementation "org.testcontainers:mysql:$testContainerVersion"
+    testImplementation "org.testcontainers:testcontainers:2.0.2"
+    testImplementation "org.testcontainers:testcontainers-junit-jupiter:2.0.2"
+    testImplementation "org.testcontainers:testcontainers-kafka:2.0.2"
+    testImplementation "org.testcontainers:testcontainers-mysql:2.0.2"
     testImplementation "com.redis:testcontainers-redis:2.2.4"
+    implementation "commons-codec:commons-codec:1.17.1" // Needed to work with mysql testcontainer
 }
 
 tasks.named('test') {

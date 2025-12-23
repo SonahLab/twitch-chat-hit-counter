@@ -72,7 +72,7 @@ public class TwitchChatEventConsumer extends AbstractEventConsumer<TwitchChatEve
 
         int success = twitchChatSqlService.insert(events);
         for (TwitchChatEvent event : events) {
-            twitchChatRedisService.incrementMinuteHitCounter(event.channelName(), event.eventTs());
+            twitchChatRedisService.incrementHitCounter(event.channelName(), event.eventTs());
         }
         LOGGER.info("Successfully wrote to SQL {} inserted {} out of {} event(s).",
                 twitchChatSqlService.sqlTableName(),

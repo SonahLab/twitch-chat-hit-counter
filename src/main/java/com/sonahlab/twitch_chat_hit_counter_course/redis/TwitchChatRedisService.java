@@ -11,7 +11,9 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,35 +36,55 @@ public class TwitchChatRedisService {
         this.redisDao = redisDao;
     }
 
-    public Long incrementMinuteHitCounter(String channelName, long eventTimestampMs) {
+    public boolean incrementMinuteHitCounter(String channelName, long eventTimestampMs) {
         /**
          * TODO: Implement as part of Module 5
          * */
         ZonedDateTime dayBoundaryDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(eventTimestampMs), ZoneId.of("UTC"));
-        String key = Granularity.MINUTE + "#" + channelName + "#" + dayBoundaryDateTime.format(DATE_FORMATTER);
-        long minuteBucketTs = eventTimestampMs - (eventTimestampMs % 60000L);
 
-        Long hitCounts = redisDao.hashIncrBy(key, String.valueOf(minuteBucketTs), 1L);
-        return hitCounts;
+        long minuteBucketTs = eventTimestampMs - (eventTimestampMs % 60_000L);
+        redisDao.increment(Granularity.MINUTE + "#" + channelName + "#" + minuteBucketTs);
+
+        long hourBucketTs = eventTimestampMs - (eventTimestampMs % 3_600_000L);
+        redisDao.increment(Granularity.HOUR + "#" + channelName + "#" + hourBucketTs);
+
+        long dayBucketTs = eventTimestampMs - (eventTimestampMs % 86_400_000L);
+        redisDao.increment(Granularity.DAY + "#" + channelName + "#" + dayBucketTs);
+
+        return true;
     }
 
     public Map<String, Long> getHitCounts(
             Granularity granularity,
             String channelName,
-            int dateInt) {
+            long startTimeMillis,
+            long endTimeMillis) {
         /**
          * TODO: Implement as part of Module 5
          * */
         Map<String, Long> hitCounts = new HashMap<>();
 
-        // "{Granularity}#{channelName}#{YYYYMMDD}"
-        String key = granularity.toString() + "#" + channelName + "#" + dateInt;
-        Map<Object, Object> entries = redisDao.hashGetAll(key);
-
-        for (Map.Entry<Object, Object> entry : entries.entrySet()) {
-            hitCounts.put(entry.getKey().toString(), Long.valueOf(entry.getValue().toString()));
+        long millisBoundary = 0;
+        if (granularity == Granularity.MINUTE) {
+            millisBoundary = 60_000L;
+        } else if (granularity == Granularity.HOUR) {
+            millisBoundary = 3_600_000L;
+        } else if (granularity == Granularity.DAY) {
+            millisBoundary = 86_400_000L;
         }
-        LOGGER.info("Found {} hits for channel: {}", hitCounts.size(), channelName);
+
+        long startBoundaryTimeMillis = startTimeMillis - (startTimeMillis % millisBoundary);
+        long endBoundaryTimeMillis = endTimeMillis - (endTimeMillis % millisBoundary);
+        for (long currentMillis = startBoundaryTimeMillis; currentMillis <= endBoundaryTimeMillis; currentMillis += millisBoundary) {
+            String key = granularity + "#" + channelName.toLowerCase() + "#" + currentMillis;
+            try {
+                Long count = Long.valueOf(redisDao.get(key));
+                hitCounts.put(key, count);
+            } catch (Exception ex) {}
+
+        }
+
+        LOGGER.info("Found {} hits for channel: {}#{} between {} and {}", hitCounts.size(), granularity, channelName, startTimeMillis, endTimeMillis);
 
         return hitCounts;
     }

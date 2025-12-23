@@ -64,25 +64,27 @@ public class TwitchRestController {
         /**
          * TODO: Implement as part of Module 6
          * */
-        Map<String, Long> hitCounter = new HashMap<>();
-
         LOGGER.info("Get chat counter of a streamer: {}", channelName);
         Granularity granularityEnum;
         if ("MINUTELY".equals(granularity)) {
             granularityEnum = Granularity.MINUTE;
+        } else if ("HOURLY".equals(granularity)) {
+            granularityEnum = Granularity.HOUR;
+        } else if ("DAILY".equals(granularity)) {
+            granularityEnum = Granularity.DAY;
         } else {
             throw new IllegalArgumentException("Unsupported granularity: " + granularity);
         }
 
-        ZonedDateTime startDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(startTimeMillis), ZoneId.of("UTC"));
-        ZonedDateTime endDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(endTimeMillis), ZoneId.of("UTC"));
-
-        for (ZonedDateTime currentDateTime = startDateTime; currentDateTime.compareTo(endDateTime) <= 0; currentDateTime = currentDateTime.plusDays(1)) {
-            int dateInt = Integer.parseInt(currentDateTime.format(DATE_FORMATTER));
-            Map<String, Long> dailyHitCounter = twitchChatRedisService.getHitCounts(granularityEnum, channelName, dateInt);
-            hitCounter.putAll(dailyHitCounter);
-        }
-        return hitCounter;
+//        ZonedDateTime startDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(startTimeMillis), ZoneId.of("UTC"));
+//        ZonedDateTime endDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(endTimeMillis), ZoneId.of("UTC"));
+//
+//        for (ZonedDateTime currentDateTime = startDateTime; currentDateTime.compareTo(endDateTime) <= 0; currentDateTime = currentDateTime.plusDays(1)) {
+//            int dateInt = Integer.parseInt(currentDateTime.format(DATE_FORMATTER));
+//        }
+        Map<String, Long> hitCounts = twitchChatRedisService.getHitCounts(granularityEnum, channelName, startTimeMillis, endTimeMillis);
+        LOGGER.info("Get chat counter of a streamer: {}, {}, {}", granularity, channelName, hitCounts);
+        return hitCounts;
     }
 
     @PutMapping("/addChannel")
@@ -118,8 +120,9 @@ public class TwitchRestController {
         /**
          * TODO: Implement as part of Module 6
          * */
-        return ResponseEntity.ok(
-                twitchHelixService.getChannelInfo(
-                        twitchChatBotManager.getJoinedChannels().stream().toList()));
+        Map<String, User> channelMetadata = twitchHelixService.getChannelInfo(
+                twitchChatBotManager.getJoinedChannels().stream().toList());
+        LOGGER.info("Get channel metadata: {}", channelMetadata);
+        return ResponseEntity.ok(channelMetadata);
     }
 }

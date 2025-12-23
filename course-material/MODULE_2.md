@@ -420,7 +420,6 @@ These properties control how the `key/value` of a Kafka message is serialized on
 
 <br>
 
-#
 
 ## Exercise 1: Spring Kafka
 ![](assets/module2/images/connect.png)<br>

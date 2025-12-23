@@ -638,9 +638,8 @@ This class will look very similar to `GreetingEventConsumer.java`, so look there
 >         0,
 >         "id3",
 >         new TwitchChatEvent("id3", 2L, "channelId3", "k3soju", "userId3", "Charlie", null, null, "Hey KEJUICY").getBytes()));
-
 > ```
-> **stdout**:<br>
+> **stdout**:
 > ```
 > INFO TwitchChatEventConsumer: Received event=TwitchChatEvent[eventId=id1, eventTs=0, channelId=channelId1, channelName=s0mcs, userId=userId1, username=Alice, subscriptionMonths=12, subscriptionTier=1, message=Hi s0m!]
 > INFO TwitchChatEventConsumer: Received event=TwitchChatEvent[eventId=id2, eventTs=1, channelId=channelId2, channelName=shroud, userId=userId2, username=Bob, subscriptionMonths=null, subscriptionTier=null, message=Hey shroud]

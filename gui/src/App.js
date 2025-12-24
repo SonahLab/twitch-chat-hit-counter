@@ -1,12 +1,33 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
-  Box, Button, TextField, Typography, Avatar, IconButton, Card, CardContent,
-  MenuItem, Select, FormControl,
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Avatar,
+  IconButton,
+  Card,
+  CardContent,
+  MenuItem,
+  Select,
+  FormControl,
 } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
 } from "recharts";
+
+// --- Font Import ---
+const fontLink = document.createElement("link");
+fontLink.href = "https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap";
+fontLink.rel = "stylesheet";
+document.head.appendChild(fontLink);
 
 const formatTimestamp = (timestamp) => {
   const date = new Date(timestamp);
@@ -20,9 +41,9 @@ const formatTimestamp = (timestamp) => {
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <Box sx={{ p: 1, bgcolor: 'rgba(255, 255, 255, 0.9)', border: '1px solid #ccc', borderRadius: 1, boxShadow: 3 }}>
+      <Box sx={{ p: 1, bgcolor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #ddd', borderRadius: 1, boxShadow: 3 }}>
         <Typography variant="body2" fontWeight="bold" color="#9146FF">Time: {formatTimestamp(label)}</Typography>
-        <Typography variant="body2">Hits: {payload[0].value.toLocaleString()}</Typography>
+        <Typography variant="body2" fontWeight="600">Messages: {payload[0].value.toLocaleString()}</Typography>
       </Box>
     );
   }
@@ -58,9 +79,9 @@ export default function App() {
   useEffect(() => {
     const validOptions = TIME_CONFIG[granularity];
     if (!validOptions.find(o => o.val === timeRange)) {
-        setTimeRange(validOptions[0].val);
+      setTimeRange(validOptions[0].val);
     }
-  }, [granularity]);
+  }, [granularity, timeRange]);
 
   const fetchChannels = async () => {
     const res = await fetch("http://localhost:8080/api/getChannels");
@@ -87,21 +108,21 @@ export default function App() {
       for (const channel of list) {
         const url = `http://localhost:8080/api/hitCounter?channelName=${channel}&granularity=${gran}&startTimeMillis=${start}&endTimeMillis=${end}`;
         try {
-            const res = await fetch(url);
-            if (res.ok) {
-                const raw = await res.json();
-                const formatted = Object.entries(raw).map(([k, v]) => {
-                    const parts = k.split("#");
-                    return { ts: parseInt(parts[parts.length - 1], 10), count: v };
-                });
-                newAgg[channel] = formatted;
-            } else if (res.status >= 500) hasError = true;
+          const res = await fetch(url);
+          if (res.ok) {
+            const raw = await res.json();
+            const formatted = Object.entries(raw).map(([k, v]) => {
+              const parts = k.split("#");
+              return { ts: parseInt(parts[parts.length - 1], 10), count: v };
+            });
+            newAgg[channel] = formatted;
+          } else if (res.status >= 500) hasError = true;
         } catch (error) { hasError = true; }
       }
       setAggregates(newAgg);
       setErrorCount(hasError ? prev => prev + 1 : 0);
     },
-    [channels, granularity, timeRange]
+    [channels, granularity, timeRange, HOUR_IN_MILLIS]
   );
 
   const addChannel = async (name) => {
@@ -142,38 +163,54 @@ export default function App() {
   }, [timeRange, granularity, channels, fetchAggregates, errorCount]);
 
   return (
-    <Box sx={{ display: "flex", height: "100vh", bgcolor: "#f4f5f7", color: "#1a1a1a", flexDirection: "column" }}>
-      <Box sx={{ width: "100%", p: 2, bgcolor: "#ffffff", borderBottom: "1px solid #ddd", display: "flex", justifyContent: "center" }}>
-        <Typography variant="h4" sx={{ fontWeight: 600 }}>Twitch Chat Hit Counter</Typography>
+    <Box sx={{ display: "flex", height: "100vh", width: "100vw", overflow: "hidden", bgcolor: "#f4f5f7", color: "#1a1a1a", fontFamily: "'Inter', sans-serif", flexDirection: "column" }}>
+
+      {/* FIXED HEADER: Removed width: 100% to prevent padding-induced overflow */}
+      <Box sx={{
+        p: 2,
+        bgcolor: "#ffffff",
+        borderBottom: "1px solid #ddd",
+        display: "flex",
+        justifyContent: "center",
+        position: "sticky",
+        top: 0,
+        zIndex: 10,
+        boxSizing: 'border-box'
+      }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, color: "#9146FF", letterSpacing: "-0.02em" }}>
+          Twitch Chat Hit Counter
+        </Typography>
       </Box>
 
       <Box sx={{ display: "flex", flexGrow: 1, overflow: "hidden" }}>
         {/* Sidebar */}
-        <Box sx={{ width: 320, bgcolor: "#ffffff", borderRight: "1px solid #ddd", p: 2, display: "flex", flexDirection: "column", overflowY: "auto" }}>
-          <Typography variant="h5" sx={{ mb: 2, color: "#9146FF" }}>Channels</Typography>
+        <Box sx={{ width: 320, minWidth: 320, bgcolor: "#ffffff", borderRight: "1px solid #ddd", p: 2, display: "flex", flexDirection: "column", overflowY: "auto" }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>Channels</Typography>
           <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
             <TextField variant="outlined" size="small" placeholder="Add channel..." value={inputValue} onChange={(e) => setInputValue(e.target.value)} sx={{ width: "100%" }} />
-            <Button variant="contained" sx={{ bgcolor: "#9146FF" }} onClick={() => { if (inputValue.trim()) { addChannel(inputValue.trim()); setInputValue(""); } }}>Join</Button>
+            <Button variant="contained" sx={{ bgcolor: "#9146FF", fontWeight: 600 }} onClick={() => { if (inputValue.trim()) { addChannel(inputValue.trim()); setInputValue(""); } }}>Join</Button>
           </Box>
           {channels.map((ch) => (
-            <Card key={ch} sx={{ p: 1, display: "flex", alignItems: "center", bgcolor: ch === selectedChannel ? "#d0b1ff" : "#ffffff", borderRadius: 2, cursor: "pointer", mb: 1 }} onClick={() => setSelectedChannel(ch)}>
+            <Card key={ch} sx={{ p: 1, display: "flex", alignItems: "center", bgcolor: ch === selectedChannel ? "#f0f0ff" : "#ffffff", border: ch === selectedChannel ? "2px solid #9146FF" : "1px solid #eee", borderRadius: 2, cursor: "pointer", mb: 1, transition: '0.2s', '&:hover': { transform: 'translateY(-1px)' } }} onClick={() => setSelectedChannel(ch)}>
               <Avatar src={metadata[ch]?.profileImageUrl || ""} />
               <Box sx={{ flexGrow: 1, ml: 1 }}>
-                <Typography sx={{ fontWeight: 600 }}>{metadata[ch]?.displayName || ch}</Typography>
-                <Typography variant="caption" color="#9146FF">@{ch}</Typography>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.9rem' }}>{metadata[ch]?.displayName || ch}</Typography>
+                <Box sx={{ display: 'inline-flex' }}>
+                  <Typography component="a" href={`https://www.twitch.tv/${ch}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} sx={{ color: "#9146FF", fontWeight: 600, fontSize: '0.75rem', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
+                    @{ch}
+                  </Typography>
+                </Box>
               </Box>
-              <IconButton onClick={(e) => { e.stopPropagation(); removeChannel(ch); }}><CloseIcon /></IconButton>
+              <IconButton size="small" onClick={(e) => { e.stopPropagation(); removeChannel(ch); }}><CloseIcon fontSize="small" /></IconButton>
             </Card>
           ))}
         </Box>
 
         {/* Main Panel */}
-        <Box sx={{ flexGrow: 1, p: 3, display: "flex", flexDirection: "column" }}>
-
-          {/* 1. Dropdown (Now Above) */}
-          <Box sx={{ mb: 2, width: 200 }}>
+        <Box sx={{ flexGrow: 1, p: 3, display: "flex", flexDirection: "column", overflow: 'hidden' }}>
+          <Box sx={{ mb: 1, width: 200 }}>
             <FormControl fullWidth size="small">
-              <Select value={granularity} onChange={(e) => setGranularity(e.target.value)}>
+              <Select value={granularity} onChange={(e) => setGranularity(e.target.value)} sx={{ fontWeight: 600, borderRadius: '8px' }}>
                 <MenuItem value="MINUTELY">MINUTELY</MenuItem>
                 <MenuItem value="HOURLY">HOURLY</MenuItem>
                 <MenuItem value="DAILY">DAILY</MenuItem>
@@ -181,56 +218,44 @@ export default function App() {
             </FormControl>
           </Box>
 
-          {/* 2. Time Buttons (Now Below Dropdown) */}
-          <Box sx={{ display: "flex", gap: 1, mb: 3, flexWrap: 'wrap' }}>
+          <Box sx={{ display: "flex", gap: 1, mb: 3 }}>
             {TIME_CONFIG[granularity].map((opt) => (
-              <Button
-                key={opt.val}
-                variant={timeRange === opt.val ? "contained" : "outlined"}
-                onClick={() => setTimeRange(opt.val)}
-                sx={{
-                    borderColor: "#9146FF",
-                    color: timeRange === opt.val ? "white" : "#1a1a1a",
-                    bgcolor: timeRange === opt.val ? "#9146FF" : "transparent",
-                    textTransform: 'none',
-                    minWidth: '60px'
-                }}
-              >
+              <Button key={opt.val} variant={timeRange === opt.val ? "contained" : "outlined"} onClick={() => setTimeRange(opt.val)} sx={{ borderColor: "#9146FF", color: timeRange === opt.val ? "white" : "#1a1a1a", bgcolor: timeRange === opt.val ? "#9146FF" : "transparent", fontWeight: 700, borderRadius: '8px', textTransform: 'none' }}>
                 {opt.label}
               </Button>
             ))}
           </Box>
 
           {selectedChannel && (
-            <Card sx={{ p: 2, bgcolor: "#ffffff", border: "1px solid #ddd", flexGrow: 1, display: "flex", flexDirection: "column" }}>
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mb: 2, gap: 1 }}>
-                <Avatar src={metadata[selectedChannel]?.profileImageUrl || ""} sx={{ width: 48, height: 48 }} />
-                <Typography variant="h5" sx={{ fontWeight: 600 }}>{metadata[selectedChannel]?.displayName || selectedChannel}</Typography>
+            <Card sx={{ p: 3, bgcolor: "#ffffff", borderRadius: '16px', border: "1px solid #ddd", flexGrow: 1, display: "flex", flexDirection: "column", boxShadow: '0 4px 12px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mb: 2, gap: 1.5 }}>
+                <Avatar src={metadata[selectedChannel]?.profileImageUrl || ""} sx={{ width: 56, height: 56, border: '2px solid #9146FF' }} />
+                <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>{metadata[selectedChannel]?.displayName || selectedChannel}</Typography>
               </Box>
-              <CardContent sx={{ flexGrow: 1, display: "flex", flexDirection: 'column' }}>
+              <CardContent sx={{ flexGrow: 1, display: "flex", flexDirection: 'column', p: 0, overflow: 'hidden' }}>
                 {(() => {
-                    const data = chartData(selectedChannel);
-                    const totalHits = data.reduce((sum, item) => sum + item.count, 0);
-                    const label = timeRange >= 24 ? `${timeRange / 24} day${timeRange/24 !== 1 ? 's' : ''}` : `${timeRange} hour${timeRange !== 1 ? 's' : ''}`;
-                    return (
-                        <Box sx={{ width: '100%', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                            <Box sx={{ textAlign: 'center', py: 2 }}>
-                                <Typography variant="h3" color="#9146FF" fontWeight={700}>{totalHits.toLocaleString()}</Typography>
-                                <Typography variant="h6" color="text.secondary">Total Hits in the last {label}</Typography>
-                            </Box>
-                            <Box sx={{ flexGrow: 1, minHeight: 300 }}>
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <LineChart data={data}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-                                        <XAxis dataKey="ts" type="number" domain={['auto', 'auto']} tickFormatter={formatTimestamp} height={50} />
-                                        <YAxis allowDecimals={false} />
-                                        <Tooltip content={<CustomTooltip />} />
-                                        <Line type="monotone" dataKey="count" stroke="#9146FF" strokeWidth={2} dot={false} />
-                                    </LineChart>
-                                </ResponsiveContainer>
-                            </Box>
-                        </Box>
-                    );
+                  const data = chartData(selectedChannel);
+                  const totalHits = data.reduce((sum, item) => sum + item.count, 0);
+                  const currentRangeLabel = TIME_CONFIG[granularity].find(o => o.val === timeRange)?.label || `${timeRange}H`;
+                  return (
+                    <Box sx={{ width: '100%', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                      <Box sx={{ textAlign: 'center', py: 2 }}>
+                        <Typography variant="h2" sx={{ color: "#9146FF", fontWeight: 800, letterSpacing: '-0.03em' }}>{totalHits.toLocaleString()}</Typography>
+                        <Typography variant="h6" sx={{ color: "text.secondary", fontWeight: 600 }}>TOTAL CHAT MESSAGES IN LAST {currentRangeLabel}</Typography>
+                      </Box>
+                      <Box sx={{ flexGrow: 1, minHeight: 400, mt: 2 }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={data}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                            <XAxis dataKey="ts" type="number" domain={['auto', 'auto']} tickFormatter={formatTimestamp} height={60} tick={{fontSize: 12, fontWeight: 600}} />
+                            <YAxis tick={{fontSize: 12, fontWeight: 600}} axisLine={false} tickLine={false} />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Line type="monotone" dataKey="count" stroke="#9146FF" strokeWidth={3} dot={false} activeDot={{ r: 6, strokeWidth: 0 }} />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </Box>
+                    </Box>
+                  );
                 })()}
               </CardContent>
             </Card>

@@ -106,7 +106,15 @@ Start our local Redis instance via Docker: [Redis Stack <img src="assets/common/
 1. Open and login to **Docker Desktop**
 2. Start the Redis Docker container:
 ```bash
-docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
+docker volume create redis_data
+
+docker run -d \
+  --name redis-stack \
+  -p 6379:6379 \
+  -p 8001:8001 \
+  -v redis_data:/data \
+  -e REDIS_ARGS="--appendonly yes" \
+  redis/redis-stack:latest
 ```
 
 In **Docker**, you should now see the Redis container running locally.<br>

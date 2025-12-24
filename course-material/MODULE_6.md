@@ -8,11 +8,16 @@
 <br>
 
 ## Objective
-![](assets/module5/images/Overview.svg)<br>
+![](assets/module6/images/Overview.svg)<br>
 
-In **Module 5**, we have setup the entire E2E pipeline using hardcoded Twitch channels.<br>
-In **Module 6**, we are adding the remaining endpoints that the Frontend React application will require
-to from our Backend application.
+In **Module 5**, you set up the entire E2E aggregation pipeline using some manually hardcoded Twitch channels to connect to.<br>
+
+In **Module 6**, you will add the remaining endpoints that the Frontend React application requires to fully integrate a Reporting dashboard
+using our backend data.
+
+**Goals:**
+- Add Redis `db3` for Channel management to statefully keep track of what channels your application is connected to
+- Implement the `TwitchRestController` which holds all the API endpoints required by the UI
 
 <br>
 
@@ -348,7 +353,7 @@ This should call the helper method in `TwitchChatBotManager`.
 
 #
 
-In `TwitchRestController`, implement `@GetMapping("/removeChannel")`.
+In `TwitchRestController`, implement `@DeleteMapping("/removeChannel")`.
 
 This should call the helper method in `TwitchChatBotManager`.
 

@@ -20,7 +20,7 @@ import java.util.Set;
  * - SwaggerUI in Spring Boot (https://springdoc.org/)
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/twitchReporting")
 @Tag(name = "Twitch Chat Hit Counter API", description = "Backend API endpoints needed to interact with our Frontend application")
 public class TwitchRestController {
 
@@ -55,7 +55,7 @@ public class TwitchRestController {
         return null;
     }
 
-    @GetMapping("/removeChannel")
+    @DeleteMapping("/removeChannel")
     public boolean removeChannel(@RequestParam(name = "channelName") String channelName) {
         /**
          * TODO: Implement as part of Module 6

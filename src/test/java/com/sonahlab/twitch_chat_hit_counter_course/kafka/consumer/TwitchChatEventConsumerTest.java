@@ -1,8 +1,10 @@
-// TODO: uncomment this code when you're ready to test this class
-// package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
+//// TODO: uncomment this code when you're ready to test this class
+//package com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer;
 //
 //import com.fasterxml.jackson.databind.ObjectMapper;
+//import com.sonahlab.twitch_chat_hit_counter_course.kafka.consumer.TwitchChatEventConsumer;
 //import com.sonahlab.twitch_chat_hit_counter_course.model.TwitchChatEvent;
+//import org.junit.jupiter.api.Disabled;
 //import org.junit.jupiter.api.Tag;
 //import org.junit.jupiter.api.Test;
 //import org.mockito.Mockito;
@@ -26,6 +28,8 @@
 //})
 //@DirtiesContext
 //@Tag("Module5")
+//// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
+//@Disabled
 //public class TwitchChatEventConsumerTest {
 //
 //    @Autowired

@@ -6,6 +6,7 @@ import com.sonahlab.twitch_chat_hit_counter_course.kafka.AbstractKafkaIntegratio
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
@@ -39,6 +40,8 @@ import static org.mockito.Mockito.when;
 })
 @Tag("Module2")
 @Execution(ExecutionMode.SAME_THREAD)
+// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
+@Disabled
 public class GreetingEventConsumerTest extends AbstractKafkaIntegrationTest {
 
     @Autowired

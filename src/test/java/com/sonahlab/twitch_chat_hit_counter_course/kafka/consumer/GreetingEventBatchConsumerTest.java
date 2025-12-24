@@ -5,10 +5,7 @@ import com.sonahlab.twitch_chat_hit_counter_course.kafka.AbstractKafkaIntegratio
 import com.sonahlab.twitch_chat_hit_counter_course.model.GreetingEvent;
 import com.sonahlab.twitch_chat_hit_counter_course.sql.GreetingSqlService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -47,6 +44,8 @@ import static org.mockito.Mockito.when;
         "twitch-chat-hit-counter.kafka.batch-consumer.group-id=test-group-id",
 })
 @Tag("Module2")
+// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 2.
+@Disabled
 public class GreetingEventBatchConsumerTest extends AbstractKafkaIntegrationTest {
 
     @Autowired

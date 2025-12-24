@@ -1,4 +1,4 @@
-// TODO: uncomment this code when you're ready to test this class
+//// TODO: uncomment this code when you're ready to test this class
 //package com.sonahlab.twitch_chat_hit_counter_course.kafka.producer;
 //
 //import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,6 +45,8 @@
 //})
 //@DirtiesContext
 //@Tag("Module5")
+//// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 5.
+//@Disabled
 //public class TwitchChatEventProducerTest {
 //
 //    @Autowired

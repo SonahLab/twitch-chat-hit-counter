@@ -213,14 +213,17 @@
         "org.springframework.kafka:spring-kafka-test": {
             "locked": "3.3.1"
         },
-        "org.testcontainers:junit-jupiter": {
-            "locked": "1.20.2"
+        "org.testcontainers:testcontainers": {
+            "locked": "2.0.2"
         },
-        "org.testcontainers:kafka": {
-            "locked": "1.20.2"
+        "org.testcontainers:testcontainers-junit-jupiter": {
+            "locked": "2.0.2"
         },
-        "org.testcontainers:mysql": {
-            "locked": "1.20.2"
+        "org.testcontainers:testcontainers-kafka": {
+            "locked": "2.0.2"
+        },
+        "org.testcontainers:testcontainers-mysql": {
+            "locked": "2.0.2"
         }
     },
     "testRuntimeClasspath": {
@@ -287,14 +290,17 @@
         "org.springframework.kafka:spring-kafka-test": {
             "locked": "3.3.1"
         },
-        "org.testcontainers:junit-jupiter": {
-            "locked": "1.20.2"
+        "org.testcontainers:testcontainers": {
+            "locked": "2.0.2"
         },
-        "org.testcontainers:kafka": {
-            "locked": "1.20.2"
+        "org.testcontainers:testcontainers-junit-jupiter": {
+            "locked": "2.0.2"
         },
-        "org.testcontainers:mysql": {
-            "locked": "1.20.2"
+        "org.testcontainers:testcontainers-kafka": {
+            "locked": "2.0.2"
+        },
+        "org.testcontainers:testcontainers-mysql": {
+            "locked": "2.0.2"
         }
     }
 }

@@ -48,9 +48,9 @@ For `Module 6`, the below file structure are all the relevant files needed.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/class.svg" align="center"/> RedisDao.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="assets/common/class.svg" align="center"/> TwitchChatAggregationRedisService.java<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/class.svg" align="center"/> ChatBotChannelsRedisService.java<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/class.svg" align="center"/> TwitchChatAggregationRedisService.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/package.svg" align="center"/> rest/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -78,9 +78,9 @@ For `Module 6`, the below file structure are all the relevant files needed.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/package.svg" align="center"/> redis/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="assets/common/testClass_newui.svg" align="center"/> TwitchChatAggregationRedisServiceTest.java<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/testClass_newui.svg" align="center"/> ChatBotChannelsRedisServiceTest.java<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/common/testClass_newui.svg" align="center"/> TwitchChatAggregationRedisServiceTest.java<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="assets/common/package.svg" align="center"/> twitch/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -186,6 +186,8 @@ Return the `Set` of channel names our ChatBot is connected to.
 > redis> SADD user#Alice#channels "s0mcs" "subroza"
 > redis> SADD user#Bob#channels "k3soju"
 > ```
+> ![](assets/module6/images/task2_ex1.svg)
+> 
 > 
 > ```java
 > ChatBotChannelsRedisService service; // Assume initialized
@@ -238,17 +240,12 @@ Return the `Long` length of the channels `Set` stored at `user#{username}#channe
 > Long output2 = service.addChannels("Alice", "s0mcs");
 > ```
 > **Output1**: `2`<br>
-> **Explanation**: `"user#Alice#channel"` key never existed so Redis creates an empty `Set` and add 2 channels: `"s0mcs"` and `"subroza"`
+> **Explanation**: `"user#Alice#channel"` key never existed so Redis creates an empty `Set` and add 2 channels: `"s0mcs"` and `"subroza"`.<br>
+> ![](assets/module6/images/task3_ex1.svg)
 > 
 > **Output2**: `0`<br>
-> **Explanation**:<br>
-> Before you attempt to add "s0mcs" to Alice's set of channels her ChatBot is listening to it already has "s0mcs".
-> ```
-> {
->   "user#Alice#channels": ["s0mcs", "subroza"]
-> }
-> ```
-> Since "s0mcs" already exists in the Set, nothing gets added to the Set
+> **Explanation**: Before you attempt to add "s0mcs" to Alice's set of channels her ChatBot is listening to it already has "s0mcs". Since "s0mcs" already exists in the Set, nothing gets added to the Set.<br>
+> ![](assets/module6/images/task3_ex2.svg)
 
 ### Integration Tests
 - [ ] Open `ChatBotChannelsRedisServiceTest.java` ─ already implemented test cases with the example(s) above.
@@ -259,7 +256,7 @@ Return the `Long` length of the channels `Set` stored at `user#{username}#channe
     ```
 
 
-### Task 3: `ChatBotChannelsRedisService::removeChannels`
+### Task 4: `ChatBotChannelsRedisService::removeChannels`
 In `ChatBotChannelsRedisService`, implement `removeChannels(String username, String... channelNames)`.
 
 Return the `Long` length of the channels `Set` stored at `user#{username}#channels` after attempting to **remove** all the `channelNames`.
@@ -274,6 +271,8 @@ Return the `Long` length of the channels `Set` stored at `user#{username}#channe
 > ```
 > redis> SADD user#Alice#channels "s0mcs" "subroza"
 > ```
+> ![](assets/module6/images/task4_ex0.svg)
+> 
 > 
 > ```java
 > ChatBotChannelsRedisService service; // Assume initialized
@@ -282,21 +281,9 @@ Return the `Long` length of the channels `Set` stored at `user#{username}#channe
 > ```
 > **Output**: `1`<br>
 > **Explanation**:<br>
-> > Before:
-> > ```json
-> > {
-> >   "user#Alice#channels": ["s0mcs", "subroza"]
-> > }
-> > ```
-> >
-> > After:
-> > ```json
-> > {
-> >   "user#Alice#channels": ["s0mcs"]
-> > }
-> > ```
-> > 1. `"subroza"` should be successfully removed from the Set (count = 1).
-> > 2. `"nonexistentChannelName"` was never in the Set so nothing gets removed (count stays 1).
+> 1. `"subroza"` should be successfully removed from the Set (count = 1).
+> 2. `"nonexistentChannelName"` was never in the Set so nothing gets removed (count stays 1).
+> ![](assets/module6/images/task4_ex1.svg)
 
 ### Example 2:
 > **Input**:<br>
@@ -330,6 +317,7 @@ In `TwitchChatBotManager.java`, update the constructor: `TwitchChatBotManager()`
 #
 
 ### Task 2: `TwitchChatBotManager::joinChannel`
+![](assets/module6/images/ex3_join.svg)
 
 **Requirements**:
 1. Make sure to update the Redis DB for your `USERNAME` to maintain the channelName you've joined
@@ -339,6 +327,7 @@ In `TwitchChatBotManager.java`, update the constructor: `TwitchChatBotManager()`
 #
 
 ### Task 3: `TwitchChatBotManager::leaveChannel`
+![](assets/module6/images/ex3_leave.svg)
 
 **Requirements**:
 1. Make sure to update the Redis DB for your `USERNAME` to maintain the channelName you've left
@@ -348,9 +337,24 @@ In `TwitchChatBotManager.java`, update the constructor: `TwitchChatBotManager()`
 #
 
 ### Task 4: `TwitchChatBotManager::getJoinedChannels`
+![](assets/module6/images/ex3_getChannels.svg)
 
 **Requirements**:
 1. Make sure to fetch the Set of joined channels maintained in Redis
+
+<br>
+
+#
+
+### Task 5: `TwitchChatBotManager::initChannelsToJoin`
+
+**Requirements**:
+1. Remove the hardcoded channels set up in **Module 5**
+2. You should be using the Redis state as the Source of Truth for all currently joined channels
+
+> [!NOTE]
+> 
+> Your application connects to all Twitch Chats on every application run as the WebSocket connections don't persist.
 
 <br>
 
@@ -375,7 +379,7 @@ Return a `Map<String, User>` that maps, for all joined channels, the `channelNam
 2. TODO insert link to TwitchHelix API doc
 
 
-## Exercise 4: `TwitchRestController`
+## Exercise 5: `TwitchRestController`
 ### Task 1: Constructor
 
 **Requirements:**
@@ -391,33 +395,40 @@ Return a `Map<String, User>` that maps, for all joined channels, the `channelNam
 #
 
 ### Task 2 Part I: `TwitchRestController::addChannel`
-In `TwitchRestController`, implement `@PutMapping("/addChannel")`.
+In `TwitchRestController`, implement `addChannel(String channelName)`.
 
 This should call the helper method in `TwitchChatBotManager`.
 
 #
 
 ### Task 2 Part II: `TwitchRestController::removeChannel`
-In `TwitchRestController`, implement `@DeleteMapping("/removeChannel")`.
+In `TwitchRestController`, implement `removeChannel(String channelName)`.
 
 This should call the helper method in `TwitchChatBotManager`.
 
 #
 
 ### Task 2 Part III: `TwitchRestController::getChannels`
-In `TwitchRestController`, implement `@GetMapping("/getChannels")`.
+In `TwitchRestController`, implement `getChannels()`.
 
 This should call the helper method in `TwitchChatBotManager`.
 
 #
 
 ### Task 2 Part IV: `TwitchRestController::getChannelsMetadata`
-In `TwitchRestController`, implement `@GetMapping("/getChannelsMetadata")`.
+In `TwitchRestController`, implement `getChannelsMetadata()`.
 
 This should call the helper method in `TwitchHelixService`.
 
 ### Task 2 Part V: `TwitchRestController::hitCounter`
-In `TwitchRestController`, implement `@GetMapping("/hitCounter")`.
+In `TwitchRestController`, implement
+```java
+public Map<String, Long> hitCounter(
+        @RequestParam(name = "granularity") String granularity,
+        @RequestParam(name = "channelName") String channelName,
+        @RequestParam(name = "startTimestampMillis") long startTimestampMillis,
+        @RequestParam(name = "endTimestampMillis") long endTimestampMillis) {}
+```
 
 This should call the helper method in `TwitchChatAggregationRedisService`.
 

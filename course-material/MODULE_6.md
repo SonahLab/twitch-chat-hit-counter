@@ -111,7 +111,6 @@ twitch-chat-hit-counter:
 
 <br>
 
-#
 
 
 ## Task 2: `RedisConfig::redisTemplateFactory`
@@ -120,6 +119,8 @@ twitch-chat-hit-counter:
 > Read through [Multiple Redis Connections in Spring Boot <img src="assets/common/export.svg" width="16" height="16" style="vertical-align: top;" alt="export" />](https://medium.com/@raphael3213/multiple-redis-connections-in-spring-boot-37f632e8e64f)
 
 This is very similar to our initial setup for `DB0`, `DB1`, and `DB2` in `RedisConfig.java`.
+
+<br>
 
 ### Task 2 Part I: `RedisConfig::redisTemplateFactory`
 In `RedisConfig.java`, update `redisTemplateFactory()`.
@@ -135,6 +136,10 @@ In `RedisConfig.java`, update `redisTemplateFactory()`.
 **Requirements:**
 1. Inject the properties from `application.yml`: `chatbot-channels-database`
 2. Update the list of indexes to include `3` (should be `List.of(0, 1, 2, 3)`)
+
+<br>
+
+#
 
 ### Task 2 Part II: `RedisConfig::chatBotChannelsRedisDao`
 In `RedisConfig.java`, implement
@@ -170,6 +175,10 @@ In `ChatBotChannelsRedisService`, implement the constructor: `ChatBotChannelsRed
 **Requirements:**
 1. DI the correct RedisDao for `db3`
 
+<br>
+
+#
+
 ### Task 2: `ChatBotChannelsRedisService::getJoinedChannels`
 In `ChatBotChannelsRedisService`, implement `getJoinedChannels(String username)`.
 
@@ -179,6 +188,9 @@ Return the `Set` of channel names our ChatBot is connected to.
 1. `db3` Key Template: `"user#{username}#channels"`<br>
     NOTE: Your Twitch account `username` will be the only row in this DB.
 2. `db3` Value: `Set<String>` to maintain a unique set of channels that your ChatBot should connect to
+
+
+<br>
 
 ### Example 1:
 > **Input**:<br>
@@ -201,6 +213,11 @@ Return the `Set` of channel names our ChatBot is connected to.
 > ```
 > **Explanation**: Alice's ChatBot should be connected to "s0mcs" and "subroza" stream
 
+
+<br>
+
+#
+
 ### Example 2:
 > **Input**:<br>
 > ```java
@@ -211,6 +228,7 @@ Return the `Set` of channel names our ChatBot is connected to.
 > **Output**: `[]`<br>
 > **Explanation**: `db3` has no key for `"user#NonExistentUser#channels"`, so Redis treats the returned value as an empty `Set`.
 
+<br>
 
 ### Integration Tests
 - [ ] Open `ChatBotChannelsRedisServiceTest.java` ─ already implemented test cases with the example(s) above.
@@ -220,6 +238,9 @@ Return the `Set` of channel names our ChatBot is connected to.
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module6
     ```
 
+<br>
+
+#
 
 ### Task 3: `ChatBotChannelsRedisService::addChannels`
 In `ChatBotChannelsRedisService`, implement `addChannels(String username, String... channelNames)`.
@@ -230,6 +251,9 @@ Return the `Long` length of the channels `Set` stored at `user#{username}#channe
 1. `db3` Key Template: `"user#{username}#channels"`<br>
    NOTE: Your Twitch account `username` will be the only row in this DB.
 2. `db3` Value: `Set<String>` to maintain a unique set of channels that your ChatBot should connect to
+
+
+<br>
 
 ### Example 1:
 > **Input**:<br>
@@ -247,6 +271,9 @@ Return the `Long` length of the channels `Set` stored at `user#{username}#channe
 > **Explanation**: Before you attempt to add "s0mcs" to Alice's set of channels her ChatBot is listening to it already has "s0mcs". Since "s0mcs" already exists in the Set, nothing gets added to the Set.<br>
 > ![](assets/module6/images/task3_ex2.svg)
 
+
+<br>
+
 ### Integration Tests
 - [ ] Open `ChatBotChannelsRedisServiceTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `ChatBotChannelsRedisServiceTest::addChannelsTest`
@@ -255,6 +282,9 @@ Return the `Long` length of the channels `Set` stored at `user#{username}#channe
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module6
     ```
 
+<br>
+
+#
 
 ### Task 4: `ChatBotChannelsRedisService::removeChannels`
 In `ChatBotChannelsRedisService`, implement `removeChannels(String username, String... channelNames)`.
@@ -265,6 +295,8 @@ Return the `Long` length of the channels `Set` stored at `user#{username}#channe
 1. `db3` Key Template: `"user#{username}#channels"`<br>
    NOTE: Your Twitch account `username` will be the only row in this DB.
 2. `db3` Value: `Set<String>` to maintain a unique set of channels that your ChatBot should connect to
+
+<br>
 
 ### Example 1:
 > **Input**:<br>
@@ -285,6 +317,9 @@ Return the `Long` length of the channels `Set` stored at `user#{username}#channe
 > 2. `"nonexistentChannelName"` was never in the Set so nothing gets removed (count stays 1).
 > ![](assets/module6/images/task4_ex1.svg)
 
+
+<br>
+
 ### Example 2:
 > **Input**:<br>
 > ```java
@@ -296,6 +331,10 @@ Return the `Long` length of the channels `Set` stored at `user#{username}#channe
 > **Explanation**:<br>
 > The key `"user#nonexistentUser#channels"` doesn't exist in Redis, so attempting to remove any values from a non-existing key just treats the value as an empty Set.
 
+<br>
+
+#
+
 ### Integration Tests
 - [ ] Open `ChatBotChannelsRedisServiceTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `ChatBotChannelsRedisServiceTest::removeChannelsTest`
@@ -304,6 +343,9 @@ Return the `Long` length of the channels `Set` stored at `user#{username}#channe
     ./gradlew test --tests "*" -Djunit.jupiter.tags=Module6
     ```
 
+<br>
+
+#
 
 ## Exercise 3: `TwitchChatBotManager`
 ### Task 1: Constructor
@@ -379,6 +421,8 @@ Return a `Map<String, User>` that maps, for all joined channels, the `channelNam
 2. TODO insert link to TwitchHelix API doc
 
 
+<br>
+
 ## Exercise 5: `TwitchRestController`
 ### Task 1: Constructor
 
@@ -392,12 +436,12 @@ Return a `Map<String, User>` that maps, for all joined channels, the `channelNam
 #
 
 ### Task 2: Twitch Reporting API
-#
-
 ### Task 2 Part I: `TwitchRestController::addChannel`
 In `TwitchRestController`, implement `addChannel(String channelName)`.
 
 This should call the helper method in `TwitchChatBotManager`.
+
+<br>
 
 #
 
@@ -406,6 +450,8 @@ In `TwitchRestController`, implement `removeChannel(String channelName)`.
 
 This should call the helper method in `TwitchChatBotManager`.
 
+<br>
+
 #
 
 ### Task 2 Part III: `TwitchRestController::getChannels`
@@ -413,12 +459,18 @@ In `TwitchRestController`, implement `getChannels()`.
 
 This should call the helper method in `TwitchChatBotManager`.
 
+<br>
+
 #
 
 ### Task 2 Part IV: `TwitchRestController::getChannelsMetadata`
 In `TwitchRestController`, implement `getChannelsMetadata()`.
 
 This should call the helper method in `TwitchHelixService`.
+
+<br>
+
+#
 
 ### Task 2 Part V: `TwitchRestController::hitCounter`
 In `TwitchRestController`, implement

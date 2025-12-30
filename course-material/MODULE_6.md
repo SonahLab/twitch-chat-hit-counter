@@ -23,6 +23,22 @@ using our backend data.
 
 <br>
 
+## Lab Setup
+1. In a new terminal window navigate to the **React** app directory:
+```
+cd ~/{path-to-repo}/gui/
+```
+2. Install the dependencies:
+```
+npm install
+```
+3. Run the React application:
+```
+npm start
+```
+
+<br>
+
 ## File Structure
 For `Module 6`, the below file structure are all the relevant files needed.
 

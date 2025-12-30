@@ -43,9 +43,10 @@ In **Module 4**, we will be adding two Redis DBs:<br>
 - Implement an **Event Deduper** backed by `db0` to deduplicate events so we ensure **always-once** processing and never process any event more than once, ever.
 - Implement a **Greeting News Feed** backed by `db1` to build a Twitter or Facebook-like feed based on greeting events from some `sender` → `receiver`
 
-> [!NOTE]
+> [!IMPORTANT]
 >
-> Redis DB are namespaced by index (not by names) starting at 0, 1, ..., N.
+> Standalone Redis Servers are namespaced by index (not by names) starting at 0, 1, ..., N.<br>
+> BTW, the ideal production set up would be separated clusters per Redis DB, as clusters lock the namespace to only using index `0`, but for ease of learning we can just use the Standalone Redis Server.
 
 <br>
 

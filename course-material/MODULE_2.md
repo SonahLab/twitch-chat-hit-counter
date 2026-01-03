@@ -551,7 +551,8 @@ In `GreetingEventProducer.java`, implement:
 
 #
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `GreetingEventProducerTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `GreetingEventProducerTest.java`
 - [ ] Test with:
@@ -687,7 +688,8 @@ The main goal for now is to simply **log or print** the kafka message that was r
 
 #
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `GreetingEventConsumerTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `GreetingEventConsumerTest.java`
 - [ ] Test with:
@@ -967,7 +969,8 @@ This task will be nearly identical with the previous `GreetingEventConsumer.java
 
 #
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `GreetingEventBatchConsumerTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `GreetingEventBatchConsumerTest.java`
 - [ ] Test with:

@@ -281,7 +281,8 @@ Return a `Long` of the updated value after the key is incremented. If there is a
 
 #
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `RedisDaoTest::incrementTest`
 - [ ] Test with:
@@ -325,7 +326,8 @@ Return a `Long` of the updated value after the key is incremented. If there is a
 
 #
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `RedisDaoTest::incrementByTest`
 - [ ] Test with:
@@ -438,7 +440,8 @@ Return the `String` representation of the stored value. If there is an error thr
 
 #
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `RedisDaoTest::setAndGetTest()`
 - [ ] Test with:
@@ -494,7 +497,8 @@ Return a `Long` of the length of the list **after** the value is appended.
 
 #
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `RedisDaoTest::listAddTest`
 - [ ] Test with:
@@ -541,7 +545,8 @@ Return the `List<String>` stored at the key.
 
 #
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `RedisDaoTest::listGetTest`
 - [ ] Test with:
@@ -589,7 +594,8 @@ Return a `Long` for the count of value(s) successfully added to the set.
 
 #
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `RedisDaoTest::setAddTest`
 - [ ] Test with:
@@ -639,7 +645,8 @@ An error is returned when the value stored at key is not a set.<br>
 
 #
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `RedisDaoTest::setRemoveTest`
 - [ ] Test with:
@@ -685,7 +692,8 @@ Return the `Set<String>` stored at the `key`.
 
 #
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `RedisDaoTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `RedisDaoTest::getSetMembersTest`
 - [ ] Test with:
@@ -859,7 +867,8 @@ Generate a Redis Key from the input `EventType eventType` and `String eventId` p
 
 #
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `EventDeduperRedisServiceTest.java` ─ already implemented with the example(s) above
 - [ ] Remove `@Disabled` in `EventDeduperRedisServiceTest::processEventTest`
 - [ ] Test with:
@@ -902,7 +911,8 @@ Return a `boolean` on if the Redis key already exists in `db0`.<br>
 
 #
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `EventDeduperRedisServiceTest.java` ─ already implemented with the example(s) above
 - [ ] Remove `@Disabled` in `EventDeduperRedisServiceTest::isDupeEventTest`
 - [ ] Test with:
@@ -1096,7 +1106,8 @@ Return a `Long` that represents the length of the List after the `GreetingEvent`
 
 #
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `GreetingRedisServiceTest.java` ─ already implemented with the example(s) above.
 - [ ] Remove `@Disabled` in `GreetingRedisServiceTest::addGreetingToFeedTest`
 - [ ] Test with:
@@ -1219,7 +1230,8 @@ Return the `List<GreetingEvent>` from `db1` stored at the key generated from the
 
 #
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `GreetingRedisServiceTest.java` ─ already implemented with the example(s) above.
 - [ ] Remove `@Disabled` in `GreetingRedisServiceTest::getGreetingFeedTest`
 - [ ] Test with:
@@ -1273,7 +1285,8 @@ Return the `List<GreetingEvent>` from calling `GreetingRedisService.getGreetingF
 
 #
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `RedisRestControllerTest.java` ─ already implemented with the example(s) above.
 - [ ] Remove `@Disabled` in `RedisRestControllerTest.java`
 - [ ] Test with:

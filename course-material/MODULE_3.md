@@ -600,7 +600,7 @@ These methods should all being working together to achieve the expected outputs 
 > **Explanation**: event3.eventId() == "id1" already exists in the table<br>
 
 
-### Integration Tests
+### Unit Tests
 - [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `GreetingSqlServiceTest.java` ─ already implemented to test the example(s) above.
 - [ ] Remove `@Disabled` in `GreetingSqlServiceTest::insertTest`
@@ -805,7 +805,7 @@ This means we should be able to handle writing any number of events to SQL flexi
 
 #
 
-### Integration Tests
+### Unit Tests
 - [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `GreetingSqlServiceTest.java` ─ already implemented with the example(s) above.
 - [ ] Remove `@Disabled` in `GreetingSqlServiceTest::insertBatchTest`

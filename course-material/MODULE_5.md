@@ -563,7 +563,8 @@ This is where our abstract class, `AbstractEventProducer.java`, pays dividends. 
 
 #
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `TwitchChatEventProducerTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Uncomment the entire file (Did this to avoid compile time errors)
 - [ ] Test with:
@@ -1106,7 +1107,8 @@ Return a `boolean` for whether the Redis aggregation happened successfully.
 > }
 > ```
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `TwitchChatAggregationRedisServiceTest.java` ─ already implemented with the example(s) above
 - [ ] Remove `@Disabled` in `TwitchChatAggregationRedisServiceTest::incrementHitCounterTest`
 - [ ] Test with:
@@ -1222,7 +1224,8 @@ Return a `Map<String, Long>` of **ALL** bucketed hit counts for the key in `db2`
 > `1/1` read(s) will return a successful hit.
 
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `TwitchChatAggregationRedisServiceTest.java` ─ already implemented with the example(s) above
 - [ ] Remove `@Disabled` in `TwitchChatAggregationRedisServiceTest::getHitCountsTest`
 - [ ] Test with:

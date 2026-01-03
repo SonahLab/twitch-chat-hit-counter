@@ -246,7 +246,8 @@ Return the `Set` of channel names our ChatBot is connected to.
 
 <br>
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `ChatBotChannelsRedisServiceTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `ChatBotChannelsRedisServiceTest::getJoinedChannelsTest`
 - [ ] Test with:
@@ -290,7 +291,8 @@ Return the `Long` length of the channels `Set` stored at `user#{username}#channe
 
 <br>
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `ChatBotChannelsRedisServiceTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `ChatBotChannelsRedisServiceTest::addChannelsTest`
 - [ ] Test with:
@@ -351,7 +353,8 @@ Return the `Long` length of the channels `Set` stored at `user#{username}#channe
 
 #
 
-### Integration Tests
+### Unit Tests
+- [ ] Verify that **Docker Desktop** is running.
 - [ ] Open `ChatBotChannelsRedisServiceTest.java` ─ already implemented test cases with the example(s) above.
 - [ ] Remove `@Disabled` in `ChatBotChannelsRedisServiceTest::removeChannelsTest`
 - [ ] Test with:

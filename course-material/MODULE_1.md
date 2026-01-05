@@ -269,7 +269,7 @@ Return a `String` to greet the `name` passed in.
 > $ curl -X GET "http://localhost:8080/api/greeting/hello?name="
 > ```
 > 
-> **Output**: `Hello, Stranger!`
+> **Output**: `Hello, stranger!`
 > 
 > **Explanation**: no `name` parameter is provided (only whitespace), so the greeting should address `"stranger"`
 

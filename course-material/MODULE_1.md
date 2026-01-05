@@ -239,7 +239,9 @@ For `Module 1`, the below file structure are all the relevant files needed.
 <br>
 
 ## Exercise 1: Greeting API
-![](assets/module1/images/greetings.png)<br>
+<img src="assets/module1/images/greetings.svg" alt="Alt text" style="display: block; margin: auto;">
+
+[//]: # (![]&#40;assets/module1/images/greetings.svg&#41;<br>)
 ![](assets/module1/images/greetingController.svg)<br>
 
 In `GreetingRestController.java`, implement `public String sayHello(@RequestParam(required = false) String name)`.<br>

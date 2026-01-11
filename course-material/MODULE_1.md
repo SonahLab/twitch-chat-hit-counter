@@ -249,7 +249,11 @@ Return a `String` to greet the `name` passed in.
 
 **Requirements:**<br>
 1. Greeting response template: `"Hello, {name}!"`.
-2. If `name` parameter isn't provided, greet a `stranger`.
+2. If the `name` parameter is not valid, greet a `stranger`.<br>
+   An **invalid name** is:
+   1. an empty String
+   2. String with only whitespaces
+   3. null value
 
 <br>
 

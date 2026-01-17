@@ -12,8 +12,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GameCharacterTest {
     @Test
     @Tag("Module1")
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 1 Exercise 2.
-    @Disabled
     public void initTest() {
         GameCharacter character = new GameCharacter();
         Assertions.assertEquals(100, character.getStat(Stat.HP), "Default HP should be 100");
@@ -40,12 +38,10 @@ public class GameCharacterTest {
 
     @Test
     @Tag("Module1")
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 1 Exercise 2.
-    @Disabled
     public void takeDamageTest() {
         GameCharacter character = new GameCharacter();
-        Assertions.assertEquals(50, character.takeDamage(50), "Example 1 failed");
-        Assertions.assertEquals(0, character.takeDamage(110), "Example 2 failed");
+        Assertions.assertEquals(50, character.takeDamage(50));
+        Assertions.assertEquals(0, character.takeDamage(110));
     }
 
     @Test

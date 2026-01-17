@@ -696,7 +696,7 @@ Return an `int` of the updated character `HP`/`MP` int after consuming a potion,
 #
 
 ### Example 3:
-> ![](assets/module1/images/consumePotion_MP_25.jpg)
+> ![](assets/module1/images/consumePotion_MP_25.svg)
 > 
 > **Input**:
 > ```java

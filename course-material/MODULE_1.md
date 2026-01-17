@@ -682,14 +682,14 @@ Return an `int` of the updated character `HP`/`MP` int after consuming a potion,
 > **Input**:
 > ```java
 > GameCharacter character = new GameCharacter();
-> character.setHp(75);
+> character.setHp(99);
 > int output = character.consumePotion(Potion.HP_POTION);
 > ```
 > 
 > **Output**: `100`
 > 
-> **Explanation**: HP=75 before consuming an `HP_Potion`. After consuming, they have:<br>
-> `75 (current HP) + 50 (potion bonus) = 125HP (capped at 100)`.
+> **Explanation**: HP=99 before consuming an `HP_Potion`. After consuming, they have:<br>
+> `99 (current HP) + 50 (potion bonus) = 149HP (capped at 100)`.
 
 <br>
 
@@ -707,7 +707,7 @@ Return an `int` of the updated character `HP`/`MP` int after consuming a potion,
 > 
 > **Output**: `75`
 > 
-> **Explanation**: MP=75 before consuming an `MP_Potion`. After consuming, they have:<br>
+> **Explanation**: MP=25 before consuming an `MP_Potion`. After consuming, they have:<br>
 > `25 (current MP) + 50 (potion bonus) = 75MP`.
 
 <br>
@@ -747,7 +747,7 @@ Return an `int` of the updated character `HP`/`MP` int after consuming a potion,
 > int output = character.consumePotion(Potion.HP_POTION);
 > Map<Potion, Integer> output2 = character.getInventory();
 > ```
-> **Output1**: `100`<br>
+> **Output1**: `75`<br>
 > **Explanation**: HP=25 before we consume the last `HP_Potion`, after consuming it we have 25 (current HP) + 50 (potion bonus) = 75.
 >
 > **Output2**:
@@ -763,7 +763,7 @@ Return an `int` of the updated character `HP`/`MP` int after consuming a potion,
 #
 
 ### Example 6:
-> ![](assets/module1/images/consumePotion_Error.jpg)
+> ![](assets/module1/images/consumePotion_Error.svg)
 >
 > **Input**:
 > ```java

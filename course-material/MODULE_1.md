@@ -658,7 +658,7 @@ Return an `int` of the updated character `HP`/`MP` int after consuming a potion,
 #
 
 ### Example 1:
-> ![](assets/module1/images/consumePotion_HP_25.jpg)
+> ![](assets/module1/images/consumePotion_HP_25.svg)
 > 
 > **Input**:
 > ```java
@@ -677,7 +677,7 @@ Return an `int` of the updated character `HP`/`MP` int after consuming a potion,
 #
 
 ### Example 2:
-> ![](assets/module1/images/consumePotion_HP_99.jpg)
+> ![](assets/module1/images/consumePotion_HP_99.svg)
 > 
 > **Input**:
 > ```java
@@ -715,7 +715,7 @@ Return an `int` of the updated character `HP`/`MP` int after consuming a potion,
 #
 
 ### Example 4:
-> ![](assets/module1/images/consumePotion_MP_99.jpg)
+> ![](assets/module1/images/consumePotion_MP_99.svg)
 > 
 > **Input**:
 > ```java
@@ -734,7 +734,7 @@ Return an `int` of the updated character `HP`/`MP` int after consuming a potion,
 #
 
 ### Example 5:
-> ![](assets/module1/images/consumePotion_Remove.jpg)
+> ![](assets/module1/images/consumePotion_Remove.svg)
 > 
 > **Input**:
 > ```java
@@ -811,7 +811,7 @@ Return a `Map<String, Object>` representing the entire character's current state
 #
 
 ### Example 1:
-> ![](assets/module1/images/characterState.jpg)
+> ![](assets/module1/images/characterState.svg)
 > 
 > **Input**:
 > ```java

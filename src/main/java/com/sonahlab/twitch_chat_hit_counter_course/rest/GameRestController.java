@@ -29,7 +29,7 @@ public class GameRestController {
     // Constructor
     public GameRestController() {
         /**
-         * TODO: Implement as part of Module 1
+         * TODO: Implement as part of Module 0
          * */
     }
 
@@ -47,7 +47,7 @@ public class GameRestController {
     @PutMapping("/takeDamage")
     public int takeDamage(@RequestParam(name = "damage") int damage) {
         /**
-         * TODO: Implement as part of Module 1 Exercise 2.
+         * TODO: Implement as part of Module 0 Exercise 2.
          * */
         return -1;
     }
@@ -68,7 +68,7 @@ public class GameRestController {
     @PutMapping("/consumePotion")
     public int consumePotion(@RequestParam(name = "potionName") String potionName) {
         /**
-         * TODO: Implement as part of Module 1 Exercise 2.
+         * TODO: Implement as part of Module 0 Exercise 2.
          * */
         return -1;
     }
@@ -86,7 +86,7 @@ public class GameRestController {
     @GetMapping("/characterState")
     public Map<String, Object> getCharacterState() {
         /**
-         * TODO: Implement as part of Module 1 Exercise 2.
+         * TODO: Implement as part of Module 0 Exercise 2.
          * */
         return null;
     }

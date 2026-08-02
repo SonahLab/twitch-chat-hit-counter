@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 /**
- * DTO to represent a simple GameCharacter object to be used in Module 1, Exercise 2.
+ * DTO to represent a simple GameCharacter object to be used in Module 0, Exercise 2.
  *
  * This class will handle any state changes for the underlying HP, MP, and inventory fields.
  * */
@@ -15,7 +15,7 @@ public class GameCharacter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GameCharacter.class);
 
     /**
-     * TODO: Implement as part of Module 1 Exercise 2.
+     * TODO: Implement as part of Module 0 Exercise 2.
      *
      * Data Model requirements:
      * 1. Stat.HP (int): Character's health points (between 0 and 100)

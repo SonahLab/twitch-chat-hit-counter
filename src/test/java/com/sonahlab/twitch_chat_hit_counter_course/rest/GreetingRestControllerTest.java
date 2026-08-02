@@ -12,8 +12,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(GreetingRestController.class)
-@Tag("Module1")
-// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 1.
+@Tag("Module0")
+// TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 0.
 @Disabled
 public class GreetingRestControllerTest {
 

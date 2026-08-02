@@ -40,7 +40,7 @@ public class GreetingRestController {
     @Operation(summary = "Say Hello", description = "Returns a greeting message")
     public String sayHello(@RequestParam(name = "name", required = false) String name) {
         /**
-         * TODO: Implement as part of Module 1 Exercise 1.
+         * TODO: Implement as part of Module 0 Exercise 1.
          * */
         return null;
     }

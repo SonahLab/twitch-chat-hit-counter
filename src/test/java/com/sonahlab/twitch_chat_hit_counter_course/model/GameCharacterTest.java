@@ -11,8 +11,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class GameCharacterTest {
     @Test
-    @Tag("Module1")
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 1 Exercise 2.
+    @Tag("Module0")
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 0 Exercise 2.
     @Disabled
     public void initTest() {
         GameCharacter character = new GameCharacter();
@@ -39,8 +39,8 @@ public class GameCharacterTest {
     }
 
     @Test
-    @Tag("Module1")
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 1 Exercise 2.
+    @Tag("Module0")
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 0 Exercise 2.
     @Disabled
     public void takeDamageTest() {
         GameCharacter character = new GameCharacter();
@@ -49,8 +49,8 @@ public class GameCharacterTest {
     }
 
     @Test
-    @Tag("Module1")
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 1 Exercise 2.
+    @Tag("Module0")
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 0 Exercise 2.
     @Disabled
     public void consumePotionTest() {
         GameCharacter character = new GameCharacter();
@@ -96,8 +96,8 @@ public class GameCharacterTest {
     }
 
     @Test
-    @Tag("Module1")
-    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 1 Exercise 2.
+    @Tag("Module0")
+    // TODO: remove the @Disabled annotation once you're ready to test the implementation of Module 0 Exercise 2.
     @Disabled
     public void getCharacterStateTest() {
         GameCharacter character = new GameCharacter();

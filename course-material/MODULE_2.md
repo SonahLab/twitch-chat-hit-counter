@@ -121,7 +121,7 @@ In a large scale organization where many teams and systems are interconnected, d
 
 ## Objective
 ![](assets/module2/images/Module2_Overview.svg)<br>
-**Module 1** was a brief overview of HTTP requests as the backbone of one of the most common communication protocol between applications.
+**Module 0** was a brief overview of HTTP requests as the backbone of one of the most common communication protocol between applications.
 
 **Module 2** is all about Apache Kafka.
 

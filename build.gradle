@@ -43,7 +43,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.junit.jupiter:junit-jupiter-api:5.11.0'
 
-    // Module 1: Swagger UI
+    // Module 0: Swagger UI
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'
     runtimeOnly 'org.jetbrains.kotlin:kotlin-reflect:2.1.0'
 
@@ -78,7 +78,7 @@ tasks.named('test') {
 test {
     useJUnitPlatform {
         // Allows for individual module unit testing using @Tag("moduleX")
-        // Example usage: ./gradlew test --tests "*" -Ptags=Module1
+        // Example usage: ./gradlew test --tests "*" -Ptags=Module0
         if (project.hasProperty("tags")) {
             includeTags project.tags
         }

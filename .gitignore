@@ -35,3 +35,4 @@ out/
 **/classes
 
 .DS_Store
+src/main/resources/twitch-key.properties
